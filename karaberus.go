@@ -55,7 +55,7 @@ func getFilePath(fileID uuid.UUID) string {
 }
 
 func saveFile(fd multipart.File) (*uuid.UUID, error) {
-	buf := make([]byte, 4*1024*1024)  // 4MiB
+	buf := make([]byte, 4*1024*1024) // 4MiB
 	filesdir := FILES_DIR
 
 	err := os.MkdirAll(filesdir, os.ModePerm)
