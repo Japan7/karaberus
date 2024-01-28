@@ -3,7 +3,7 @@ module karaberus
 go 1.21.6
 
 require (
-	github.com/danielgtaylor/huma/v2 v2.2.0
+	github.com/danielgtaylor/huma/v2 v2.3.0
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/uuid v1.3.1
 )
@@ -22,7 +22,7 @@ require (
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
@@ -40,7 +40,7 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
