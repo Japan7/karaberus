@@ -5,7 +5,7 @@ go 1.21.6
 require (
 	github.com/danielgtaylor/huma/v2 v2.3.0
 	github.com/gofiber/fiber/v2 v2.52.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 )
 
 require (
