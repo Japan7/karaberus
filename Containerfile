@@ -4,7 +4,10 @@ RUN apk add go pkgconf clang llvm lld
 
 COPY . /karaberus
 
-RUN cd /karaberus && CGO_ENABLED=1 CC=clang go build -o build/ .
+RUN cd /karaberus && \
+    export CGO_ENABLED=1 && \
+    export CC=clang && \
+    go build -buildmode=pie -ldflags '-linkmode=external -s' -o build/ .
 
 FROM alpine
 
