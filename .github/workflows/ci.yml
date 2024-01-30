@@ -57,7 +57,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           platforms: ${{ matrix.config.platform }}
-          image: ${{ env.IMAGE_NAME }}-${{ matrix.config.arch }}
+          image: ${{ env.IMAGE_NAME }}
           tags: ${{ github.sha }}-${{ matrix.config.arch }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
