@@ -1,5 +1,5 @@
 #!/bin/sh -x
-pkgs="musl-devel meson clang clang-rt-devel llvm-devel-static git lld go pkgconf"
+pkgs="musl-devel meson clang clang-rt-devel git lld go pkgconf"
 if [ "$ARCH" != x86_64 ]; then
     pkgs="$pkgs base-cross-$ARCH"
     export CC=$ARCH-chimera-linux-musl-clang
