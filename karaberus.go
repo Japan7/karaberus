@@ -38,7 +38,7 @@ type UploadInput struct {
 }
 
 func getEnvDefault(name string, defaultValue string) string {
-	envVar := os.Getenv("KARAINC_" + name)
+	envVar := os.Getenv("KARABERUS_" + name)
 	if envVar != "" {
 		return envVar
 	}
