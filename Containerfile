@@ -4,4 +4,4 @@ RUN apk add go pkgconf
 
 COPY . /karaberus
 
-RUN cd /karaberus && go build -o build/ .
+RUN cd /karaberus && CGO_ENABLED=1 go build -o build/ .
