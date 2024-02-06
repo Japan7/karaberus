@@ -108,6 +108,10 @@ jobs:
           podman manifest add $image_base ${{ env.REGISTRY }}/$image_base_sha-x86_64
           podman manifest add $image_base ${{ env.REGISTRY }}/$image_base_sha-aarch64
           podman manifest push $image_base ${{ env.REGISTRY }}/$image_base_sha
+
+      - name: push branch manifest
+        if: github.event_name == 'push'
+        run: |
           podman manifest push $image_base ${{ env.REGISTRY }}/$image_base:${{ github.ref_name }}
 
 
