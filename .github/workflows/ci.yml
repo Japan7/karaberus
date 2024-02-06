@@ -112,6 +112,8 @@ jobs:
       - name: push branch manifest
         if: github.event_name == 'push'
         run: |
+          image_base_raw=${{ env.IMAGE_NAME }}
+          image_base=${image_base_raw@L}
           podman manifest push $image_base ${{ env.REGISTRY }}/$image_base:${{ github.ref_name }}
 
 
