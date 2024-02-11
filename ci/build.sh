@@ -15,6 +15,6 @@ export PKG_CONFIG_PATH=$SYSROOT/usr/lib/pkgconfig
 export CGO_ENABLED=1
 export GOARCH=$GOARCH
 export GOOS=linux
-#export CGO_CFLAGS="-print-search-dirs"
+export CGO_CFLAGS="-fPIE -O3 -Wall -Wextra"
 
-go build -ldflags '-linkmode=external -s' -o build/ .
+go build -buildmode=pie -trimpath -ldflags '-linkmode=external -s' -o build/ .
