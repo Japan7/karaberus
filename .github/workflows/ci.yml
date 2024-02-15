@@ -2,7 +2,7 @@ name: Build and push image
 
 on:
   push:
-    branches: ["master"]
+    branches: ["master", "renovate/*"]
   pull_request:
     branches: ["master"]
 
@@ -28,7 +28,7 @@ jobs:
         config:
           - arch: x86_64
             goarch: amd64
-            sysroot: ''
+            sysroot: ""
             platform: linux/amd64
           - arch: aarch64
             goarch: arm64
@@ -110,10 +110,8 @@ jobs:
           podman manifest push $image_base ${{ env.REGISTRY }}/$image_base_sha
 
       - name: push branch manifest
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/master'
         run: |
           image_base_raw=${{ env.IMAGE_NAME }}
           image_base=${image_base_raw@L}
           podman manifest push $image_base ${{ env.REGISTRY }}/$image_base:${{ github.ref_name }}
-
-
