@@ -1,6 +1,6 @@
 FROM ghcr.io/japan7/dakara_check:master as dakara_check
 
-FROM ghcr.io/odrling/chimera-images:main AS builder 
+FROM ghcr.io/odrling/chimera:x86_64 AS builder 
 
 RUN apk add chimera-repo-contrib
 
@@ -14,7 +14,7 @@ COPY . /karaberus
 
 RUN cd /karaberus && ARCH=$ARCH GOARCH=$GOARCH SYSROOT=$SYSROOT ci/build.sh
 
-FROM alpine
+FROM ghcr.io/odrling/chimera
 
 COPY --from=builder /karaberus/build/karaberus /
 ENV KARABERUS_LISTEN_ADDR=":8888"
