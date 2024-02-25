@@ -34,6 +34,10 @@ jobs:
             goarch: arm64
             sysroot: /usr/aarch64-chimera-linux-musl
             platform: linux/arm64
+          - arch: riscv64
+            goarch: riscv64
+            sysroot: /usr/riscv64-chimera-linux-musl
+            platform: linux/riscv64
 
     steps:
       - name: Checkout repository
@@ -105,8 +109,10 @@ jobs:
           podman manifest create $image_base
           podman pull ${{ env.REGISTRY }}/$image_base_sha-x86_64
           podman pull ${{ env.REGISTRY }}/$image_base_sha-aarch64
+          podman pull ${{ env.REGISTRY }}/$image_base_sha-riscv64
           podman manifest add $image_base ${{ env.REGISTRY }}/$image_base_sha-x86_64
           podman manifest add $image_base ${{ env.REGISTRY }}/$image_base_sha-aarch64
+          podman manifest add $image_base ${{ env.REGISTRY }}/$image_base_sha-riscv64
           podman manifest push $image_base ${{ env.REGISTRY }}/$image_base_sha
 
       - name: push branch manifest
