@@ -3,7 +3,7 @@ module karaberus
 go 1.21.7
 
 require (
-	github.com/danielgtaylor/huma/v2 v2.5.0
+	github.com/danielgtaylor/huma/v2 v2.6.0
 	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/google/uuid v1.6.0
 )

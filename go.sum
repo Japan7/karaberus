@@ -3,8 +3,8 @@ github.com/andybalholm/brotli v1.1.0/go.mod h1:sms7XGricyQI9K10gOSf56VKKWS4oLer5
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/danielgtaylor/casing v1.0.0 h1:uX+PewTv0zbXeTluwRwlyPMRQEduVP9svLHpbDsQYkw=
 github.com/danielgtaylor/casing v1.0.0/go.mod h1:eFdYmNxcuLDrRNW0efVoxSaApmvGXfHZ9k2CT/RSUF0=
-github.com/danielgtaylor/huma/v2 v2.5.0 h1:2rgMhwDJq9gdy69Q9l21SaGuPpHNFLx4Kr2+B8lwPxI=
-github.com/danielgtaylor/huma/v2 v2.5.0/go.mod h1:thTZzu8B6XnYSBzppN1nqi+mmINMA/v9boIkMigRcTY=
+github.com/danielgtaylor/huma/v2 v2.6.0 h1:pSENofc3vLr/48RHzgt48xwxdGFTK8hv1AkL0zch5EE=
+github.com/danielgtaylor/huma/v2 v2.6.0/go.mod h1:DHyK1k2u/UqSLgsO5dG1focxyeHg3UUkfB7tti0ZRwc=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
