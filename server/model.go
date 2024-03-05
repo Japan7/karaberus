@@ -50,14 +50,14 @@ var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
 
 // Video tags
 var (
-	VideoTypeOpening         VideoType = VideoType{Type: "Opening", Value: 1}
-	VideoTypeEnding          VideoType = VideoType{Type: "Ending", Value: 2}
-	VideoTypeInsert          VideoType = VideoType{Type: "Insert", Value: 3}
-	VideoTypeAnimeMusicVideo VideoType = VideoType{Type: "Anime Music Video", Value: 4}
-	VideoTypeStream          VideoType = VideoType{Type: "Stream", Value: 5}
-	VideoTypeConcert         VideoType = VideoType{Type: "Concert", Value: 6}
-	VideoTypeMusicVideo      VideoType = VideoType{Type: "Promotional Video", Value: 7}
-	VideoTypeAdvertisement   VideoType = VideoType{Type: "Advertisement", Value: 8}
+	VideoTypeOpening       VideoType = VideoType{Type: "Opening", Value: 1}
+	VideoTypeEnding        VideoType = VideoType{Type: "Ending", Value: 2}
+	VideoTypeInsert        VideoType = VideoType{Type: "Insert", Value: 3}
+	VideoTypeFanmade       VideoType = VideoType{Type: "Fanmade", Value: 4}
+	VideoTypeStream        VideoType = VideoType{Type: "Stream", Value: 5}
+	VideoTypeConcert       VideoType = VideoType{Type: "Concert", Value: 6}
+	VideoTypeMusicVideo    VideoType = VideoType{Type: "Promotional Video", Value: 7}
+	VideoTypeAdvertisement VideoType = VideoType{Type: "Advertisement", Value: 8}
 )
 
 var VideoTypes []VideoType = []VideoType{
@@ -65,7 +65,7 @@ var VideoTypes []VideoType = []VideoType{
 	VideoTypeEnding,
 	VideoTypeInsert,
 	VideoTypeMusicVideo,
-	VideoTypeAnimeMusicVideo,
+	VideoTypeFanmade,
 	VideoTypeConcert,
 	VideoTypeAdvertisement,
 }

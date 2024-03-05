@@ -48,7 +48,8 @@ Video tags currently defined:
 * Opening: The video is an opening video of the source media
 * Ending: The video is an ending video of the source media
 * Insert: The video is an insert video in the source media
-* AnimeMusicVideo: The video is a fan-made anime edit for the song (that might not be a necessary tag?)
+* Music Video: The video is specifically made for the song
+* Fanmade: The video is fanmade
 * Stream: The video comes from a stream
 * Concert: The video is taken from a live concert
 * Advertisement: The video is an ad
