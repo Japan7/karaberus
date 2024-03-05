@@ -70,12 +70,13 @@ var VideoTypes []VideoType = []VideoType{
 	VideoTypeAdvertisement,
 }
 
-// Music tags
+// Audio tags
 var (
 	AudioTypeOpening AudioType = AudioType{Type: "Opening", Value: 1}
 	AudioTypeEnding  AudioType = AudioType{Type: "Ending", Value: 2}
 	AudioTypeInsert  AudioType = AudioType{Type: "Insert", Value: 3}
 	AudioTypeLive    AudioType = AudioType{Type: "Live", Value: 4}
+	AudioTypeCover   AudioType = AudioType{Type: "Cover", Value: 5}
 )
 
 var AudioTypes []AudioType = []AudioType{

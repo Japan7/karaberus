@@ -64,6 +64,7 @@ Audio tags currently defined:
 * **Ending**: The audio is an ending song of the source media
 * **Insert**: The audio is an insert song of the source media
 * **Live**: The audio is a live interpretation of the song
+* **Cover**: The audio is a cover of the original song
 
 
 # Transition from dakaraneko
