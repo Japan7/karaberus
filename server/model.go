@@ -9,7 +9,8 @@ type KaraberusType struct {
 
 type TagType KaraberusType
 type MediaType KaraberusType
-type KaraType KaraberusType
+type VideoType KaraberusType
+type AudioType KaraberusType
 
 // Tags
 var (
@@ -47,25 +48,41 @@ type MediaDB struct {
 
 var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
 
-// Kara types
+// Video tags
 var (
-	KaraTypeOpening          KaraType = KaraType{Type: "Opening", Value: 1}
-	KaraTypePromotionalVideo KaraType = KaraType{Type: "Promotional Video", Value: 2}
-	KaraTypeEnding           KaraType = KaraType{Type: "Ending", Value: 3}
-	KaraTypeInsert           KaraType = KaraType{Type: "Insert", Value: 4}
-	KaraTypeImageSong        KaraType = KaraType{Type: "Image Song", Value: 5}
-	KaraTypeAnimeMusicVideo  KaraType = KaraType{Type: "Anime Music Video", Value: 6}
-	KaraTypeLive             KaraType = KaraType{Type: "Live", Value: 7}
+	VideoTypeOpening         VideoType = VideoType{Type: "Opening", Value: 1}
+	VideoTypeEnding          VideoType = VideoType{Type: "Ending", Value: 2}
+	VideoTypeInsert          VideoType = VideoType{Type: "Insert", Value: 3}
+	VideoTypeAnimeMusicVideo VideoType = VideoType{Type: "Anime Music Video", Value: 4}
+	VideoTypeStream          VideoType = VideoType{Type: "Stream", Value: 5}
+	VideoTypeConcert         VideoType = VideoType{Type: "Concert", Value: 6}
+	VideoTypeMusicVideo      VideoType = VideoType{Type: "Promotional Video", Value: 7}
+	VideoTypeAdvertisement   VideoType = VideoType{Type: "Advertisement", Value: 8}
 )
 
-var KaraTypes []KaraType = []KaraType{
-	KaraTypeOpening,
-	KaraTypePromotionalVideo,
-	KaraTypeEnding,
-	KaraTypeInsert,
-	KaraTypeImageSong,
-	KaraTypeAnimeMusicVideo,
-	KaraTypeLive,
+var VideoTypes []VideoType = []VideoType{
+	VideoTypeOpening,
+	VideoTypeEnding,
+	VideoTypeInsert,
+	VideoTypeMusicVideo,
+	VideoTypeAnimeMusicVideo,
+	VideoTypeConcert,
+	VideoTypeAdvertisement,
+}
+
+// Music tags
+var (
+	AudioTypeOpening AudioType = AudioType{Type: "Opening", Value: 1}
+	AudioTypeEnding  AudioType = AudioType{Type: "Ending", Value: 2}
+	AudioTypeInsert  AudioType = AudioType{Type: "Insert", Value: 3}
+	AudioTypeLive    AudioType = AudioType{Type: "Live", Value: 4}
+)
+
+var AudioTypes []AudioType = []AudioType{
+	AudioTypeOpening,
+	AudioTypeEnding,
+	AudioTypeInsert,
+	AudioTypeLive,
 }
 
 type AdditionalName struct {
@@ -124,8 +141,8 @@ func getMedia(name string, media_type_str string) MediaDB {
 	return media
 }
 
-func getKaraType(kara_type string) KaraType {
-	for _, v := range KaraTypes {
+func getKaraType(kara_type string) VideoType {
+	for _, v := range VideoTypes {
 		if v.Type == kara_type {
 			return v
 		}
