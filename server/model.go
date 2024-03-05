@@ -58,6 +58,7 @@ var (
 	VideoTypeConcert       VideoType = VideoType{Type: "Concert", Value: 6}
 	VideoTypeMusicVideo    VideoType = VideoType{Type: "Promotional Video", Value: 7}
 	VideoTypeAdvertisement VideoType = VideoType{Type: "Advertisement", Value: 8}
+	VideoTypeTrailer       VideoType = VideoType{Type: "Trailer", Value: 9}
 )
 
 var VideoTypes []VideoType = []VideoType{
