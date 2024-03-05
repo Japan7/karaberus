@@ -1,8 +1,0 @@
-
-Transition from dakaraneko:
-
-* Episode tag (EP) → Version: it is more obvious in the interface anyway
-* VTITLE = VIDEO: feeds the same details in dakara
-* VTITLE → Alternative title
-* VIDEO → Comment, ideally a source tag for some cases (?)
-* AMV details tag: feed into anime
