@@ -45,14 +45,14 @@ Media tags have:
 Tags related to the video.
 
 Video tags currently defined:
-* Opening: The video is an opening video of the source media
-* Ending: The video is an ending video of the source media
-* Insert: The video is an insert video in the source media
-* Music Video: The video is specifically made for the song
-* Fanmade: The video is fanmade
-* Stream: The video comes from a stream
-* Concert: The video is taken from a live concert
-* Advertisement: The video is an ad
+* **Opening**: The video is an opening video of the source media
+* **Ending**: The video is an ending video of the source media
+* **Insert**: The video is an insert video in the source media
+* **Music Video**: The video is specifically made for the song
+* **Fanmade**: The video is fanmade
+* **Stream**: The video comes from a stream
+* **Concert**: The video is taken from a live concert
+* **Advertisement**: The video is an ad
 
 
 ## Audio tags
@@ -60,10 +60,10 @@ Video tags currently defined:
 Tags related to the audio.
 
 Audio tags currently defined:
-* Opening: The audio is an opening song of the source media
-* Ending: The audio is an ending song of the source media
-* Insert: The audio is an insert song of the source media
-* Live: The audio is a live interpretation of the song
+* **Opening**: The audio is an opening song of the source media
+* **Ending**: The audio is an ending song of the source media
+* **Insert**: The audio is an insert song of the source media
+* **Live**: The audio is a live interpretation of the song
 
 
 # Transition from dakaraneko
