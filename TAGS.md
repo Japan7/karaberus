@@ -64,3 +64,13 @@ Audio tags currently defined:
 * Ending: The audio is an ending song of the source media
 * Insert: The audio is an insert song of the source media
 * Live: The audio is a live interpretation of the song
+
+
+# Transition from dakaraneko
+
+* Episode tag (EP) → Version: it is more obvious in the interface anyway
+* VTITLE = VIDEO: feeds the same details in dakara
+* VTITLE → Alternative title
+* VIDEO → Comment, ideally a source tag for some cases (?)
+* AMV details tag: feed into media source
+* AMV tag → Fanmade + Music Video
