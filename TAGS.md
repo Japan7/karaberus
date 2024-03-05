@@ -53,6 +53,7 @@ Video tags currently defined:
 * **Stream**: The video comes from a stream
 * **Concert**: The video is taken from a live concert
 * **Advertisement**: The video is an ad
+* **Trailer**: The video is a trailer for something
 
 
 ## Audio tags
