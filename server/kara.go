@@ -18,7 +18,8 @@ type KaraInfo struct {
 	Authors     []string `json:"authors" example:"[\"odrling\"]"`
 	Artists     []string `json:"artists" example:"[\"Yoko Takahashi\"]"`
 	Medias      []Media  `json:"medias"`
-	Types       []string `json:"types" example:"[\"OP\"]"`
+	AudioTags   []string `json:"audio_tags" example:"[\"Opening\"]"`
+	VideoTags   []string `json:"video_tags" example:"[\"Opening\"]"`
 	Comment     string   `json:"comment" example:"From https://youtu.be/dQw4w9WgXcQ"`
 	SongOrder   int      `json:"song_order" example:"0"`
 }
@@ -52,11 +53,18 @@ func makeTags(info KaraInfo) []Tag {
 		media_i++
 	}
 
-	kara_types := make([]KaraType, len(info.Types))
-	kt_i := 0
-	for _, kara_type := range info.Types {
-		kara_types[kt_i] = getKaraType(kara_type)
-		kt_i++
+	video_tags := make([]VideoType, len(info.VideoTags))
+	vt_i := 0
+	for _, video_type := range info.VideoTags {
+		video_tags[vt_i] = getVideoTag(video_type)
+		vt_i++
+	}
+
+	audio_tags := make([]AudioType, len(info.AudioTags))
+	at_i := 0
+	for _, audio_type := range info.AudioTags {
+		audio_tags[at_i] = getAudioTag(audio_type)
+		at_i++
 	}
 
 	return tags
