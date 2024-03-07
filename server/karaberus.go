@@ -50,13 +50,16 @@ func routes(api huma.API) {
 		},
 	}, UploadKaraFile)
 
-	huma.Register(api, huma.Operation{
-		OperationID: "create_kara",
-		Summary:     "Create karaoke",
-		Method:      http.MethodPost,
-		Path:        "/kara",
-	}, CreateKara)
+	huma.Post(api, "/kara", CreateKara)
 
+	huma.Get(api, "/tags/audio", GetAudioTags)
+	huma.Get(api, "/tags/video", GetVideoTags)
+
+	huma.Get(api, "/tags/artist/{id}", GetArtist)
+	huma.Post(api, "/tags/artist", CreateArtist)
+
+	huma.Get(api, "/tags/author/{id}", GetAuthor)
+	huma.Post(api, "/tags/author", CreateAuthor)
 }
 
 func RunKaraberus() {

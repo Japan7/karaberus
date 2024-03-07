@@ -1,6 +1,10 @@
 package server
 
-import "gorm.io/gorm"
+import (
+	"context"
+
+	"gorm.io/gorm"
+)
 
 type KaraberusType struct {
 	Type  string
@@ -14,21 +18,20 @@ type AudioType KaraberusType
 
 // Tags
 var (
-	KaraTagTitle      TagType = TagType{Type: "Title", Value: 1}
-	KaraTagVideoTitle TagType = TagType{Type: "Video Title", Value: 2}
-	KaraTagAuthor     TagType = TagType{Type: "Author", Value: 3}
-	KaraTagArtist     TagType = TagType{Type: "Artist", Value: 4}
-	KaraTagVersion    TagType = TagType{Type: "Version", Value: 5}
+	KaraTagTitle   TagType = TagType{Type: "Title", Value: 1}
+	KaraTagAuthor  TagType = TagType{Type: "Author", Value: 2}
+	KaraTagArtist  TagType = TagType{Type: "Artist", Value: 3}
+	KaraTagVersion TagType = TagType{Type: "Version", Value: 4}
 )
 
 var TagTypes []TagType = []TagType{
-	KaraTagTitle, KaraTagVideoTitle, KaraTagAuthor, KaraTagArtist, KaraTagVersion,
+	KaraTagTitle, KaraTagAuthor, KaraTagArtist, KaraTagVersion,
 }
 
 type Tag struct {
 	gorm.Model
 	Name            string           `gorm:"unique_index:idx_name_type"`
-	Type            TagType          `gorm:"unique_index:idx_name_type" minimum:"1" maximum:"5"`
+	Type            TagType          `gorm:"unique_index:idx_name_type"`
 	AdditionalNames []AdditionalName `gorm:"many2many:tags_additional_name"`
 }
 
@@ -43,7 +46,7 @@ var (
 type MediaDB struct {
 	gorm.Model
 	Name string `json:"name" example:"Shinseiki Evangelion"`
-	Type uint   `json:"media_type" example:"1" minimum:"1" maximum:"4"`
+	Type uint   `json:"media_type" example:"1"`
 }
 
 var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
@@ -143,12 +146,32 @@ func getMedia(name string, media_type_str string) MediaDB {
 	return media
 }
 
-func getKaraType(kara_type string) VideoType {
+func getVideoTag(video_type string) VideoType {
 	for _, v := range VideoTypes {
-		if v.Type == kara_type {
+		if v.Type == video_type {
 			return v
 		}
 	}
 
-	panic("unknown kara type " + kara_type)
+	panic("unknown kara type " + video_type)
+}
+
+func getAudioTag(audio_type string) AudioType {
+	for _, v := range AudioTypes {
+		if v.Type == audio_type {
+			return v
+		}
+	}
+
+	panic("unknown kara type " + audio_type)
+}
+
+// Public/API functions
+
+func GetVideoTags(ctx context.Context, input *struct{}) (*[]VideoType, error) {
+	return &VideoTypes, nil
+}
+
+func GetAudioTags(ctx context.Context, input *struct{}) (*[]AudioType, error) {
+	return &AudioTypes, nil
 }
