@@ -11,7 +11,7 @@ type GetAuthorInput struct {
 
 type AuthorOutput struct {
 	Body struct {
-		Author Tag
+		Author TimingAuthor
 	}
 }
 
