@@ -21,25 +21,36 @@ type KaraInfo struct {
 	AudioTags   []string `json:"audio_tags" example:"[\"Opening\"]"`
 	VideoTags   []string `json:"video_tags" example:"[\"Opening\"]"`
 	Comment     string   `json:"comment" example:"From https://youtu.be/dQw4w9WgXcQ"`
+	Version     string   `json:"version" example:"iykyk"`
 	SongOrder   int      `json:"song_order" example:"0"`
 }
 
 func (info KaraInfo) count_tags() int {
 	tags := 0
-	tags += len(info.Authors)
 	tags += len(info.Artists)
 
 	return tags
 }
 
-func makeTags(info KaraInfo) []Tag {
-	tags := make([]Tag, info.count_tags())
-	tag_i := 0
+type AllTags struct {
+	Generic []Tag
+	Authors []TimingAuthor
+	Video   []VideoTagDB
+	Audio   []AudioTagDB
+	Media   []MediaDB
+}
+
+func makeTags(info KaraInfo) AllTags {
+	authors := make([]TimingAuthor, len(info.Authors))
+	auth_i := 0
 
 	for _, author_name := range info.Authors {
-		tags[tag_i] = getAuthor(author_name)
-		tag_i++
+		authors[auth_i] = getAuthor(author_name)
+		auth_i++
 	}
+
+	tags := make([]Tag, info.count_tags())
+	tag_i := 0
 
 	for _, artist_name := range info.Artists {
 		tags[tag_i] = getArtist(artist_name)
@@ -53,21 +64,27 @@ func makeTags(info KaraInfo) []Tag {
 		media_i++
 	}
 
-	video_tags := make([]VideoType, len(info.VideoTags))
+	video_tags := make([]VideoTagDB, len(info.VideoTags))
 	vt_i := 0
 	for _, video_type := range info.VideoTags {
 		video_tags[vt_i] = getVideoTag(video_type)
 		vt_i++
 	}
 
-	audio_tags := make([]AudioType, len(info.AudioTags))
+	audio_tags := make([]AudioTagDB, len(info.AudioTags))
 	at_i := 0
 	for _, audio_type := range info.AudioTags {
 		audio_tags[at_i] = getAudioTag(audio_type)
 		at_i++
 	}
 
-	return tags
+	return AllTags{
+		Generic: tags,
+		Authors: authors,
+		Video:   video_tags,
+		Audio:   audio_tags,
+		Media:   medias,
+	}
 }
 
 func makeExtraTitles(info KaraInfo) []AdditionalName {
@@ -83,8 +100,13 @@ func makeExtraTitles(info KaraInfo) []AdditionalName {
 }
 
 func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
+	tags := makeTags(info)
 	return KaraInfoDB{
-		Tags:        makeTags(info),
+		Tags:        tags.Generic,
+		VideoTags:   tags.Video,
+		AudioTags:   tags.Audio,
+		Authors:     tags.Authors,
+		Medias:      tags.Media,
 		Title:       info.Title,
 		ExtraTitles: makeExtraTitles(info),
 		Comment:     info.Comment,
