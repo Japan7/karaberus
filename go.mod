@@ -1,6 +1,6 @@
 module karaberus
 
-go 1.21.7
+go 1.22.1
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.7.0
