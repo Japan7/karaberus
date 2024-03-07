@@ -21,10 +21,6 @@ statically defined in karaberus.
 Tags related to the karaoke in general.
 
 Generic tags include:
-* Titles
-* Video title (needed?)
-* Version (e.g. "Eurobeat version" or anything else)
-* Names of the artists
 * Author of the karaoke timing.
 * Artists involved in the song's creation (not the video, but could be added if needed)
 

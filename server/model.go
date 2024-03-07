@@ -18,14 +18,12 @@ type AudioType KaraberusType
 
 // Tags
 var (
-	KaraTagTitle   TagType = TagType{Type: "Title", Value: 1}
-	KaraTagAuthor  TagType = TagType{Type: "Author", Value: 2}
-	KaraTagArtist  TagType = TagType{Type: "Artist", Value: 3}
-	KaraTagVersion TagType = TagType{Type: "Version", Value: 4}
+	KaraTagAuthor TagType = TagType{Type: "Author", Value: 1}
+	KaraTagArtist TagType = TagType{Type: "Artist", Value: 2}
 )
 
 var TagTypes []TagType = []TagType{
-	KaraTagTitle, KaraTagAuthor, KaraTagArtist, KaraTagVersion,
+	KaraTagAuthor, KaraTagArtist,
 }
 
 type Tag struct {
@@ -100,6 +98,7 @@ type KaraInfoDB struct {
 	Tags        []Tag `gorm:"many2many:kara_info_tags"`
 	Title       string
 	ExtraTitles []AdditionalName `gorm:"many2many:kara_info_additional_name"`
+	Version     string
 	Comment     string
 	SongOrder   int
 }
