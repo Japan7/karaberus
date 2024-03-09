@@ -197,10 +197,18 @@ func getAudioTag(audio_type string) AudioTagDB {
 
 // Public/API functions
 
-func GetVideoTags(ctx context.Context, input *struct{}) (*[]VideoTag, error) {
-	return &VideoTags, nil
+type VideoTagsOutput struct {
+	Body []VideoTag `json:"video_tags"`
 }
 
-func GetAudioTags(ctx context.Context, input *struct{}) (*[]AudioTag, error) {
-	return &AudioTags, nil
+func GetVideoTags(ctx context.Context, input *struct{}) (*VideoTagsOutput, error) {
+	return &VideoTagsOutput{VideoTags}, nil
+}
+
+type AudioTagsOutput struct {
+	Body []AudioTag `json:"audio_tags"`
+}
+
+func GetAudioTags(ctx context.Context, input *struct{}) (*AudioTagsOutput, error) {
+	return &AudioTagsOutput{AudioTags}, nil
 }
