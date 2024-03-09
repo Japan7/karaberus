@@ -35,7 +35,7 @@ var TagTypes []TagType = []TagType{
 type Tag struct {
 	gorm.Model
 	Name            string           `gorm:"unique_index:idx_name_type"`
-	Type            TagType          `gorm:"unique_index:idx_name_type"`
+	Type            uint             `gorm:"unique_index:idx_name_type"`
 	AdditionalNames []AdditionalName `gorm:"many2many:tags_additional_name"`
 }
 
@@ -126,10 +126,10 @@ func init_model() {
 	db.AutoMigrate(&KaraInfoDB{})
 
 	for _, tag := range AudioTags {
-		db.FirstOrCreate(AudioTagDB{ID: tag.Value})
+		db.FirstOrCreate(&AudioTagDB{ID: tag.Value})
 	}
 	for _, tag := range VideoTags {
-		db.FirstOrCreate(VideoTagDB{ID: tag.Value})
+		db.FirstOrCreate(&VideoTagDB{ID: tag.Value})
 	}
 }
 
@@ -137,7 +137,7 @@ func init_model() {
 
 func getTag(name string, tag_type TagType) Tag {
 	tag := Tag{}
-	tx := GetDB().Where(&Tag{Name: name, Type: tag_type}).FirstOrCreate(&tag)
+	tx := GetDB().Where(&Tag{Name: name, Type: tag_type.Value}).FirstOrCreate(&tag)
 	if tx.Error != nil {
 		panic(tx.Error.Error())
 	}
