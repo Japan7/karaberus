@@ -1,19 +1,20 @@
 #!/bin/sh -x
-pkgs="base-devel-static meson clang clang-rt-devel git lld go pkgconf"
 if [ "$ARCH" != x86_64 ]; then
-    pkgs="$pkgs base-cross-$ARCH"
-    export CC=$ARCH-chimera-linux-musl-clang
-    mv $SYSROOT/usr/local/lib/* $SYSROOT/usr/lib/
+    CC=$ARCH-chimera-linux-musl-clang
+    mv "$SYSROOT/usr/local/lib/"* "$SYSROOT/usr/lib/"
 else
-    export CC=clang
+    CC=clang
 fi
 
-set -e
-apk add $pkgs
+export CC
 
-export PKG_CONFIG_PATH=$SYSROOT/usr/lib/pkgconfig
+set -e
+apk add chimera-repo-contrib
+apk add go
+
+export PKG_CONFIG_PATH="$SYSROOT/usr/lib/pkgconfig"
 export CGO_ENABLED=1
-export GOARCH=$GOARCH
+export GOARCH="$GOARCH"
 export GOOS=linux
 export CGO_CFLAGS="-fPIE -O3 -Wall -Wextra"
 

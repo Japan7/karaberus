@@ -1,8 +1,6 @@
 FROM ghcr.io/japan7/dakara_check:master as dakara_check
 
-FROM ghcr.io/odrling/chimera:x86_64 AS builder 
-
-RUN apk add chimera-repo-contrib
+FROM ghcr.io/odrling/chimera:cross AS builder 
 
 ARG ARCH
 ARG GOARCH
