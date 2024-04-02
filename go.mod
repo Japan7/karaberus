@@ -3,13 +3,13 @@ module github.com/Japan7/karaberus
 go 1.22.1
 
 require (
+	github.com/aws/aws-sdk-go v1.51.11
 	github.com/danielgtaylor/huma/v2 v2.11.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.51.11 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -41,5 +41,5 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/sys v0.17.0 // indirect
-	gorm.io/gorm v1.25.7
+	gorm.io/gorm v1.25.9
 )
