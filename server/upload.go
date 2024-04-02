@@ -6,19 +6,12 @@ package server
 // #cgo pkg-config: dakara_check
 // #include <stdlib.h>
 // #include <dakara_check.h>
-//
-// void karaberus_dakara_check_results_free(struct dakara_check_results *res) {
-//   dakara_check_results_free(res);
-// }
-//
 import "C"
 
 import (
 	"context"
-	"io"
 	"log"
 	"mime/multipart"
-	"os"
 	"path/filepath"
 	"unsafe"
 
@@ -27,7 +20,7 @@ import (
 )
 
 type UploadInput struct {
-	FileID uuid.UUID
+	FileID uuid.UUID `path:"kid"`
 }
 
 func getFilePathStr(fileIDStr string) string {
@@ -38,55 +31,9 @@ func getFilePath(fileID uuid.UUID) string {
 	return getFilePathStr(fileID.String())
 }
 
-func saveFile(fd multipart.File) (*uuid.UUID, error) {
-	buf := make([]byte, 4*1024*1024) // 4MiB
-	filesdir := FILES_DIR
-
-	err := os.MkdirAll(filesdir, os.ModePerm)
-	if err != nil {
-		return nil, err
-	}
-
-	fileUUID, err := uuid.NewRandom()
-	if err != nil {
-		return nil, err
-	}
-
-	filepath := filepath.Join(filesdir, fileUUID.String())
-
-	wfd, err := os.Create(filepath)
-	if err != nil {
-		return nil, err
-	}
-	defer wfd.Close()
-
-	for {
-		n, err := fd.Read(buf)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			goto cleanup
-		}
-
-		if n < len(buf) {
-			buf = buf[:n]
-		}
-		_, err = wfd.Write(buf)
-		if err != nil {
-			goto cleanup
-		}
-	}
-
-	return &fileUUID, nil
-
-cleanup:
-	log.Println("cleaning up " + filepath)
-	err = os.Remove(filepath)
-	if err != nil {
-		log.Println(err)
-	}
-	return nil, err
+func saveFile(fd multipart.File, kid uuid.UUID, type_directory string) (error) {
+	filename := filepath.Join(type_directory, "/", kid.String())
+	return UploadToS3(fd, BUCKET_NAME, filename)
 }
 
 func (m *UploadInput) Resolve(ctx huma.Context) []error {
@@ -105,12 +52,10 @@ func (m *UploadInput) Resolve(ctx huma.Context) []error {
 	}
 	defer fd.Close()
 
-	fileid, err := saveFile(fd)
+	err = saveFile(fd, m.FileID, "video")
 	if err != nil {
 		return []error{err}
 	}
-
-	m.FileID = *fileid
 
 	return nil
 }
@@ -135,7 +80,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	cfilepath := C.CString(getFilePath(input.FileID))
 	defer C.free(unsafe.Pointer(cfilepath))
 	dakara_check_results := C.dakara_check(cfilepath, 0)
-	defer C.karaberus_dakara_check_results_free(dakara_check_results)
+	defer C.dakara_check_results_free(dakara_check_results)
 
 	resp.Body.Passed = bool(dakara_check_results.passed)
 	resp.Body.FileID = input.FileID.String()

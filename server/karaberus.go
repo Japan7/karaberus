@@ -16,6 +16,10 @@ import (
 
 var FILES_DIR = getEnvDefault("FILES_DIR", "files")
 var LISTEN_ADDR = getEnvDefault("LISTEN_ADDR", "127.0.0.1:8888")
+var BUCKET_NAME = getEnvDefault("BUCKET_NAME", "karaberus")
+var S3_ENDPOINT = getEnvDefault("S3_ENDPOINT", "")
+var S3_KEYID = getEnvDefault("S3_KEYID", "")
+var S3_SECRET = getEnvDefault("S3_SECRET", "")
 
 func getEnvDefault(name string, defaultValue string) string {
 	envVar := os.Getenv("KARABERUS_" + name)
@@ -40,7 +44,7 @@ func routes(api huma.API) {
 		OperationID: "upload",
 		Summary:     "Upload karaoke file",
 		Method:      http.MethodPost,
-		Path:        "/upload",
+		Path:        "/upload/{kid}",
 		RequestBody: &huma.RequestBody{
 			Content: map[string]*huma.MediaType{
 				"multipart/form-data": {

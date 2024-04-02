@@ -16,13 +16,20 @@ type MediaType KaraberusType
 type VideoTag KaraberusType
 type AudioTag KaraberusType
 
-// Tags
+// Users
+type User struct {
+	gorm.Model
+	Admin bool
+	TimingProfile TimingAuthor
+}
 
 type TimingAuthor struct {
 	gorm.Model
 	Name            string
 	AdditionalNames []AdditionalName `gorm:"many2many:tags_additional_name"`
 }
+
+// Tags
 
 var (
 	KaraTagArtist TagType = TagType{Type: "Artist", Value: 1}
