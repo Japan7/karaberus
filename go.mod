@@ -3,7 +3,7 @@ module github.com/Japan7/karaberus
 go 1.22.1
 
 require (
-	github.com/aws/aws-sdk-go v1.51.13
+	github.com/aws/aws-sdk-go v1.51.14
 	github.com/danielgtaylor/huma/v2 v2.11.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
