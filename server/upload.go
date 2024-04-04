@@ -3,24 +3,17 @@
 
 package server
 
-// #cgo pkg-config: dakara_check
-// #include <stdlib.h>
-// #include <dakara_check.h>
-import "C"
-
 import (
 	"context"
 	"log"
-	"mime/multipart"
 	"path/filepath"
-	"unsafe"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 )
 
 type UploadInput struct {
-	FileID uuid.UUID `path:"kid"`
+	FileID uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
 }
 
 func getFilePathStr(fileIDStr string) string {
@@ -29,11 +22,6 @@ func getFilePathStr(fileIDStr string) string {
 
 func getFilePath(fileID uuid.UUID) string {
 	return getFilePathStr(fileID.String())
-}
-
-func saveFile(fd multipart.File, kid uuid.UUID, type_directory string) (error) {
-	filename := filepath.Join(type_directory, "/", kid.String())
-	return UploadToS3(fd, BUCKET_NAME, filename)
 }
 
 func (m *UploadInput) Resolve(ctx huma.Context) []error {
@@ -52,7 +40,7 @@ func (m *UploadInput) Resolve(ctx huma.Context) []error {
 	}
 	defer fd.Close()
 
-	err = saveFile(fd, m.FileID, "video")
+	err = SaveFileToS3(ctx.Context(), fd, m.FileID, "video")
 	if err != nil {
 		return []error{err}
 	}
@@ -65,24 +53,26 @@ var _ huma.Resolver = (*UploadInput)(nil)
 
 // only used to create the OpenAPI schema
 type UploadInputDef struct {
+	FileID uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
 	File string `json:"file" format:"binary" example:"@file.mkv"`
 }
 
 type UploadOutput struct {
 	Body struct {
 		FileID string `json:"file_id" example:"79d97afe-b2db-4b55-af82-f16b60d8ae77" doc:"file ID"`
-		Passed bool   `json:"passed" example:"true" doc:"true if file passed all checks"`
+		CheckResults CheckS3FileOutput
 	}
 }
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	resp := &UploadOutput{}
-	cfilepath := C.CString(getFilePath(input.FileID))
-	defer C.free(unsafe.Pointer(cfilepath))
-	dakara_check_results := C.dakara_check(cfilepath, 0)
-	defer C.dakara_check_results_free(dakara_check_results)
 
-	resp.Body.Passed = bool(dakara_check_results.passed)
+	res, err := CheckS3File(ctx, input.FileID)
+	if (err != nil) {
+		return nil, err
+	}
+
+	resp.Body.CheckResults = *res
 	resp.Body.FileID = input.FileID.String()
 
 	return resp, nil
