@@ -1,6 +1,6 @@
 module github.com/Japan7/karaberus
 
-go 1.22.2
+go 1.22.1
 
 require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.11
