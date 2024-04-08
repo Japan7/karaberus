@@ -95,9 +95,13 @@ type CheckS3FileOutput struct {
 	Passed bool `json:"passed" example:"true" doc:"true if file passed all checks"`
 }
 
-func CheckS3File(ctx context.Context, kid uuid.UUID) (*CheckS3FileOutput, error) {
+func CheckKara(ctx context.Context, kid uuid.UUID) (*CheckS3FileOutput, error) {
 	// TODO: find all related files to check
 	video_filename := filepath.Join("video/", kid.String())
+	return CheckS3File(ctx, video_filename)
+}
+
+func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput, error) {
 
 	client, err := getS3Client()
 	if err != nil {
@@ -113,7 +117,7 @@ func CheckS3File(ctx context.Context, kid uuid.UUID) (*CheckS3FileOutput, error)
 	)
 
 	fdpipe := C.create_pipe()
-	if (fdpipe == nil) {
+	if fdpipe == nil {
 		return nil, errors.New("failed to create pipe")
 	}
 	defer C.close(fdpipe.fdr)

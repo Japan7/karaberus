@@ -60,14 +60,14 @@ type UploadInputDef struct {
 type UploadOutput struct {
 	Body struct {
 		FileID string `json:"file_id" example:"79d97afe-b2db-4b55-af82-f16b60d8ae77" doc:"file ID"`
-		CheckResults CheckS3FileOutput
+		CheckResults CheckS3FileOutput `json:"check_results"`
 	}
 }
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	resp := &UploadOutput{}
 
-	res, err := CheckS3File(ctx, input.FileID)
+	res, err := CheckKara(ctx, input.FileID)
 	if (err != nil) {
 		return nil, err
 	}
