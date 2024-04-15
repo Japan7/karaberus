@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.11
-	github.com/danielgtaylor/huma/v2 v2.12.0
+	github.com/danielgtaylor/huma/v2 v2.13.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
 )
@@ -41,21 +41,15 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.26.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.11
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
-	github.com/danielgtaylor/casing v1.0.0 // indirect
-	github.com/fxamacker/cbor/v2 v2.6.0 // indirect
 	github.com/glebarez/sqlite v1.11.0
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/spf13/cobra v1.8.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.52.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	gorm.io/gorm v1.25.9
 )
