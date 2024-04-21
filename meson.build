@@ -17,7 +17,6 @@ karaberus_inputs = go_files + karaberus_server_files
 
 go_env = environment()
 go_env.set('CGO_CFLAGS', '-I' + karaberus_tools_path)
-go_env.set('CGO_LDFLAGS', '-L' + meson.current_build_dir())
 
 pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
 go_env.set('PKG_CONFIG_PATH', pkg_config_path)
