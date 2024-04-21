@@ -42,20 +42,7 @@ type AllTags struct {
 
 func makeTags(info KaraInfo) AllTags {
 	authors := make([]TimingAuthor, len(info.Authors))
-	auth_i := 0
-
-	for _, author_name := range info.Authors {
-		authors[auth_i] = getAuthor(author_name)
-		auth_i++
-	}
-
 	tags := make([]Tag, info.count_tags())
-	tag_i := 0
-
-	for _, artist_name := range info.Artists {
-		tags[tag_i] = getArtist(artist_name)
-		tag_i++
-	}
 
 	medias := make([]MediaDB, len(info.Medias))
 	media_i := 0

@@ -14,6 +14,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type KaraberusError struct {
+	Message string
+}
+
+func (m *KaraberusError) Error() string {
+	return m.Message
+}
+
+
 var FILES_DIR = getEnvDefault("FILES_DIR", "files")
 var LISTEN_ADDR = getEnvDefault("LISTEN_ADDR", "127.0.0.1:8888")
 var BUCKET_NAME = getEnvDefault("BUCKET_NAME", "karaberus")
@@ -59,11 +68,9 @@ func routes(api huma.API) {
 	huma.Get(api, "/tags/audio", GetAudioTags)
 	huma.Get(api, "/tags/video", GetVideoTags)
 
-	huma.Get(api, "/tags/artist/{id}", GetArtist)
-	huma.Post(api, "/tags/artist", CreateArtist)
-
-	huma.Get(api, "/tags/author/{id}", GetAuthor)
-	huma.Post(api, "/tags/author", CreateAuthor)
+	huma.Get(api, "/tags/generic/{id}", GetTag)
+	huma.Post(api, "/tags/generic/{tag_type}", CreateTag)
+	huma.Delete(api, "/tags/generic/{id}", DeleteTag)
 }
 
 func RunKaraberus() {

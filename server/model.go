@@ -19,7 +19,7 @@ type AudioTag KaraberusType
 // Users
 type User struct {
 	gorm.Model
-	Admin bool
+	Admin         bool
 	TimingProfile TimingAuthor
 }
 
@@ -32,11 +32,13 @@ type TimingAuthor struct {
 // Tags
 
 var (
-	KaraTagArtist TagType = TagType{Type: "Artist", Value: 1}
+	KaraTagArtist TagType = TagType{Type: "artist", Value: 1}
+	KaraTagAuthor TagType = TagType{Type: "author", Value: 2}
 )
 
 var TagTypes []TagType = []TagType{
 	KaraTagArtist,
+	KaraTagAuthor,
 }
 
 type Tag struct {
@@ -141,24 +143,6 @@ func init_model() {
 }
 
 // Helper functions
-
-func getTag(name string, tag_type TagType) Tag {
-	tag := Tag{}
-	tx := GetDB().Where(&Tag{Name: name, Type: tag_type.Value}).FirstOrCreate(&tag)
-	if tx.Error != nil {
-		panic(tx.Error.Error())
-	}
-	return tag
-}
-
-func getAuthor(author_name string) TimingAuthor {
-	author := TimingAuthor{}
-	tx := GetDB().Where(&TimingAuthor{Name: author_name}).FirstOrCreate(&author)
-	if tx.Error != nil {
-		panic(tx.Error.Error())
-	}
-	return author
-}
 
 func getMediaType(media_type_name string) MediaType {
 	for _, v := range MediaTypes {
