@@ -1,5 +1,7 @@
 # karaberus
 
 ```
-go run .
+meson setup build
+meson compile -C build
 ```
+
