@@ -13,6 +13,21 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: install meson
+        run: "pip install meson"
+
+      - name: install system dependencies
+        run: "sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build"
+
+      - name: Run tests
+        run: "meson setup build && meson compile -C build && meson test -t 100 -C build"
+
   build:
     runs-on: ubuntu-latest
     permissions:
