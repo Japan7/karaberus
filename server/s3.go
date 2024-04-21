@@ -3,43 +3,10 @@
 
 package server
 
-/*
-#cgo pkg-config: dakara_check
-#include <stdlib.h>
-#include <unistd.h>
-#include <dakara_check.h>
-
-const size_t BUFSIZE = 1024*4;
-
-struct fdpipe {
-  int fdr;
-  int fdw;
-};
-
-struct fdpipe *create_pipe(void) {
-  int pipefd[2];
-  if (pipe(pipefd) < 0) {
-    perror("failed to create pipe");
-    return NULL;
-  }
-  struct fdpipe *fdpipe = malloc(sizeof(struct fdpipe));
-  if (fdpipe == NULL)
-    return NULL;
-
-  fdpipe->fdr = pipefd[0];
-  fdpipe->fdw = pipefd[1];
-  return fdpipe;
-}
-
-int read_piped(void *opaque, uint8_t *buf, int n) {
-  int *fd = (int*) opaque;
-  return read(*fd, buf, n);
-}
-
-struct dakara_check_results *karaberus_dakara_check(int fdr) {
-	return dakara_check_avio(BUFSIZE, &fdr, read_piped, NULL);
-}
-*/
+// #cgo pkg-config: karaberus_tools dakara_check
+// #include <karaberus_tools.h>
+// #include <dakara_check.h>
+// #include <unistd.h>
 import "C"
 import (
 	"context"
