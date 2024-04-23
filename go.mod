@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.11
-	github.com/danielgtaylor/huma/v2 v2.13.1
+	github.com/danielgtaylor/huma/v2 v2.14.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
 )
@@ -50,6 +50,6 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.52.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	gorm.io/gorm v1.25.9
 )
