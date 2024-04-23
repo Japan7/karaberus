@@ -41,11 +41,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - chost: ""
+          - arch: x86_64
+            chost: ""
             platform: linux/amd64
-          - chost: aarch64-chimera-linux-musl
+          - arch: aarch64
+            chost: aarch64-chimera-linux-musl
             platform: linux/arm64
-          - chost: riscv64-chimera-linux-musl
+          - arch: riscv64
+            chost: riscv64-chimera-linux-musl
             platform: linux/riscv64
 
     steps:
