@@ -10,4 +10,4 @@ FROM ghcr.io/odrling/chimera
 COPY --from=builder /image /
 ENV KARABERUS_LISTEN_ADDR=":8888"
 EXPOSE 8888
-ENTRYPOINT ["/karaberus"]
+ENTRYPOINT ["karaberus"]
