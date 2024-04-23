@@ -68,6 +68,7 @@ func routes(api huma.API) {
 	huma.Get(api, "/tags/audio", GetAudioTags)
 	huma.Get(api, "/tags/video", GetVideoTags)
 
+	huma.Get(api, "/tags/generic", FindTag)
 	huma.Get(api, "/tags/generic/{id}", GetTag)
 	huma.Post(api, "/tags/generic/{tag_type}", CreateTag)
 	huma.Delete(api, "/tags/generic/{id}", DeleteTag)
