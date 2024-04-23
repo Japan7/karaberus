@@ -27,5 +27,5 @@ int read_piped(void *opaque, uint8_t *buf, int n) {
 }
 
 struct dakara_check_results *karaberus_dakara_check(int fdr) {
-	return dakara_check_avio(BUFSIZE, &fdr, read_piped, NULL);
+	return dakara_check_avio(KARABERUS_BUFSIZE, &fdr, read_piped, NULL);
 }

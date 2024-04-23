@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-const size_t BUFSIZE = 1024*4;
+const size_t KARABERUS_BUFSIZE = 1024*4;
 
 struct fdpipe {
   int fdr;

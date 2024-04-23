@@ -93,7 +93,7 @@ func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput
 
 	go func(fdw C.int, objreader io.Reader) {
 		for {
-			buf := make([]byte, C.BUFSIZE)
+			buf := make([]byte, C.KARABERUS_BUFSIZE)
 			n, err := objreader.Read(buf)
 			if err != nil {
 				panic(err)
