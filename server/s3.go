@@ -3,6 +3,7 @@
 
 package server
 
+// #cgo CPPFLAGS: -I${SRCDIR}/../karaberus_tools
 // #cgo pkg-config: karaberus_tools dakara_check
 // #include <karaberus_tools.h>
 // #include <dakara_check.h>
