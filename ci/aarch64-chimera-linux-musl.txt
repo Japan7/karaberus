@@ -1,0 +1,19 @@
+[binaries]
+c = 'aarch64-chimera-linux-musl-clang'
+ld = 'ld.lld'
+objcopy = 'llvm-objcopy'
+strip = 'llvm-strip'
+
+[properties]
+# ffmpeg fails to build without this option
+c_link_args = ['-Wl,-Bsymbolic']
+
+[host_machine]
+system = 'linux'
+cpu_family = 'aarch64'
+cpu = 'aarch64'
+endian = 'little'
+
+[project options]
+go_os = 'linux'
+go_arch = 'arm64'

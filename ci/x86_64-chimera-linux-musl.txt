@@ -1,0 +1,15 @@
+[binaries]
+c = 'x86_64-chimera-linux-musl-clang'
+ld = 'ld.lld'
+objcopy = 'llvm-objcopy'
+strip = 'llvm-strip'
+
+[host_machine]
+system = 'linux'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'
+
+[project options]
+go_os = 'linux'
+go_arch = 'amd64'

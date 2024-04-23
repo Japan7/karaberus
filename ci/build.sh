@@ -1,21 +1,11 @@
 #!/bin/sh -x
-if [ "$ARCH" != x86_64 ]; then
-    CC=$ARCH-chimera-linux-musl-clang
-    mv "$SYSROOT/usr/local/lib/"* "$SYSROOT/usr/lib/"
-else
-    CC=clang
-fi
-
-export CC
-
+[ -n "$CHOST" ] && crossarg=--cross-file ci/$CHOST.txt
 set -e
+
 apk add chimera-repo-contrib
 apk add go
 
-export PKG_CONFIG_PATH="$SYSROOT/usr/lib/pkgconfig"
-export CGO_ENABLED=1
-export GOARCH="$GOARCH"
-export GOOS=linux
-export CGO_CFLAGS="-fPIE -O3 -Wall -Wextra"
 
-go build -buildmode=pie -trimpath -ldflags '-linkmode=external -s' -o build/ .
+meson setup /build --buildtype release --strip -Db_lto=true -Db_lto_mode=thin -Db_pie=true -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled -Dffmpeg:version3=enabled $crossarg
+meson compile -C /build
+meson install -C /build --destdir /image

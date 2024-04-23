@@ -41,17 +41,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - arch: x86_64
-            goarch: amd64
-            sysroot: ""
+          - chost: ""
             platform: linux/amd64
-          - arch: aarch64
-            goarch: arm64
-            sysroot: /usr/aarch64-chimera-linux-musl
+          - chost: aarch64-chimera-linux-musl
             platform: linux/arm64
-          - arch: riscv64
-            goarch: riscv64
-            sysroot: /usr/riscv64-chimera-linux-musl
+          - chost: riscv64-chimera-linux-musl
             platform: linux/riscv64
 
     steps:
@@ -79,10 +73,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           tags: ${{ github.sha }}-${{ matrix.config.arch }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            ARCH=${{ matrix.config.arch }}
-            GOARCH=${{ matrix.config.goarch }}
-            SYSROOT=${{ matrix.config.sysroot }}
+          build-args: CHOST=${{ matrix.config.chost }}
           containerfiles: Containerfile
 
       - name: Push image
