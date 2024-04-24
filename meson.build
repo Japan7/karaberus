@@ -32,6 +32,7 @@ endif
 
 c_compiler = meson.get_compiler('c')
 go_env.set('CC', ' '.join(c_compiler.cmd_array()))
+go_env.set('KARABERUS_DB_FILE', meson.current_build_dir() / 'karaberus.db')
 
 install_headers(karaberus_tools_h)
 
