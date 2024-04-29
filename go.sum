@@ -36,8 +36,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.28.6 h1:cwIxeBttqPN3qkaAjcEcsh8NYr8n
 github.com/aws/aws-sdk-go-v2/service/sts v1.28.6/go.mod h1:FZf1/nKNEkHdGGJP/cI2MoIMquumuRK6ol3QQJNDxmw=
 github.com/aws/smithy-go v1.20.2 h1:tbp628ireGtzcHDDmLT/6ADHidqnwgF57XOXZe6tp4Q=
 github.com/aws/smithy-go v1.20.2/go.mod h1:krry+ya/rV9RDcV/Q16kpu6ypI4K2czasz0NC3qS14E=
-github.com/danielgtaylor/huma/v2 v2.14.0 h1:lRuhQQPZhePvJ4B/m4kfIUYfD8ZPy5BKq/oktLFmB50=
-github.com/danielgtaylor/huma/v2 v2.14.0/go.mod h1:OdHC/JliXtOrnvHLQTU5qV7WvYRQXwWY1tkl5rLXmuE=
+github.com/danielgtaylor/huma/v2 v2.15.0 h1:26c3hxNT+0xNc8qDLPXNko48qyi31RDFQdhi36gorRI=
+github.com/danielgtaylor/huma/v2 v2.15.0/go.mod h1:OdHC/JliXtOrnvHLQTU5qV7WvYRQXwWY1tkl5rLXmuE=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
