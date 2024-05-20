@@ -50,16 +50,17 @@ type Tag struct {
 
 // Media types
 var (
-	ANIME   MediaType = MediaType{Type: "Anime", Value: 1}
-	GAME    MediaType = MediaType{Type: "Game", Value: 2}
-	LIVE    MediaType = MediaType{Type: "Live", Value: 3}
-	CARTOON MediaType = MediaType{Type: "Cartoon", Value: 4}
+	ANIME   MediaType = MediaType{Type: "ANIME", Value: 1}
+	GAME    MediaType = MediaType{Type: "GAME", Value: 2}
+	LIVE    MediaType = MediaType{Type: "LIVE", Value: 3}
+	CARTOON MediaType = MediaType{Type: "CARTOON", Value: 4}
 )
 
 type MediaDB struct {
 	gorm.Model
-	Name string `json:"name" example:"Shinseiki Evangelion"`
-	Type uint   `json:"media_type" example:"1"`
+	Name           string `json:"name" example:"Shinseiki Evangelion"`
+	Type           uint   `json:"media_type" example:"1"`
+	AdditionalName `json:"additional_name"`
 }
 
 var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
@@ -143,28 +144,6 @@ func init_model() {
 }
 
 // Helper functions
-
-func getMediaType(media_type_name string) MediaType {
-	for _, v := range MediaTypes {
-		if v.Type == media_type_name {
-			return v
-		}
-	}
-
-	// TODO: make huma check the input
-	panic("unknown media type " + media_type_name)
-}
-
-func getMedia(name string, media_type_str string) MediaDB {
-	media_type := getMediaType(media_type_str)
-	media := MediaDB{}
-	tx := GetDB().Where(&MediaDB{Name: name, Type: media_type.Value}).FirstOrCreate(&media)
-	if tx.Error != nil {
-		panic(tx.Error.Error())
-	}
-
-	return media
-}
 
 func getVideoTag(video_type string) VideoTagDB {
 	for _, v := range VideoTags {

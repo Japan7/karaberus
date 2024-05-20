@@ -54,12 +54,12 @@ var _ huma.Resolver = (*UploadInput)(nil)
 // only used to create the OpenAPI schema
 type UploadInputDef struct {
 	FileID uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
-	File string `json:"file" format:"binary" example:"@file.mkv"`
+	File   string    `json:"file" format:"binary" example:"@file.mkv"`
 }
 
 type UploadOutput struct {
 	Body struct {
-		FileID string `json:"file_id" example:"79d97afe-b2db-4b55-af82-f16b60d8ae77" doc:"file ID"`
+		FileID       string            `json:"file_id" example:"79d97afe-b2db-4b55-af82-f16b60d8ae77" doc:"file ID"`
 		CheckResults CheckS3FileOutput `json:"check_results"`
 	}
 }
@@ -68,7 +68,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	resp := &UploadOutput{}
 
 	res, err := CheckKara(ctx, input.FileID)
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 

@@ -22,7 +22,6 @@ func (m *KaraberusError) Error() string {
 	return m.Message
 }
 
-
 var FILES_DIR = getEnvDefault("FILES_DIR", "files")
 var LISTEN_ADDR = getEnvDefault("LISTEN_ADDR", "127.0.0.1:8888")
 var BUCKET_NAME = getEnvDefault("BUCKET_NAME", "karaberus")
@@ -72,6 +71,11 @@ func routes(api huma.API) {
 	huma.Get(api, "/tags/generic/{id}", GetTag)
 	huma.Post(api, "/tags/generic/{tag_type}", CreateTag)
 	huma.Delete(api, "/tags/generic/{id}", DeleteTag)
+
+	huma.Get(api, "/tags/media", FindMedia)
+	huma.Get(api, "/tags/media/{id}", GetMedia)
+	huma.Delete(api, "/tags/media/{id}", DeleteMedia)
+	huma.Post(api, "/tags/media", CreateMedia)
 }
 
 func RunKaraberus() {
