@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.12
-	github.com/danielgtaylor/huma/v2 v2.16.0
+	github.com/danielgtaylor/huma/v2 v2.17.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
 )
