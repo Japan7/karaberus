@@ -106,11 +106,19 @@ type AdditionalName struct {
 	Name string
 }
 
+type VideoTagDB struct {
+	ID string
+}
+
+type AudioTagDB struct {
+	ID string
+}
+
 type KaraInfoDB struct {
 	gorm.Model
 	Tags        []Tag          `gorm:"many2many:kara_info_tags"`
-	VideoTags   []string       `gorm:"many2many:kara_video_tags"`
-	AudioTags   []string       `gorm:"many2many:kara_audio_tags"`
+	VideoTags   []VideoTagDB   `gorm:"many2many:kara_video_tags"`
+	AudioTags   []AudioTagDB   `gorm:"many2many:kara_audio_tags"`
 	Authors     []TimingAuthor `gorm:"many2many:kara_authors_tags"`
 	Medias      []MediaDB      `gorm:"many2many:kara_media_tags"`
 	Title       string

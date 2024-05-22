@@ -35,8 +35,8 @@ func (info KaraInfo) count_tags() int {
 type AllTags struct {
 	Generic []Tag
 	Authors []TimingAuthor
-	Video   []string
-	Audio   []string
+	Video   []VideoTagDB
+	Audio   []AudioTagDB
 	Media   []MediaDB
 }
 
@@ -51,17 +51,17 @@ func makeTags(info KaraInfo) AllTags {
 		media_i++
 	}
 
-	video_tags := make([]string, len(info.VideoTags))
+	video_tags := make([]VideoTagDB, len(info.VideoTags))
 	vt_i := 0
 	for _, video_type := range info.VideoTags {
-		video_tags[vt_i] = getVideoTag(video_type).ID
+		video_tags[vt_i] = VideoTagDB{getVideoTag(video_type).ID}
 		vt_i++
 	}
 
-	audio_tags := make([]string, len(info.AudioTags))
+	audio_tags := make([]AudioTagDB, len(info.AudioTags))
 	at_i := 0
 	for _, audio_type := range info.AudioTags {
-		audio_tags[at_i] = getAudioTag(audio_type).ID
+		audio_tags[at_i] = AudioTagDB{getAudioTag(audio_type).ID}
 		at_i++
 	}
 
