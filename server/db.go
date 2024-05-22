@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
@@ -9,6 +11,8 @@ var db_instance *gorm.DB = nil
 
 func init_db() {
 	db_file := getEnvDefault("DB_FILE", "karaberus.db")
+
+	fmt.Printf("DB file: %s", db_file)
 	db, err := gorm.Open(sqlite.Open(db_file), &gorm.Config{})
 	if err != nil {
 		panic("Could not connect to the database")
