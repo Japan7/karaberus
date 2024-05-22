@@ -11,7 +11,7 @@ import (
 type CreateMediaInput struct {
 	Body struct {
 		Name            string   `json:"name" example:"Shinseiki Evangelion"`
-		MediaType       string   `json:"media_type" example:"anime"`
+		MediaType       string   `json:"media_type" example:"ANIME"`
 		AdditionalNames []string `json:"additional_names" example:"[]"`
 	}
 }
@@ -23,7 +23,7 @@ type MediaOutput struct {
 }
 
 func createMedia(name string, media_type MediaType) (*MediaDB, error) {
-	media_tag := MediaDB{Name: name, Type: media_type.Value}
+	media_tag := MediaDB{Name: name, Type: media_type.ID}
 	tx := GetDB().Create(&media_tag)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -31,21 +31,21 @@ func createMedia(name string, media_type MediaType) (*MediaDB, error) {
 	return &media_tag, nil
 }
 
-func getMediaType(media_type_name string) MediaType {
+func getMediaType(media_type_id string) MediaType {
 	for _, v := range MediaTypes {
-		if v.Type == media_type_name {
+		if v.ID == media_type_id {
 			return v
 		}
 	}
 
 	// TODO: make huma check the input
-	panic("unknown media type " + media_type_name)
+	panic("unknown media type " + media_type_id)
 }
 
 func getMedia(name string, media_type_str string) MediaDB {
 	media_type := getMediaType(media_type_str)
 	media := MediaDB{}
-	tx := GetDB().Where(&MediaDB{Name: name, Type: media_type.Value}).FirstOrCreate(&media)
+	tx := GetDB().Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media)
 	if tx.Error != nil {
 		panic(tx.Error.Error())
 	}

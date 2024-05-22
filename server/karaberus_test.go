@@ -78,7 +78,7 @@ func TestMediaTag(t *testing.T) {
 			api.Post("/tags/media",
 				map[string]any{
 					"name":             "media_name",
-					"media_type":       v.Type,
+					"media_type":       v.ID,
 					"additional_names": []string{},
 				},
 			),

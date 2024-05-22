@@ -42,7 +42,7 @@ type CreateTagInput struct {
 }
 
 func createTag(name string, tag_type TagType) (*Tag, error) {
-	tag := Tag{Name: name, Type: tag_type.Value}
+	tag := Tag{Name: name, Type: tag_type.ID}
 	tx := GetDB().Create(&tag)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -52,7 +52,7 @@ func createTag(name string, tag_type TagType) (*Tag, error) {
 
 func getTagType(TagTypeName string) (*TagType, error) {
 	for _, tag := range TagTypes {
-		if tag.Type == TagTypeName {
+		if tag.Name == TagTypeName {
 			return &tag, nil
 		}
 	}
@@ -101,7 +101,7 @@ func FindTag(Ctx context.Context, input *FindTagInput) (*TagOutput, error) {
 		return nil, err
 	}
 	tag := Tag{}
-	tx := GetDB().Where(&Tag{Name: input.Name, Type: tag_type.Value}).First(&tag)
+	tx := GetDB().Where(&Tag{Name: input.Name, Type: tag_type.ID}).First(&tag)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")

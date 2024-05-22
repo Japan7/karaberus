@@ -1,14 +1,10 @@
 package server
 
-import (
-	"context"
-
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
 type KaraberusType struct {
-	Type  string
-	Value uint
+	ID   string // used in the database/API
+	Name string // user visible name
 }
 
 type TagType KaraberusType
@@ -32,8 +28,8 @@ type TimingAuthor struct {
 // Tags
 
 var (
-	KaraTagArtist TagType = TagType{Type: "artist", Value: 1}
-	KaraTagAuthor TagType = TagType{Type: "author", Value: 2}
+	KaraTagArtist TagType = TagType{ID: "ARTIST", Name: "artist"}
+	KaraTagAuthor TagType = TagType{ID: "AUTHOR", Name: "author"}
 )
 
 var TagTypes []TagType = []TagType{
@@ -44,22 +40,22 @@ var TagTypes []TagType = []TagType{
 type Tag struct {
 	gorm.Model
 	Name            string           `gorm:"unique_index:idx_name_type"`
-	Type            uint             `gorm:"unique_index:idx_name_type"`
+	Type            string           `gorm:"unique_index:idx_name_type"`
 	AdditionalNames []AdditionalName `gorm:"many2many:tags_additional_name"`
 }
 
 // Media types
 var (
-	ANIME   MediaType = MediaType{Type: "ANIME", Value: 1}
-	GAME    MediaType = MediaType{Type: "GAME", Value: 2}
-	LIVE    MediaType = MediaType{Type: "LIVE", Value: 3}
-	CARTOON MediaType = MediaType{Type: "CARTOON", Value: 4}
+	ANIME   MediaType = MediaType{ID: "ANIME", Name: "Anime"}
+	GAME    MediaType = MediaType{ID: "GAME", Name: "Game"}
+	LIVE    MediaType = MediaType{ID: "LIVE", Name: "Live"}
+	CARTOON MediaType = MediaType{ID: "CARTOON", Name: "Cartoon"}
 )
 
 type MediaDB struct {
 	gorm.Model
 	Name           string `json:"name" example:"Shinseiki Evangelion"`
-	Type           uint   `json:"media_type" example:"1"`
+	Type           string `json:"media_type" example:"ANIME"`
 	AdditionalName `json:"additional_name"`
 }
 
@@ -67,38 +63,34 @@ var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
 
 // Video tags
 var (
-	VideoTypeOpening       VideoTag = VideoTag{Type: "Opening", Value: 1}
-	VideoTypeEnding        VideoTag = VideoTag{Type: "Ending", Value: 2}
-	VideoTypeInsert        VideoTag = VideoTag{Type: "Insert", Value: 3}
-	VideoTypeFanmade       VideoTag = VideoTag{Type: "Fanmade", Value: 4}
-	VideoTypeStream        VideoTag = VideoTag{Type: "Stream", Value: 5}
-	VideoTypeConcert       VideoTag = VideoTag{Type: "Concert", Value: 6}
-	VideoTypeMusicVideo    VideoTag = VideoTag{Type: "Promotional Video", Value: 7}
-	VideoTypeAdvertisement VideoTag = VideoTag{Type: "Advertisement", Value: 8}
-	VideoTypeTrailer       VideoTag = VideoTag{Type: "Trailer", Value: 9}
+	VideoTypeOpening       VideoTag = VideoTag{ID: "OP", Name: "Opening"}
+	VideoTypeEnding        VideoTag = VideoTag{ID: "ED", Name: "Ending"}
+	VideoTypeInsert        VideoTag = VideoTag{ID: "INSERT", Name: "Insert"}
+	VideoTypeFanmade       VideoTag = VideoTag{ID: "FANMADE", Name: "Fanmade"}
+	VideoTypeStream        VideoTag = VideoTag{ID: "STREAM", Name: "Stream"}
+	VideoTypeConcert       VideoTag = VideoTag{ID: "CONCERT", Name: "Concert"}
+	VideoTypeAdvertisement VideoTag = VideoTag{ID: "AD", Name: "Advertisement"}
+	VideoTypeTrailer       VideoTag = VideoTag{ID: "TRAILER", Name: "Trailer"}
 )
 
 var VideoTags []VideoTag = []VideoTag{
 	VideoTypeOpening,
 	VideoTypeEnding,
 	VideoTypeInsert,
-	VideoTypeMusicVideo,
 	VideoTypeFanmade,
+	VideoTypeStream,
 	VideoTypeConcert,
 	VideoTypeAdvertisement,
-}
-
-type VideoTagDB struct {
-	ID uint
+	VideoTypeTrailer,
 }
 
 // Audio tags
 var (
-	AudioTypeOpening AudioTag = AudioTag{Type: "Opening", Value: 1}
-	AudioTypeEnding  AudioTag = AudioTag{Type: "Ending", Value: 2}
-	AudioTypeInsert  AudioTag = AudioTag{Type: "Insert", Value: 3}
-	AudioTypeLive    AudioTag = AudioTag{Type: "Live", Value: 4}
-	AudioTypeCover   AudioTag = AudioTag{Type: "Cover", Value: 5}
+	AudioTypeOpening AudioTag = AudioTag{ID: "OP", Name: "Opening"}
+	AudioTypeEnding  AudioTag = AudioTag{ID: "ED", Name: "Ending"}
+	AudioTypeInsert  AudioTag = AudioTag{ID: "INS", Name: "Insert"}
+	AudioTypeLive    AudioTag = AudioTag{ID: "LIVE", Name: "Live"}
+	AudioTypeCover   AudioTag = AudioTag{ID: "COVER", Name: "Cover"}
 )
 
 var AudioTags []AudioTag = []AudioTag{
@@ -106,10 +98,7 @@ var AudioTags []AudioTag = []AudioTag{
 	AudioTypeEnding,
 	AudioTypeInsert,
 	AudioTypeLive,
-}
-
-type AudioTagDB struct {
-	ID uint
+	AudioTypeCover,
 }
 
 type AdditionalName struct {
@@ -120,8 +109,8 @@ type AdditionalName struct {
 type KaraInfoDB struct {
 	gorm.Model
 	Tags        []Tag          `gorm:"many2many:kara_info_tags"`
-	VideoTags   []VideoTagDB   `gorm:"many2many:kara_video_tags"`
-	AudioTags   []AudioTagDB   `gorm:"many2many:kara_audio_tags"`
+	VideoTags   []string       `gorm:"many2many:kara_video_tags"`
+	AudioTags   []string       `gorm:"many2many:kara_audio_tags"`
 	Authors     []TimingAuthor `gorm:"many2many:kara_authors_tags"`
 	Medias      []MediaDB      `gorm:"many2many:kara_media_tags"`
 	Title       string
@@ -134,51 +123,4 @@ type KaraInfoDB struct {
 func init_model() {
 	db := GetDB()
 	db.AutoMigrate(&KaraInfoDB{})
-
-	for _, tag := range AudioTags {
-		db.FirstOrCreate(&AudioTagDB{ID: tag.Value})
-	}
-	for _, tag := range VideoTags {
-		db.FirstOrCreate(&VideoTagDB{ID: tag.Value})
-	}
-}
-
-// Helper functions
-
-func getVideoTag(video_type string) VideoTagDB {
-	for _, v := range VideoTags {
-		if v.Type == video_type {
-			return VideoTagDB{ID: v.Value}
-		}
-	}
-
-	panic("unknown kara type " + video_type)
-}
-
-func getAudioTag(audio_type string) AudioTagDB {
-	for _, v := range AudioTags {
-		if v.Type == audio_type {
-			return AudioTagDB{ID: v.Value}
-		}
-	}
-
-	panic("unknown kara type " + audio_type)
-}
-
-// Public/API functions
-
-type VideoTagsOutput struct {
-	Body []VideoTag `json:"video_tags"`
-}
-
-func GetVideoTags(ctx context.Context, input *struct{}) (*VideoTagsOutput, error) {
-	return &VideoTagsOutput{VideoTags}, nil
-}
-
-type AudioTagsOutput struct {
-	Body []AudioTag `json:"audio_tags"`
-}
-
-func GetAudioTags(ctx context.Context, input *struct{}) (*AudioTagsOutput, error) {
-	return &AudioTagsOutput{AudioTags}, nil
 }
