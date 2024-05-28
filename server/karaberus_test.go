@@ -162,3 +162,29 @@ func TestFindMedia(t *testing.T) {
 	path := fmt.Sprintf("/tags/media/%d", data.Body.Media.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
+
+func TestCreateKara(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/kara",
+			map[string]any{
+				"title":         "kara_title",
+				"title_aliases": []string{},
+				"authors":       []uint{},
+				"artists":       []uint{},
+				"source_media":  0,
+				"song_order":    0,
+				"medias":        []uint{},
+				"audio_tags":    []string{},
+				"video_tags":    []string{},
+				"comment":       "",
+				"version":       "",
+			}),
+		200,
+	)
+
+	data := KaraOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+}

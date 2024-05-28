@@ -38,12 +38,11 @@ type KaraInfo struct {
 }
 
 type AllTags struct {
-	Authors     []TimingAuthor
-	Artists     []Artist
-	Video       []VideoTagDB
-	Audio       []AudioTagDB
-	Media       []MediaDB
-	SourceMedia MediaDB
+	Authors []TimingAuthor
+	Artists []Artist
+	Video   []VideoTagDB
+	Audio   []AudioTagDB
+	Media   []MediaDB
 }
 
 func makeTags(info KaraInfo) AllTags {
@@ -58,8 +57,6 @@ func makeTags(info KaraInfo) AllTags {
 	for i, artist := range info.Artists {
 		artists[i] = GetArtistByID(artist)
 	}
-
-	source_media := getMediaByID(info.SourceMedia)
 
 	medias := make([]MediaDB, len(info.Medias))
 	for i, media := range info.Medias {
@@ -77,12 +74,11 @@ func makeTags(info KaraInfo) AllTags {
 	}
 
 	return AllTags{
-		Authors:     authors,
-		Artists:     artists,
-		Video:       video_tags,
-		Audio:       audio_tags,
-		SourceMedia: source_media,
-		Media:       medias,
+		Authors: authors,
+		Artists: artists,
+		Video:   video_tags,
+		Audio:   audio_tags,
+		Media:   medias,
 	}
 }
 
@@ -98,18 +94,24 @@ func makeExtraTitles(info KaraInfo) []AdditionalName {
 
 func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
 	tags := makeTags(info)
-	return KaraInfoDB{
+
+	kara_info := KaraInfoDB{
 		VideoTags:   tags.Video,
 		AudioTags:   tags.Audio,
 		Authors:     tags.Authors,
 		Artists:     tags.Artists,
-		SourceMedia: tags.SourceMedia,
 		Medias:      tags.Media,
 		Title:       info.Title,
 		ExtraTitles: makeExtraTitles(info),
 		Comment:     info.Comment,
 		SongOrder:   info.SongOrder,
 	}
+
+	if info.SourceMedia > 0 {
+		kara_info.SourceMedia = getMediaByID(info.SourceMedia)
+	}
+
+	return kara_info
 }
 
 type CreateKaraInput struct {
