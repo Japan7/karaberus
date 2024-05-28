@@ -187,4 +187,7 @@ func TestCreateKara(t *testing.T) {
 	data := KaraOutput{}
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
+
+	path := fmt.Sprintf("/kara/%d", data.Body.Kara.ID)
+	assertRespCode(t, api.Delete(path), 204)
 }

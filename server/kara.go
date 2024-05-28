@@ -5,6 +5,10 @@ package server
 
 import (
 	"context"
+	"errors"
+
+	"github.com/danielgtaylor/huma/v2"
+	"gorm.io/gorm"
 )
 
 type Media struct {
@@ -153,4 +157,20 @@ func GetKara(Ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
 	}
 
 	return kara_output, nil
+}
+
+type DeleteKaraResponse struct {
+	Status int
+}
+
+func DeleteKara(Ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, error) {
+	tx := GetDB().Delete(&TimingAuthor{}, input.Id)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, huma.Error404NotFound("tag not found")
+		}
+		return nil, tx.Error
+	}
+
+	return &DeleteKaraResponse{204}, nil
 }
