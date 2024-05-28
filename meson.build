@@ -35,6 +35,7 @@ go_env.set('CC', ' '.join(c_compiler.cmd_array()))
 
 test_db_file = meson.current_build_dir() / 'karaberus.db'
 go_env.set('KARABERUS_DB_FILE', test_db_file)
+go_env.set('KARABERUS_TEST', '1')
 
 install_headers(karaberus_tools_h)
 
