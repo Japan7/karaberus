@@ -7,7 +7,6 @@ type KaraberusType struct {
 	Name string // user visible name
 }
 
-type TagType KaraberusType
 type MediaType KaraberusType
 type VideoTag KaraberusType
 type AudioTag KaraberusType
@@ -21,27 +20,15 @@ type User struct {
 
 type TimingAuthor struct {
 	gorm.Model
-	Name            string
-	AdditionalNames []AdditionalName `gorm:"many2many:tags_additional_name"`
+	Name string
 }
 
-// Tags
+// Artists
 
-var (
-	KaraTagArtist TagType = TagType{ID: "ARTIST", Name: "artist"}
-	KaraTagAuthor TagType = TagType{ID: "AUTHOR", Name: "author"}
-)
-
-var TagTypes []TagType = []TagType{
-	KaraTagArtist,
-	KaraTagAuthor,
-}
-
-type Tag struct {
+type Artist struct {
 	gorm.Model
 	Name            string           `gorm:"unique_index:idx_name_type"`
-	Type            string           `gorm:"unique_index:idx_name_type"`
-	AdditionalNames []AdditionalName `gorm:"many2many:tags_additional_name"`
+	AdditionalNames []AdditionalName `gorm:"many2many:artists_additional_name"`
 }
 
 // Media types
@@ -116,16 +103,18 @@ type AudioTagDB struct {
 
 type KaraInfoDB struct {
 	gorm.Model
-	Tags        []Tag          `gorm:"many2many:kara_info_tags"`
-	VideoTags   []VideoTagDB   `gorm:"many2many:kara_video_tags"`
-	AudioTags   []AudioTagDB   `gorm:"many2many:kara_audio_tags"`
-	Authors     []TimingAuthor `gorm:"many2many:kara_authors_tags"`
-	Medias      []MediaDB      `gorm:"many2many:kara_media_tags"`
-	Title       string
-	ExtraTitles []AdditionalName `gorm:"many2many:kara_info_additional_name"`
-	Version     string
-	Comment     string
-	SongOrder   int
+	Authors       []TimingAuthor `gorm:"many2many:kara_authors_tags"`
+	Artists       []Artist       `gorm:"many2many:kara_artist_tags"`
+	VideoTags     []VideoTagDB   `gorm:"many2many:kara_video_tags"`
+	AudioTags     []AudioTagDB   `gorm:"many2many:kara_audio_tags"`
+	SourceMediaID uint
+	SourceMedia   MediaDB   `gorm:"foreignKey:SourceMediaID;references:ID"`
+	Medias        []MediaDB `gorm:"many2many:kara_media_tags"`
+	Title         string
+	ExtraTitles   []AdditionalName `gorm:"many2many:kara_info_additional_name"`
+	Version       string
+	Comment       string
+	SongOrder     uint
 }
 
 func init_model() {

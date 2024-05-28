@@ -42,6 +42,16 @@ func getMediaType(media_type_id string) MediaType {
 	panic("unknown media type " + media_type_id)
 }
 
+func getMediaByID(Id uint) MediaDB {
+	media := MediaDB{}
+	tx := GetDB().First(&media, Id)
+	if tx.Error != nil {
+		panic(tx.Error.Error())
+	}
+
+	return media
+}
+
 func getMedia(name string, media_type_str string) MediaDB {
 	media_type := getMediaType(media_type_str)
 	media := MediaDB{}

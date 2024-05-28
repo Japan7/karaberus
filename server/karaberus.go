@@ -67,10 +67,15 @@ func routes(api huma.API) {
 	huma.Get(api, "/tags/audio", GetAudioTags)
 	huma.Get(api, "/tags/video", GetVideoTags)
 
-	huma.Get(api, "/tags/generic", FindTag)
-	huma.Get(api, "/tags/generic/{id}", GetTag)
-	huma.Post(api, "/tags/generic/{tag_type}", CreateTag)
-	huma.Delete(api, "/tags/generic/{id}", DeleteTag)
+	huma.Get(api, "/tags/author", FindAuthor)
+	huma.Get(api, "/tags/author/{id}", GetAuthor)
+	huma.Delete(api, "/tags/author/{id}", DeleteAuthor)
+	huma.Post(api, "/tags/author", CreateAuthor)
+
+	huma.Get(api, "/tags/artist", FindArtist)
+	huma.Get(api, "/tags/artist/{id}", GetArtist)
+	huma.Delete(api, "/tags/artist/{id}", DeleteArtist)
+	huma.Post(api, "/tags/artist", CreateArtist)
 
 	huma.Get(api, "/tags/media", FindMedia)
 	huma.Get(api, "/tags/media/{id}", GetMedia)

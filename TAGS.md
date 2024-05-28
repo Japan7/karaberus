@@ -8,7 +8,8 @@ be served by karaberus itself, but it is too early for that)
 
 There are 4 types of tags:
 
-* Generic/Kara tags: tags related to the karaoke in general.
+* Author tags: tags related to the author of the karaoke.
+* Artist tags: tags related to the artists of the original song.
 * Media tags: tags related to the source media of the song.
 * Video tags: tags related to the video of the karaoke.
 * Audio tags: tags related to the audio of the karaoke.
@@ -16,15 +17,15 @@ There are 4 types of tags:
 Generic and media tags are user defined while video and music tags are
 statically defined in karaberus. 
 
-## Generic tags
+## Author tags
 
-Tags related to the karaoke in general.
+Tags related to the author of the karaoke timing.
 
-Generic tags include:
-* Author of the karaoke timing.
-* Artists involved in the song's creation (not the video, but could be added if needed)
+## Artist tags
 
-All these tags support alternative names/aliases.
+Tags related to the artists involved in the song's creation (not the video, but could be added if needed?)
+
+Artists tags support alternative names/aliases.
 
 ## Media tags
 

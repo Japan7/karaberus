@@ -13,74 +13,84 @@ type Media struct {
 }
 
 type KaraInfo struct {
-	Title       string   `json:"title" example:"Zankoku na Tenshi no These"`
+	// Main name of the karaoke
+	Title string `json:"title" example:"Zankoku na Tenshi no These"`
+	// More names relating to this karaoke
 	ExtraTitles []string `json:"title_aliases" example:"[\"A Cruel Angel's Thesis\"]"`
-	Authors     []string `json:"authors" example:"[\"odrling\"]"`
-	Artists     []string `json:"artists" example:"[\"Yoko Takahashi\"]"`
-	Medias      []Media  `json:"medias"`
-	AudioTags   []string `json:"audio_tags" example:"[\"Opening\"]"`
-	VideoTags   []string `json:"video_tags" example:"[\"Opening\"]"`
-	Comment     string   `json:"comment" example:"From https://youtu.be/dQw4w9WgXcQ"`
-	Version     string   `json:"version" example:"iykyk"`
-	SongOrder   int      `json:"song_order" example:"0"`
-}
-
-func (info KaraInfo) count_tags() int {
-	tags := 0
-	tags += len(info.Artists)
-
-	return tags
+	// Karaoke authors
+	Authors []uint `json:"authors" example:"[1]"`
+	// Artists of the original song
+	Artists []uint `json:"artists" example:"[1]"`
+	// Name of the Media
+	SourceMedia uint `json:"source_media" example:"1"`
+	// Number of the track related to the media.
+	SongOrder uint `json:"song_order" example:"0"`
+	// Medias related to the karaoke
+	Medias []uint `json:"medias"`
+	// Audio tags
+	AudioTags []string `json:"audio_tags" example:"[\"Opening\"]"`
+	// Video tags
+	VideoTags []string `json:"video_tags" example:"[\"Opening\"]"`
+	// Generic comment
+	Comment string `json:"comment" example:"From https://youtu.be/dQw4w9WgXcQ"`
+	// Version (8-bit, Episode 12, ...)
+	Version string `json:"version" example:"iykyk"`
 }
 
 type AllTags struct {
-	Generic []Tag
-	Authors []TimingAuthor
-	Video   []VideoTagDB
-	Audio   []AudioTagDB
-	Media   []MediaDB
+	Authors     []TimingAuthor
+	Artists     []Artist
+	Video       []VideoTagDB
+	Audio       []AudioTagDB
+	Media       []MediaDB
+	SourceMedia MediaDB
 }
 
 func makeTags(info KaraInfo) AllTags {
 	authors := make([]TimingAuthor, len(info.Authors))
-	tags := make([]Tag, info.count_tags())
+
+	for i, author := range info.Authors {
+		authors[i] = GetAuthorById(author)
+	}
+
+	artists := make([]Artist, len(info.Artists))
+
+	for i, artist := range info.Artists {
+		artists[i] = GetArtistByID(artist)
+	}
+
+	source_media := getMediaByID(info.SourceMedia)
 
 	medias := make([]MediaDB, len(info.Medias))
-	media_i := 0
-	for _, media := range info.Medias {
-		medias[media_i] = getMedia(media.Name, media.MediaType)
-		media_i++
+	for i, media := range info.Medias {
+		medias[i] = getMediaByID(media)
 	}
 
 	video_tags := make([]VideoTagDB, len(info.VideoTags))
-	vt_i := 0
-	for _, video_type := range info.VideoTags {
-		video_tags[vt_i] = VideoTagDB{getVideoTag(video_type).ID}
-		vt_i++
+	for i, video_type := range info.VideoTags {
+		video_tags[i] = VideoTagDB{getVideoTag(video_type).ID}
 	}
 
 	audio_tags := make([]AudioTagDB, len(info.AudioTags))
-	at_i := 0
-	for _, audio_type := range info.AudioTags {
-		audio_tags[at_i] = AudioTagDB{getAudioTag(audio_type).ID}
-		at_i++
+	for i, audio_type := range info.AudioTags {
+		audio_tags[i] = AudioTagDB{getAudioTag(audio_type).ID}
 	}
 
 	return AllTags{
-		Generic: tags,
-		Authors: authors,
-		Video:   video_tags,
-		Audio:   audio_tags,
-		Media:   medias,
+		Authors:     authors,
+		Artists:     artists,
+		Video:       video_tags,
+		Audio:       audio_tags,
+		SourceMedia: source_media,
+		Media:       medias,
 	}
 }
 
 func makeExtraTitles(info KaraInfo) []AdditionalName {
 	extra_titles := make([]AdditionalName, len(info.ExtraTitles))
-	i := 0
 
-	for _, title := range info.ExtraTitles {
+	for i, title := range info.ExtraTitles {
 		extra_titles[i] = AdditionalName{Name: title}
-		i++
 	}
 
 	return extra_titles
@@ -89,10 +99,11 @@ func makeExtraTitles(info KaraInfo) []AdditionalName {
 func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
 	tags := makeTags(info)
 	return KaraInfoDB{
-		Tags:        tags.Generic,
 		VideoTags:   tags.Video,
 		AudioTags:   tags.Audio,
 		Authors:     tags.Authors,
+		Artists:     tags.Artists,
+		SourceMedia: tags.SourceMedia,
 		Medias:      tags.Media,
 		Title:       info.Title,
 		ExtraTitles: makeExtraTitles(info),

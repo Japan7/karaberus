@@ -26,32 +26,55 @@ func assertRespCode(t *testing.T, resp *httptest.ResponseRecorder, expected_code
 	return resp
 }
 
-func TestGenericTag(t *testing.T) {
+func TestAuthorTag(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/generic/artist",
+		api.Post("/tags/author",
 			map[string]any{
-				"name":             "artist_name",
+				"name":             "author_name",
 				"additional_names": []string{},
 			},
 		),
 		200,
 	)
 
-	data := TagOutput{}
+	data := AuthorOutput{}
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	path := fmt.Sprintf("/tags/generic/%d", data.Body.tag.ID)
+	path := fmt.Sprintf("/tags/author/%d", data.Body.author.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
-func TestFindGenericTag(t *testing.T) {
+func TestFindAuthorTag(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/generic/artist",
+		api.Post("/tags/author",
+			map[string]any{
+				"name":             "author_name",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	data := AuthorOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	resp = assertRespCode(t, api.Get("/tags/author?name=author_name"), 200)
+
+	path := fmt.Sprintf("/tags/author/%d", data.Body.author.ID)
+	assertRespCode(t, api.Delete(path), 204)
+}
+
+func TestArtistTag(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/tags/artist",
 			map[string]any{
 				"name":             "artist_name",
 				"additional_names": []string{},
@@ -60,13 +83,34 @@ func TestFindGenericTag(t *testing.T) {
 		200,
 	)
 
-	data := TagOutput{}
+	data := ArtistOutput{}
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/tags/generic?name=artist_name&type=artist"), 200)
+	path := fmt.Sprintf("/tags/artist/%d", data.Body.artist.ID)
+	assertRespCode(t, api.Delete(path), 204)
+}
 
-	path := fmt.Sprintf("/tags/generic/%d", data.Body.tag.ID)
+func TestFindArtistTag(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/tags/artist",
+			map[string]any{
+				"name":             "artist_name",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	data := ArtistOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	resp = assertRespCode(t, api.Get("/tags/artist?name=artist_name"), 200)
+
+	path := fmt.Sprintf("/tags/artist/%d", data.Body.artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
