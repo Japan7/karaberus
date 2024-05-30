@@ -5,7 +5,6 @@ package server
 
 import (
 	"context"
-	"log"
 	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -13,7 +12,8 @@ import (
 )
 
 type UploadInput struct {
-	FileID uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
+	KID      string `path:"id" example:"1"`
+	FileType string `path:"filetype" example:"video"`
 }
 
 func getFilePathStr(fileIDStr string) string {
@@ -28,8 +28,7 @@ func (m *UploadInput) Resolve(ctx huma.Context) []error {
 	multipartForm, err := ctx.GetMultipartForm()
 
 	if err != nil {
-		log.Fatal(err)
-		return []error{err}
+		panic(err)
 	}
 
 	file := multipartForm.File["file"][0]
@@ -40,7 +39,7 @@ func (m *UploadInput) Resolve(ctx huma.Context) []error {
 	}
 	defer fd.Close()
 
-	err = SaveFileToS3(ctx.Context(), fd, m.FileID, "video")
+	err = SaveFileToS3(ctx.Context(), fd, m.KID, m.FileType, file.Size)
 	if err != nil {
 		return []error{err}
 	}
@@ -53,13 +52,14 @@ var _ huma.Resolver = (*UploadInput)(nil)
 
 // only used to create the OpenAPI schema
 type UploadInputDef struct {
-	FileID uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
-	File   string    `json:"file" format:"binary" example:"@file.mkv"`
+	KID      uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
+	FileType string    `path:"filetype" example:"video"`
+	File     string    `json:"file" format:"binary" example:"@file.mkv"`
 }
 
 type UploadOutput struct {
 	Body struct {
-		FileID       string            `json:"file_id" example:"79d97afe-b2db-4b55-af82-f16b60d8ae77" doc:"file ID"`
+		KID          string            `json:"file_id" example:"1" doc:"karaoke ID"`
 		CheckResults CheckS3FileOutput `json:"check_results"`
 	}
 }
@@ -67,13 +67,13 @@ type UploadOutput struct {
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	resp := &UploadOutput{}
 
-	res, err := CheckKara(ctx, input.FileID)
+	res, err := CheckKara(ctx, input.KID)
 	if err != nil {
 		return nil, err
 	}
 
 	resp.Body.CheckResults = *res
-	resp.Body.FileID = input.FileID.String()
+	resp.Body.KID = input.KID
 
 	return resp, nil
 }

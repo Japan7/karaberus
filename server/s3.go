@@ -3,11 +3,23 @@
 
 package server
 
-// #cgo CPPFLAGS: -I${SRCDIR}/../karaberus_tools
-// #cgo pkg-config: karaberus_tools dakara_check
-// #include <karaberus_tools.h>
-// #include <dakara_check.h>
-// #include <unistd.h>
+/*
+#cgo pkg-config: dakara_check
+#include <dakara_check.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdint.h>
+#include <string.h>
+
+int AVIORead(void *obj, uint8_t *buf, int n);
+int64_t AVIOSeek(void *obj, int64_t offset, int whence);
+
+#define KARABERUS_BUFSIZE 1024*1024
+
+static inline struct dakara_check_results *karaberus_dakara_check(void *obj) {
+  return dakara_check_avio(KARABERUS_BUFSIZE, obj, AVIORead, AVIOSeek);
+}
+*/
 import "C"
 import (
 	"context"
@@ -17,99 +29,79 @@ import (
 	"path/filepath"
 	"unsafe"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/google/uuid"
+	pointer "github.com/mattn/go-pointer"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func getS3Client() (*s3.Client, error) {
-	s3_creds := credentials.NewStaticCredentialsProvider(S3_KEYID, S3_SECRET, "")
-	config, err := config.LoadDefaultConfig(context.TODO())
+func getS3Client() *minio.Client {
+	S3_SECURE := getEnvDefault("S3_SECURE", "false")
+
+	client, err := minio.New(S3_ENDPOINT, &minio.Options{
+		Creds:  credentials.NewStaticV4(S3_KEYID, S3_SECRET, ""),
+		Secure: S3_SECURE == "true",
+	})
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	config.Credentials = s3_creds
-	config.RetryMaxAttempts = 3
-	config.BaseEndpoint = &S3_ENDPOINT
-
-	client := s3.NewFromConfig(config)
-	return client, nil
+	return client
 }
 
-func UploadToS3(ctx context.Context, file io.Reader, filename string) error {
-	client, err := getS3Client()
-	if err != nil {
-		return err
-	}
-
-	_, err = client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(BUCKET_NAME),
-		Key:    aws.String(filename),
-		Body:   file,
-	})
+func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64) error {
+	client := getS3Client()
+	info, err := client.PutObject(ctx, BUCKET_NAME, filename, file, filesize, minio.PutObjectOptions{})
+	fmt.Printf("info: %v\n", info)
 
 	return err
 }
 
-func SaveFileToS3(ctx context.Context, fd io.Reader, kid uuid.UUID, type_directory string) error {
-	filename := filepath.Join(type_directory, "/", kid.String())
-	return UploadToS3(ctx, fd, filename)
+func SaveFileToS3(ctx context.Context, fd io.Reader, kid string, type_directory string, filesize int64) error {
+	filename := filepath.Join(type_directory, "/", kid)
+	return UploadToS3(ctx, fd, filename, filesize)
 }
 
 type CheckS3FileOutput struct {
 	Passed bool `json:"passed" example:"true" doc:"true if file passed all checks"`
 }
 
-func CheckKara(ctx context.Context, kid uuid.UUID) (*CheckS3FileOutput, error) {
+func CheckKara(ctx context.Context, kid string) (*CheckS3FileOutput, error) {
 	// TODO: find all related files to check
-	video_filename := filepath.Join("video/", kid.String())
+	video_filename := filepath.Join("video/", kid)
 	return CheckS3File(ctx, video_filename)
 }
 
-func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput, error) {
+//export AVIORead
+func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
+	obj := pointer.Restore(opaque).(*minio.Object)
+	rbuf := make([]byte, n)
+	nread, err := obj.Read(rbuf)
+	if err != nil && !errors.Is(io.EOF, err) {
+		panic(err)
+	}
+	C.memcpy(C.CBytes(rbuf), unsafe.Pointer(buf), C.size_t(nread))
+	return C.int(nread)
+}
 
-	client, err := getS3Client()
+//export AVIOSeek
+func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
+	obj := pointer.Restore(opaque).(*minio.Object)
+	pos, err := obj.Seek(int64(offset), int(whence))
+	if err != nil {
+		panic(err)
+	}
+	return C.int64_t(pos)
+}
+
+func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput, error) {
+	client := getS3Client()
+
+	obj, err := client.GetObject(ctx, BUCKET_NAME, video_filename, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	obj, err := client.GetObject(
-		ctx,
-		&s3.GetObjectInput{
-			Bucket: aws.String(BUCKET_NAME),
-			Key:    aws.String(video_filename),
-		},
-	)
-
-	fdpipe := C.create_pipe()
-	if fdpipe == nil {
-		return nil, errors.New("failed to create pipe")
-	}
-	defer C.close(fdpipe.fdr)
-	defer C.close(fdpipe.fdw)
-	defer C.free(unsafe.Pointer(fdpipe))
-
-	go func(fdw C.int, objreader io.Reader) {
-		for {
-			buf := make([]byte, C.KARABERUS_BUFSIZE)
-			n, err := objreader.Read(buf)
-			if err != nil {
-				panic(err)
-			}
-			if n == 0 {
-				break
-			}
-			written := C.write(fdw, C.CBytes(buf), C.size_t(n))
-			if int(written) != n {
-				panic(fmt.Sprintf("wrote less bytes than expected: %d != %d", written, n))
-			}
-		}
-	}(fdpipe.fdw, obj.Body)
-
-	res := C.karaberus_dakara_check(fdpipe.fdr)
+	res := C.karaberus_dakara_check(pointer.Save(obj))
 	defer C.dakara_check_results_free(res)
 
 	out := &CheckS3FileOutput{
