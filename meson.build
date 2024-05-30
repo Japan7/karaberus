@@ -10,8 +10,18 @@ go_files = files(
 
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
 
-subdir('server')
+subdir('karaberus_tools')
+install_headers(karaberus_tools_h)
 
+libkaraberus_tools = library(
+    'karaberus_tools',
+    karaberus_tools,
+    karaberus_tools_h,
+    dependencies: dakara_check,
+    install: true,
+)
+
+subdir('server')
 karaberus_inputs = go_files + karaberus_server_files
 
 go_env = environment()
@@ -57,12 +67,13 @@ karaberus = custom_target(
         '-o', karaberus_output,
         meson.current_source_dir(),
     ],
+    depends: libkaraberus_tools,
     install: true,
     install_dir: 'bin',
     install_mode: 'rwxr-xr-x',
 )
 
-test_deps = []
+test_deps = [libkaraberus_tools]
 
 if ffmpeg.found()
     create_test_mkv = custom_target(
