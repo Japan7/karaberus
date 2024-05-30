@@ -26,7 +26,7 @@ jobs:
         run: "sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build"
 
       - name: Run tests
-        run: "meson setup build && meson compile -C build && meson test -t 100 -C build"
+        run: "export SKIP_S3_TESTS=y && meson setup build && meson compile -C build && meson test -C build"
 
       - name: Show logs
         run: "cat build/meson-logs/testlog.txt"

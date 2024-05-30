@@ -13,7 +13,7 @@ var db_instance *gorm.DB = nil
 
 func init_db() {
 	db_file := getEnvDefault("DB_FILE", "karaberus.db")
-	db_test := getEnvDefault("TEST", "")
+	db_test := getEnvDefault("DELETE_DB", "")
 
 	if db_test != "" {
 		err := os.Remove(db_file)
@@ -23,7 +23,7 @@ func init_db() {
 		}
 	}
 
-	fmt.Printf("DB file: %s", db_file)
+	fmt.Printf("DB file: %s\n", db_file)
 	db, err := gorm.Open(sqlite.Open(db_file), &gorm.Config{})
 	if err != nil {
 		panic("Could not connect to the database")

@@ -4,13 +4,20 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/danielgtaylor/huma/v2/humatest"
 )
+
+var TEST_DIR = getEnvDefault("TEST_DIR", ".")
 
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
@@ -190,4 +197,76 @@ func TestCreateKara(t *testing.T) {
 
 	path := fmt.Sprintf("/kara/%d", data.Body.Kara.ID)
 	assertRespCode(t, api.Delete(path), 204)
+}
+
+func skipCI(t *testing.T) {
+	if os.Getenv("SKIP_S3_TESTS") != "" {
+		t.Skip("Skipping testing in CI environment")
+	}
+}
+
+func TestUploadKara(t *testing.T) {
+	skipCI(t)
+
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/kara",
+			map[string]any{
+				"title":         "kara_upload_title",
+				"title_aliases": []string{},
+				"authors":       []uint{},
+				"artists":       []uint{},
+				"source_media":  0,
+				"song_order":    0,
+				"medias":        []uint{},
+				"audio_tags":    []string{},
+				"video_tags":    []string{},
+				"comment":       "",
+				"version":       "",
+			}),
+		200,
+	)
+
+	data := KaraOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	f, err := os.Open(TEST_DIR + "/karaberus_test.mkv")
+	if err != nil {
+		panic("failed to open karaberus_test.mkv")
+	}
+
+	buf := new(bytes.Buffer)
+	multipart_writer := multipart.NewWriter(buf)
+	fwriter, err := multipart_writer.CreateFormFile("file", "karaberus_test.mkv")
+	if err != nil {
+		panic("failed to create multipart file")
+	}
+
+	tmpbuf := make([]byte, 1024*4)
+	for {
+		n, err := f.Read(tmpbuf)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		fwriter.Write(tmpbuf[:n])
+	}
+
+	multipart_writer.Close()
+
+	path := fmt.Sprintf("/kara/%d/upload/video", data.Body.Kara.ID)
+	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
+	resp = assertRespCode(t,
+		api.Put(path, headers, buf),
+		200,
+	)
+
+	data_upload := UploadOutput{}
+	dec = json.NewDecoder(resp.Body)
+	dec.Decode(&data_upload.Body)
 }

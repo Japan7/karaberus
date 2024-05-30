@@ -65,6 +65,7 @@ func routes(api huma.API) {
 	huma.Get(api, "/kara/{id}", GetKara)
 	huma.Delete(api, "/kara/{id}", DeleteKara)
 	huma.Post(api, "/kara", CreateKara)
+	huma.Put(api, "/kara/{id}/upload/{filetype}", UploadKaraFile)
 
 	huma.Get(api, "/tags/audio", GetAudioTags)
 	huma.Get(api, "/tags/video", GetVideoTags)

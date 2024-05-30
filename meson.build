@@ -1,22 +1,22 @@
 project('karaberus', 'c', license: 'AGPL-3.0-and-later', version: '0.1.0')
 
 go = find_program('go', required: true)
+ffmpeg = find_program('ffmpeg', required: false)
 
 go_files = files(
     'go.mod',
     'go.sum',
 )
 
-karaberus_tools_path = join_paths(meson.current_source_dir(), 'karaberus_tools')
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
 
-subdir('karaberus_tools')
 subdir('server')
 
 karaberus_inputs = go_files + karaberus_server_files
 
 go_env = environment()
 go_env.set('CGO_ENABLED', '1')
+go_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
 
 pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
 go_env.set('PKG_CONFIG_PATH', pkg_config_path)
@@ -35,20 +35,8 @@ go_env.set('CC', ' '.join(c_compiler.cmd_array()))
 
 test_db_file = meson.current_build_dir() / 'karaberus.db'
 go_env.set('KARABERUS_DB_FILE', test_db_file)
-go_env.set('KARABERUS_TEST', '1')
-
-install_headers(karaberus_tools_h)
-
-libkaraberus_tools = library(
-    'karaberus_tools',
-    karaberus_tools,
-    karaberus_tools_h,
-    dependencies: dakara_check,
-    install: true,
-)
-
-pkg = import('pkgconfig')
-pkg.generate(libkaraberus_tools)
+go_env.set('KARABERUS_DELETE_DB', '1')
+go_env.set('KARABERUS_TEST_DIR', meson.current_build_dir())
 
 karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
 
@@ -69,16 +57,35 @@ karaberus = custom_target(
         '-o', karaberus_output,
         meson.current_source_dir(),
     ],
-    depends: libkaraberus_tools,
     install: true,
     install_dir: 'bin',
     install_mode: 'rwxr-xr-x',
+)
+
+create_test_mkv = custom_target(
+    'create_test_mkv',
+    output: 'karaberus_test.mkv',
+    command: [
+        ffmpeg,
+        '-f', 'lavfi',
+        '-i', 'testsrc=d=30',
+        '-f', 'lavfi',
+        '-i', 'sine',
+        '-map', '0',
+        '-map', '1',
+        '-t', '30',
+        '-c:v', 'libx264',
+        '-preset', 'ultrafast',
+        '-c:a', 'libopus',
+        'karaberus_test.mkv',
+    ],
 )
 
 test(
     'karaberus_test',
     go,
     args: ['test', karaberus_server_path],
-    depends: libkaraberus_tools,
+    depends: create_test_mkv,
     env: go_env,
+    timeout: 300,
 )
