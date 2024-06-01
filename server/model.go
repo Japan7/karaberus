@@ -13,9 +13,10 @@ type AudioTag KaraberusType
 
 // Users
 type User struct {
-	ID            string
-	Admin         bool
-	TimingProfile TimingAuthor
+	ID              string
+	Admin           bool
+	TimingProfileID uint
+	TimingProfile   TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
 }
 
 type TimingAuthor struct {
@@ -119,5 +120,5 @@ type KaraInfoDB struct {
 
 func init_model() {
 	db := GetDB()
-	db.AutoMigrate(&KaraInfoDB{})
+	db.AutoMigrate(&KaraInfoDB{}, &User{})
 }
