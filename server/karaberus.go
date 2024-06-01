@@ -112,17 +112,19 @@ func routes(api huma.API) {
 	huma.Post(api, "/tags/media", CreateMedia, setSecurity(oidc_security))
 }
 
+var OIDC_ISSUER = getEnvDefault("OIDC_ISSUER", "")
+var OIDC_KEY_PATH = getEnvDefault("OIDC_KEY", "")
+var OIDC_ID_CLAIM = getEnvDefault("OIDC_ID_CLAIM", "")
+
 func middlewares(api huma.API) {
-	issuer := getEnvDefault("OIDC_ISSUER", "")
-	keyPath := getEnvDefault("OIDC_KEY", "")
-	if issuer == "" {
+	if OIDC_ISSUER == "" {
 		panic("OIDC issuer is not set")
 	}
-	if keyPath == "" {
+	if OIDC_KEY_PATH == "" {
 		panic("OIDC key is not set")
 	}
 
-	provider, err := rs.NewResourceServerFromKeyFile(context.TODO(), issuer, keyPath)
+	provider, err := rs.NewResourceServerFromKeyFile(context.TODO(), OIDC_ISSUER, OIDC_KEY_PATH)
 	if err != nil {
 		panic(err)
 	}
@@ -148,7 +150,14 @@ func middlewares(api huma.API) {
 						return
 					}
 
-					user := User{ID: resp.Subject}
+					var user_id string
+					if OIDC_ID_CLAIM == "" {
+						user_id = resp.Subject
+					} else {
+						user_id = resp.Claims[OIDC_ID_CLAIM].(string)
+					}
+
+					user := User{ID: user_id}
 					tx := GetDB().First(&user, resp.Subject)
 					if tx.Error != nil {
 						if errors.Is(gorm.ErrRecordNotFound, tx.Error) {
