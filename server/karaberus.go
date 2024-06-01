@@ -4,14 +4,21 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
+
+	"github.com/zitadel/oidc/v3/pkg/client/rs"
+	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
 type KaraberusError struct {
@@ -43,9 +50,27 @@ func init() {
 	init_model()
 }
 
+func getBearerToken(auth string) string {
+	if auth == "" {
+		panic("Authorization header is missing.")
+	}
+	if strings.HasPrefix(auth, oidc.BearerToken) {
+		return strings.TrimPrefix(auth, oidc.PrefixBearer)
+	}
+	return ""
+}
+
+func setSecurity(security []map[string][]string) func(o *huma.Operation) {
+	return func(o *huma.Operation) {
+		o.Security = security
+	}
+}
+
 func routes(api huma.API) {
 	// Create a registry and register a type.
 	registry := huma.NewMapRegistry("#/karaberus", huma.DefaultSchemaNamer)
+
+	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 
 	// Register POST /upload
 	huma.Register(api, huma.Operation{
@@ -53,6 +78,7 @@ func routes(api huma.API) {
 		Summary:     "Upload karaoke file",
 		Method:      http.MethodPost,
 		Path:        "/upload/{kid}",
+		Security:    oidc_security,
 		RequestBody: &huma.RequestBody{
 			Content: map[string]*huma.MediaType{
 				"multipart/form-data": {
@@ -62,28 +88,88 @@ func routes(api huma.API) {
 		},
 	}, UploadKaraFile)
 
-	huma.Get(api, "/kara/{id}", GetKara)
-	huma.Delete(api, "/kara/{id}", DeleteKara)
-	huma.Post(api, "/kara", CreateKara)
-	huma.Put(api, "/kara/{id}/upload/{filetype}", UploadKaraFile)
+	huma.Get(api, "/kara/{id}", GetKara, setSecurity(oidc_security))
+	huma.Delete(api, "/kara/{id}", DeleteKara, setSecurity(oidc_security))
+	huma.Post(api, "/kara", CreateKara, setSecurity(oidc_security))
+	huma.Put(api, "/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/audio", GetAudioTags)
-	huma.Get(api, "/tags/video", GetVideoTags)
+	huma.Get(api, "/tags/audio", GetAudioTags, setSecurity(oidc_security))
+	huma.Get(api, "/tags/video", GetVideoTags, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/author", FindAuthor)
-	huma.Get(api, "/tags/author/{id}", GetAuthor)
-	huma.Delete(api, "/tags/author/{id}", DeleteAuthor)
-	huma.Post(api, "/tags/author", CreateAuthor)
+	huma.Get(api, "/tags/author", FindAuthor, setSecurity(oidc_security))
+	huma.Get(api, "/tags/author/{id}", GetAuthor, setSecurity(oidc_security))
+	huma.Delete(api, "/tags/author/{id}", DeleteAuthor, setSecurity(oidc_security))
+	huma.Post(api, "/tags/author", CreateAuthor, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/artist", FindArtist)
-	huma.Get(api, "/tags/artist/{id}", GetArtist)
-	huma.Delete(api, "/tags/artist/{id}", DeleteArtist)
-	huma.Post(api, "/tags/artist", CreateArtist)
+	huma.Get(api, "/tags/artist", FindArtist, setSecurity(oidc_security))
+	huma.Get(api, "/tags/artist/{id}", GetArtist, setSecurity(oidc_security))
+	huma.Delete(api, "/tags/artist/{id}", DeleteArtist, setSecurity(oidc_security))
+	huma.Post(api, "/tags/artist", CreateArtist, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/media", FindMedia)
-	huma.Get(api, "/tags/media/{id}", GetMedia)
-	huma.Delete(api, "/tags/media/{id}", DeleteMedia)
-	huma.Post(api, "/tags/media", CreateMedia)
+	huma.Get(api, "/tags/media", FindMedia, setSecurity(oidc_security))
+	huma.Get(api, "/tags/media/{id}", GetMedia, setSecurity(oidc_security))
+	huma.Delete(api, "/tags/media/{id}", DeleteMedia, setSecurity(oidc_security))
+	huma.Post(api, "/tags/media", CreateMedia, setSecurity(oidc_security))
+}
+
+func middlewares(api huma.API) {
+	issuer := getEnvDefault("OIDC_ISSUER", "")
+	keyPath := getEnvDefault("OIDC_KEY", "")
+	if issuer == "" {
+		panic("OIDC issuer is not set")
+	}
+	if keyPath == "" {
+		panic("OIDC key is not set")
+	}
+
+	provider, err := rs.NewResourceServerFromKeyFile(context.TODO(), issuer, keyPath)
+	if err != nil {
+		panic(err)
+	}
+
+	// OIDC/Auth middleware
+	api.UseMiddleware(
+		func(ctx huma.Context, next func(huma.Context)) {
+			auth := ctx.Header("authorization")
+			bearer_token := getBearerToken(auth)
+
+			for _, sec := range ctx.Operation().Security {
+				if len(sec["oidc"]) > 0 {
+					if bearer_token == "" {
+						continue
+					}
+					resp, err := rs.Introspect[*oidc.IntrospectionResponse](ctx.Context(), provider, bearer_token)
+					if err != nil {
+						huma.WriteErr(api, ctx, 403, "Forbidden", err)
+						return
+					}
+					if !resp.Active {
+						huma.WriteErr(api, ctx, 403, "Forbidden: Inactive account")
+						return
+					}
+
+					user := User{ID: resp.Subject}
+					tx := GetDB().First(&user, resp.Subject)
+					if tx.Error != nil {
+						if errors.Is(gorm.ErrRecordNotFound, tx.Error) {
+							tx = GetDB().Create(&user)
+							if tx.Error != nil {
+								huma.WriteErr(api, ctx, 500, "Failed to create user account")
+								return
+							}
+						} else {
+							huma.WriteErr(api, ctx, 500, "Failed to find user account")
+							return
+						}
+					}
+					ctx = huma.WithValue(ctx, "current_user", user)
+					next(ctx)
+				}
+			}
+
+			huma.WriteErr(api, ctx, 403, "Forbidden")
+		},
+	)
 }
 
 func RunKaraberus() {
@@ -93,6 +179,14 @@ func RunKaraberus() {
 	})
 	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
+	// sec := huma.SecurityScheme{
+	// 	Type: "openIdConnect",
+	// 	Name: "oidc",
+	// 	In: "header",
+	// 	Scheme: "bearer",
+	// }
+
+	middlewares(api)
 	routes(api)
 
 	log.Printf("Starting server at %s...\n", LISTEN_ADDR)

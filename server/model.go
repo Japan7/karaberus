@@ -13,7 +13,7 @@ type AudioTag KaraberusType
 
 // Users
 type User struct {
-	gorm.Model
+	ID            string
 	Admin         bool
 	TimingProfile TimingAuthor
 }
