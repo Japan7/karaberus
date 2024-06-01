@@ -73,6 +73,18 @@ karaberus = custom_target(
     install_mode: 'rwxr-xr-x',
 )
 
+karaberus_run = run_target(
+    'run',
+    command: [
+        go,
+        'run',
+        '-C', meson.current_source_dir(),
+        meson.current_source_dir(),
+    ],
+    depends: libkaraberus_tools,
+    env: go_env,
+)
+
 test_deps = [libkaraberus_tools]
 
 if ffmpeg.found()
