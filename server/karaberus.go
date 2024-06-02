@@ -6,6 +6,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -154,7 +155,7 @@ func middlewares(api huma.API) {
 					if OIDC_ID_CLAIM == "" {
 						user_id = resp.Subject
 					} else {
-						user_id = resp.Claims[OIDC_ID_CLAIM].(string)
+						user_id = fmt.Sprintf("%v", resp.Claims[OIDC_ID_CLAIM])
 					}
 
 					user := User{ID: user_id}
