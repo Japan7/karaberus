@@ -2,7 +2,7 @@ name: Build and push image
 
 on:
   push:
-    branches: ["master", "renovate/*"]
+    branches: ["master", "renovate/*", "ci"]
   pull_request:
     branches: ["master"]
 
