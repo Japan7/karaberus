@@ -8,9 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"reflect"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -68,26 +66,7 @@ func setSecurity(security []map[string][]string) func(o *huma.Operation) {
 }
 
 func routes(api huma.API) {
-	// Create a registry and register a type.
-	registry := huma.NewMapRegistry("#/karaberus", huma.DefaultSchemaNamer)
-
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
-
-	// Register POST /upload
-	huma.Register(api, huma.Operation{
-		OperationID: "upload",
-		Summary:     "Upload karaoke file",
-		Method:      http.MethodPost,
-		Path:        "/upload/{kid}",
-		Security:    oidc_security,
-		RequestBody: &huma.RequestBody{
-			Content: map[string]*huma.MediaType{
-				"multipart/form-data": {
-					Schema: huma.SchemaFromType(registry, reflect.TypeOf(UploadInputDef{})),
-				},
-			},
-		},
-	}, UploadKaraFile)
 
 	huma.Get(api, "/kara/{id}", GetKara, setSecurity(oidc_security))
 	huma.Delete(api, "/kara/{id}", DeleteKara, setSecurity(oidc_security))

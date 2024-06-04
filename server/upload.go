@@ -5,15 +5,21 @@ package server
 
 import (
 	"context"
+	"mime/multipart"
 	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 )
 
+type UploadData struct {
+	UploadFile multipart.File `form-data:"file" required:"true"`
+}
+
 type UploadInput struct {
 	KID      string `path:"id" example:"1"`
 	FileType string `path:"filetype" example:"video"`
+	RawBody  huma.MultipartFormFiles[UploadData]
 }
 
 func getFilePathStr(fileIDStr string) string {
@@ -22,39 +28,6 @@ func getFilePathStr(fileIDStr string) string {
 
 func getFilePath(fileID uuid.UUID) string {
 	return getFilePathStr(fileID.String())
-}
-
-func (m *UploadInput) Resolve(ctx huma.Context) []error {
-	multipartForm, err := ctx.GetMultipartForm()
-
-	if err != nil {
-		panic(err)
-	}
-
-	file := multipartForm.File["file"][0]
-
-	fd, err := file.Open()
-	if err != nil {
-		return []error{err}
-	}
-	defer fd.Close()
-
-	err = SaveFileToS3(ctx.Context(), fd, m.KID, m.FileType, file.Size)
-	if err != nil {
-		return []error{err}
-	}
-
-	return nil
-}
-
-// Ensure UploadInput implements huma.Resolver
-var _ huma.Resolver = (*UploadInput)(nil)
-
-// only used to create the OpenAPI schema
-type UploadInputDef struct {
-	KID      uuid.UUID `path:"kid" example:"9da21d68-6c4d-493b-bd1f-ab1d08c1234f"`
-	FileType string    `path:"filetype" example:"video"`
-	File     string    `json:"file" format:"binary" example:"@file.mkv"`
 }
 
 type UploadOutput struct {
@@ -66,6 +39,18 @@ type UploadOutput struct {
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	resp := &UploadOutput{}
+
+	file := input.RawBody.Form.File["file"][0]
+	fd, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer fd.Close()
+
+	err = SaveFileToS3(ctx, fd, input.KID, input.FileType, file.Size)
+	if err != nil {
+		return nil, err
+	}
 
 	res, err := CheckKara(ctx, input.KID)
 	if err != nil {
