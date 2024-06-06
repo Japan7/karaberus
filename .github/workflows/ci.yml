@@ -26,11 +26,7 @@ jobs:
         run: "sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build"
 
       - name: Run tests
-        run: "meson setup build && meson compile -C build && meson test -C build"
-
-      - name: Show logs
-        run: "cat build/meson-logs/testlog.txt"
-        if: failure()
+        run: "meson setup build && meson compile -C build && meson test -C build --verbose"
 
   build:
     runs-on: ubuntu-latest
