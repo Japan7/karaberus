@@ -23,7 +23,7 @@ jobs:
         run: "pip install meson"
 
       - name: install system dependencies
-        run: "sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build"
+        run: "sudo apt-get update && sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build"
 
       - name: Run tests
         run: "meson setup build && meson compile -C build && meson test -C build --verbose"
