@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -28,35 +27,16 @@ func (m *KaraberusError) Error() string {
 	return m.Message
 }
 
-var FILES_DIR = getEnvDefault("FILES_DIR", "files")
-var LISTEN_ADDR = getEnvDefault("LISTEN_ADDR", "127.0.0.1:8888")
-var BUCKET_NAME = getEnvDefault("BUCKET_NAME", "karaberus")
-var S3_ENDPOINT = getEnvDefault("S3_ENDPOINT", "")
-var S3_KEYID = getEnvDefault("S3_KEYID", "")
-var S3_SECRET = getEnvDefault("S3_SECRET", "")
-
-func getEnvDefault(name string, defaultValue string) string {
-	envVar := os.Getenv("KARABERUS_" + name)
-	if envVar != "" {
-		return envVar
-	}
-
-	return defaultValue
-}
-
 func init() {
 	init_db()
 	init_model()
 }
 
-func getBearerToken(auth string) string {
-	if auth == "" {
-		panic("Authorization header is missing.")
-	}
+func getBearerToken(auth string) (string, error) {
 	if strings.HasPrefix(auth, oidc.BearerToken) {
-		return strings.TrimPrefix(auth, oidc.PrefixBearer)
+		return strings.TrimPrefix(auth, oidc.PrefixBearer), nil
 	}
-	return ""
+	return "", &KaraberusError{"Authorization header is missing."}
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {
@@ -90,21 +70,17 @@ func routes(api huma.API) {
 	huma.Get(api, "/tags/media/{id}", GetMedia, setSecurity(oidc_security))
 	huma.Delete(api, "/tags/media/{id}", DeleteMedia, setSecurity(oidc_security))
 	huma.Post(api, "/tags/media", CreateMedia, setSecurity(oidc_security))
+
+	huma.Get(api, "/oidc_discovery", getOIDCDiscovery)
 }
 
-var OIDC_ISSUER = getEnvDefault("OIDC_ISSUER", "")
-var OIDC_KEY_PATH = getEnvDefault("OIDC_KEY", "")
-var OIDC_ID_CLAIM = getEnvDefault("OIDC_ID_CLAIM", "")
-
 func middlewares(api huma.API) {
-	if OIDC_ISSUER == "" {
-		panic("OIDC issuer is not set")
-	}
-	if OIDC_KEY_PATH == "" {
-		panic("OIDC key is not set")
+	err := CONFIG.OIDC.Validate()
+	if err != nil {
+		panic(err)
 	}
 
-	provider, err := rs.NewResourceServerFromKeyFile(context.TODO(), OIDC_ISSUER, OIDC_KEY_PATH)
+	provider, err := rs.NewResourceServerJWTProfile(context.TODO(), CONFIG.OIDC.Issuer, CONFIG.OIDC.ClientID, CONFIG.OIDC.KeyID, []byte(CONFIG.OIDC.Key))
 	if err != nil {
 		panic(err)
 	}
@@ -113,9 +89,17 @@ func middlewares(api huma.API) {
 	api.UseMiddleware(
 		func(ctx huma.Context, next func(huma.Context)) {
 			auth := ctx.Header("authorization")
-			bearer_token := getBearerToken(auth)
+			bearer_token, _ := getBearerToken(auth)
+			// error value is not needed
 
-			for _, sec := range ctx.Operation().Security {
+			operation_security := ctx.Operation().Security
+
+			if len(operation_security) == 0 {
+				next(ctx)
+				return
+			}
+
+			for _, sec := range operation_security {
 				if len(sec["oidc"]) > 0 {
 					if bearer_token == "" {
 						continue
@@ -131,10 +115,10 @@ func middlewares(api huma.API) {
 					}
 
 					var user_id string
-					if OIDC_ID_CLAIM == "" {
+					if CONFIG.OIDC.IDClaim == "" {
 						user_id = resp.Subject
 					} else {
-						user_id = fmt.Sprintf("%v", resp.Claims[OIDC_ID_CLAIM])
+						user_id = fmt.Sprintf("%v", resp.Claims[CONFIG.OIDC.IDClaim])
 					}
 
 					user := User{ID: user_id}
@@ -178,6 +162,6 @@ func RunKaraberus() {
 	middlewares(api)
 	routes(api)
 
-	log.Printf("Starting server at %s...\n", LISTEN_ADDR)
-	log.Fatal(app.Listen(LISTEN_ADDR))
+	log.Printf("Starting server at %s...\n", CONFIG.LISTEN_ADDR)
+	log.Fatal(app.Listen(CONFIG.LISTEN_ADDR))
 }

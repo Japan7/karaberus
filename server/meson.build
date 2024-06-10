@@ -5,8 +5,10 @@ karaberus_server_files = files(
     'db.go',
     'kara.go',
     'karaberus.go',
+    'karaenv.go',
     'media.go',
     'model.go',
+    'oidc.go',
     's3.go',
     'upload.go',
 )

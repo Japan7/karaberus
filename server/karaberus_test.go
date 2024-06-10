@@ -17,8 +17,6 @@ import (
 	"github.com/danielgtaylor/huma/v2/humatest"
 )
 
-var TEST_DIR = getEnvDefault("TEST_DIR", ".")
-
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
 
@@ -232,7 +230,7 @@ func TestUploadKara(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	f, err := os.Open(TEST_DIR + "/karaberus_test.mkv")
+	f, err := os.Open(CONFIG.TEST_DIR + "/karaberus_test.mkv")
 	if err != nil {
 		panic("failed to open karaberus_test.mkv")
 	}

@@ -35,11 +35,10 @@ import (
 )
 
 func getS3Client() *minio.Client {
-	S3_SECURE := getEnvDefault("S3_SECURE", "false")
 
-	client, err := minio.New(S3_ENDPOINT, &minio.Options{
-		Creds:  credentials.NewStaticV4(S3_KEYID, S3_SECRET, ""),
-		Secure: S3_SECURE == "true",
+	client, err := minio.New(CONFIG.S3.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(CONFIG.S3.KeyID, CONFIG.S3.Secret, ""),
+		Secure: CONFIG.S3.Secure,
 	})
 	if err != nil {
 		panic(err)
@@ -50,7 +49,7 @@ func getS3Client() *minio.Client {
 
 func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64) error {
 	client := getS3Client()
-	info, err := client.PutObject(ctx, BUCKET_NAME, filename, file, filesize, minio.PutObjectOptions{})
+	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{})
 	fmt.Printf("info: %v\n", info)
 
 	return err
@@ -96,7 +95,7 @@ func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput, error) {
 	client := getS3Client()
 
-	obj, err := client.GetObject(ctx, BUCKET_NAME, video_filename, minio.GetObjectOptions{})
+	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, video_filename, minio.GetObjectOptions{})
 	if err != nil {
 		return nil, err
 	}

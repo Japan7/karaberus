@@ -6,10 +6,8 @@ package server
 import (
 	"context"
 	"mime/multipart"
-	"path/filepath"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/google/uuid"
 )
 
 type UploadData struct {
@@ -20,14 +18,6 @@ type UploadInput struct {
 	KID      string `path:"id" example:"1"`
 	FileType string `path:"filetype" example:"video"`
 	RawBody  huma.MultipartFormFiles[UploadData]
-}
-
-func getFilePathStr(fileIDStr string) string {
-	return filepath.Join(FILES_DIR, fileIDStr)
-}
-
-func getFilePath(fileID uuid.UUID) string {
-	return getFilePathStr(fileID.String())
 }
 
 type UploadOutput struct {
