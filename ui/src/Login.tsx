@@ -15,7 +15,6 @@ const Login: Component = () => {
     onMount(async () => {
         let oidc_discovery = await fetch(oidc_discovery_endpoint)
         let oidc_config: OIDCConfig = await oidc_discovery.json()
-        console.log(oidc_config)
 
         let auth_endpoint = oidc_config.authorization_endpoint
         let login_url = new URL(auth_endpoint)

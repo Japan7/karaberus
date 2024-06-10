@@ -3,7 +3,6 @@ import { createBearerSignal, login_path } from './oidc';
 
 const Home: Component = () => {
   const [bearer, _] = createBearerSignal()
-  console.log("here")
 
   if (bearer() === "") {
     window.location.replace(login_path)
