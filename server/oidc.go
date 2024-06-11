@@ -12,6 +12,7 @@ type OIDCProviderDiscovery struct {
 	Issuer                string `json:"issuer"`
 	JWKSURI               string `json:"jwks_uri"`
 	TokenEndpoint         string `json:"token_endpoint"`
+	ClientID              string `json:"client_id"`
 }
 
 type OIDCAuthEndpointOutput struct {
@@ -29,6 +30,8 @@ func getOIDCProviderDiscovery() (*OIDCProviderDiscovery, error) {
 	data := &OIDCProviderDiscovery{}
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(data)
+	data.ClientID = CONFIG.OIDC.ClientID
+
 	return data, err
 }
 

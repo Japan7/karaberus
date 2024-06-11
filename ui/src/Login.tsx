@@ -7,6 +7,7 @@ interface OIDCConfig {
     issuer: string
     jwks_uri: string
     token_endpoint: string
+    client_id: string
 }
 
 const Login: Component = () => {
@@ -24,7 +25,7 @@ const Login: Component = () => {
 
         params.append("scope", "openid")
         params.append("response_type", "code")
-        params.append("client_id", import.meta.env.CLIENT_ID)
+        params.append("client_id", oidc_config.client_id)
         params.append("redirect_uri", callback_uri)
         // params.append("state", something)
 

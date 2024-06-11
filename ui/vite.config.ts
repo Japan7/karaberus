@@ -4,7 +4,6 @@ import solidPlugin from 'vite-plugin-solid';
 
 export default defineConfig(({ mode }) => {
   let api_endpoint = (mode == "production") ? "/api" : process.env.KARABERUS_API_ENDPOINT ?? "http://localhost:8888"
-  let client_id = process.env.KARABERUS_OIDC_CLIENT_ID!
 
   return {
     plugins: [
@@ -17,7 +16,6 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       "import.meta.env.API_ENDPOINT": JSON.stringify(api_endpoint),
-      "import.meta.env.CLIENT_ID": JSON.stringify(client_id),
     },
     server: {
       port: 3000,
