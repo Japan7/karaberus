@@ -50,6 +50,42 @@ go_env.set('KARABERUS_TEST_DIR', meson.current_build_dir())
 
 karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
 
+npm = find_program('npm')
+
+ui_source = meson.current_source_dir() / 'ui'
+
+npm_env = environment()
+npm_env.set('NPM', npm.full_path())
+npm_env.set('SOURCE', ui_source)
+
+python = find_program('python3')
+
+subdir('ui')
+
+karaberus_ui = custom_target(
+    'karaberus_ui',
+    build_by_default: true,
+    env: npm_env,
+    input: ui_src,
+    output: 'ui_dist',
+    command: [
+        python,
+        meson.current_source_dir() / 'scripts' / 'npm_run.py',
+        'build',
+        meson.current_build_dir() / 'ui_dist',
+    ],
+)
+
+karaberus_ui_run = run_target(
+    'ui_run',
+    env: npm_env,
+    command: [
+        python,
+        meson.current_source_dir() / 'scripts' / 'npm_run.py',
+        'dev',
+    ],
+)
+
 karaberus = custom_target(
     'karaberus',
     build_by_default: true,
