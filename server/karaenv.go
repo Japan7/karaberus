@@ -43,6 +43,7 @@ type KaraberusConfig struct {
 	OIDC        KaraberusOIDCConfig
 	TEST_DIR    string
 	DB          KaraberusDBConfig
+	UIDistDir   string
 }
 
 func getEnvDefault(name string, defaultValue string) string {
@@ -74,6 +75,7 @@ func getKaraberusConfig() KaraberusConfig {
 	config.TEST_DIR = getEnvDefault("TEST_DIR", ".")
 	config.DB.File = getEnvDefault("DB_FILE", "karaberus.db")
 	config.DB.Delete = getEnvDefault("DELETE_DB", "") != ""
+	config.UIDistDir = getEnvDefault("UI_DIST_DIR", "/usr/share/karaberus/ui_dist")
 
 	return config
 }

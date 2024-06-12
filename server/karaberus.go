@@ -8,11 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"gorm.io/gorm"
 
 	"github.com/zitadel/oidc/v3/pkg/client/rs"
@@ -48,30 +50,30 @@ func setSecurity(security []map[string][]string) func(o *huma.Operation) {
 func routes(api huma.API) {
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 
-	huma.Get(api, "/kara/{id}", GetKara, setSecurity(oidc_security))
-	huma.Delete(api, "/kara/{id}", DeleteKara, setSecurity(oidc_security))
-	huma.Post(api, "/kara", CreateKara, setSecurity(oidc_security))
-	huma.Put(api, "/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(oidc_security))
+	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(oidc_security))
+	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(oidc_security))
+	huma.Post(api, "/api/kara", CreateKara, setSecurity(oidc_security))
+	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/audio", GetAudioTags, setSecurity(oidc_security))
-	huma.Get(api, "/tags/video", GetVideoTags, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/author", FindAuthor, setSecurity(oidc_security))
-	huma.Get(api, "/tags/author/{id}", GetAuthor, setSecurity(oidc_security))
-	huma.Delete(api, "/tags/author/{id}", DeleteAuthor, setSecurity(oidc_security))
-	huma.Post(api, "/tags/author", CreateAuthor, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/author", FindAuthor, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/author/{id}", GetAuthor, setSecurity(oidc_security))
+	huma.Delete(api, "/api/tags/author/{id}", DeleteAuthor, setSecurity(oidc_security))
+	huma.Post(api, "/api/tags/author", CreateAuthor, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/artist", FindArtist, setSecurity(oidc_security))
-	huma.Get(api, "/tags/artist/{id}", GetArtist, setSecurity(oidc_security))
-	huma.Delete(api, "/tags/artist/{id}", DeleteArtist, setSecurity(oidc_security))
-	huma.Post(api, "/tags/artist", CreateArtist, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/artist", FindArtist, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/artist/{id}", GetArtist, setSecurity(oidc_security))
+	huma.Delete(api, "/api/tags/artist/{id}", DeleteArtist, setSecurity(oidc_security))
+	huma.Post(api, "/api/tags/artist", CreateArtist, setSecurity(oidc_security))
 
-	huma.Get(api, "/tags/media", FindMedia, setSecurity(oidc_security))
-	huma.Get(api, "/tags/media/{id}", GetMedia, setSecurity(oidc_security))
-	huma.Delete(api, "/tags/media/{id}", DeleteMedia, setSecurity(oidc_security))
-	huma.Post(api, "/tags/media", CreateMedia, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/media", FindMedia, setSecurity(oidc_security))
+	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(oidc_security))
+	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(oidc_security))
+	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(oidc_security))
 
-	huma.Get(api, "/oidc_discovery", getOIDCDiscovery)
+	huma.Get(api, "/api/oidc_discovery", getOIDCDiscovery)
 }
 
 func middlewares(api huma.API) {
@@ -150,6 +152,17 @@ func RunKaraberus() {
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1024 * 1024 * 1024, // 1GiB
 	})
+
+	app.Use(filesystem.New(filesystem.Config{
+		Root:         http.Dir(CONFIG.UIDistDir),
+		Index:        "index.html",
+		NotFoundFile: "index.html",
+		MaxAge:       3600,
+		Next: func(c *fiber.Ctx) bool {
+			return strings.HasPrefix(c.Path(), "/api")
+		},
+	}))
+
 	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
 	// sec := huma.SecurityScheme{

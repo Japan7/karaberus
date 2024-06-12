@@ -3,7 +3,7 @@ import solidPlugin from 'vite-plugin-solid';
 // import devtools from 'solid-devtools/vite';
 
 export default defineConfig(({ mode }) => {
-  let api_endpoint = (mode == "production") ? "/api" : process.env.KARABERUS_API_ENDPOINT ?? "http://localhost:8888"
+  let api_endpoint = (mode == "production") ? "/api" : process.env.KARABERUS_API_ENDPOINT ?? "http://localhost:8888/api"
 
   return {
     plugins: [

@@ -35,7 +35,7 @@ func TestAuthorTag(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/author",
+		api.Post("/api/tags/author",
 			map[string]any{
 				"name":             "author_name",
 				"additional_names": []string{},
@@ -48,7 +48,7 @@ func TestAuthorTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	path := fmt.Sprintf("/tags/author/%d", data.Body.author.ID)
+	path := fmt.Sprintf("/api/tags/author/%d", data.Body.author.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -56,7 +56,7 @@ func TestFindAuthorTag(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/author",
+		api.Post("/api/tags/author",
 			map[string]any{
 				"name":             "author_name",
 				"additional_names": []string{},
@@ -69,9 +69,9 @@ func TestFindAuthorTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/tags/author?name=author_name"), 200)
+	resp = assertRespCode(t, api.Get("/api/tags/author?name=author_name"), 200)
 
-	path := fmt.Sprintf("/tags/author/%d", data.Body.author.ID)
+	path := fmt.Sprintf("/api/tags/author/%d", data.Body.author.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -79,7 +79,7 @@ func TestArtistTag(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/artist",
+		api.Post("/api/tags/artist",
 			map[string]any{
 				"name":             "artist_name",
 				"additional_names": []string{},
@@ -92,7 +92,7 @@ func TestArtistTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	path := fmt.Sprintf("/tags/artist/%d", data.Body.artist.ID)
+	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -100,7 +100,7 @@ func TestFindArtistTag(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/artist",
+		api.Post("/api/tags/artist",
 			map[string]any{
 				"name":             "artist_name",
 				"additional_names": []string{},
@@ -113,9 +113,9 @@ func TestFindArtistTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/tags/artist?name=artist_name"), 200)
+	resp = assertRespCode(t, api.Get("/api/tags/artist?name=artist_name"), 200)
 
-	path := fmt.Sprintf("/tags/artist/%d", data.Body.artist.ID)
+	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -124,7 +124,7 @@ func TestMediaTag(t *testing.T) {
 
 	for _, v := range MediaTypes {
 		resp := assertRespCode(t,
-			api.Post("/tags/media",
+			api.Post("/api/tags/media",
 				map[string]any{
 					"name":             "media_name",
 					"media_type":       v.ID,
@@ -138,7 +138,7 @@ func TestMediaTag(t *testing.T) {
 		dec := json.NewDecoder(resp.Body)
 		dec.Decode(&data.Body)
 
-		path := fmt.Sprintf("/tags/media/%d", data.Body.Media.ID)
+		path := fmt.Sprintf("/api/tags/media/%d", data.Body.Media.ID)
 		assertRespCode(t, api.Delete(path), 204)
 	}
 
@@ -148,7 +148,7 @@ func TestFindMedia(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/tags/media",
+		api.Post("/api/tags/media",
 			map[string]any{
 				"name":             "media_name",
 				"media_type":       "ANIME",
@@ -162,9 +162,9 @@ func TestFindMedia(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/tags/media?name=media_name"), 200)
+	resp = assertRespCode(t, api.Get("/api/tags/media?name=media_name"), 200)
 
-	path := fmt.Sprintf("/tags/media/%d", data.Body.Media.ID)
+	path := fmt.Sprintf("/api/tags/media/%d", data.Body.Media.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -172,7 +172,7 @@ func TestCreateKara(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/kara",
+		api.Post("/api/kara",
 			map[string]any{
 				"title":         "kara_title",
 				"title_aliases": []string{},
@@ -193,7 +193,7 @@ func TestCreateKara(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	path := fmt.Sprintf("/kara/%d", data.Body.Kara.ID)
+	path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -209,7 +209,7 @@ func TestUploadKara(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
-		api.Post("/kara",
+		api.Post("/api/kara",
 			map[string]any{
 				"title":         "kara_upload_title",
 				"title_aliases": []string{},
@@ -257,7 +257,7 @@ func TestUploadKara(t *testing.T) {
 
 	multipart_writer.Close()
 
-	path := fmt.Sprintf("/kara/%d/upload/video", data.Body.Kara.ID)
+	path := fmt.Sprintf("/api/kara/%d/upload/video", data.Body.Kara.ID)
 	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
 	resp = assertRespCode(t,
 		api.Put(path, headers, buf),

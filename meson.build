@@ -47,6 +47,7 @@ test_db_file = meson.current_build_dir() / 'karaberus.db'
 go_env.set('KARABERUS_DB_FILE', test_db_file)
 go_env.set('KARABERUS_DELETE_DB', '1')
 go_env.set('KARABERUS_TEST_DIR', meson.current_build_dir())
+go_env.set('KARABERUS_UI_DIST_DIR', meson.current_build_dir() / 'ui_dist')
 
 karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
 
@@ -74,6 +75,8 @@ karaberus_ui = custom_target(
         'build',
         meson.current_build_dir() / 'ui_dist',
     ],
+    install: true,
+    install_dir: 'share' / 'karaberus',
 )
 
 karaberus_ui_run = run_target(
@@ -103,7 +106,7 @@ karaberus = custom_target(
         '-o', karaberus_output,
         meson.current_source_dir(),
     ],
-    depends: libkaraberus_tools,
+    depends: [libkaraberus_tools, karaberus_ui],
     install: true,
     install_dir: 'bin',
     install_mode: 'rwxr-xr-x',
@@ -117,7 +120,7 @@ karaberus_run = run_target(
         '-C', meson.current_source_dir(),
         meson.current_source_dir(),
     ],
-    depends: libkaraberus_tools,
+    depends: [libkaraberus_tools, karaberus_ui],
     env: go_env,
 )
 

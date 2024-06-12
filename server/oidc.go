@@ -20,7 +20,7 @@ type OIDCAuthEndpointOutput struct {
 }
 
 func getOIDCProviderDiscovery() (*OIDCProviderDiscovery, error) {
-	oidc_config_url := fmt.Sprintf("%s.well-known/openid-configuration", CONFIG.OIDC.Issuer)
+	oidc_config_url := fmt.Sprintf("%s/.well-known/openid-configuration", CONFIG.OIDC.Issuer)
 
 	resp, err := http.Get(oidc_config_url)
 	if err != nil {
