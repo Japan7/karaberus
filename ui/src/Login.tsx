@@ -1,5 +1,4 @@
 import { onMount, type Component } from 'solid-js'
-import { KARABERUS_API_BASE } from './const'
 import { oidc_callback_path } from './oidc'
 
 interface OIDCConfig {
@@ -11,10 +10,8 @@ interface OIDCConfig {
 }
 
 const Login: Component = () => {
-    let oidc_discovery_endpoint = KARABERUS_API_BASE + "/oidc_discovery"
-
     onMount(async () => {
-        let oidc_discovery = await fetch(oidc_discovery_endpoint)
+        let oidc_discovery = await fetch("/api/oidc_discovery")
         let oidc_config: OIDCConfig = await oidc_discovery.json()
 
         let auth_endpoint = oidc_config.authorization_endpoint
