@@ -1,25 +1,11 @@
-import { defineConfig } from 'vite';
-import solidPlugin from 'vite-plugin-solid';
-// import devtools from 'solid-devtools/vite';
+import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
 
-export default defineConfig(({ mode }) => {
-  return {
-    plugins: [
-      /*
-      Uncomment the following line to enable solid-devtools.
-      For more info see https://github.com/thetarnav/solid-devtools/tree/main/packages/extension#readme
-      */
-      // devtools(),
-      solidPlugin(),
-    ],
-    server: {
-      port: 3000,
-      proxy: {
-        "/api": "http://localhost:8888",
-      },
+export default defineConfig({
+  plugins: [solid()],
+  server: {
+    proxy: {
+      "/api": "http://localhost:8888",
     },
-    build: {
-      target: 'esnext',
-    },
-  }
+  },
 });

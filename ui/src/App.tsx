@@ -1,19 +1,15 @@
-import type { Component } from 'solid-js';
+import { Route, Router } from "@solidjs/router";
+import Home from "./routes/Home";
+import Login from "./routes/Login";
+import OIDCCallback from "./routes/OIDCCallback";
+import { LOGIN_PATH, OIDC_CALLBACK_PATH } from "./utils/oidc";
 
-import { Route, Router } from '@solidjs/router'
-import Home from './Home'
-import { login_path, oidc_callback_path } from './oidc'
-import Login from './Login';
-import OIDCCallback from './OIDCCallback';
-
-const App: Component = () => {
+export default function App() {
   return (
     <Router>
-      <Route path={login_path} component={Login} />
-      <Route path={oidc_callback_path} component={OIDCCallback} />
+      <Route path={LOGIN_PATH} component={Login} />
+      <Route path={OIDC_CALLBACK_PATH} component={OIDCCallback} />
       <Route path="/" component={Home} />
     </Router>
   );
-};
-
-export default App;
+}

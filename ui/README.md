@@ -1,7 +1,7 @@
 ## Usage
 
 ```bash
-$ npm ci
+$ npm install # or pnpm install or yarn install
 ```
 
 ### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
@@ -10,12 +10,10 @@ $ npm ci
 
 In the project directory, you can run:
 
-### `npm run dev` or `npm start`
+### `npm run dev`
 
 Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
+Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
 
 ### `npm run build`
 
@@ -27,4 +25,4 @@ Your app is ready to be deployed!
 
 ## Deployment
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+Learn more about deploying your application with the [documentations](https://vitejs.dev/guide/static-deploy.html)
