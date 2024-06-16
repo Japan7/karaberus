@@ -24,15 +24,24 @@ libkaraberus_tools = library(
 subdir('server')
 karaberus_inputs = go_files + karaberus_server_files
 
+go_os = get_option('go_os')
+go_arch = get_option('go_arch')
+
+c_compiler = meson.get_compiler('c')
+cc_cmd = ' '.join(c_compiler.cmd_array())
+
+test_db_file = meson.current_build_dir() / 'karaberus.db'
+karaberus_ui_dist_dir = meson.current_build_dir() / 'ui_dist'
+pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
+
+# go build env
 go_env = environment()
 go_env.set('CGO_ENABLED', '1')
 go_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
+go_env.set('CC', cc_cmd)
 
-pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
 go_env.set('PKG_CONFIG_PATH', pkg_config_path)
 
-go_os = get_option('go_os')
-go_arch = get_option('go_arch')
 if go_os != ''
     go_env.set('GOOS', go_os)
 endif
@@ -40,16 +49,28 @@ if go_arch != ''
     go_env.set('GOARCH', go_arch)
 endif
 
-c_compiler = meson.get_compiler('c')
-go_env.set('CC', ' '.join(c_compiler.cmd_array()))
-
-test_db_file = meson.current_build_dir() / 'karaberus.db'
 go_env.set('KARABERUS_DB_FILE', test_db_file)
-go_env.set('KARABERUS_DELETE_DB', '1')
-go_env.set('KARABERUS_TEST_DIR', meson.current_build_dir())
-go_env.set('KARABERUS_UI_DIST_DIR', meson.current_build_dir() / 'ui_dist')
+go_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
-karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
+# go test env
+go_test_env = environment()
+go_test_env.set('CGO_ENABLED', '1')
+go_test_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
+go_test_env.set('CC', cc_cmd)
+
+go_test_env.set('PKG_CONFIG_PATH', pkg_config_path)
+
+if go_os != ''
+    go_test_env.set('GOOS', go_os)
+endif
+if go_arch != ''
+    go_test_env.set('GOARCH', go_arch)
+endif
+
+go_test_env.set('KARABERUS_DB_FILE', test_db_file)
+go_test_env.set('KARABERUS_DELETE_DB', '1')
+go_test_env.set('KARABERUS_TEST_DIR', meson.current_build_dir())
+go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
 npm = find_program('npm')
 
@@ -88,6 +109,8 @@ karaberus_ui_run = run_target(
         'dev',
     ],
 )
+
+karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
 
 karaberus = custom_target(
     'karaberus',
@@ -158,6 +181,6 @@ test(
     go,
     args: ['test', karaberus_server_path],
     depends: test_deps,
-    env: go_env,
+    env: go_test_env,
     timeout: 300,
 )
