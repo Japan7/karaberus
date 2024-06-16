@@ -111,6 +111,21 @@ karaberus_ui_run = run_target(
     ],
 )
 
+test(
+  'karaberus_ui_lint',
+  python,
+  args: [meson.current_source_dir() / 'scripts' / 'npm_run.py', 'lint'],
+  env: npm_env,
+)
+
+test(
+  'karaberus_ui_check',
+  python,
+  args: [meson.current_source_dir() / 'scripts' / 'npm_run.py', 'check'],
+  env: npm_env,
+)
+
+
 karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
 
 karaberus = custom_target(
