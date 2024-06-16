@@ -1,6 +1,10 @@
 package server
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type KaraberusType struct {
 	ID   string // used in the database/API
@@ -13,7 +17,7 @@ type AudioTag KaraberusType
 
 // Users
 type User struct {
-	ID              string
+	ID              string `gorm:"primary_key"`
 	Admin           bool
 	TimingProfileID uint
 	TimingProfile   TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
@@ -22,6 +26,34 @@ type User struct {
 type TimingAuthor struct {
 	gorm.Model
 	Name string
+}
+
+type Scopes struct {
+	Kara bool `json:"kara"`
+	User bool `json:"user"`
+}
+
+func (scopes Scopes) HasScope(scope string) bool {
+	if scope == "kara" {
+		return scopes.Kara
+	}
+	if scope == "user" {
+		return scopes.User
+	}
+
+	panic("unknown scope " + scope)
+}
+
+type Token struct {
+	ID        string `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	UserID    string
+	User      User `gorm:"foreignKey:UserID;references:ID"`
+	Admin     bool
+	ReadOnly  bool
+	Scopes
 }
 
 // Artists

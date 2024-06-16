@@ -1,12 +1,12 @@
 package server
 
 import (
-	"fmt"
 	"os"
+	"time"
 
 	"github.com/glebarez/sqlite"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db_instance *gorm.DB = nil
@@ -16,12 +16,25 @@ func init_db() {
 		err := os.Remove(CONFIG.DB.File)
 		// probably errors don't matter
 		if err != nil {
-			log.Warn(err.Error())
+			Warn(err.Error())
 		}
 	}
 
-	fmt.Printf("DB file: %s\n", CONFIG.DB.File)
-	db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), &gorm.Config{})
+	gorm_logger := logger.New(
+		getLogger(),
+		logger.Config{
+			SlowThreshold:             time.Second,
+			LogLevel:                  logger.Warn,
+			Colorful:                  true,
+			IgnoreRecordNotFoundError: false,
+			ParameterizedQueries:      true,
+		},
+	)
+
+	getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
+	db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), &gorm.Config{
+		Logger: gorm_logger,
+	})
 	if err != nil {
 		panic("Could not connect to the database")
 	}
