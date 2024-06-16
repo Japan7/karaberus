@@ -55,7 +55,19 @@ func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize i
 	return err
 }
 
+func CheckValidFiletype(type_directory string) bool {
+	switch type_directory {
+	case "video", "audio", "inst":
+		return true
+	default:
+		return false
+	}
+}
+
 func SaveFileToS3(ctx context.Context, fd io.Reader, kid string, type_directory string, filesize int64) error {
+	if !CheckValidFiletype(type_directory) {
+		return &KaraberusError{"Unknown file type " + type_directory}
+	}
 	filename := filepath.Join(type_directory, "/", kid)
 	return UploadToS3(ctx, fd, filename, filesize)
 }
