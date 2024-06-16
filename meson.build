@@ -173,7 +173,7 @@ if ffmpeg.found()
     test_deps += [create_test_mkv]
 else
     warning('ffmpeg executable was not found, S3 tests are disabled')
-    go_env.set('SKIP_S3_TESTS', 'y')
+    go_test_env.set('SKIP_S3_TESTS', 'y')
 endif
 
 test(
