@@ -92,8 +92,6 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 			return nil, err
 		}
 		out.Video = video_check_res
-	} else {
-		return nil, errors.New("video file not uploaded yet")
 	}
 	if kara.SubtitlesUploaded {
 		sub_filename := fmt.Sprintf("sub/%d", kara.ID)
