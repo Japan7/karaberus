@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -18,6 +19,8 @@ import (
 
 	"github.com/zitadel/oidc/v3/pkg/client/rs"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
+
+	"github.com/gofiber/contrib/otelfiber/v2"
 )
 
 type KaraberusError struct {
@@ -29,6 +32,7 @@ func (m *KaraberusError) Error() string {
 }
 
 func init() {
+	setupOTel()
 	init_db()
 	init_model()
 }
@@ -107,7 +111,7 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 				}
 			} else {
 				if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-					getLogger().Printf("Failed to find record: %s\n", tx.Error.Error())
+					logger.ErrorContext(ctx.Context(), "Failed to find record: %s\n", tx.Error.Error())
 				}
 			}
 		}
@@ -182,6 +186,13 @@ func RunKaraberus() {
 		BodyLimit: 1024 * 1024 * 1024, // 1GiB
 	})
 
+	cleanup, err := setupOTel()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer cleanup()
+	app.Use(otelfiber.Middleware())
+
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.Dir(CONFIG.UIDistDir),
 		Index:        "index.html",
@@ -204,6 +215,6 @@ func RunKaraberus() {
 	middlewares(api)
 	routes(api)
 
-	getLogger().Printf("Starting server at %s...\n", CONFIG.LISTEN_ADDR)
-	getLogger().Fatal(app.Listen(CONFIG.LISTEN_ADDR))
+	log.Printf("Starting server at %s...\n", CONFIG.LISTEN_ADDR)
+	log.Fatal(app.Listen(CONFIG.LISTEN_ADDR))
 }

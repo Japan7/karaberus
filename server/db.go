@@ -1,12 +1,12 @@
 package server
 
 import (
+	"log"
 	"os"
-	"time"
 
 	"github.com/glebarez/sqlite"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var db_instance *gorm.DB = nil
@@ -16,27 +16,17 @@ func init_db() {
 		err := os.Remove(CONFIG.DB.File)
 		// probably errors don't matter
 		if err != nil {
-			Warn(err.Error())
+			logger.Warn(err.Error())
 		}
 	}
 
-	gorm_logger := logger.New(
-		getLogger(),
-		logger.Config{
-			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Warn,
-			Colorful:                  true,
-			IgnoreRecordNotFoundError: false,
-			ParameterizedQueries:      true,
-		},
-	)
-
-	getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
-	db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), &gorm.Config{
-		Logger: gorm_logger,
-	})
+	log.Printf("DB file: %s\n", CONFIG.DB.File)
+	db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), &gorm.Config{})
 	if err != nil {
 		panic("Could not connect to the database")
+	}
+	if err := db.Use(otelgorm.NewPlugin()); err != nil {
+		panic(err)
 	}
 
 	db_instance = db
