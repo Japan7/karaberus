@@ -57,7 +57,7 @@ func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize i
 
 func CheckValidFiletype(type_directory string) bool {
 	switch type_directory {
-	case "video", "audio", "inst":
+	case "video", "sub", "inst":
 		return true
 	default:
 		return false

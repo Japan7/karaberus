@@ -5,9 +5,12 @@ package server
 
 import (
 	"context"
+	"errors"
 	"mime/multipart"
+	"strconv"
 
 	"github.com/danielgtaylor/huma/v2"
+	"gorm.io/gorm"
 )
 
 type UploadData struct {
@@ -27,8 +30,37 @@ type UploadOutput struct {
 	}
 }
 
+func updateKaraokeAfterUpload(kara *KaraInfoDB, filetype string) error {
+	switch filetype {
+	case "video":
+		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: true}})
+		return tx.Error
+	case "inst":
+		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: true}})
+		return tx.Error
+	case "sub":
+		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: true}})
+		return tx.Error
+	}
+	return errors.New("Unknown file type " + filetype)
+}
+
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	resp := &UploadOutput{}
+
+	kid, err := strconv.Atoi(input.KID)
+	if err != nil {
+		return nil, err
+	}
+
+	kara := &KaraInfoDB{}
+	tx := GetDB().First(kara, kid)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, huma.Error404NotFound("Karaoke not found", tx.Error)
+		}
+		return nil, tx.Error
+	}
 
 	file := input.RawBody.Form.File["file"][0]
 	fd, err := file.Open()

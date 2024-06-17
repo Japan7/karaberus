@@ -109,6 +109,7 @@ func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
 		ExtraTitles: makeExtraTitles(info),
 		Comment:     info.Comment,
 		SongOrder:   info.SongOrder,
+		UploadInfo:  NewUploadInfo(),
 	}
 
 	if info.SourceMedia > 0 {

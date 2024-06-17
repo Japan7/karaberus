@@ -134,6 +134,22 @@ type AudioTagDB struct {
 	ID string
 }
 
+type UploadInfo struct {
+	VideoUploaded        bool
+	InstrumentalUploaded bool
+	SubtitlesUploaded    bool
+	Hardsubbed           bool
+}
+
+func NewUploadInfo() UploadInfo {
+	return UploadInfo{
+		VideoUploaded:        false,
+		InstrumentalUploaded: false,
+		SubtitlesUploaded:    false,
+		Hardsubbed:           false,
+	}
+}
+
 type KaraInfoDB struct {
 	gorm.Model
 	Authors       []TimingAuthor `gorm:"many2many:kara_authors_tags"`
@@ -148,6 +164,7 @@ type KaraInfoDB struct {
 	Version       string
 	Comment       string
 	SongOrder     uint
+	UploadInfo
 }
 
 func init_model() {
