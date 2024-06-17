@@ -37,7 +37,7 @@ func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutp
 		Scopes:   input.Body.Scopes,
 		User:     GetCurrentUser(ctx),
 	}
-	GetDB().Create(&token)
+	GetDB(ctx).Create(&token)
 
 	out := &CreateTokenOutput{}
 	out.Body.Token = token_id
@@ -59,10 +59,10 @@ func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutp
 	user := GetCurrentUser(ctx)
 	var err error
 	if user.Admin {
-		tx := GetDB().Delete(&Token{}, input.TokenID)
+		tx := GetDB(ctx).Delete(&Token{}, input.TokenID)
 		err = tx.Error
 	} else {
-		tx := GetDB().Where(&Token{ID: input.TokenID, User: user}).Delete(&Token{})
+		tx := GetDB(ctx).Where(&Token{ID: input.TokenID, User: user}).Delete(&Token{})
 		err = tx.Error
 	}
 

@@ -101,7 +101,7 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 		if len(sec["scopes"]) > 0 {
 			scope := sec["scopes"][0]
 			db_token := &Token{}
-			tx := GetDB().Where(Token{ID: bearer_token}).First(db_token)
+			tx := GetDB(ctx.Context()).Where(Token{ID: bearer_token}).First(db_token)
 			if tx.Error == nil {
 				if db_token.HasScope(scope) {
 					ctx = huma.WithValue(ctx, "current_user", db_token.User)
@@ -133,10 +133,10 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 			}
 
 			user := User{ID: user_id}
-			tx := GetDB().First(&user, resp.Subject)
+			tx := GetDB(ctx.Context()).First(&user, resp.Subject)
 			if tx.Error != nil {
 				if errors.Is(gorm.ErrRecordNotFound, tx.Error) {
-					tx = GetDB().Create(&user)
+					tx = GetDB(ctx.Context()).Create(&user)
 					if tx.Error != nil {
 						return ctx, errors.New("Failed to create user account")
 					}

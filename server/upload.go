@@ -30,16 +30,16 @@ type UploadOutput struct {
 	}
 }
 
-func updateKaraokeAfterUpload(kara *KaraInfoDB, filetype string) error {
+func updateKaraokeAfterUpload(ctx context.Context, kara *KaraInfoDB, filetype string) error {
 	switch filetype {
 	case "video":
-		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: true}})
+		tx := GetDB(ctx).Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: true}})
 		return tx.Error
 	case "inst":
-		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: true}})
+		tx := GetDB(ctx).Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: true}})
 		return tx.Error
 	case "sub":
-		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: true}})
+		tx := GetDB(ctx).Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: true}})
 		return tx.Error
 	}
 	return errors.New("Unknown file type " + filetype)
@@ -54,7 +54,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	}
 
 	kara := &KaraInfoDB{}
-	tx := GetDB().First(kara, kid)
+	tx := GetDB(ctx).First(kara, kid)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("Karaoke not found", tx.Error)
@@ -74,7 +74,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		return nil, err
 	}
 
-	updateKaraokeAfterUpload(kara, input.FileType)
+	updateKaraokeAfterUpload(ctx, kara, input.FileType)
 
 	res, err := CheckKara(ctx, *kara)
 	if err != nil {

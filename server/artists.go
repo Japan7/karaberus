@@ -21,8 +21,8 @@ type ArtistOutput struct {
 	}
 }
 
-func GetArtistByID(Id uint) Artist {
-	db := GetDB()
+func GetArtistByID(Ctx context.Context, Id uint) Artist {
+	db := GetDB(Ctx)
 
 	artist := Artist{}
 	tx := db.First(&artist, Id)
@@ -34,7 +34,7 @@ func GetArtistByID(Id uint) Artist {
 }
 
 func GetArtist(Ctx context.Context, input *GetArtistInput) (*ArtistOutput, error) {
-	db := GetDB()
+	db := GetDB(Ctx)
 
 	artist_output := &ArtistOutput{}
 	tx := db.First(&artist_output.Body.artist, input.Id)
@@ -52,9 +52,9 @@ type CreateArtistInput struct {
 	}
 }
 
-func createArtist(name string) (*Artist, error) {
+func createArtist(Ctx context.Context, name string) (*Artist, error) {
 	artist := Artist{Name: name}
-	tx := GetDB().Create(&artist)
+	tx := GetDB(Ctx).Create(&artist)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -63,7 +63,7 @@ func createArtist(name string) (*Artist, error) {
 
 func CreateArtist(Ctx context.Context, input *CreateArtistInput) (*ArtistOutput, error) {
 	artist_output := &ArtistOutput{}
-	artist, err := createArtist(input.Body.Name)
+	artist, err := createArtist(Ctx, input.Body.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ type DeleteArtistResponse struct {
 }
 
 func DeleteArtist(Ctx context.Context, input *GetArtistInput) (*DeleteArtistResponse, error) {
-	tx := GetDB().Delete(&Artist{}, input.Id)
+	tx := GetDB(Ctx).Delete(&Artist{}, input.Id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")
@@ -94,7 +94,7 @@ type FindArtistInput struct {
 
 func FindArtist(Ctx context.Context, input *FindArtistInput) (*ArtistOutput, error) {
 	artist := Artist{}
-	tx := GetDB().Where(&Artist{Name: input.Name}).First(&artist)
+	tx := GetDB(Ctx).Where(&Artist{Name: input.Name}).First(&artist)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")

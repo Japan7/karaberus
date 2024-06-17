@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"time"
 
 	"gorm.io/gorm"
@@ -168,6 +169,6 @@ type KaraInfoDB struct {
 }
 
 func init_model() {
-	db := GetDB()
+	db := GetDB(context.Background())
 	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{})
 }

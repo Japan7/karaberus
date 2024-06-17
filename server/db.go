@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -32,6 +33,6 @@ func init_db() {
 	db_instance = db
 }
 
-func GetDB() *gorm.DB {
-	return db_instance
+func GetDB(ctx context.Context) *gorm.DB {
+	return db_instance.WithContext(ctx)
 }

@@ -49,22 +49,22 @@ type AllTags struct {
 	Media   []MediaDB
 }
 
-func makeTags(info KaraInfo) AllTags {
+func makeTags(ctx context.Context, info KaraInfo) AllTags {
 	authors := make([]TimingAuthor, len(info.Authors))
 
 	for i, author := range info.Authors {
-		authors[i] = GetAuthorById(author)
+		authors[i] = GetAuthorById(ctx, author)
 	}
 
 	artists := make([]Artist, len(info.Artists))
 
 	for i, artist := range info.Artists {
-		artists[i] = GetArtistByID(artist)
+		artists[i] = GetArtistByID(ctx, artist)
 	}
 
 	medias := make([]MediaDB, len(info.Medias))
 	for i, media := range info.Medias {
-		medias[i] = getMediaByID(media)
+		medias[i] = getMediaByID(ctx, media)
 	}
 
 	video_tags := make([]VideoTagDB, len(info.VideoTags))
@@ -96,8 +96,8 @@ func makeExtraTitles(info KaraInfo) []AdditionalName {
 	return extra_titles
 }
 
-func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
-	tags := makeTags(info)
+func (info KaraInfo) to_KaraInfoDB(ctx context.Context) KaraInfoDB {
+	tags := makeTags(ctx, info)
 
 	kara_info := KaraInfoDB{
 		VideoTags:   tags.Video,
@@ -113,7 +113,7 @@ func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
 	}
 
 	if info.SourceMedia > 0 {
-		kara_info.SourceMedia = getMediaByID(info.SourceMedia)
+		kara_info.SourceMedia = getMediaByID(ctx, info.SourceMedia)
 	}
 
 	return kara_info
@@ -130,9 +130,9 @@ type KaraOutput struct {
 }
 
 func CreateKara(ctx context.Context, input *CreateKaraInput) (*KaraOutput, error) {
-	kara := input.Body.to_KaraInfoDB()
+	kara := input.Body.to_KaraInfoDB(ctx)
 
-	db := GetDB()
+	db := GetDB(ctx)
 
 	result := db.Create(&kara)
 	if result.Error != nil {
@@ -149,7 +149,7 @@ type GetKaraInput struct {
 }
 
 func GetKara(Ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
-	db := GetDB()
+	db := GetDB(Ctx)
 
 	kara_output := &KaraOutput{}
 	tx := db.First(&kara_output.Body.Kara, input.Id)
@@ -165,7 +165,7 @@ type DeleteKaraResponse struct {
 }
 
 func DeleteKara(Ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, error) {
-	tx := GetDB().Delete(&TimingAuthor{}, input.Id)
+	tx := GetDB(Ctx).Delete(&TimingAuthor{}, input.Id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")

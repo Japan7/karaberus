@@ -22,9 +22,9 @@ type MediaOutput struct {
 	}
 }
 
-func createMedia(name string, media_type MediaType) (*MediaDB, error) {
+func createMedia(Ctx context.Context, name string, media_type MediaType) (*MediaDB, error) {
 	media_tag := MediaDB{Name: name, Type: media_type.ID}
-	tx := GetDB().Create(&media_tag)
+	tx := GetDB(Ctx).Create(&media_tag)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -42,9 +42,9 @@ func getMediaType(media_type_id string) MediaType {
 	panic("unknown media type " + media_type_id)
 }
 
-func getMediaByID(Id uint) MediaDB {
+func getMediaByID(Ctx context.Context, Id uint) MediaDB {
 	media := MediaDB{}
-	tx := GetDB().First(&media, Id)
+	tx := GetDB(Ctx).First(&media, Id)
 	if tx.Error != nil {
 		panic(tx.Error.Error())
 	}
@@ -52,10 +52,10 @@ func getMediaByID(Id uint) MediaDB {
 	return media
 }
 
-func getMedia(name string, media_type_str string) MediaDB {
+func getMedia(Ctx context.Context, name string, media_type_str string) MediaDB {
 	media_type := getMediaType(media_type_str)
 	media := MediaDB{}
-	tx := GetDB().Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media)
+	tx := GetDB(Ctx).Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media)
 	if tx.Error != nil {
 		panic(tx.Error.Error())
 	}
@@ -66,7 +66,7 @@ func getMedia(name string, media_type_str string) MediaDB {
 func CreateMedia(Ctx context.Context, input *CreateMediaInput) (*MediaOutput, error) {
 	media_output := &MediaOutput{}
 	tag_type := getMediaType(input.Body.MediaType)
-	media, err := createMedia(input.Body.Name, tag_type)
+	media, err := createMedia(Ctx, input.Body.Name, tag_type)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ type GetMediaInput struct {
 }
 
 func DeleteMedia(Ctx context.Context, input *GetMediaInput) (*DeleteMediaResponse, error) {
-	tx := GetDB().Delete(&MediaDB{}, input.Id)
+	tx := GetDB(Ctx).Delete(&MediaDB{}, input.Id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")
@@ -96,7 +96,7 @@ func DeleteMedia(Ctx context.Context, input *GetMediaInput) (*DeleteMediaRespons
 }
 
 func GetMedia(Ctx context.Context, input *GetMediaInput) (*MediaOutput, error) {
-	db := GetDB()
+	db := GetDB(Ctx)
 
 	media_output := &MediaOutput{}
 	tx := db.First(&media_output.Body.Media, input.Id)
@@ -113,7 +113,7 @@ type FindMediaInput struct {
 
 func FindMedia(Ctx context.Context, input *FindMediaInput) (*MediaOutput, error) {
 	media := MediaDB{}
-	tx := GetDB().Where(&MediaDB{Name: input.Name}).First(&media)
+	tx := GetDB(Ctx).Where(&MediaDB{Name: input.Name}).First(&media)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")

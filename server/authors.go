@@ -21,8 +21,8 @@ type AuthorOutput struct {
 	}
 }
 
-func GetAuthorById(Id uint) TimingAuthor {
-	db := GetDB()
+func GetAuthorById(Ctx context.Context, Id uint) TimingAuthor {
+	db := GetDB(Ctx)
 
 	author := TimingAuthor{}
 	tx := db.First(&author, Id)
@@ -34,7 +34,7 @@ func GetAuthorById(Id uint) TimingAuthor {
 }
 
 func GetAuthor(Ctx context.Context, input *GetAuthorInput) (*AuthorOutput, error) {
-	db := GetDB()
+	db := GetDB(Ctx)
 
 	author_output := &AuthorOutput{}
 	tx := db.First(&author_output.Body.author, input.Id)
@@ -52,9 +52,9 @@ type CreateAuthorInput struct {
 	}
 }
 
-func createAuthor(name string) (*TimingAuthor, error) {
+func createAuthor(Ctx context.Context, name string) (*TimingAuthor, error) {
 	author := TimingAuthor{Name: name}
-	tx := GetDB().Create(&author)
+	tx := GetDB(Ctx).Create(&author)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -63,7 +63,7 @@ func createAuthor(name string) (*TimingAuthor, error) {
 
 func CreateAuthor(Ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error) {
 	author_output := &AuthorOutput{}
-	author, err := createAuthor(input.Body.Name)
+	author, err := createAuthor(Ctx, input.Body.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ type DeleteAuthorResponse struct {
 }
 
 func DeleteAuthor(Ctx context.Context, input *GetArtistInput) (*DeleteAuthorResponse, error) {
-	tx := GetDB().Delete(&TimingAuthor{}, input.Id)
+	tx := GetDB(Ctx).Delete(&TimingAuthor{}, input.Id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")
@@ -94,7 +94,7 @@ type FindAuthorInput struct {
 
 func FindAuthor(Ctx context.Context, input *FindAuthorInput) (*AuthorOutput, error) {
 	author := TimingAuthor{}
-	tx := GetDB().Where(&TimingAuthor{Name: input.Name}).First(&author)
+	tx := GetDB(Ctx).Where(&TimingAuthor{Name: input.Name}).First(&author)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, huma.Error404NotFound("tag not found")
