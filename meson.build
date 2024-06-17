@@ -85,6 +85,22 @@ python = find_program('python3')
 
 subdir('ui')
 
+npm_run = meson.current_source_dir() / 'scripts' / 'npm_run.py'
+
+karaberus_ui_deps = custom_target(
+    'karaberus_ui_deps',
+    build_by_default: true,
+    env: npm_env,
+    input: ui_src,
+    output: '.npm_ci',
+    command: [
+        python,
+        npm_run,
+        'ci',
+        '@OUTPUT@',
+    ],
+)
+
 karaberus_ui = custom_target(
     'karaberus_ui',
     build_by_default: true,
@@ -93,10 +109,11 @@ karaberus_ui = custom_target(
     output: 'ui_dist',
     command: [
         python,
-        meson.current_source_dir() / 'scripts' / 'npm_run.py',
+        npm_run,
         'build',
-        meson.current_build_dir() / 'ui_dist',
+        karaberus_ui_dist_dir,
     ],
+    depends: karaberus_ui_deps,
     install: true,
     install_dir: 'share' / 'karaberus',
 )
@@ -106,23 +123,25 @@ karaberus_ui_run = run_target(
     env: npm_env,
     command: [
         python,
-        meson.current_source_dir() / 'scripts' / 'npm_run.py',
+        npm_run,
         'dev',
     ],
+    depends: karaberus_ui_deps,
 )
 
 test(
-  'karaberus_ui_lint',
-  python,
-  args: [meson.current_source_dir() / 'scripts' / 'npm_run.py', 'lint'],
-  env: npm_env,
+    'karaberus_ui_lint',
+    python,
+    args: [npm_run, 'lint'],
+    env: npm_env,
+    depends: karaberus_ui_deps,
 )
 
 test(
-  'karaberus_ui_check',
-  python,
-  args: [meson.current_source_dir() / 'scripts' / 'npm_run.py', 'check'],
-  env: npm_env,
+    'karaberus_ui_check',
+    python,
+    args: [npm_run, 'check'],
+    env: npm_env,
 )
 
 
