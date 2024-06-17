@@ -30,7 +30,8 @@ go_arch = get_option('go_arch')
 c_compiler = meson.get_compiler('c')
 cc_cmd = ' '.join(c_compiler.cmd_array())
 
-test_db_file = meson.current_build_dir() / 'karaberus.db'
+db_file = meson.current_build_dir() / 'karaberus.db'
+test_db_file = meson.current_build_dir() / 'karaberus_test.db'
 karaberus_ui_dist_dir = meson.current_build_dir() / 'ui_dist'
 pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
 
@@ -49,7 +50,7 @@ if go_arch != ''
     go_env.set('GOARCH', go_arch)
 endif
 
-go_env.set('KARABERUS_DB_FILE', test_db_file)
+go_env.set('KARABERUS_DB_FILE', db_file)
 go_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
 # go test env
