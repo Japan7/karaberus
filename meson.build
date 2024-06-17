@@ -91,7 +91,7 @@ karaberus_ui_deps = custom_target(
     'karaberus_ui_deps',
     build_by_default: true,
     env: npm_env,
-    input: ui_src,
+    input: ui_pkg,
     output: '.npm_ci',
     command: [
         python,
