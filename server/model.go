@@ -169,5 +169,5 @@ type KaraInfoDB struct {
 
 func init_model() {
 	db := GetDB()
-	db.AutoMigrate(&KaraInfoDB{}, &User{})
+	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{})
 }
