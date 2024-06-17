@@ -38,12 +38,13 @@ type KaraberusDBConfig struct {
 }
 
 type KaraberusConfig struct {
-	LISTEN_ADDR string
-	S3          KaraberusS3Config
-	OIDC        KaraberusOIDCConfig
-	TEST_DIR    string
-	DB          KaraberusDBConfig
-	UIDistDir   string
+	LISTEN_ADDR        string
+	S3                 KaraberusS3Config
+	OIDC               KaraberusOIDCConfig
+	GENERATED_TEST_DIR string
+	TEST_DIR           string
+	DB                 KaraberusDBConfig
+	UIDistDir          string
 }
 
 func getEnvDefault(name string, defaultValue string) string {
@@ -72,6 +73,7 @@ func getKaraberusConfig() KaraberusConfig {
 	config.OIDC.ClientID = getEnvDefault("OIDC_CLIENT_ID", "")
 	config.OIDC.IDClaim = getEnvDefault("OIDC_ID_CLAIM", "")
 
+	config.GENERATED_TEST_DIR = getEnvDefault("GENERATED_TEST_DIR", ".")
 	config.TEST_DIR = getEnvDefault("TEST_DIR", ".")
 	config.DB.File = getEnvDefault("DB_FILE", "karaberus.db")
 	config.DB.Delete = getEnvDefault("DELETE_DB", "") != ""

@@ -70,7 +70,8 @@ endif
 
 go_test_env.set('KARABERUS_DB_FILE', test_db_file)
 go_test_env.set('KARABERUS_DELETE_DB', '1')
-go_test_env.set('KARABERUS_TEST_DIR', meson.current_build_dir())
+go_test_env.set('KARABERUS_GENERATED_TEST_DIR', meson.current_build_dir())
+go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
 npm = find_program('npm')
@@ -185,9 +186,10 @@ karaberus_run = run_target(
 test_deps = [libkaraberus_tools]
 
 if ffmpeg.found()
-    create_test_mkv = custom_target(
+    mkv_test_file = 'karaberus_test.mkv'
+    test_deps += custom_target(
         'create_test_mkv',
-        output: 'karaberus_test.mkv',
+        output: mkv_test_file,
         build_by_default: false,
         command: [
             ffmpeg,
@@ -201,11 +203,25 @@ if ffmpeg.found()
             '-c:v', 'libx264',
             '-preset', 'ultrafast',
             '-c:a', 'libopus',
-            'karaberus_test.mkv',
+            mkv_test_file,
         ],
     )
 
-    test_deps += [create_test_mkv]
+    opus_test_file = 'karaberus_test.opus'
+    test_deps += custom_target(
+        'create_test_opus',
+        output: opus_test_file,
+        build_by_default: false,
+        command: [
+            ffmpeg,
+            '-f', 'lavfi',
+            '-i', 'sine',
+            '-map', '0',
+            '-t', '30',
+            '-c:a', 'libopus',
+            opus_test_file,
+        ],
+    )
 else
     warning('ffmpeg executable was not found, S3 tests are disabled')
     go_test_env.set('SKIP_S3_TESTS', 'y')

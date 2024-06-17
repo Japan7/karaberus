@@ -25,8 +25,8 @@ type UploadInput struct {
 
 type UploadOutput struct {
 	Body struct {
-		KID          string            `json:"file_id" example:"1" doc:"karaoke ID"`
-		CheckResults CheckS3FileOutput `json:"check_results"`
+		KID          string          `json:"file_id" example:"1" doc:"karaoke ID"`
+		CheckResults CheckKaraOutput `json:"check_results"`
 	}
 }
 

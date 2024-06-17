@@ -12,6 +12,7 @@ import (
 	"mime/multipart"
 	"net/http/httptest"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/danielgtaylor/huma/v2/humatest"
@@ -203,6 +204,47 @@ func skipCI(t *testing.T) {
 	}
 }
 
+func uploadFile(t *testing.T, api humatest.TestAPI, kid uint, filepath string, filetype string) UploadOutput {
+	f, err := os.Open(filepath)
+	if err != nil {
+		panic("failed to open " + filepath)
+	}
+
+	buf := new(bytes.Buffer)
+	multipart_writer := multipart.NewWriter(buf)
+	fwriter, err := multipart_writer.CreateFormFile("file", "karaberus_test.mkv")
+	if err != nil {
+		panic("failed to create multipart file")
+	}
+
+	tmpbuf := make([]byte, 1024*4)
+	for {
+		n, err := f.Read(tmpbuf)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		fwriter.Write(tmpbuf[:n])
+	}
+
+	multipart_writer.Close()
+
+	path := fmt.Sprintf("/api/kara/%d/upload/%s", kid, filetype)
+	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
+	resp := assertRespCode(t,
+		api.Put(path, headers, buf),
+		200,
+	)
+
+	data_upload := UploadOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data_upload.Body)
+	return data_upload
+}
+
 func TestUploadKara(t *testing.T) {
 	skipCI(t)
 
@@ -230,41 +272,48 @@ func TestUploadKara(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	f, err := os.Open(CONFIG.TEST_DIR + "/karaberus_test.mkv")
-	if err != nil {
-		panic("failed to open karaberus_test.mkv")
+	mkv_test_file := path.Join(CONFIG.GENERATED_TEST_DIR, "karaberus_test.mkv")
+	video_upload := uploadFile(t, api, data.Body.Kara.ID, mkv_test_file, "video")
+	if !video_upload.Body.CheckResults.Video.Passed {
+		t.Log("Video did not pass checks.")
+		t.Fail()
+	}
+	if video_upload.Body.CheckResults.Instrumental != nil {
+		t.Log("Instrumental should be uploaded yet.")
+		t.Fail()
+	}
+	if video_upload.Body.CheckResults.Subtitles != nil {
+		t.Log("Subtitles should be uploaded yet.")
+		t.Fail()
 	}
 
-	buf := new(bytes.Buffer)
-	multipart_writer := multipart.NewWriter(buf)
-	fwriter, err := multipart_writer.CreateFormFile("file", "karaberus_test.mkv")
-	if err != nil {
-		panic("failed to create multipart file")
+	ass_test_file := path.Join(CONFIG.TEST_DIR, "test.ass")
+	sub_upload := uploadFile(t, api, data.Body.Kara.ID, ass_test_file, "sub")
+	if !sub_upload.Body.CheckResults.Video.Passed {
+		t.Log("Video did not pass checks.")
+		t.Fail()
+	}
+	if !sub_upload.Body.CheckResults.Subtitles.Passed {
+		t.Log("Subtitles did not pass checks.")
+		t.Fail()
+	}
+	if sub_upload.Body.CheckResults.Instrumental != nil {
+		t.Log("Instrumental should be uploaded yet.")
+		t.Fail()
 	}
 
-	tmpbuf := make([]byte, 1024*4)
-	for {
-		n, err := f.Read(tmpbuf)
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-
-		fwriter.Write(tmpbuf[:n])
+	inst_test_file := path.Join(CONFIG.GENERATED_TEST_DIR, "karaberus_test.opus")
+	inst_upload := uploadFile(t, api, data.Body.Kara.ID, inst_test_file, "inst")
+	if !inst_upload.Body.CheckResults.Video.Passed {
+		t.Log("Video did not pass checks.")
+		t.Fail()
 	}
-
-	multipart_writer.Close()
-
-	path := fmt.Sprintf("/api/kara/%d/upload/video", data.Body.Kara.ID)
-	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
-	resp = assertRespCode(t,
-		api.Put(path, headers, buf),
-		200,
-	)
-
-	data_upload := UploadOutput{}
-	dec = json.NewDecoder(resp.Body)
-	dec.Decode(&data_upload.Body)
+	if !inst_upload.Body.CheckResults.Subtitles.Passed {
+		t.Log("Subtitles did not pass checks.")
+		t.Fail()
+	}
+	if !inst_upload.Body.CheckResults.Instrumental.Passed {
+		t.Log("Instrumental did not pass checks.")
+		t.Fail()
+	}
 }

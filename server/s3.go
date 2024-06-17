@@ -76,23 +76,43 @@ type CheckS3FileOutput struct {
 	Passed bool `json:"passed" example:"true" doc:"true if file passed all checks"`
 }
 
-func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckS3FileOutput, error) {
-	var video_filename string
-	inst_filename := ""
-	sub_filename := ""
+type CheckKaraOutput struct {
+	Video        *CheckS3FileOutput
+	Instrumental *CheckS3FileOutput
+	Subtitles    *CheckS3FileOutput
+}
+
+func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
+	out := &CheckKaraOutput{}
 
 	if kara.VideoUploaded {
-		video_filename = fmt.Sprintf("video/%d", kara.ID)
+		video_filename := fmt.Sprintf("video/%d", kara.ID)
+		video_check_res, err := CheckS3File(ctx, video_filename)
+		if err != nil {
+			return nil, err
+		}
+		out.Video = video_check_res
 	} else {
 		return nil, errors.New("video file not uploaded yet")
 	}
 	if kara.SubtitlesUploaded {
-		sub_filename = fmt.Sprintf("sub/%d", kara.ID)
+		sub_filename := fmt.Sprintf("sub/%d", kara.ID)
+		sub_check_res, err := CheckS3File(ctx, sub_filename)
+		if err != nil {
+			return nil, err
+		}
+		out.Subtitles = sub_check_res
 	}
 	if kara.InstrumentalUploaded {
-		inst_filename = fmt.Sprintf("inst/%d", kara.ID)
+		inst_filename := fmt.Sprintf("inst/%d", kara.ID)
+		inst_check_res, err := CheckS3File(ctx, inst_filename)
+		if err != nil {
+			return nil, err
+		}
+		out.Instrumental = inst_check_res
 	}
-	return CheckS3File(ctx, video_filename, sub_filename, inst_filename)
+
+	return out, nil
 }
 
 //export AVIORead
@@ -117,7 +137,7 @@ func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 	return C.int64_t(pos)
 }
 
-func CheckS3File(ctx context.Context, video_filename string, sub_filename string, inst_filename string) (*CheckS3FileOutput, error) {
+func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput, error) {
 	client := getS3Client()
 
 	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, video_filename, minio.GetObjectOptions{})
