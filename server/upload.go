@@ -74,7 +74,9 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		return nil, err
 	}
 
-	res, err := CheckKara(ctx, input.KID)
+	updateKaraokeAfterUpload(kara, input.FileType)
+
+	res, err := CheckKara(ctx, *kara)
 	if err != nil {
 		return nil, err
 	}

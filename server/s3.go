@@ -76,10 +76,23 @@ type CheckS3FileOutput struct {
 	Passed bool `json:"passed" example:"true" doc:"true if file passed all checks"`
 }
 
-func CheckKara(ctx context.Context, kid string) (*CheckS3FileOutput, error) {
-	// TODO: find all related files to check
-	video_filename := filepath.Join("video/", kid)
-	return CheckS3File(ctx, video_filename)
+func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckS3FileOutput, error) {
+	var video_filename string
+	inst_filename := ""
+	sub_filename := ""
+
+	if kara.VideoUploaded {
+		video_filename = fmt.Sprintf("video/%d", kara.ID)
+	} else {
+		return nil, errors.New("video file not uploaded yet")
+	}
+	if kara.SubtitlesUploaded {
+		sub_filename = fmt.Sprintf("sub/%d", kara.ID)
+	}
+	if kara.InstrumentalUploaded {
+		inst_filename = fmt.Sprintf("inst/%d", kara.ID)
+	}
+	return CheckS3File(ctx, video_filename, sub_filename, inst_filename)
 }
 
 //export AVIORead
@@ -104,7 +117,7 @@ func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 	return C.int64_t(pos)
 }
 
-func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput, error) {
+func CheckS3File(ctx context.Context, video_filename string, sub_filename string, inst_filename string) (*CheckS3FileOutput, error) {
 	client := getS3Client()
 
 	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, video_filename, minio.GetObjectOptions{})
