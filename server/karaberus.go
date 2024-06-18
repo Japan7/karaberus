@@ -172,6 +172,7 @@ func middlewares(api huma.API) {
 			if err != nil {
 				huma.WriteErr(api, ctx, 403, "Forbidden", err)
 			}
+			next(ctx)
 		},
 	)
 }
