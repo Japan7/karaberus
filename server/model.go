@@ -70,12 +70,12 @@ type Artist struct {
 }
 
 // Media types
-var (
-	ANIME   MediaType = MediaType{ID: "ANIME", Name: "Anime"}
-	GAME    MediaType = MediaType{ID: "GAME", Name: "Game"}
-	LIVE    MediaType = MediaType{ID: "LIVE", Name: "Live"}
-	CARTOON MediaType = MediaType{ID: "CARTOON", Name: "Cartoon"}
-)
+var MediaTypes []MediaType = []MediaType{
+	{ID: "ANIME", Name: "Anime"},
+	{ID: "GAME", Name: "Game"},
+	{ID: "LIVE", Name: "Live"},
+	{ID: "CARTOON", Name: "Cartoon"},
+}
 
 type MediaDB struct {
 	gorm.Model
@@ -84,46 +84,25 @@ type MediaDB struct {
 	AdditionalName `json:"additional_name"`
 }
 
-var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
-
 // Video tags
-var (
-	VideoTypeFanmade       VideoTag = VideoTag{ID: "FANMADE", Name: "Fanmade"}
-	VideoTypeStream        VideoTag = VideoTag{ID: "STREAM", Name: "Stream"}
-	VideoTypeConcert       VideoTag = VideoTag{ID: "CONCERT", Name: "Concert"}
-	VideoTypeAdvertisement VideoTag = VideoTag{ID: "AD", Name: "Advertisement"}
-	VideoTypeTrailer       VideoTag = VideoTag{ID: "TRAILER", Name: "Trailer"}
-	VideoTypeNSFW          VideoTag = VideoTag{ID: "NSFW", Name: "Not Safe For Work"}
-	VideoTypeSpoiler       VideoTag = VideoTag{ID: "SPOILER", Name: "Spoiler"}
-)
-
 var VideoTags []VideoTag = []VideoTag{
-	VideoTypeFanmade,
-	VideoTypeStream,
-	VideoTypeConcert,
-	VideoTypeAdvertisement,
-	VideoTypeTrailer,
-	VideoTypeNSFW,
-	VideoTypeSpoiler,
+	{ID: "FANMADE", Name: "Fanmade"},
+	{ID: "STREAM", Name: "Stream"},
+	{ID: "CONCERT", Name: "Concert"},
+	{ID: "AD", Name: "Advertisement"},
+	{ID: "TRAILER", Name: "Trailer"},
+	{ID: "NSFW", Name: "Not Safe For Work"},
+	{ID: "SPOILER", Name: "Spoiler"},
 }
 
 // Audio tags
-var (
-	AudioTypeOpening   AudioTag = AudioTag{ID: "OP", Name: "Opening"}
-	AudioTypeEnding    AudioTag = AudioTag{ID: "ED", Name: "Ending"}
-	AudioTypeInsert    AudioTag = AudioTag{ID: "INS", Name: "Insert"}
-	AudioTypeImageSong AudioTag = AudioTag{ID: "IS", Name: "Image Song"}
-	AudioTypeLive      AudioTag = AudioTag{ID: "LIVE", Name: "Live"}
-	AudioTypeCover     AudioTag = AudioTag{ID: "COVER", Name: "Cover"}
-)
-
 var AudioTags []AudioTag = []AudioTag{
-	AudioTypeOpening,
-	AudioTypeEnding,
-	AudioTypeInsert,
-	AudioTypeImageSong,
-	AudioTypeLive,
-	AudioTypeCover,
+	{ID: "OP", Name: "Opening"},
+	{ID: "ED", Name: "Ending"},
+	{ID: "INS", Name: "Insert"},
+	{ID: "IS", Name: "Image Song"},
+	{ID: "LIVE", Name: "Live"},
+	{ID: "COVER", Name: "Cover"},
 }
 
 type AdditionalName struct {
