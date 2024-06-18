@@ -86,7 +86,7 @@ func routes(api huma.API) {
 func checkToken(ctx huma.Context, bearer_token string, operation_security []map[string][]string) (huma.Context, error) {
 	provider, err := rs.NewResourceServerJWTProfile(ctx.Context(), CONFIG.OIDC.Issuer, CONFIG.OIDC.ClientID, CONFIG.OIDC.KeyID, []byte(CONFIG.OIDC.Key))
 	if err != nil {
-		panic(err)
+		getLogger().Print(err)
 	}
 
 	if bearer_token == "" {
@@ -175,6 +175,7 @@ func middlewares(api huma.API) {
 			next(ctx)
 		},
 	)
+
 }
 
 func RunKaraberus() {
