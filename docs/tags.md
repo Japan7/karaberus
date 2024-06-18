@@ -6,7 +6,7 @@ be served by karaberus itself, but it is too early for that)
 
 # Types of tags
 
-There are 4 types of tags:
+There are 5 types of tags:
 
 * Author tags: tags related to the author of the karaoke.
 * Artist tags: tags related to the artists of the original song.
