@@ -18,6 +18,9 @@ type AudioTag KaraberusType
 // Users
 type User struct {
 	ID              string `gorm:"primary_key"`
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       gorm.DeletedAt `gorm:"index"`
 	Admin           bool
 	TimingProfileID uint
 	TimingProfile   TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
