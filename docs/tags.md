@@ -51,6 +51,8 @@ Video tags currently defined:
 * **Concert**: The video is taken from a live concert
 * **Advertisement**: The video is an ad
 * **Trailer**: The video is a trailer for something
+* **NSFW**: The video is not safe for work
+* **SPOILER**: The video contains spoilers
 
 
 ## Audio tags
@@ -61,6 +63,7 @@ Audio tags currently defined:
 * **Opening**: The audio is an opening song of the source media
 * **Ending**: The audio is an ending song of the source media
 * **Insert**: The audio is an insert song of the source media
+* **Image song**: The audio is an image song of the source media
 * **Live**: The audio is a live interpretation of the song
 * **Cover**: The audio is a cover of the original song
 
