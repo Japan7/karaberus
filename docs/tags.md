@@ -73,3 +73,4 @@ Audio tags currently defined:
 * VIDEO → Comment, ideally a source tag for some cases (?)
 * AMV details tag: feed into media source
 * AMV tag → Fanmade + Music Video
+* LONG/COURT → Version: it's always relative to another version of the song
