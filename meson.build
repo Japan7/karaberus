@@ -183,6 +183,19 @@ karaberus_run = run_target(
     env: go_env,
 )
 
+karaberus_create_token = run_target(
+    'create-token',
+    command: [
+        go,
+        'run',
+        '-C', meson.current_source_dir(),
+        meson.current_source_dir(),
+        'create-token',
+    ],
+    depends: [libkaraberus_tools, karaberus_ui],
+    env: go_env,
+)
+
 test_deps = [libkaraberus_tools]
 
 if ffmpeg.found()

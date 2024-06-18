@@ -36,6 +36,8 @@ type Scopes struct {
 	User bool `json:"user"`
 }
 
+var AllScopes = Scopes{Kara: true, User: true}
+
 func (scopes Scopes) HasScope(scope string) bool {
 	if scope == "kara" {
 		return scopes.Kara

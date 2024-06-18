@@ -25,22 +25,53 @@ type CreateTokenOutput struct {
 	}
 }
 
-func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
+func generateToken() (*string, error) {
 	token_bytes := make([]byte, 64)
-	rand.Reader.Read(token_bytes)
-	token_id := hex.EncodeToString(token_bytes)
+	_, err := rand.Reader.Read(token_bytes)
+	if err != nil {
+		return nil, err
+	}
+	token_str := hex.EncodeToString(token_bytes)
+	return &token_str, nil
+}
+
+func CreateSystemToken() (string, error) {
+	token_id, err := generateToken()
+	if err != nil {
+		return "", err
+	}
 
 	token := Token{
-		ID:       token_id,
+		ID:       *token_id,
+		Admin:    true,
+		ReadOnly: false,
+		Scopes:   AllScopes,
+	}
+	GetDB().Create(&token)
+
+	return *token_id, nil
+}
+
+func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
+	token_id, err := generateToken()
+	if err != nil {
+		return nil, err
+	}
+
+	token := Token{
+		ID:       *token_id,
 		Admin:    input.Body.Admin,
 		ReadOnly: input.Body.User,
 		Scopes:   input.Body.Scopes,
 		User:     GetCurrentUser(ctx),
 	}
-	GetDB().Create(&token)
+	tx := GetDB().Create(&token)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
 
 	out := &CreateTokenOutput{}
-	out.Body.Token = token_id
+	out.Body.Token = *token_id
 
 	return out, nil
 }

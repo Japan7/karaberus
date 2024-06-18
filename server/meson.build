@@ -6,7 +6,6 @@ karaberus_server_files = files(
     'kara.go',
     'karaberus.go',
     'karaenv.go',
-    'logger.go',
     'media.go',
     'model.go',
     'oidc.go',
