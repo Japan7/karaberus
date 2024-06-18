@@ -42,9 +42,6 @@ Media tags have:
 Tags related to the video.
 
 Video tags currently defined:
-* **Opening**: The video is an opening video of the source media
-* **Ending**: The video is an ending video of the source media
-* **Insert**: The video is an insert video in the source media
 * **Music Video**: The video is specifically made for the song
 * **Fanmade**: The video is fanmade
 * **Stream**: The video comes from a stream

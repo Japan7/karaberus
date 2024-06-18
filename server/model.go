@@ -88,9 +88,6 @@ var MediaTypes []MediaType = []MediaType{ANIME, GAME, LIVE, CARTOON}
 
 // Video tags
 var (
-	VideoTypeOpening       VideoTag = VideoTag{ID: "OP", Name: "Opening"}
-	VideoTypeEnding        VideoTag = VideoTag{ID: "ED", Name: "Ending"}
-	VideoTypeInsert        VideoTag = VideoTag{ID: "INSERT", Name: "Insert"}
 	VideoTypeFanmade       VideoTag = VideoTag{ID: "FANMADE", Name: "Fanmade"}
 	VideoTypeStream        VideoTag = VideoTag{ID: "STREAM", Name: "Stream"}
 	VideoTypeConcert       VideoTag = VideoTag{ID: "CONCERT", Name: "Concert"}
@@ -101,14 +98,13 @@ var (
 )
 
 var VideoTags []VideoTag = []VideoTag{
-	VideoTypeOpening,
-	VideoTypeEnding,
-	VideoTypeInsert,
 	VideoTypeFanmade,
 	VideoTypeStream,
 	VideoTypeConcert,
 	VideoTypeAdvertisement,
 	VideoTypeTrailer,
+	VideoTypeNSFW,
+	VideoTypeSpoiler,
 }
 
 // Audio tags
@@ -125,6 +121,7 @@ var AudioTags []AudioTag = []AudioTag{
 	AudioTypeOpening,
 	AudioTypeEnding,
 	AudioTypeInsert,
+	AudioTypeImageSong,
 	AudioTypeLive,
 	AudioTypeCover,
 }
