@@ -62,7 +62,7 @@ Audio tags currently defined:
 * **Insert**: The audio is an insert song of the source media
 * **Image song**: The audio is an image song of the source media
 * **Live**: The audio is a live interpretation of the song
-* **Cover**: The audio is a cover of the original song
+* **Remix/Cover**: The audio is a remix or cover of the original song
 
 
 # Transition from dakaraneko
