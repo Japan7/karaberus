@@ -102,7 +102,7 @@ var AudioTags []AudioTag = []AudioTag{
 	{ID: "INS", Name: "Insert"},
 	{ID: "IS", Name: "Image Song"},
 	{ID: "LIVE", Name: "Live"},
-	{ID: "COVER", Name: "Cover"},
+	{ID: "REMIX", Name: "Remix/Cover"},
 }
 
 type AdditionalName struct {
