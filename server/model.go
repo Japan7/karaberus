@@ -94,6 +94,8 @@ var (
 	VideoTypeConcert       VideoTag = VideoTag{ID: "CONCERT", Name: "Concert"}
 	VideoTypeAdvertisement VideoTag = VideoTag{ID: "AD", Name: "Advertisement"}
 	VideoTypeTrailer       VideoTag = VideoTag{ID: "TRAILER", Name: "Trailer"}
+	VideoTypeNSFW          VideoTag = VideoTag{ID: "NSFW", Name: "Not Safe For Work"}
+	VideoTypeSpoiler       VideoTag = VideoTag{ID: "SPOILER", Name: "Spoiler"}
 )
 
 var VideoTags []VideoTag = []VideoTag{
@@ -109,11 +111,12 @@ var VideoTags []VideoTag = []VideoTag{
 
 // Audio tags
 var (
-	AudioTypeOpening AudioTag = AudioTag{ID: "OP", Name: "Opening"}
-	AudioTypeEnding  AudioTag = AudioTag{ID: "ED", Name: "Ending"}
-	AudioTypeInsert  AudioTag = AudioTag{ID: "INS", Name: "Insert"}
-	AudioTypeLive    AudioTag = AudioTag{ID: "LIVE", Name: "Live"}
-	AudioTypeCover   AudioTag = AudioTag{ID: "COVER", Name: "Cover"}
+	AudioTypeOpening   AudioTag = AudioTag{ID: "OP", Name: "Opening"}
+	AudioTypeEnding    AudioTag = AudioTag{ID: "ED", Name: "Ending"}
+	AudioTypeInsert    AudioTag = AudioTag{ID: "INS", Name: "Insert"}
+	AudioTypeImageSong AudioTag = AudioTag{ID: "IS", Name: "Image Song"}
+	AudioTypeLive      AudioTag = AudioTag{ID: "LIVE", Name: "Live"}
+	AudioTypeCover     AudioTag = AudioTag{ID: "COVER", Name: "Cover"}
 )
 
 var AudioTags []AudioTag = []AudioTag{
