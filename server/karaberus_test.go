@@ -93,7 +93,7 @@ func TestArtistTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.artist.ID)
+	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.Artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -116,7 +116,7 @@ func TestFindArtistTag(t *testing.T) {
 
 	resp = assertRespCode(t, api.Get("/api/tags/artist?name=artist_name"), 200)
 
-	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.artist.ID)
+	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.Artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 

@@ -17,7 +17,7 @@ type GetArtistInput struct {
 
 type ArtistOutput struct {
 	Body struct {
-		artist Artist
+		Artist Artist `json:"artist"`
 	}
 }
 
@@ -37,7 +37,7 @@ func GetArtist(Ctx context.Context, input *GetArtistInput) (*ArtistOutput, error
 	db := GetDB()
 
 	artist_output := &ArtistOutput{}
-	tx := db.First(&artist_output.Body.artist, input.Id)
+	tx := db.First(&artist_output.Body.Artist, input.Id)
 	if tx.Error != nil {
 		return nil, huma.Error404NotFound("tag not found", tx.Error)
 	}
@@ -67,7 +67,7 @@ func CreateArtist(Ctx context.Context, input *CreateArtistInput) (*ArtistOutput,
 	if err != nil {
 		return nil, err
 	}
-	artist_output.Body.artist = *artist
+	artist_output.Body.Artist = *artist
 
 	return artist_output, nil
 }
@@ -103,7 +103,7 @@ func FindArtist(Ctx context.Context, input *FindArtistInput) (*ArtistOutput, err
 	}
 
 	out := &ArtistOutput{}
-	out.Body.artist = artist
+	out.Body.Artist = artist
 
 	return out, nil
 }
