@@ -1,23 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>Japan7/renovate-config"
-  ],
-  "postUpdateOptions": [
-    "gomodTidy"
-  ],
+  "extends": ["github>Japan7/renovate-config"],
+  "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
-      "matchDepNames": [
-        "go"
-      ],
+      "matchDepNames": ["go"],
       "automerge": false
     },
     {
-      "matchManagers": [
-        "gomod"
-      ],
+      "matchManagers": ["gomod"],
       "automerge": false
+    },
+    {
+      "matchFileNames": ["ui/**"],
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "rangeStrategy": "pin"
     }
   ]
 }
