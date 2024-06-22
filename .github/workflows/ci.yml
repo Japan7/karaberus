@@ -19,14 +19,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: install meson
-        run: "pip install meson"
+      - name: Install meson
+        run: pip install meson
 
-      - name: install system dependencies
-        run: "sudo apt-get update && sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libavcodec-dev libavutil-dev libavformat-dev ninja-build
+
+      - name: Compile karaberus
+        run: |
+          meson setup build
+          meson compile -C build
+
+      - name: Setup S3 bucket
+        run: docker run -d -e MINIO_DEFAULT_BUCKETS=test -p 9000:9000 bitnami/minio:latest
 
       - name: Run tests
-        run: "meson setup build && meson compile -C build && meson test -C build --verbose"
+        run: meson test -C build --verbose
+        env:
+          KARABERUS_S3_ENDPOINT: s3://localhost:9000/test
+          KARABERUS_S3_KEYID: minio
+          KARABERUS_S3_SECRET: miniosecret
 
   build:
     runs-on: ubuntu-latest
