@@ -1,25 +1,26 @@
-project('karaberus', 'c', license: 'AGPL-3.0-and-later', version: '0.1.0')
+project(
+    'karaberus',
+    'c',
+    license: 'AGPL-3.0-and-later',
+    version: '0.1.0',
+    default_options: [
+        'ffmpegaacsucks:prefer_static=true',
+        'ffmpegaacsucks:default_library=static',
+    ],
+)
 
 go = find_program('go', required: true)
 ffmpeg = find_program('ffmpeg', required: false)
+python = find_program('python3')
+npm = find_program('npm')
 
 go_files = files(
     'go.mod',
     'go.sum',
+    'main.go',
 )
 
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
-
-subdir('karaberus_tools')
-install_headers(karaberus_tools_h)
-
-libkaraberus_tools = library(
-    'karaberus_tools',
-    karaberus_tools,
-    karaberus_tools_h,
-    dependencies: dakara_check,
-    install: true,
-)
 
 subdir('server')
 karaberus_inputs = go_files + karaberus_server_files
@@ -33,7 +34,31 @@ cc_cmd = ' '.join(c_compiler.cmd_array())
 db_file = meson.current_build_dir() / 'karaberus.db'
 test_db_file = meson.current_build_dir() / 'karaberus_test.db'
 karaberus_ui_dist_dir = meson.current_build_dir() / 'ui' / 'ui_dist'
-pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
+pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
+
+dakara_check = dependency(
+    'dakara_check',
+    version: '>=4.0.1',
+    fallback: ['dakara_check', 'dakara_check_dep'],
+    default_options: ['default_library=static', 'prefer_static=true'],
+)
+
+karaberus_tools_c = files('karaberus_tools' / 'karaberus_tools.c')
+karaberus_tools_h = files('karaberus_tools' / 'karaberus_tools.h')
+
+inc_karaberus_tools = include_directories('karaberus_tools')
+
+libkaraberus_tools = static_library(
+    'karaberus_tools',
+    karaberus_tools_c,
+    karaberus_tools_h,
+    dependencies: dakara_check,
+    include_directories: inc_karaberus_tools,
+    install: true,
+)
+
+pkg = import('pkgconfig')
+pkg.generate(libkaraberus_tools)
 
 # go build env
 go_env = environment()
@@ -74,33 +99,11 @@ go_test_env.set('KARABERUS_GENERATED_TEST_DIR', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
-npm = find_program('npm')
-
 ui_source = meson.current_source_dir() / 'ui'
 
 npm_env = environment()
 npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', ui_source)
-
-python = find_program('python3')
-
-subdir('ui')
-
-test(
-    'karaberus_ui_lint',
-    python,
-    args: [npm_run, 'lint'],
-    env: npm_env,
-    depends: karaberus_ui_deps,
-)
-
-test(
-    'karaberus_ui_check',
-    python,
-    args: [npm_run, 'check'],
-    env: npm_env,
-)
-
 
 karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
 
@@ -121,20 +124,27 @@ karaberus = custom_target(
         '-o', karaberus_output,
         meson.current_source_dir(),
     ],
-    depends: [libkaraberus_tools, karaberus_ui],
+    depends: libkaraberus_tools,
     install: true,
     install_dir: 'bin',
     install_mode: 'rwxr-xr-x',
 )
 
+openapi_spec = custom_target(
+    'openapi_spec',
+    command: [karaberus, 'openapi'],
+    output: 'openapi.yaml',
+    capture: true,
+    depend_files: karaberus_inputs,
+    depends: libkaraberus_tools,
+    env: go_env,
+)
+
+subdir('ui')
+
 karaberus_run = run_target(
     'run',
-    command: [
-        go,
-        'run',
-        '-C', meson.current_source_dir(),
-        meson.current_source_dir(),
-    ],
+    command: [karaberus],
     depends: [libkaraberus_tools, karaberus_ui],
     env: go_env,
 )
@@ -148,7 +158,7 @@ karaberus_create_token = run_target(
         meson.current_source_dir(),
         'create-token',
     ],
-    depends: [libkaraberus_tools, karaberus_ui],
+    depends: libkaraberus_tools,
     env: go_env,
 )
 

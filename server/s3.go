@@ -4,8 +4,8 @@
 package server
 
 /*
-#cgo pkg-config: dakara_check
-#include <dakara_check.h>
+#cgo pkg-config: karaberus_tools
+#include <karaberus_tools.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdint.h>
@@ -14,10 +14,8 @@ package server
 int AVIORead(void *obj, uint8_t *buf, int n);
 int64_t AVIOSeek(void *obj, int64_t offset, int whence);
 
-#define KARABERUS_BUFSIZE 1024*1024
-
 static inline struct dakara_check_results *karaberus_dakara_check(void *obj) {
-  return dakara_check_avio(KARABERUS_BUFSIZE, obj, AVIORead, AVIOSeek);
+  return karaberus_dakara_check_avio(obj, AVIORead, AVIOSeek);
 }
 */
 import "C"
@@ -144,7 +142,7 @@ func CheckS3File(ctx context.Context, video_filename string) (*CheckS3FileOutput
 	}
 
 	res := C.karaberus_dakara_check(pointer.Save(obj))
-	defer C.dakara_check_results_free(res)
+	defer C.karaberus_dakara_check_results_free(res)
 
 	out := &CheckS3FileOutput{
 		Passed: bool(res.passed),
