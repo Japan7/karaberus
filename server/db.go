@@ -43,5 +43,9 @@ func init_db() {
 }
 
 func GetDB() *gorm.DB {
+	if db_instance == nil {
+		init_db()
+		init_model()
+	}
 	return db_instance
 }

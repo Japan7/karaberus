@@ -9,7 +9,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
   root: true,
-  ignorePatterns: ["dist"],
+  ignorePatterns: ["dist", "src/utils/karaberus.d.ts"],
   rules: {
     "@typescript-eslint/no-unused-vars": [
       "warn",

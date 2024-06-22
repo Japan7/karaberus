@@ -12,6 +12,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
+	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"gorm.io/gorm"
@@ -28,12 +29,7 @@ func (m *KaraberusError) Error() string {
 	return m.Message
 }
 
-func init() {
-	init_db()
-	init_model()
-}
-
-func GetCurrentUser(ctx context.Context) User {
+func getCurrentUser(ctx context.Context) User {
 	return ctx.Value("current_user").(User)
 }
 
@@ -178,34 +174,39 @@ func middlewares(api huma.API) {
 
 }
 
-func RunKaraberus() {
-	// Create a new router & API
-	app := fiber.New(fiber.Config{
-		BodyLimit: 1024 * 1024 * 1024, // 1GiB
-	})
+func RunKaraberus(api *huma.API) func(hooks humacli.Hooks, options *Options) {
+	return func(hooks humacli.Hooks, options *Options) {
+		// Create a new router & API
+		app := fiber.New(fiber.Config{
+			BodyLimit: 1024 * 1024 * 1024, // 1GiB
+		})
 
-	app.Use(filesystem.New(filesystem.Config{
-		Root:         http.Dir(CONFIG.UIDistDir),
-		Index:        "index.html",
-		NotFoundFile: "index.html",
-		MaxAge:       3600,
-		Next: func(c *fiber.Ctx) bool {
-			return strings.HasPrefix(c.Path(), "/api")
-		},
-	}))
+		app.Use(filesystem.New(filesystem.Config{
+			Root:         http.Dir(CONFIG.UIDistDir),
+			Index:        "index.html",
+			NotFoundFile: "index.html",
+			MaxAge:       3600,
+			Next: func(c *fiber.Ctx) bool {
+				return strings.HasPrefix(c.Path(), "/api")
+			},
+		}))
 
-	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
+		*api = humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
-	// sec := huma.SecurityScheme{
-	// 	Type: "openIdConnect",
-	// 	Name: "oidc",
-	// 	In: "header",
-	// 	Scheme: "bearer",
-	// }
+		// sec := huma.SecurityScheme{
+		// 	Type: "openIdConnect",
+		// 	Name: "oidc",
+		// 	In: "header",
+		// 	Scheme: "bearer",
+		// }
 
-	middlewares(api)
-	routes(api)
+		middlewares(*api)
+		routes(*api)
 
-	getLogger().Printf("Starting server at %s...\n", CONFIG.LISTEN_ADDR)
-	getLogger().Fatal(app.Listen(CONFIG.LISTEN_ADDR))
+		// Tell the CLI how to start your server.
+		hooks.OnStart(func() {
+			getLogger().Printf("Starting server on port %d...\n", options.Port)
+			getLogger().Fatal(app.Listen(fmt.Sprintf(":%d", options.Port)))
+		})
+	}
 }

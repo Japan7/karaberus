@@ -6,6 +6,7 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.18.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/mattn/go-pointer v0.0.1
+	github.com/spf13/cobra v1.8.1
 )
 
 require (
@@ -17,6 +18,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
@@ -26,6 +28,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/zitadel/logging v0.6.0 // indirect
 	github.com/zitadel/schema v1.3.0 // indirect
 	go.opentelemetry.io/otel v1.27.0 // indirect
