@@ -32,7 +32,7 @@ cc_cmd = ' '.join(c_compiler.cmd_array())
 
 db_file = meson.current_build_dir() / 'karaberus.db'
 test_db_file = meson.current_build_dir() / 'karaberus_test.db'
-karaberus_ui_dist_dir = meson.current_build_dir() / 'ui_dist'
+karaberus_ui_dist_dir = meson.current_build_dir() / 'ui' / 'ui_dist'
 pkg_config_path = join_paths(meson.current_build_dir(), 'meson-uninstalled')
 
 # go build env
@@ -85,50 +85,6 @@ npm_env.set('SOURCE', ui_source)
 python = find_program('python3')
 
 subdir('ui')
-
-npm_run = meson.current_source_dir() / 'scripts' / 'npm_run.py'
-
-karaberus_ui_deps = custom_target(
-    'karaberus_ui_deps',
-    build_by_default: true,
-    env: npm_env,
-    input: ui_pkg,
-    output: '.npm_ci',
-    command: [
-        python,
-        npm_run,
-        'ci',
-        '@OUTPUT@',
-    ],
-)
-
-karaberus_ui = custom_target(
-    'karaberus_ui',
-    build_by_default: true,
-    env: npm_env,
-    input: ui_src,
-    output: 'ui_dist',
-    command: [
-        python,
-        npm_run,
-        'build',
-        karaberus_ui_dist_dir,
-    ],
-    depends: karaberus_ui_deps,
-    install: true,
-    install_dir: 'share' / 'karaberus',
-)
-
-karaberus_ui_run = run_target(
-    'ui_run',
-    env: npm_env,
-    command: [
-        python,
-        npm_run,
-        'dev',
-    ],
-    depends: karaberus_ui_deps,
-)
 
 test(
     'karaberus_ui_lint',
