@@ -65,7 +65,7 @@ func getKaraberusConfig() KaraberusConfig {
 	config.S3.KeyID = getEnvDefault("S3_KEYID", "")
 	config.S3.Secret = getEnvDefault("S3_SECRET", "")
 	config.S3.Secure = getEnvDefault("S3_SECURE", "") != ""
-	config.S3.BucketName = getEnvDefault("BUCKET_NAME", "karaberus")
+	config.S3.BucketName = getEnvDefault("S3_BUCKET_NAME", "karaberus")
 
 	config.OIDC.Issuer = getEnvDefault("OIDC_ISSUER", "")
 	config.OIDC.KeyID = getEnvDefault("OIDC_KEY_ID", "")
