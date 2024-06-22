@@ -216,7 +216,7 @@ if ffmpeg.found()
             '-c:v', 'libx264',
             '-preset', 'ultrafast',
             '-c:a', 'libopus',
-            mkv_test_file,
+            '-y', mkv_test_file,
         ],
     )
 
