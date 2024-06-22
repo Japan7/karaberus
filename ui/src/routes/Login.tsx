@@ -1,18 +1,17 @@
 import { onMount } from "solid-js";
+import { karaberus } from "../utils/karaberus-client";
 import { OIDC_CALLBACK_PATH } from "../utils/oidc";
-
-interface OIDCConfig {
-  authorization_endpoint: string;
-  issuer: string;
-  jwks_uri: string;
-  token_endpoint: string;
-  client_id: string;
-}
 
 export default function Login() {
   onMount(async () => {
-    const oidc_discovery = await fetch("/api/oidc_discovery");
-    const oidc_config: OIDCConfig = await oidc_discovery.json();
+    const { data: oidc_config, error } = await karaberus.GET(
+      "/api/oidc_discovery",
+    );
+
+    if (error) {
+      alert(error.detail);
+      throw error;
+    }
 
     const auth_endpoint = oidc_config.authorization_endpoint;
     const login_url = new URL(auth_endpoint);
