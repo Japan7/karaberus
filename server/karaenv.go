@@ -38,7 +38,6 @@ type KaraberusDBConfig struct {
 }
 
 type KaraberusConfig struct {
-	LISTEN_ADDR        string
 	S3                 KaraberusS3Config
 	OIDC               KaraberusOIDCConfig
 	GENERATED_TEST_DIR string
@@ -58,8 +57,6 @@ func getEnvDefault(name string, defaultValue string) string {
 
 func getKaraberusConfig() KaraberusConfig {
 	config := KaraberusConfig{}
-
-	config.LISTEN_ADDR = getEnvDefault("LISTEN_ADDR", "127.0.0.1:8888")
 
 	config.S3.Endpoint = getEnvDefault("S3_ENDPOINT", "")
 	config.S3.KeyID = getEnvDefault("S3_KEYID", "")
