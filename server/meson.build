@@ -2,6 +2,7 @@ karaberus_server_files = files(
     'artists.go',
     'authors.go',
     'avtags.go',
+    'cli.go',
     'db.go',
     'kara.go',
     'karaberus.go',
