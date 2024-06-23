@@ -3,23 +3,22 @@ package server
 import (
 	"fmt"
 
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/spf13/cobra"
 )
 
-type Options struct {
-	Port int `help:"Port to listen on" short:"p" default:"8888"`
-}
-
 func MakeCli() {
-	var api huma.API
+	app, api := setupKaraberus()
 
-	// Create a CLI app which takes a port option.
-	cli := humacli.New(RunKaraberus(&api))
+	rootCmd := &cobra.Command{
+		Use:   "karaberus",
+		Short: "Start the karaberus server",
+		Run: func(cmd *cobra.Command, args []string) {
+			RunKaraberus(app, api)
+		},
+	}
 
 	// Add a command to print the OpenAPI spec.
-	cli.Root().AddCommand(&cobra.Command{
+	rootCmd.AddCommand(&cobra.Command{
 		Use:   "openapi",
 		Short: "Print the OpenAPI spec",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -30,7 +29,7 @@ func MakeCli() {
 		},
 	})
 
-	cli.Root().AddCommand(&cobra.Command{
+	rootCmd.AddCommand(&cobra.Command{
 		Use:   "create-token",
 		Short: "Print the OpenAPI spec",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -42,6 +41,13 @@ func MakeCli() {
 		},
 	})
 
+	rootCmd.PersistentFlags().IntVarP(
+		&CONFIG.Listen.Port,
+		"port", "p",
+		CONFIG.Listen.Port,
+		"Port to listen on",
+	)
+
 	// Run the CLI. When passed no commands, it starts the server.
-	cli.Run()
+	rootCmd.Execute()
 }
