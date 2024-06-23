@@ -163,14 +163,14 @@ openapi_spec = custom_target(
 
 subdir('ui')
 
-karaberus_run = run_target(
+run_target(
     'run',
     command: [karaberus],
     depends: [libkaraberus_tools, karaberus_ui],
     env: go_env,
 )
 
-karaberus_create_token = run_target(
+run_target(
     'create-token',
     command: [
         go,
