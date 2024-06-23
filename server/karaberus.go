@@ -12,7 +12,6 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
-	"github.com/danielgtaylor/huma/v2/humacli"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"gorm.io/gorm"
@@ -174,40 +173,39 @@ func middlewares(api huma.API) {
 
 }
 
-func RunKaraberus(api *huma.API) func(hooks humacli.Hooks, options *Options) {
-	return func(hooks humacli.Hooks, options *Options) {
-		// Create a new router & API
-		app := fiber.New(fiber.Config{
-			BodyLimit: 1024 * 1024 * 1024, // 1GiB
-		})
+func setupKaraberus() (*fiber.App, huma.API) {
+	// Create a new router & API
+	app := fiber.New(fiber.Config{
+		BodyLimit: 1024 * 1024 * 1024, // 1GiB
+	})
 
-		app.Use(filesystem.New(filesystem.Config{
-			Root:         http.Dir(CONFIG.UIDistDir),
-			Index:        "index.html",
-			NotFoundFile: "index.html",
-			MaxAge:       3600,
-			Next: func(c *fiber.Ctx) bool {
-				return strings.HasPrefix(c.Path(), "/api")
-			},
-		}))
+	app.Use(filesystem.New(filesystem.Config{
+		Root:         http.Dir(CONFIG.UIDistDir),
+		Index:        "index.html",
+		NotFoundFile: "index.html",
+		MaxAge:       3600,
+		Next: func(c *fiber.Ctx) bool {
+			return strings.HasPrefix(c.Path(), "/api")
+		},
+	}))
 
-		*api = humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
+	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
-		// sec := huma.SecurityScheme{
-		// 	Type: "openIdConnect",
-		// 	Name: "oidc",
-		// 	In: "header",
-		// 	Scheme: "bearer",
-		// }
+	// sec := huma.SecurityScheme{
+	// 	Type: "openIdConnect",
+	// 	Name: "oidc",
+	// 	In: "header",
+	// 	Scheme: "bearer",
+	// }
 
-		routes(*api)
+	routes(api)
+	return app, api
+}
 
-		// Tell the CLI how to start your server.
-		hooks.OnStart(func() {
-			middlewares(*api)
+func RunKaraberus(app *fiber.App, api huma.API) {
+	middlewares(api)
 
-			getLogger().Printf("Starting server on port %d...\n", options.Port)
-			getLogger().Fatal(app.Listen(fmt.Sprintf(":%d", options.Port)))
-		})
-	}
+	listen_addr := CONFIG.Listen.Addr()
+	getLogger().Printf("Starting server on %s...\n", listen_addr)
+	getLogger().Fatal(app.Listen(listen_addr))
 }

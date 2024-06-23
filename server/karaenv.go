@@ -1,6 +1,19 @@
 package server
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
+
+type KaraberusListenConfig struct {
+	Host string
+	Port int
+}
+
+func (c KaraberusListenConfig) Addr() string {
+	return fmt.Sprintf("%s:%d", c.Host, c.Port)
+}
 
 type KaraberusOIDCConfig struct {
 	Issuer   string
@@ -40,6 +53,7 @@ type KaraberusDBConfig struct {
 type KaraberusConfig struct {
 	S3                 KaraberusS3Config
 	OIDC               KaraberusOIDCConfig
+	Listen             KaraberusListenConfig
 	GENERATED_TEST_DIR string
 	TEST_DIR           string
 	DB                 KaraberusDBConfig
@@ -57,6 +71,13 @@ func getEnvDefault(name string, defaultValue string) string {
 
 func getKaraberusConfig() KaraberusConfig {
 	config := KaraberusConfig{}
+
+	config.Listen.Host = getEnvDefault("LISTEN_HOST", "")
+	port, err := strconv.Atoi(getEnvDefault("LISTEN_PORT", "8888"))
+	if err != nil {
+		panic(err)
+	}
+	config.Listen.Port = port
 
 	config.S3.Endpoint = getEnvDefault("S3_ENDPOINT", "")
 	config.S3.KeyID = getEnvDefault("S3_KEYID", "")
