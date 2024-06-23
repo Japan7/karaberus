@@ -27,13 +27,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install ffmpeg libavcodec-dev libavutil-dev libavformat-dev ninja-build
 
+      - name: Setup S3 bucket
+        run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
+
       - name: Compile karaberus
         run: |
           meson setup build
           meson compile -C build
-
-      - name: Setup S3 bucket
-        run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
 
       - name: Run tests
         run: meson test -C build --verbose
