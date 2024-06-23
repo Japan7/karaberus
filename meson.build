@@ -105,7 +105,7 @@ npm_env = environment()
 npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', ui_source)
 
-karaberus_output = join_paths(meson.current_build_dir(), 'karaberus')
+karaberus_output = meson.current_build_dir() / 'karaberus'
 
 karaberus = custom_target(
     'karaberus',
@@ -128,6 +128,27 @@ karaberus = custom_target(
     install: true,
     install_dir: 'bin',
     install_mode: 'rwxr-xr-x',
+)
+
+karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
+
+karaberus_test = custom_target(
+    'karaberus_test',
+    env: go_env,
+    input: karaberus_inputs,
+    output: 'karaberus_test',
+    command: [
+        go,
+        'test',
+        '-C', meson.current_source_dir(),
+        '-buildmode=pie',
+        '-trimpath',
+        '-ldflags',
+        '-linkmode=external -s',
+        '-o', karaberus_test_output,
+        '-c', karaberus_server_path,
+    ],
+    depends: libkaraberus_tools,
 )
 
 openapi_spec = custom_target(
@@ -207,9 +228,8 @@ else
 endif
 
 test(
-    'karaberus_test',
-    go,
-    args: ['test', karaberus_server_path],
+    'karaberus_run_test',
+    karaberus_test,
     depends: test_deps,
     env: go_test_env,
     timeout: 300,
