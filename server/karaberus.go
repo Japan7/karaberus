@@ -200,11 +200,12 @@ func RunKaraberus(api *huma.API) func(hooks humacli.Hooks, options *Options) {
 		// 	Scheme: "bearer",
 		// }
 
-		middlewares(*api)
 		routes(*api)
 
 		// Tell the CLI how to start your server.
 		hooks.OnStart(func() {
+			middlewares(*api)
+
 			getLogger().Printf("Starting server on port %d...\n", options.Port)
 			getLogger().Fatal(app.Listen(fmt.Sprintf(":%d", options.Port)))
 		})
