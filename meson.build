@@ -162,7 +162,7 @@ karaberus_create_token = run_target(
     env: go_env,
 )
 
-test_deps = [libkaraberus_tools]
+test_deps = [libkaraberus_tools, karaberus_server_tests]
 
 if ffmpeg.found()
     mkv_test_file = 'karaberus_test.mkv'
