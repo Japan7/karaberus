@@ -14,11 +14,7 @@ ffmpeg = find_program('ffmpeg', required: false)
 python = find_program('python3')
 npm = find_program('npm')
 
-go_files = files(
-    'go.mod',
-    'go.sum',
-    'main.go',
-)
+go_files = files('go.mod', 'go.sum', 'main.go', 'karaberus_tools' / 'cbinds.go')
 
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
 
