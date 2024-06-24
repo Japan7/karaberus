@@ -13,7 +13,7 @@
   "dependencies": {
     "@solid-primitives/storage": "3.7.1",
     "@solidjs/router": "0.13.6",
-    "openapi-fetch": "0.10.1",
+    "openapi-fetch": "0.10.2",
     "solid-js": "1.8.17"
   },
   "devDependencies": {
