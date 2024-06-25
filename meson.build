@@ -215,7 +215,7 @@ if ffmpeg.found()
             '-map', '0',
             '-t', '30',
             '-c:a', 'libopus',
-            opus_test_file,
+            '-y', opus_test_file,
         ],
     )
 else
