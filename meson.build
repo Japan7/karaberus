@@ -90,7 +90,7 @@ if go_arch != ''
 endif
 
 go_test_env.set('KARABERUS_DB_FILE', test_db_file)
-go_test_env.set('KARABERUS_DELETE_DB', '1')
+go_test_env.set('KARABERUS_DB_DELETE', '1')
 go_test_env.set('KARABERUS_GENERATED_TEST_DIR', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
