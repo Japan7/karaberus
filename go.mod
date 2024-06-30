@@ -4,7 +4,7 @@ go 1.22.2
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.18.0
-	github.com/gofiber/fiber/v2 v2.52.4
+	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/mattn/go-pointer v0.0.1
 	github.com/spf13/cobra v1.8.1
 )
