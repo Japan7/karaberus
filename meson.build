@@ -19,7 +19,6 @@ go_files = files('go.mod', 'go.sum', 'main.go', 'karaberus_tools' / 'cbinds.go')
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
 
 subdir('server')
-karaberus_inputs = go_files + karaberus_server_files
 
 go_os = get_option('go_os')
 go_arch = get_option('go_arch')
@@ -35,9 +34,17 @@ pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
 dakara_check = dependency(
     'dakara_check',
     version: '>=4.0.1',
-    fallback: ['dakara_check', 'dakara_check_dep'],
+    required: true,
     default_options: ['default_library=static', 'prefer_static=true'],
 )
+
+dakara_check_objects = []
+
+if dakara_check.type_name() == 'internal'
+    dakara_check_sub = subproject('dakara_check')
+    libdakara_check = dakara_check_sub.get_variable('libdakara_check')
+    dakara_check_objects = libdakara_check.extract_all_objects(recursive: true)
+endif
 
 karaberus_tools_c = files('karaberus_tools' / 'karaberus_tools.c')
 karaberus_tools_h = files('karaberus_tools' / 'karaberus_tools.h')
@@ -49,6 +56,7 @@ libkaraberus_tools = static_library(
     karaberus_tools_c,
     karaberus_tools_h,
     dependencies: dakara_check,
+    objects: dakara_check_objects,
     include_directories: inc_karaberus_tools,
     install: true,
 )
@@ -101,6 +109,7 @@ npm_env = environment()
 npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', ui_source)
 
+karaberus_inputs = go_files + karaberus_server_files
 karaberus_output = meson.current_build_dir() / 'karaberus'
 
 karaberus = custom_target(
