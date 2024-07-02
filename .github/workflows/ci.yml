@@ -33,7 +33,6 @@ jobs:
       - name: Compile karaberus
         run: |
           meson setup build
-          meson compile -C build
 
       - name: Run tests
         run: meson test -C build --verbose
