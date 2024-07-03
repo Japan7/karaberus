@@ -93,6 +93,7 @@ var VideoTags []VideoTag = []VideoTag{
 	{ID: "TRAILER", Name: "Trailer"},
 	{ID: "NSFW", Name: "Not Safe For Work"},
 	{ID: "SPOILER", Name: "Spoiler"},
+	{ID: "MV", Name: "Music Video"},
 }
 
 // Audio tags
