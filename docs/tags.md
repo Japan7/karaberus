@@ -68,7 +68,7 @@ Audio tags currently defined:
 # Transition from dakaraneko
 
 * Episode tag (EP) → Version: it is more obvious in the interface anyway
-* VTITLE = VIDEO: feeds the same details in dakara
+* VIDEO → Alternative title
 * VTITLE → Alternative title
 * VIDEO → Comment (do we need a source field?)
 * OARTIST → Artist (is it something we want to keep?)
