@@ -186,6 +186,7 @@ func TestCreateKara(t *testing.T) {
 				"video_tags":    []string{},
 				"comment":       "",
 				"version":       "",
+				"language":      "",
 			}),
 		200,
 	)
@@ -264,6 +265,7 @@ func TestUploadKara(t *testing.T) {
 				"video_tags":    []string{},
 				"comment":       "",
 				"version":       "",
+				"language":      "",
 			}),
 		200,
 	)

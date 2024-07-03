@@ -149,6 +149,7 @@ type KaraInfoDB struct {
 	Version       string
 	Comment       string
 	SongOrder     uint
+	Language      string
 	UploadInfo
 }
 

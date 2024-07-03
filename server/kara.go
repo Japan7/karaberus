@@ -39,6 +39,8 @@ type KaraInfo struct {
 	Comment string `json:"comment" example:"From https://youtu.be/dQw4w9WgXcQ"`
 	// Version (8-bit, Episode 12, ...)
 	Version string `json:"version" example:"iykyk"`
+	// Language (FR, EN, ...)
+	Language string `json:"language" example:"FR"`
 }
 
 type AllTags struct {
