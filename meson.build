@@ -110,6 +110,7 @@ npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', ui_source)
 
 karaberus_inputs = go_files + karaberus_server_files
+karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 karaberus_output = meson.current_build_dir() / 'karaberus'
 
 karaberus = custom_target(
@@ -140,7 +141,7 @@ karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_test = custom_target(
     'karaberus_test',
     env: go_env,
-    input: karaberus_inputs,
+    input: karaberus_test_inputs,
     output: 'karaberus_test',
     command: [
         go,
@@ -188,7 +189,7 @@ run_target(
     env: go_env,
 )
 
-test_deps = [libkaraberus_tools]
+test_deps = [libkaraberus_tools, karaberus_test]
 
 if ffmpeg.found()
     mkv_test_file = 'karaberus_test.mkv'
