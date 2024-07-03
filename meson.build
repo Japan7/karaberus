@@ -231,6 +231,7 @@ if ffmpeg.found()
 else
     warning('ffmpeg executable was not found, S3 tests are disabled')
     go_test_env.set('SKIP_S3_TESTS', 'y')
+    summary('S3 tests', 'Disabled')
 endif
 
 test(
