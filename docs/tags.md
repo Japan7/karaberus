@@ -70,7 +70,8 @@ Audio tags currently defined:
 * Episode tag (EP) → Version: it is more obvious in the interface anyway
 * VTITLE = VIDEO: feeds the same details in dakara
 * VTITLE → Alternative title
-* VIDEO → Comment, ideally a source tag for some cases (?)
+* VIDEO → Comment (do we need a source field?)
+* OARTIST → Artist (is it something we want to keep?)
 * AMV details tag: feed into media source
 * AMV tag → Fanmade + Music Video
 * LONG/COURT → Version: it's always relative to another version of the song
