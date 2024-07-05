@@ -5,9 +5,7 @@ package server
 
 import (
 	"context"
-	"errors"
 
-	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
 )
 
@@ -51,41 +49,48 @@ type AllTags struct {
 	Media   []MediaDB
 }
 
-func makeTags(info KaraInfo) AllTags {
-	authors := make([]TimingAuthor, len(info.Authors))
+func makeTags(tx *gorm.DB, info KaraInfo) (AllTags, error) {
+	tags := AllTags{}
+	tags.Authors = make([]TimingAuthor, len(info.Authors))
 
 	for i, author := range info.Authors {
-		authors[i] = GetAuthorById(author)
+		author, err := GetAuthorById(tx, author)
+		if err != nil {
+			return tags, err
+		}
+		tags.Authors[i] = *author
 	}
 
-	artists := make([]Artist, len(info.Artists))
+	tags.Artists = make([]Artist, len(info.Artists))
 
 	for i, artist := range info.Artists {
-		artists[i] = GetArtistByID(artist)
+		artist, err := GetArtistByID(tx, artist)
+		if err != nil {
+			return tags, err
+		}
+		tags.Artists[i] = *artist
 	}
 
-	medias := make([]MediaDB, len(info.Medias))
+	tags.Media = make([]MediaDB, len(info.Medias))
 	for i, media := range info.Medias {
-		medias[i] = getMediaByID(media)
+		media, err := getMediaByID(tx, media)
+		if err != nil {
+			return tags, err
+		}
+		tags.Media[i] = media
 	}
 
-	video_tags := make([]VideoTagDB, len(info.VideoTags))
+	tags.Video = make([]VideoTagDB, len(info.VideoTags))
 	for i, video_type := range info.VideoTags {
-		video_tags[i] = VideoTagDB{getVideoTag(video_type).ID}
+		tags.Video[i] = VideoTagDB{getVideoTag(video_type).ID}
 	}
 
-	audio_tags := make([]AudioTagDB, len(info.AudioTags))
+	tags.Audio = make([]AudioTagDB, len(info.AudioTags))
 	for i, audio_type := range info.AudioTags {
-		audio_tags[i] = AudioTagDB{getAudioTag(audio_type).ID}
+		tags.Audio[i] = AudioTagDB{getAudioTag(audio_type).ID}
 	}
 
-	return AllTags{
-		Authors: authors,
-		Artists: artists,
-		Video:   video_tags,
-		Audio:   audio_tags,
-		Media:   medias,
-	}
+	return tags, nil
 }
 
 func makeExtraTitles(info KaraInfo) []AdditionalName {
@@ -98,8 +103,11 @@ func makeExtraTitles(info KaraInfo) []AdditionalName {
 	return extra_titles
 }
 
-func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
-	tags := makeTags(info)
+func (info KaraInfo) to_KaraInfoDB(tx *gorm.DB) (KaraInfoDB, error) {
+	tags, err := makeTags(tx, info)
+	if err != nil {
+		return KaraInfoDB{}, err
+	}
 
 	kara_info := KaraInfoDB{
 		VideoTags:   tags.Video,
@@ -115,10 +123,10 @@ func (info KaraInfo) to_KaraInfoDB() KaraInfoDB {
 	}
 
 	if info.SourceMedia > 0 {
-		kara_info.SourceMedia = getMediaByID(info.SourceMedia)
+		kara_info.SourceMedia, err = getMediaByID(tx, info.SourceMedia)
 	}
 
-	return kara_info
+	return kara_info, err
 }
 
 type CreateKaraInput struct {
@@ -132,48 +140,41 @@ type KaraOutput struct {
 }
 
 func CreateKara(ctx context.Context, input *CreateKaraInput) (*KaraOutput, error) {
-	kara := input.Body.to_KaraInfoDB()
-
-	db := GetDB()
-
-	result := db.Create(&kara)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
+	db := GetDB(ctx)
 	output := KaraOutput{}
-	output.Body.Kara = kara
-	return &output, nil
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		kara, err := input.Body.to_KaraInfoDB(tx)
+		if err != nil {
+			return err
+		}
+		output.Body.Kara = kara
+
+		err = db.Create(&output.Body.Kara).Error
+		return err
+	})
+
+	return &output, err
 }
 
 type GetKaraInput struct {
 	Id uint `path:"id"`
 }
 
-func GetKara(Ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
-	db := GetDB()
+func GetKara(ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
+	db := GetDB(ctx)
 
 	kara_output := &KaraOutput{}
-	tx := db.First(&kara_output.Body.Kara, input.Id)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	return kara_output, nil
+	err := db.First(&kara_output.Body.Kara, input.Id).Error
+	return kara_output, DBErrToHumaErr(err)
 }
 
 type DeleteKaraResponse struct {
 	Status int
 }
 
-func DeleteKara(Ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, error) {
-	tx := GetDB().Delete(&TimingAuthor{}, input.Id)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("tag not found")
-		}
-		return nil, tx.Error
-	}
-
-	return &DeleteKaraResponse{204}, nil
+func DeleteKara(ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, error) {
+	db := GetDB(ctx)
+	err := db.Delete(&TimingAuthor{}, input.Id).Error
+	return &DeleteKaraResponse{204}, DBErrToHumaErr(err)
 }

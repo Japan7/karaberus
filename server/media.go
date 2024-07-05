@@ -2,9 +2,7 @@ package server
 
 import (
 	"context"
-	"errors"
 
-	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
 )
 
@@ -22,15 +20,6 @@ type MediaOutput struct {
 	}
 }
 
-func createMedia(name string, media_type MediaType) (*MediaDB, error) {
-	media_tag := MediaDB{Name: name, Type: media_type.ID}
-	tx := GetDB().Create(&media_tag)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-	return &media_tag, nil
-}
-
 func getMediaType(media_type_id string) MediaType {
 	for _, v := range MediaTypes {
 		if v.ID == media_type_id {
@@ -42,37 +31,35 @@ func getMediaType(media_type_id string) MediaType {
 	panic("unknown media type " + media_type_id)
 }
 
-func getMediaByID(Id uint) MediaDB {
+func getMediaByID(tx *gorm.DB, Id uint) (MediaDB, error) {
 	media := MediaDB{}
-	tx := GetDB().First(&media, Id)
-	if tx.Error != nil {
-		panic(tx.Error.Error())
-	}
-
-	return media
+	err := tx.First(&media, Id).Error
+	return media, DBErrToHumaErr(err)
 }
 
-func getMedia(name string, media_type_str string) MediaDB {
+func getMedia(tx *gorm.DB, name string, media_type_str string) (MediaDB, error) {
 	media_type := getMediaType(media_type_str)
 	media := MediaDB{}
-	tx := GetDB().Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media)
-	if tx.Error != nil {
-		panic(tx.Error.Error())
-	}
-
-	return media
+	err := tx.Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media).Error
+	return media, DBErrToHumaErr(err)
 }
 
-func CreateMedia(Ctx context.Context, input *CreateMediaInput) (*MediaOutput, error) {
+func CreateMedia(ctx context.Context, input *CreateMediaInput) (*MediaOutput, error) {
+	db := GetDB(ctx)
 	media_output := &MediaOutput{}
-	tag_type := getMediaType(input.Body.MediaType)
-	media, err := createMedia(input.Body.Name, tag_type)
-	if err != nil {
-		return nil, err
-	}
-	media_output.Body.Media = *media
+	media_type := getMediaType(input.Body.MediaType)
 
-	return media_output, nil
+	err := db.Transaction(func(tx *gorm.DB) error {
+		media_output.Body.Media = MediaDB{Name: input.Body.Name, Type: media_type.ID}
+
+		additional_names := createAdditionalNames(input.Body.AdditionalNames)
+		media_output.Body.Media.AdditionalNames = additional_names
+
+		err := tx.Create(&media_output.Body.Media).Error
+		return DBErrToHumaErr(err)
+	})
+
+	return media_output, err
 }
 
 type DeleteMediaResponse struct {
@@ -83,46 +70,26 @@ type GetMediaInput struct {
 	Id uint `path:"id" example:"1"`
 }
 
-func DeleteMedia(Ctx context.Context, input *GetMediaInput) (*DeleteMediaResponse, error) {
-	tx := GetDB().Delete(&MediaDB{}, input.Id)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("tag not found")
-		}
-		return nil, tx.Error
-	}
-
-	return &DeleteMediaResponse{204}, nil
+func DeleteMedia(ctx context.Context, input *GetMediaInput) (*DeleteMediaResponse, error) {
+	db := GetDB(ctx)
+	err := db.Delete(&MediaDB{}, input.Id).Error
+	return &DeleteMediaResponse{204}, DBErrToHumaErr(err)
 }
 
-func GetMedia(Ctx context.Context, input *GetMediaInput) (*MediaOutput, error) {
-	db := GetDB()
-
+func GetMedia(ctx context.Context, input *GetMediaInput) (*MediaOutput, error) {
+	db := GetDB(ctx)
 	media_output := &MediaOutput{}
-	tx := db.First(&media_output.Body.Media, input.Id)
-	if tx.Error != nil {
-		return nil, huma.Error404NotFound("tag not found", tx.Error)
-	}
-
-	return media_output, nil
+	err := db.First(&media_output.Body.Media, input.Id).Error
+	return media_output, DBErrToHumaErr(err)
 }
 
 type FindMediaInput struct {
 	Name string `query:"name"`
 }
 
-func FindMedia(Ctx context.Context, input *FindMediaInput) (*MediaOutput, error) {
-	media := MediaDB{}
-	tx := GetDB().Where(&MediaDB{Name: input.Name}).First(&media)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("tag not found")
-		}
-		return nil, tx.Error
-	}
-
+func FindMedia(ctx context.Context, input *FindMediaInput) (*MediaOutput, error) {
+	db := GetDB(ctx)
 	out := &MediaOutput{}
-	out.Body.Media = media
-
-	return out, nil
+	err := db.Where(&MediaDB{Name: input.Name}).First(&out.Body.Media).Error
+	return out, DBErrToHumaErr(err)
 }

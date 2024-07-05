@@ -30,23 +30,23 @@ type UploadOutput struct {
 	}
 }
 
-func updateKaraokeAfterUpload(kara *KaraInfoDB, filetype string) error {
+func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) error {
 	switch filetype {
 	case "video":
-		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: true}})
-		return tx.Error
+		err := tx.Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: true}}).Error
+		return DBErrToHumaErr(err)
 	case "inst":
-		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: true}})
-		return tx.Error
+		err := tx.Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: true}}).Error
+		return DBErrToHumaErr(err)
 	case "sub":
-		tx := GetDB().Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: true}})
-		return tx.Error
+		err := tx.Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: true}}).Error
+		return DBErrToHumaErr(err)
 	}
 	return errors.New("Unknown file type " + filetype)
 }
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
-	resp := &UploadOutput{}
+	db := GetDB(ctx)
 
 	kid, err := strconv.Atoi(input.KID)
 	if err != nil {
@@ -54,12 +54,9 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	}
 
 	kara := &KaraInfoDB{}
-	tx := GetDB().First(kara, kid)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("Karaoke not found", tx.Error)
-		}
-		return nil, tx.Error
+	err = db.First(kara, kid).Error
+	if err != nil {
+		return nil, DBErrToHumaErr(err)
 	}
 
 	file := input.RawBody.Form.File["file"][0]
@@ -74,13 +71,17 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		return nil, err
 	}
 
-	updateKaraokeAfterUpload(kara, input.FileType)
+	err = updateKaraokeAfterUpload(db, kara, input.FileType)
+	if err != nil {
+		return nil, err
+	}
 
 	res, err := CheckKara(ctx, *kara)
 	if err != nil {
 		return nil, err
 	}
 
+	resp := &UploadOutput{}
 	resp.Body.CheckResults = *res
 	resp.Body.KID = input.KID
 

@@ -153,7 +153,15 @@ type KaraInfoDB struct {
 	UploadInfo
 }
 
-func init_model() {
-	db := GetDB()
-	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{})
+func init_model(db *gorm.DB) {
+	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{})
+}
+
+func createAdditionalNames(names []string) []AdditionalName {
+	additional_names := make([]AdditionalName, len(names))
+	for i, name := range names {
+		additional_names[i] = AdditionalName{Name: name}
+	}
+
+	return additional_names
 }

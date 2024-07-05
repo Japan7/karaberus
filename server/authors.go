@@ -5,9 +5,7 @@ package server
 
 import (
 	"context"
-	"errors"
 
-	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
 )
 
@@ -21,89 +19,61 @@ type AuthorOutput struct {
 	}
 }
 
-func GetAuthorById(Id uint) TimingAuthor {
-	db := GetDB()
-
-	author := TimingAuthor{}
-	tx := db.First(&author, Id)
-	if tx.Error != nil {
-		panic(tx.Error.Error())
-	}
-
-	return author
+func GetAuthorById(tx *gorm.DB, Id uint) (*TimingAuthor, error) {
+	author := &TimingAuthor{}
+	err := tx.First(author, Id).Error
+	return author, DBErrToHumaErr(err)
 }
 
-func GetAuthor(Ctx context.Context, input *GetAuthorInput) (*AuthorOutput, error) {
-	db := GetDB()
+func GetAuthor(ctx context.Context, input *GetAuthorInput) (*AuthorOutput, error) {
+	tx := GetDB(ctx)
 
 	author_output := &AuthorOutput{}
-	tx := db.First(&author_output.Body.author, input.Id)
-	if tx.Error != nil {
-		return nil, huma.Error404NotFound("tag not found", tx.Error)
+	author, err := GetAuthorById(tx, input.Id)
+	if err != nil {
+		return nil, err
 	}
-
+	author_output.Body.author = *author
 	return author_output, nil
 }
 
 type CreateAuthorInput struct {
 	Body struct {
-		Name            string   `json:"name"`
-		AdditionalNames []string `json:"additional_names"`
+		Name string `json:"name"`
 	}
 }
 
-func createAuthor(name string) (*TimingAuthor, error) {
-	author := TimingAuthor{Name: name}
-	tx := GetDB().Create(&author)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-	return &author, nil
-}
-
-func CreateAuthor(Ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error) {
+func CreateAuthor(ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error) {
+	db := GetDB(ctx)
 	author_output := &AuthorOutput{}
-	author, err := createAuthor(input.Body.Name)
-	if err != nil {
-		return nil, err
-	}
-	author_output.Body.author = *author
 
-	return author_output, nil
+	err := db.Transaction(
+		func(tx *gorm.DB) error {
+			author_output.Body.author = TimingAuthor{Name: input.Body.Name}
+			err := tx.Create(&author_output.Body.author).Error
+			return DBErrToHumaErr(err)
+		})
+
+	return author_output, err
 }
 
 type DeleteAuthorResponse struct {
 	Status int
 }
 
-func DeleteAuthor(Ctx context.Context, input *GetArtistInput) (*DeleteAuthorResponse, error) {
-	tx := GetDB().Delete(&TimingAuthor{}, input.Id)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("tag not found")
-		}
-		return nil, tx.Error
-	}
-
-	return &DeleteAuthorResponse{204}, nil
+func DeleteAuthor(ctx context.Context, input *GetArtistInput) (*DeleteAuthorResponse, error) {
+	db := GetDB(ctx)
+	err := db.Delete(&TimingAuthor{}, input.Id).Error
+	return &DeleteAuthorResponse{204}, DBErrToHumaErr(err)
 }
 
 type FindAuthorInput struct {
 	Name string `query:"name"`
 }
 
-func FindAuthor(Ctx context.Context, input *FindAuthorInput) (*AuthorOutput, error) {
-	author := TimingAuthor{}
-	tx := GetDB().Where(&TimingAuthor{Name: input.Name}).First(&author)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("tag not found")
-		}
-		return nil, tx.Error
-	}
-
+func FindAuthor(ctx context.Context, input *FindAuthorInput) (*AuthorOutput, error) {
+	db := GetDB(ctx)
 	out := &AuthorOutput{}
-	out.Body.author = author
-
-	return out, nil
+	err := db.Where(&TimingAuthor{Name: input.Name}).First(&out.Body.author).Error
+	return out, DBErrToHumaErr(err)
 }

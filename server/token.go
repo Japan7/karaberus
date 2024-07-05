@@ -4,11 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"fmt"
-
-	"github.com/danielgtaylor/huma/v2"
-	"gorm.io/gorm"
 )
 
 type CreateTokenInput struct {
@@ -25,14 +21,14 @@ type CreateTokenOutput struct {
 	}
 }
 
-func generateToken() (*string, error) {
+func generateToken() (string, error) {
 	token_bytes := make([]byte, 64)
 	_, err := rand.Reader.Read(token_bytes)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	token_str := hex.EncodeToString(token_bytes)
-	return &token_str, nil
+	return token_str, nil
 }
 
 func CreateSystemToken() (string, error) {
@@ -42,38 +38,36 @@ func CreateSystemToken() (string, error) {
 	}
 
 	token := Token{
-		ID:       *token_id,
+		ID:       token_id,
 		Admin:    true,
 		ReadOnly: false,
 		Scopes:   AllScopes,
 	}
-	GetDB().Create(&token)
-
-	return *token_id, nil
+	err = GetDB(context.TODO()).Create(&token).Error
+	return token_id, DBErrToHumaErr(err)
 }
 
 func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
+	db := GetDB(ctx)
+
 	token_id, err := generateToken()
 	if err != nil {
 		return nil, err
 	}
 
+	out := &CreateTokenOutput{}
+	out.Body.Token = token_id
+
 	token := Token{
-		ID:       *token_id,
+		ID:       token_id,
 		Admin:    input.Body.Admin,
 		ReadOnly: input.Body.User,
 		Scopes:   input.Body.Scopes,
 		User:     getCurrentUser(ctx),
 	}
-	tx := GetDB().Create(&token)
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
 
-	out := &CreateTokenOutput{}
-	out.Body.Token = *token_id
-
-	return out, nil
+	err = db.Create(&token).Error
+	return out, DBErrToHumaErr(err)
 }
 
 type DeleteTokenInput struct {
@@ -87,20 +81,17 @@ type DeleteTokenOutput struct {
 }
 
 func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutput, error) {
+	db := GetDB(ctx)
 	user := getCurrentUser(ctx)
 	var err error
 	if user.Admin {
-		tx := GetDB().Delete(&Token{}, input.TokenID)
-		err = tx.Error
+		err = db.Delete(&Token{}, input.TokenID).Error
 	} else {
-		tx := GetDB().Where(&Token{ID: input.TokenID, User: user}).Delete(&Token{})
-		err = tx.Error
+		err = db.Where(&Token{ID: input.TokenID, User: user}).Delete(&Token{}).Error
 	}
 
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, huma.Error404NotFound("Token not found")
-		}
+		return nil, DBErrToHumaErr(err)
 	}
 
 	out := &DeleteTokenOutput{}

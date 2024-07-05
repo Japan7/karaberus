@@ -1,9 +1,12 @@
 package server
 
 import (
+	"context"
+	"errors"
 	"os"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -42,10 +45,17 @@ func init_db() {
 	db_instance = db
 }
 
-func GetDB() *gorm.DB {
+func GetDB(ctx context.Context) *gorm.DB {
 	if db_instance == nil {
 		init_db()
-		init_model()
 	}
-	return db_instance
+
+	return db_instance.WithContext(ctx)
+}
+
+func DBErrToHumaErr(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return huma.Error404NotFound("record not found")
+	}
+	return err
 }

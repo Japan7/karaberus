@@ -5,6 +5,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,9 @@ import (
 
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
+
+	db := GetDB(context.TODO())
+	init_model(db)
 
 	routes(api)
 	return api
@@ -38,8 +42,7 @@ func TestAuthorTag(t *testing.T) {
 	resp := assertRespCode(t,
 		api.Post("/api/tags/author",
 			map[string]any{
-				"name":             "author_name",
-				"additional_names": []string{},
+				"name": "author_name",
 			},
 		),
 		200,
@@ -59,8 +62,7 @@ func TestFindAuthorTag(t *testing.T) {
 	resp := assertRespCode(t,
 		api.Post("/api/tags/author",
 			map[string]any{
-				"name":             "author_name",
-				"additional_names": []string{},
+				"name": "author_name",
 			},
 		),
 		200,
@@ -83,7 +85,7 @@ func TestArtistTag(t *testing.T) {
 		api.Post("/api/tags/artist",
 			map[string]any{
 				"name":             "artist_name",
-				"additional_names": []string{},
+				"additional_names": []string{"additional_artist_name"},
 			},
 		),
 		200,
@@ -129,7 +131,7 @@ func TestMediaTag(t *testing.T) {
 				map[string]any{
 					"name":             "media_name",
 					"media_type":       v.ID,
-					"additional_names": []string{},
+					"additional_names": []string{"additional_media_name"},
 				},
 			),
 			200,
@@ -138,6 +140,11 @@ func TestMediaTag(t *testing.T) {
 		data := MediaOutput{}
 		dec := json.NewDecoder(resp.Body)
 		dec.Decode(&data.Body)
+
+		if data.Body.Media.AdditionalNames[0].Name != "additional_media_name" {
+			t.Log("Failed to set media additional name")
+			t.Fail()
+		}
 
 		path := fmt.Sprintf("/api/tags/media/%d", data.Body.Media.ID)
 		assertRespCode(t, api.Delete(path), 204)
@@ -176,7 +183,7 @@ func TestCreateKara(t *testing.T) {
 		api.Post("/api/kara",
 			map[string]any{
 				"title":         "kara_title",
-				"title_aliases": []string{},
+				"title_aliases": []string{"kara_title_alias"},
 				"authors":       []uint{},
 				"artists":       []uint{},
 				"source_media":  0,
@@ -194,6 +201,11 @@ func TestCreateKara(t *testing.T) {
 	data := KaraOutput{}
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
+
+	if data.Body.Kara.ExtraTitles[0].Name != "kara_title_alias" {
+		t.Log("failed to set extra title to karaoke")
+		t.Fail()
+	}
 
 	path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 	assertRespCode(t, api.Delete(path), 204)

@@ -88,12 +88,14 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 		return ctx, errors.New("No bearer token")
 	}
 
+	db := GetDB(ctx.Context())
+
 	for _, sec := range operation_security {
 		if len(sec["scopes"]) > 0 {
 			scope := sec["scopes"][0]
 			db_token := &Token{}
-			tx := GetDB().Where(Token{ID: bearer_token}).First(db_token)
-			if tx.Error == nil {
+			err := db.Where(Token{ID: bearer_token}).First(db_token).Error
+			if err == nil {
 				if db_token.HasScope(scope) {
 					ctx = huma.WithValue(ctx, "current_user", db_token.User)
 					return ctx, nil
@@ -101,9 +103,7 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 					return ctx, errors.New(fmt.Sprintf("Token doesn't have the %s API scope", scope))
 				}
 			} else {
-				if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-					getLogger().Printf("Failed to find record: %s\n", tx.Error.Error())
-				}
+				getLogger().Printf(DBErrToHumaErr(err).Error())
 			}
 		}
 
@@ -124,15 +124,16 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 			}
 
 			user := User{ID: user_id}
-			tx := GetDB().First(&user, resp.Subject)
-			if tx.Error != nil {
-				if errors.Is(gorm.ErrRecordNotFound, tx.Error) {
-					tx = GetDB().Create(&user)
-					if tx.Error != nil {
-						return ctx, errors.New("Failed to create user account")
+			err = db.First(&user, resp.Subject).Error
+			if err != nil {
+				if errors.Is(gorm.ErrRecordNotFound, err) {
+					// The user doesn't exist yet
+					err = db.Create(&user).Error
+					if err != nil {
+						return ctx, DBErrToHumaErr(err)
 					}
 				} else {
-					return ctx, errors.New("Failed to find user account")
+					return ctx, DBErrToHumaErr(err)
 				}
 			}
 			ctx = huma.WithValue(ctx, "current_user", user)
@@ -204,6 +205,9 @@ func setupKaraberus() (*fiber.App, huma.API) {
 
 func RunKaraberus(app *fiber.App, api huma.API) {
 	middlewares(api)
+
+	db := GetDB(context.TODO())
+	init_model(db)
 
 	listen_addr := CONFIG.Listen.Addr()
 	getLogger().Printf("Starting server on %s...\n", listen_addr)
