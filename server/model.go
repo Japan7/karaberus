@@ -79,9 +79,9 @@ var MediaTypes []MediaType = []MediaType{
 
 type MediaDB struct {
 	gorm.Model
-	Name           string `json:"name" example:"Shinseiki Evangelion"`
-	Type           string `json:"media_type" example:"ANIME"`
-	AdditionalName `json:"additional_name"`
+	Name            string           `json:"name" example:"Shinseiki Evangelion"`
+	Type            string           `json:"media_type" example:"ANIME"`
+	AdditionalNames []AdditionalName `json:"additional_name" gorm:"many2many:media_additional_name"`
 }
 
 // Video tags
