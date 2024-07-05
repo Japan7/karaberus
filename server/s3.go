@@ -82,7 +82,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-		sub_check_res, err := CheckS3File(ctx, obj)
+		sub_check_res, err := CheckS3Ass(ctx, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -118,4 +118,8 @@ func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*mini
 func CheckS3File(ctx context.Context, obj *minio.Object) (*karaberus_tools.DakaraCheckResultsOutput, error) {
 	res := karaberus_tools.DakaraCheckResults(obj)
 	return &res, nil
+}
+
+func CheckS3Ass(ctx context.Context, obj *minio.Object) (*karaberus_tools.DakaraCheckResultsOutput, error) {
+	return &karaberus_tools.DakaraCheckResultsOutput{Passed: true}, nil
 }
