@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -30,7 +31,7 @@ func getS3Client() *minio.Client {
 func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64) error {
 	client := getS3Client()
 	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{})
-	fmt.Printf("info: %v\n", info)
+	getLogger().Printf("upload info: %v\n", info)
 
 	return err
 }
@@ -46,7 +47,7 @@ func CheckValidFiletype(type_directory string) bool {
 
 func SaveFileToS3(ctx context.Context, fd io.Reader, kid string, type_directory string, filesize int64) error {
 	if !CheckValidFiletype(type_directory) {
-		return &KaraberusError{"Unknown file type " + type_directory}
+		return errors.New("Unknown file type " + type_directory)
 	}
 	filename := filepath.Join(type_directory, "/", kid)
 	return UploadToS3(ctx, fd, filename, filesize)
@@ -66,24 +67,33 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 	out := &CheckKaraOutput{}
 
 	if kara.VideoUploaded {
-		video_filename := fmt.Sprintf("video/%d", kara.ID)
-		video_check_res, err := CheckS3File(ctx, video_filename)
+		obj, err := GetKaraObject(ctx, kara, "video")
+		if err != nil {
+			return nil, err
+		}
+		video_check_res, err := CheckS3File(ctx, obj)
 		if err != nil {
 			return nil, err
 		}
 		out.Video = video_check_res
 	}
 	if kara.SubtitlesUploaded {
-		sub_filename := fmt.Sprintf("sub/%d", kara.ID)
-		sub_check_res, err := CheckS3File(ctx, sub_filename)
+		obj, err := GetKaraObject(ctx, kara, "sub")
+		if err != nil {
+			return nil, err
+		}
+		sub_check_res, err := CheckS3File(ctx, obj)
 		if err != nil {
 			return nil, err
 		}
 		out.Subtitles = sub_check_res
 	}
 	if kara.InstrumentalUploaded {
-		inst_filename := fmt.Sprintf("inst/%d", kara.ID)
-		inst_check_res, err := CheckS3File(ctx, inst_filename)
+		obj, err := GetKaraObject(ctx, kara, "inst")
+		if err != nil {
+			return nil, err
+		}
+		inst_check_res, err := CheckS3File(ctx, obj)
 		if err != nil {
 			return nil, err
 		}
@@ -93,15 +103,19 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 	return out, nil
 }
 
-func CheckS3File(ctx context.Context, video_filename string) (*karaberus_tools.DakaraCheckResultsOutput, error) {
+func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*minio.Object, error) {
 	client := getS3Client()
 
-	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, video_filename, minio.GetObjectOptions{})
-	if err != nil {
-		return nil, err
+	if !CheckValidFiletype(filetype) {
+		return nil, errors.New("Unknown file type " + filetype)
 	}
 
-	res := karaberus_tools.DakaraCheckResults(obj)
+	filename := fmt.Sprintf("%s/%d", filetype, kara.ID)
+	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, filename, minio.GetObjectOptions{})
+	return obj, err
+}
 
+func CheckS3File(ctx context.Context, obj *minio.Object) (*karaberus_tools.DakaraCheckResultsOutput, error) {
+	res := karaberus_tools.DakaraCheckResults(obj)
 	return &res, nil
 }

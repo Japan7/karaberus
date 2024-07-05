@@ -53,6 +53,7 @@ func routes(api huma.API) {
 	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara_security))
 	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))
 	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara_security))
+	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_security))
 
 	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(kara_security))

@@ -178,3 +178,9 @@ func DeleteKara(ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, 
 	err := db.Delete(&TimingAuthor{}, input.Id).Error
 	return &DeleteKaraResponse{204}, DBErrToHumaErr(err)
 }
+
+func GetKaraByID(db *gorm.DB, kara_id uint) (KaraInfoDB, error) {
+	kara := &KaraInfoDB{}
+	err := db.First(kara, kara_id).Error
+	return *kara, err
+}

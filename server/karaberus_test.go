@@ -225,7 +225,7 @@ func uploadFile(t *testing.T, api humatest.TestAPI, kid uint, filepath string, f
 
 	buf := new(bytes.Buffer)
 	multipart_writer := multipart.NewWriter(buf)
-	fwriter, err := multipart_writer.CreateFormFile("file", "karaberus_test.mkv")
+	fwriter, err := multipart_writer.CreateFormFile("file", filepath)
 	if err != nil {
 		panic("failed to create multipart file")
 	}
@@ -256,6 +256,44 @@ func uploadFile(t *testing.T, api humatest.TestAPI, kid uint, filepath string, f
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data_upload.Body)
 	return data_upload
+}
+
+func CompareDownloadedFile(t *testing.T, api humatest.TestAPI, original_file string, kid uint, filetype string) {
+	path := fmt.Sprintf("/api/kara/%d/download/%s", kid, filetype)
+	resp := assertRespCode(t,
+		api.Get(path),
+		200,
+	)
+
+	orig, err := os.Open(original_file)
+	if err != nil {
+		t.Fatalf("failed to open %s", original_file)
+	}
+
+	for {
+		orig_buf := make([]byte, 1024*1024)
+		dl_buf := make([]byte, 1024*1024)
+		_, oerr := orig.Read(orig_buf)
+		_, dlerr := resp.Result().Body.Read(dl_buf)
+
+		if oerr != dlerr {
+			t.Fatalf("%s %s: oerr=%v != dlerr=%v", original_file, path, oerr, dlerr)
+		}
+
+		if len(orig_buf) != len(dl_buf) {
+			t.Fatal("buf sizes differ")
+		}
+
+		for i := 0; i < len(orig_buf); i++ {
+			if orig_buf[i] != dl_buf[i] {
+				t.Fatalf("downloaded file is different from original file %s", original_file)
+			}
+		}
+
+		if errors.Is(oerr, io.EOF) {
+			break
+		}
+	}
 }
 
 func TestUploadKara(t *testing.T) {
@@ -330,4 +368,8 @@ func TestUploadKara(t *testing.T) {
 		t.Log("Instrumental did not pass checks.")
 		t.Fail()
 	}
+
+	CompareDownloadedFile(t, api, mkv_test_file, data.Body.Kara.ID, "video")
+	CompareDownloadedFile(t, api, ass_test_file, data.Body.Kara.ID, "sub")
+	CompareDownloadedFile(t, api, inst_test_file, data.Body.Kara.ID, "inst")
 }

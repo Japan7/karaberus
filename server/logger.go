@@ -9,7 +9,7 @@ var _logger *log.Logger = nil
 
 func getLogger() *log.Logger {
 	if _logger == nil {
-		_logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+		_logger = log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile)
 	}
 	return _logger
 }
