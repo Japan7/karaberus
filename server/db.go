@@ -8,6 +8,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/glebarez/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -15,14 +16,6 @@ import (
 var db_instance *gorm.DB = nil
 
 func init_db() {
-	if CONFIG.DB.Delete {
-		err := os.Remove(CONFIG.DB.File)
-		// probably errors don't matter
-		if err != nil {
-			Warn(err.Error())
-		}
-	}
-
 	gorm_logger := logger.New(
 		getLogger(),
 		logger.Config{
@@ -34,15 +27,36 @@ func init_db() {
 		},
 	)
 
-	getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
-	db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), &gorm.Config{
+	gorm_config := &gorm.Config{
 		Logger: gorm_logger,
-	})
-	if err != nil {
-		panic("Could not connect to the database")
 	}
 
-	db_instance = db
+	if CONFIG.DB.Driver == "sqlite" {
+		if CONFIG.DB.Delete {
+			err := os.Remove(CONFIG.DB.File)
+			// probably errors don't matter
+			if err != nil {
+				Warn(err.Error())
+			}
+		}
+
+		getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
+		db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), gorm_config)
+		if err != nil {
+			panic("Could not connect to the database")
+		}
+
+		db_instance = db
+	} else if CONFIG.DB.Driver == "postgres" {
+		getLogger().Printf("Postgres DSN: %s\n", CONFIG.DB.DSN)
+		db, err := gorm.Open(postgres.Open(CONFIG.DB.DSN))
+		if err != nil {
+			panic("Could not connect to the database")
+		}
+		db_instance = db
+	} else {
+		panic("unknown db driver " + CONFIG.DB.Driver)
+	}
 }
 
 func GetDB(ctx context.Context) *gorm.DB {

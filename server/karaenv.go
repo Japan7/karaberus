@@ -47,6 +47,8 @@ type KaraberusS3Config struct {
 }
 
 type KaraberusDBConfig struct {
+	Driver string `envkey:"DRIVER" default:"sqlite"`
+	DSN    string `envkey:"DSN" default:"user=karaberus password=karaberus dbname=karaberus port=5123 sslmode=disable TimeZone=UTC"`
 	File   string `envkey:"FILE" default:"karaberus.db"`
 	Delete bool   `envkey:"DELETE"`
 }

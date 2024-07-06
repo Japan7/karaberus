@@ -1,8 +1,6 @@
-[wrap-file]
-directory = dakara_check-4.0.4
-source_url = https://github.com/Japan7/dakara_check/archive/4.0.4.tar.gz
-source_filename = dakara_check-4.0.4.tar.gz
-source_hash = 4374c4e031e4a1716c8e31432a65fc2b1c03c613f07d968a01ad1397dcd9afc9
+[wrap-git]
+url = https://github.com/Japan7/dakara_check.git
+revision = head
 
 [provide]
 dakara_check = dakara_check_dep
