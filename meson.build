@@ -179,10 +179,7 @@ run_target(
 run_target(
     'create-token',
     command: [
-        go,
-        'run',
-        '-C', meson.current_source_dir(),
-        meson.current_source_dir(),
+        karaberus,
         'create-token',
     ],
     depends: libkaraberus_tools,
