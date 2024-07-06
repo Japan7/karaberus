@@ -184,3 +184,16 @@ func GetKaraByID(db *gorm.DB, kara_id uint) (KaraInfoDB, error) {
 	err := db.First(kara, kara_id).Error
 	return *kara, err
 }
+
+type GetAllKarasOutput struct {
+	Body struct {
+		Karas []KaraInfoDB
+	}
+}
+
+func GetAllKaras(ctx context.Context, input *struct{}) (*GetAllKarasOutput, error) {
+	out := &GetAllKarasOutput{}
+	db := GetDB(ctx)
+	err := db.Find(&out.Body.Karas).Error
+	return out, DBErrToHumaErr(err)
+}

@@ -49,6 +49,7 @@ func routes(api huma.API) {
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
 
+	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_security))
 	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_security))
 	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara_security))
 	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))
