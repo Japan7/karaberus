@@ -161,7 +161,7 @@ func CreateKara(ctx context.Context, input *CreateKaraInput) (*KaraOutput, error
 type SetKaraUploadTimeInput struct {
 	Id   uint `path:"id"`
 	Body struct {
-		CreationDate int64 `json:"creation_date" example:"42"`
+		CreationDate int64 `json:"creation_time" example:"42"`
 	}
 }
 
