@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"strconv"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
@@ -32,16 +33,39 @@ type UploadOutput struct {
 }
 
 func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) error {
+	currentTime := time.Now().UTC()
 	switch filetype {
 	case "video":
-		err := tx.Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: true}}).Error
+		err := tx.Model(kara).Updates(&KaraInfoDB{
+			UploadInfo: UploadInfo{
+				VideoUploaded: true,
+				VideoModTime:  currentTime,
+			}}).Error
 		return DBErrToHumaErr(err)
 	case "inst":
-		err := tx.Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: true}}).Error
+		err := tx.Model(kara).Updates(&KaraInfoDB{
+			UploadInfo: UploadInfo{
+				InstrumentalUploaded: true,
+				InstrumentalModTime:  currentTime,
+			}}).Error
 		return DBErrToHumaErr(err)
 	case "sub":
-		err := tx.Model(kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: true}}).Error
-		return DBErrToHumaErr(err)
+		if kara.KaraokeCreationTime.Unix() == 0 {
+			err := tx.Model(kara).Updates(&KaraInfoDB{
+				UploadInfo: UploadInfo{
+					SubtitlesUploaded:   true,
+					SubtitlesModTime:    currentTime,
+					KaraokeCreationTime: currentTime,
+				}}).Error
+			return DBErrToHumaErr(err)
+		} else {
+			err := tx.Model(kara).Updates(&KaraInfoDB{
+				UploadInfo: UploadInfo{
+					SubtitlesUploaded: true,
+					SubtitlesModTime:  currentTime,
+				}}).Error
+			return DBErrToHumaErr(err)
+		}
 	}
 	return errors.New("Unknown file type " + filetype)
 }

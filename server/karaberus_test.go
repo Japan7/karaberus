@@ -15,6 +15,7 @@ import (
 	"os"
 	"path"
 	"testing"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2/humatest"
 )
@@ -372,4 +373,23 @@ func TestUploadKara(t *testing.T) {
 	CompareDownloadedFile(t, api, mkv_test_file, data.Body.Kara.ID, "video")
 	CompareDownloadedFile(t, api, ass_test_file, data.Body.Kara.ID, "sub")
 	CompareDownloadedFile(t, api, inst_test_file, data.Body.Kara.ID, "inst")
+
+	kara_path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
+	resp = assertRespCode(t, api.Get(kara_path), 200)
+	dec = json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	newCreationDate := data.Body.Kara.KaraokeCreationTime.Add(-3600 * time.Second).Unix()
+	resp = assertRespCode(t,
+		api.Patch(kara_path, map[string]any{
+			"creation_date": newCreationDate,
+		}),
+		200,
+	)
+	dec = json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	if data.Body.Kara.KaraokeCreationTime.Unix() != newCreationDate {
+		t.Fatal("failed to set karaoke creation date")
+	}
 }

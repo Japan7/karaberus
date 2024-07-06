@@ -52,6 +52,8 @@ func routes(api huma.API) {
 	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_security))
 	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_security))
 	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara_security))
+	// TODO: should be reserved to admins
+	huma.Patch(api, "/api/kara/{id}", SetKaraUploadTime, setSecurity(kara_security))
 	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))
 	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara_security))
 	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_security))

@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -155,6 +156,33 @@ func CreateKara(ctx context.Context, input *CreateKaraInput) (*KaraOutput, error
 	})
 
 	return &output, err
+}
+
+type SetKaraUploadTimeInput struct {
+	Id   uint `path:"id"`
+	Body struct {
+		CreationDate int64 `json:"creation_date" example:"42"`
+	}
+}
+
+func SetKaraUploadTime(ctx context.Context, input *SetKaraUploadTimeInput) (*KaraOutput, error) {
+	db := GetDB(ctx)
+	out := &KaraOutput{}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		kara, err := GetKaraByID(tx, input.Id)
+		if err != nil {
+			return err
+		}
+
+		kara.KaraokeCreationTime = time.Unix(input.Body.CreationDate, 0)
+		err = tx.Save(&kara).Error
+		if err != nil {
+			return err
+		}
+		out.Body.Kara = kara
+		return err
+	})
+	return out, err
 }
 
 type GetKaraInput struct {

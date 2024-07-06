@@ -121,9 +121,14 @@ type AudioTagDB struct {
 
 type UploadInfo struct {
 	VideoUploaded        bool
+	VideoModTime         time.Time
 	InstrumentalUploaded bool
+	InstrumentalModTime  time.Time
 	SubtitlesUploaded    bool
+	SubtitlesModTime     time.Time
 	Hardsubbed           bool
+	// date of the first upload of the sub file
+	KaraokeCreationTime time.Time
 }
 
 func NewUploadInfo() UploadInfo {
@@ -132,6 +137,10 @@ func NewUploadInfo() UploadInfo {
 		InstrumentalUploaded: false,
 		SubtitlesUploaded:    false,
 		Hardsubbed:           false,
+		VideoModTime:         time.Unix(0, 0),
+		InstrumentalModTime:  time.Unix(0, 0),
+		SubtitlesModTime:     time.Unix(0, 0),
+		KaraokeCreationTime:  time.Unix(0, 0),
 	}
 }
 
