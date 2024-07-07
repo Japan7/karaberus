@@ -15,21 +15,20 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func getS3Client() *minio.Client {
-
+func getS3Client() (*minio.Client, error) {
 	client, err := minio.New(CONFIG.S3.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(CONFIG.S3.KeyID, CONFIG.S3.Secret, ""),
 		Secure: CONFIG.S3.Secure,
 	})
-	if err != nil {
-		panic(err)
-	}
-
-	return client
+	return client, err
 }
 
 func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64) error {
-	client := getS3Client()
+	client, err := getS3Client()
+	if err != nil {
+		return err
+	}
+
 	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{})
 	getLogger().Printf("upload info: %v\n", info)
 
@@ -104,7 +103,10 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 }
 
 func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*minio.Object, error) {
-	client := getS3Client()
+	client, err := getS3Client()
+	if err != nil {
+		return nil, err
+	}
 
 	if !CheckValidFiletype(filetype) {
 		return nil, errors.New("Unknown file type " + filetype)
