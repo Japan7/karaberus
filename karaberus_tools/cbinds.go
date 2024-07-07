@@ -37,13 +37,20 @@ func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
 	} else if err != nil {
 		panic(err)
 	}
-	C.memcpy(C.CBytes(rbuf), unsafe.Pointer(buf), C.size_t(nread))
+	C.memcpy(unsafe.Pointer(buf), C.CBytes(rbuf), C.size_t(nread))
 	return C.int(nread)
 }
 
 //export AVIOSeek
 func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 	obj := pointer.Restore(opaque).(*minio.Object)
+	if whence == C.AVSEEK_SIZE {
+		stat, err := obj.Stat()
+		if err != nil {
+			panic(err)
+		}
+		return C.int64_t(stat.Size)
+	}
 	pos, err := obj.Seek(int64(offset), int(whence))
 	if err != nil {
 		panic(err)
