@@ -31,12 +31,16 @@ test_db_file = meson.current_build_dir() / 'karaberus_test.db'
 karaberus_ui_dist_dir = meson.current_build_dir() / 'ui' / 'ui_dist'
 pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
 
+karaberus_tools_deps = []
+
 dakara_check = dependency(
     'dakara_check',
     version: '>=4.0.1',
     required: true,
     default_options: ['default_library=static', 'prefer_static=true'],
 )
+karaberus_tools_deps += dakara_check
+karaberus_tools_deps += dependency('libavutil', required: true)
 
 dakara_check_objects = []
 

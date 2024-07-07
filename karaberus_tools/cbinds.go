@@ -30,7 +30,11 @@ func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
 	obj := pointer.Restore(opaque).(*minio.Object)
 	rbuf := make([]byte, n)
 	nread, err := obj.Read(rbuf)
-	if err != nil && !errors.Is(err, io.EOF) {
+	if errors.Is(err, io.EOF) {
+		if nread == 0 {
+			return C.AVERROR_EOF
+		}
+	} else if err != nil {
 		panic(err)
 	}
 	C.memcpy(C.CBytes(rbuf), unsafe.Pointer(buf), C.size_t(nread))

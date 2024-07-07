@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <dakara_check.h>
+#include <libavutil/error.h>
 
 #define KARABERUS_BUFSIZE 1024 * 1024
 
