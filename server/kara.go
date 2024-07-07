@@ -159,7 +159,7 @@ func CreateKara(ctx context.Context, input *CreateKaraInput) (*KaraOutput, error
 		}
 		output.Body.Kara = kara
 
-		err = db.Create(&output.Body.Kara).Error
+		err = tx.Create(&output.Body.Kara).Error
 		return err
 	})
 
