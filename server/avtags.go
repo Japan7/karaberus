@@ -1,25 +1,28 @@
 package server
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
-func getVideoTag(video_type string) VideoTag {
+func getVideoTag(video_type string) (*VideoTag, error) {
 	for _, v := range VideoTags {
 		if v.ID == video_type {
-			return v
+			return &v, nil
 		}
 	}
 
-	panic("unknown video type " + video_type)
+	return nil, errors.New("unknown video type " + video_type)
 }
 
-func getAudioTag(audio_type string) AudioTag {
+func getAudioTag(audio_type string) (*AudioTag, error) {
 	for _, v := range AudioTags {
 		if v.ID == audio_type {
-			return v
+			return &v, nil
 		}
 	}
 
-	panic("unknown audio type " + audio_type)
+	return nil, errors.New("unknown audio type " + audio_type)
 }
 
 // Public/API functions

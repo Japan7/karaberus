@@ -83,12 +83,20 @@ func makeTags(tx *gorm.DB, info KaraInfo) (AllTags, error) {
 
 	tags.Video = make([]VideoTagDB, len(info.VideoTags))
 	for i, video_type := range info.VideoTags {
-		tags.Video[i] = VideoTagDB{getVideoTag(video_type).ID}
+		video_tag, err := getVideoTag(video_type)
+		if err != nil {
+			return tags, err
+		}
+		tags.Video[i] = VideoTagDB{video_tag.ID}
 	}
 
 	tags.Audio = make([]AudioTagDB, len(info.AudioTags))
 	for i, audio_type := range info.AudioTags {
-		tags.Audio[i] = AudioTagDB{getAudioTag(audio_type).ID}
+		audio_tag, err := getAudioTag(audio_type)
+		if err != nil {
+			return tags, err
+		}
+		tags.Audio[i] = AudioTagDB{audio_tag.ID}
 	}
 
 	return tags, nil
