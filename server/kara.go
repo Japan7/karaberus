@@ -144,7 +144,7 @@ type CreateKaraInput struct {
 
 type KaraOutput struct {
 	Body struct {
-		Kara KaraInfoDB
+		Kara KaraInfoDB `json:"kara"`
 	}
 }
 
