@@ -41,6 +41,7 @@ dakara_check = dependency(
 )
 karaberus_tools_deps += dakara_check
 karaberus_tools_deps += dependency('libavutil', required: true)
+karaberus_tools_deps += dependency('libavformat', required: true)
 
 dakara_check_objects = []
 
