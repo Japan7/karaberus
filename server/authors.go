@@ -15,7 +15,7 @@ type GetAuthorInput struct {
 
 type AuthorOutput struct {
 	Body struct {
-		author TimingAuthor
+		Author TimingAuthor `json:"author"`
 	}
 }
 
@@ -33,7 +33,7 @@ func GetAuthor(ctx context.Context, input *GetAuthorInput) (*AuthorOutput, error
 	if err != nil {
 		return nil, err
 	}
-	author_output.Body.author = *author
+	author_output.Body.Author = *author
 	return author_output, nil
 }
 
@@ -49,8 +49,8 @@ func CreateAuthor(ctx context.Context, input *CreateAuthorInput) (*AuthorOutput,
 
 	err := db.Transaction(
 		func(tx *gorm.DB) error {
-			author_output.Body.author = TimingAuthor{Name: input.Body.Name}
-			err := tx.Create(&author_output.Body.author).Error
+			author_output.Body.Author = TimingAuthor{Name: input.Body.Name}
+			err := tx.Create(&author_output.Body.Author).Error
 			return DBErrToHumaErr(err)
 		})
 
@@ -74,6 +74,6 @@ type FindAuthorInput struct {
 func FindAuthor(ctx context.Context, input *FindAuthorInput) (*AuthorOutput, error) {
 	db := GetDB(ctx)
 	out := &AuthorOutput{}
-	err := db.Where(&TimingAuthor{Name: input.Name}).First(&out.Body.author).Error
+	err := db.Where(&TimingAuthor{Name: input.Name}).First(&out.Body.Author).Error
 	return out, DBErrToHumaErr(err)
 }

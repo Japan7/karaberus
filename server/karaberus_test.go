@@ -53,7 +53,7 @@ func TestAuthorTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	path := fmt.Sprintf("/api/tags/author/%d", data.Body.author.ID)
+	path := fmt.Sprintf("/api/tags/author/%d", data.Body.Author.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -75,7 +75,7 @@ func TestFindAuthorTag(t *testing.T) {
 
 	resp = assertRespCode(t, api.Get("/api/tags/author?name=author_name"), 200)
 
-	path := fmt.Sprintf("/api/tags/author/%d", data.Body.author.ID)
+	path := fmt.Sprintf("/api/tags/author/%d", data.Body.Author.ID)
 	assertRespCode(t, api.Delete(path), 204)
 }
 
@@ -379,17 +379,18 @@ func TestUploadKara(t *testing.T) {
 	dec = json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	newCreationDate := data.Body.Kara.KaraokeCreationTime.Add(-3600 * time.Second).Unix()
+	kara_path_creation_time := fmt.Sprintf("/api/kara/%d/creation_time", data.Body.Kara.ID)
+	newCreationTime := data.Body.Kara.KaraokeCreationTime.Add(-3600 * time.Second).Unix()
 	resp = assertRespCode(t,
-		api.Patch(kara_path, map[string]any{
-			"creation_date": newCreationDate,
+		api.Patch(kara_path_creation_time, map[string]any{
+			"creation_time": newCreationTime,
 		}),
 		200,
 	)
 	dec = json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	if data.Body.Kara.KaraokeCreationTime.Unix() != newCreationDate {
+	if data.Body.Kara.KaraokeCreationTime.Unix() != newCreationTime {
 		t.Fatal("failed to set karaoke creation date")
 	}
 }
