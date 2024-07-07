@@ -16,6 +16,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"gorm.io/gorm"
 
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/zitadel/oidc/v3/pkg/client/rs"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
@@ -183,6 +184,8 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	app := fiber.New(fiber.Config{
 		BodyLimit: 1024 * 1024 * 1024, // 1GiB
 	})
+
+	app.Use(logger.New())
 
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.Dir(CONFIG.UIDistDir),
