@@ -1,4 +1,5 @@
-FROM ghcr.io/odrling/chimera:cross AS builder
+ARG BUILDER_IMAGE=ghcr.io/odrling/chimera:cross
+FROM ${BUILDER_IMAGE} AS builder
 
 ARG CHOST
 
