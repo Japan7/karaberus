@@ -27,7 +27,6 @@ c_compiler = meson.get_compiler('c')
 cc_cmd = ' '.join(c_compiler.cmd_array())
 
 db_file = meson.current_build_dir() / 'karaberus.db'
-test_db_file = meson.current_build_dir() / 'karaberus_test.db'
 karaberus_ui_dist_dir = meson.current_build_dir() / 'ui' / 'ui_dist'
 pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
 
@@ -89,22 +88,8 @@ go_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
 # go test env
 go_test_env = environment()
-go_test_env.set('CGO_ENABLED', '1')
-go_test_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
-go_test_env.set('CC', cc_cmd)
-
-go_test_env.set('PKG_CONFIG_PATH', pkg_config_path)
-
-if go_os != ''
-    go_test_env.set('GOOS', go_os)
-endif
-if go_arch != ''
-    go_test_env.set('GOARCH', go_arch)
-endif
-
-go_test_env.set('KARABERUS_DB_FILE', test_db_file)
-go_test_env.set('KARABERUS_DB_DELETE', '1')
-go_test_env.set('KARABERUS_GENERATED_TEST_DIR', meson.current_build_dir())
+go_test_env.set('KARABERUS_DB_FILE', 'file::memory:?cache=shared')
+go_test_env.set('KARABERUS_TEST_DIR_GENERATED', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 

@@ -50,17 +50,14 @@ type KaraberusDBConfig struct {
 	Driver string `envkey:"DRIVER" default:"sqlite"`
 	DSN    string `envkey:"DSN" default:"user=karaberus password=karaberus dbname=karaberus port=5123 sslmode=disable TimeZone=UTC"`
 	File   string `envkey:"FILE" default:"karaberus.db"`
-	Delete bool   `envkey:"DELETE"`
 }
 
 type KaraberusConfig struct {
-	S3                 KaraberusS3Config     `env_prefix:"S3"`
-	OIDC               KaraberusOIDCConfig   `env_prefix:"OIDC"`
-	Listen             KaraberusListenConfig `env_prefix:"LISTEN"`
-	GENERATED_TEST_DIR string                `envkey:"GENERATED_TEST_DIR"`
-	TEST_DIR           string                `envkey:"TEST_DIR"`
-	DB                 KaraberusDBConfig     `env_prefix:"DB"`
-	UIDistDir          string                `envkey:"UI_DIST_DIR" default:"/usr/share/karaberus/ui_dist"`
+	S3        KaraberusS3Config     `env_prefix:"S3"`
+	OIDC      KaraberusOIDCConfig   `env_prefix:"OIDC"`
+	Listen    KaraberusListenConfig `env_prefix:"LISTEN"`
+	DB        KaraberusDBConfig     `env_prefix:"DB"`
+	UIDistDir string                `envkey:"UI_DIST_DIR" default:"/usr/share/karaberus/ui_dist"`
 }
 
 func getEnvDefault(name string, defaultValue string) string {

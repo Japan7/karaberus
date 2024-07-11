@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"errors"
-	"os"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -32,14 +31,6 @@ func init_db() {
 	}
 
 	if CONFIG.DB.Driver == "sqlite" {
-		if CONFIG.DB.Delete {
-			err := os.Remove(CONFIG.DB.File)
-			// probably errors don't matter
-			if err != nil {
-				Warn(err.Error())
-			}
-		}
-
 		getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
 		db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), gorm_config)
 		if err != nil {

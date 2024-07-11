@@ -14,11 +14,30 @@ import (
 	"net/http/httptest"
 	"os"
 	"path"
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2/humatest"
 )
+
+type KaraberusTestConfig struct {
+	GeneratedDirectory string `envkey:"DIR_GENERATED"`
+	Directory          string `envkey:"DIR"`
+}
+
+func getKaraberusTestConfig() KaraberusTestConfig {
+	config := KaraberusTestConfig{}
+
+	config_value := reflect.ValueOf(&config).Elem()
+	config_type := reflect.TypeOf(config)
+
+	setConfigValue(config_value, config_type, "KARABERUS_TEST_")
+
+	return config
+}
+
+var TEST_CONFIG = getKaraberusTestConfig()
 
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
@@ -325,7 +344,7 @@ func TestUploadKara(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	mkv_test_file := path.Join(CONFIG.GENERATED_TEST_DIR, "karaberus_test.mkv")
+	mkv_test_file := path.Join(TEST_CONFIG.GeneratedDirectory, "karaberus_test.mkv")
 	video_upload := uploadFile(t, api, data.Body.Kara.ID, mkv_test_file, "video")
 	if !video_upload.Body.CheckResults.Video.Passed {
 		t.Log("Video did not pass checks.")
@@ -340,7 +359,7 @@ func TestUploadKara(t *testing.T) {
 		t.Fail()
 	}
 
-	ass_test_file := path.Join(CONFIG.TEST_DIR, "test.ass")
+	ass_test_file := path.Join(TEST_CONFIG.Directory, "test.ass")
 	sub_upload := uploadFile(t, api, data.Body.Kara.ID, ass_test_file, "sub")
 	if !sub_upload.Body.CheckResults.Video.Passed {
 		t.Log("Video did not pass checks.")
@@ -355,7 +374,7 @@ func TestUploadKara(t *testing.T) {
 		t.Fail()
 	}
 
-	inst_test_file := path.Join(CONFIG.GENERATED_TEST_DIR, "karaberus_test.opus")
+	inst_test_file := path.Join(TEST_CONFIG.GeneratedDirectory, "karaberus_test.opus")
 	inst_upload := uploadFile(t, api, data.Body.Kara.ID, inst_test_file, "inst")
 	if !inst_upload.Body.CheckResults.Video.Passed {
 		t.Log("Video did not pass checks.")
