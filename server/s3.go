@@ -70,6 +70,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer obj.Close()
 		video_check_res, err := CheckS3File(ctx, obj)
 		if err != nil {
 			return nil, err
@@ -81,6 +82,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer obj.Close()
 		sub_check_res, err := CheckS3Ass(ctx, obj)
 		if err != nil {
 			return nil, err
@@ -92,6 +94,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer obj.Close()
 		inst_check_res, err := CheckS3File(ctx, obj)
 		if err != nil {
 			return nil, err

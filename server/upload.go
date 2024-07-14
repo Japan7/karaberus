@@ -141,7 +141,10 @@ func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamRespon
 
 	return &huma.StreamResponse{
 		Body: func(ctx huma.Context) {
+			defer obj.Close()
+
 			writer := ctx.BodyWriter()
+
 			var n int
 			for {
 				buf := make([]byte, 1024*1024)
