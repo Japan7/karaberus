@@ -11,7 +11,7 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@solid-primitives/storage": "3.7.1",
+    "@solid-primitives/storage": "3.8.0",
     "@solidjs/router": "0.14.1",
     "openapi-fetch": "0.10.2",
     "solid-js": "1.8.18"
