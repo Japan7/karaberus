@@ -106,7 +106,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
   push_manifest:
-    needs: build
+    needs: [build, test]
     runs-on: ubuntu-latest
 
     permissions:
