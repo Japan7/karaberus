@@ -1,3 +1,5 @@
+//go:build cgo
+
 package karaberus_tools
 
 /*
@@ -56,10 +58,6 @@ func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 		panic(err)
 	}
 	return C.int64_t(pos)
-}
-
-type DakaraCheckResultsOutput struct {
-	Passed bool `json:"passed" example:"true" doc:"true if file passed all checks"`
 }
 
 func DakaraCheckResults(obj *minio.Object) DakaraCheckResultsOutput {

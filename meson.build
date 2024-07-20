@@ -14,7 +14,12 @@ ffmpeg = find_program('ffmpeg', required: false)
 python = find_program('python3')
 npm = find_program('npm')
 
-go_files = files('go.mod', 'go.sum', 'main.go', 'karaberus_tools' / 'cbinds.go')
+go_files = files('go.mod', 'go.sum', 'main.go')
+go_files += files(
+    'karaberus_tools' / 'cbinds.go',
+    'karaberus_tools' / 'nocbinds.go',
+    'karaberus_tools' / 'model.go',
+)
 
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
 
@@ -147,14 +152,16 @@ karaberus_test = custom_target(
     depends: libkaraberus_tools,
 )
 
+spec_env = environment()
+spec_env.set('CGO_ENABLED', '0')
+
 openapi_spec = custom_target(
     'openapi_spec',
-    command: [karaberus, 'openapi'],
+    command: [go, 'run', '-C', meson.current_source_dir(), '.', 'openapi'],
     output: 'openapi.yaml',
     capture: true,
     depend_files: karaberus_inputs,
-    depends: libkaraberus_tools,
-    env: go_env,
+    env: spec_env,
 )
 
 subdir('ui')
