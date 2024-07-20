@@ -155,14 +155,24 @@ karaberus_test = custom_target(
 spec_env = environment()
 spec_env.set('CGO_ENABLED', '0')
 
-openapi_spec = custom_target(
-    'openapi_spec',
-    command: [go, 'run', '-C', meson.current_source_dir(), '.', 'openapi'],
-    output: 'openapi.yaml',
-    capture: true,
-    depend_files: karaberus_inputs,
-    env: spec_env,
-)
+if go_os == '' and go_arch == ''
+    openapi_spec = custom_target(
+        'openapi_spec',
+        command: [karaberus, 'openapi'],
+        output: 'openapi.yaml',
+        capture: true,
+        depend_files: karaberus_inputs,
+    )
+else
+    openapi_spec = custom_target(
+        'openapi_spec',
+        command: [go, 'run', '-C', meson.current_source_dir(), '.', 'openapi'],
+        output: 'openapi.yaml',
+        capture: true,
+        depend_files: karaberus_inputs,
+        env: spec_env,
+    )
+endif
 
 subdir('ui')
 
