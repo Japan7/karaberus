@@ -167,6 +167,7 @@ func middlewares(api huma.API) {
 			ctx, err := checkToken(ctx, bearer_token, operation_security)
 			if err != nil {
 				huma.WriteErr(api, ctx, 403, "Forbidden", err)
+				return;
 			}
 			next(ctx)
 		},
