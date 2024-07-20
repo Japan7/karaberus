@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type OIDCProviderDiscovery struct {
@@ -20,7 +21,8 @@ type OIDCAuthEndpointOutput struct {
 }
 
 func getOIDCProviderDiscovery() (*OIDCProviderDiscovery, error) {
-	oidc_config_url := fmt.Sprintf("%s/.well-known/openid-configuration", CONFIG.OIDC.Issuer)
+	issuer_trim := strings.TrimRight(CONFIG.OIDC.Issuer, "/")
+	oidc_config_url := fmt.Sprintf("%s/.well-known/openid-configuration", issuer_trim)
 
 	resp, err := http.Get(oidc_config_url)
 	if err != nil {
