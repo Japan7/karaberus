@@ -176,7 +176,6 @@ func middlewares(api huma.API) {
 			next(ctx)
 		},
 	)
-
 }
 
 func setupKaraberus() (*fiber.App, huma.API) {
@@ -206,13 +205,13 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	// 	Scheme: "bearer",
 	// }
 
+	middlewares(api)
 	routes(api)
+
 	return app, api
 }
 
 func RunKaraberus(app *fiber.App, api huma.API) {
-	middlewares(api)
-
 	db := GetDB(context.TODO())
 	init_model(db)
 
