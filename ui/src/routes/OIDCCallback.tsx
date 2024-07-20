@@ -1,5 +1,6 @@
 import { onMount } from "solid-js";
 import { currentToken, getToken } from "../utils/oidc";
+import routes from "../utils/routes";
 
 export default function OIDCCallback() {
   onMount(async () => {
@@ -10,14 +11,10 @@ export default function OIDCCallback() {
     if (code) {
       const token = await getToken(code);
       currentToken.save(token);
-
-      // Remove code from URL so we can refresh correctly.
-      const url = new URL(window.location.href);
-      url.searchParams.delete("code");
-
-      const updatedUrl = url.search ? url.href : url.href.replace("?", "");
-      window.history.replaceState({}, document.title, updatedUrl);
     }
+
+    window.location.href = routes.HOME;
   });
+
   return null;
 }

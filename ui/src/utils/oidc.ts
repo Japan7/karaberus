@@ -32,7 +32,7 @@ export const currentToken = {
 
     const now = new Date();
     const expiry = new Date(now.getTime() + expires_in * 1000);
-    localStorage.setItem("expires", expiry.toString());
+    localStorage.setItem("expires", expiry.getTime().toString());
   },
 };
 
@@ -101,10 +101,9 @@ export async function getToken(code: string) {
       redirect_uri: `${window.location.protocol}//${window.location.host}${routes.OIDC_CALLBACK}`,
       code_verifier: code_verifier!,
     }),
-    mode: "no-cors",
   });
 
-  return await resp.json();
+  return (await resp.json()) as TokenResponse;
 }
 
 export async function refreshToken() {
@@ -125,10 +124,9 @@ export async function refreshToken() {
       grant_type: "refresh_token",
       refresh_token: currentToken.refresh_token!,
     }),
-    mode: "no-cors",
   });
 
-  return await resp.json();
+  return (await resp.json()) as TokenResponse;
 }
 
 export async function getUserData() {
@@ -142,7 +140,6 @@ export async function getUserData() {
   const resp = await fetch(oidc_config.userinfo_endpoint, {
     method: "GET",
     headers: { Authorization: "Bearer " + currentToken.access_token },
-    mode: "no-cors",
   });
 
   return await resp.json();
