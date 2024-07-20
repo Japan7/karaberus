@@ -44,7 +44,7 @@ export const currentToken = {
 
 export async function redirectToAuthorize() {
   const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
   const randomValues = crypto.getRandomValues(new Uint8Array(64));
   const randomString = randomValues.reduce(
     (acc, x) => acc + possible[x % possible.length],
