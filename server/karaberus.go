@@ -150,11 +150,6 @@ func checkToken(ctx huma.Context, bearer_token string, operation_security []map[
 }
 
 func middlewares(api huma.API) {
-	err := CONFIG.OIDC.Validate()
-	if err != nil {
-		panic(err)
-	}
-
 	// OIDC/Auth middleware
 	api.UseMiddleware(
 		func(ctx huma.Context, next func(huma.Context)) {
@@ -212,6 +207,11 @@ func setupKaraberus() (*fiber.App, huma.API) {
 }
 
 func RunKaraberus(app *fiber.App, api huma.API) {
+	err := CONFIG.OIDC.Validate()
+	if err != nil {
+		panic(err)
+	}
+
 	db := GetDB(context.TODO())
 	init_model(db)
 
