@@ -1,3 +1,5 @@
+// Adapted from
+// https://github.com/spotify/web-api-examples/blob/7c4872d343a6f29838c437cf163012947b4bffb9/authorization/authorization_code_pkce/public/app.js
 import { karaberus } from "./karaberus-client";
 import routes from "./routes";
 
@@ -12,16 +14,21 @@ export interface TokenResponse {
 // Data structure that manages the current active token, caching it in localStorage
 export const currentToken = {
   get access_token() {
-    return localStorage.getItem("access_token") || null;
+    return localStorage.getItem("access_token");
   },
   get refresh_token() {
-    return localStorage.getItem("refresh_token") || null;
+    return localStorage.getItem("refresh_token");
   },
   get expires_in() {
-    return localStorage.getItem("refresh_in") || null;
+    const expiresIn = localStorage.getItem("expires_in");
+    return expiresIn ? parseInt(expiresIn) : null;
   },
-  get expires() {
-    return localStorage.getItem("expires") || null;
+  get expires_at() {
+    const expiresAt = localStorage.getItem("expires_at");
+    return expiresAt ? parseInt(expiresAt) : null;
+  },
+  get isValid() {
+    return this.access_token && this.expires_at && Date.now() < this.expires_at;
   },
 
   save: function (resp: TokenResponse) {
@@ -30,9 +37,8 @@ export const currentToken = {
     localStorage.setItem("refresh_token", refresh_token);
     localStorage.setItem("expires_in", expires_in.toString());
 
-    const now = new Date();
-    const expiry = new Date(now.getTime() + expires_in * 1000);
-    localStorage.setItem("expires", expiry.getTime().toString());
+    const expiresAt = Date.now() + expires_in * 1000;
+    localStorage.setItem("expires_at", expiresAt.toString());
   },
 };
 
@@ -103,7 +109,8 @@ export async function getToken(code: string) {
     }),
   });
 
-  return (await resp.json()) as TokenResponse;
+  const json = await resp.json();
+  return json as TokenResponse;
 }
 
 export async function refreshToken() {
@@ -126,21 +133,6 @@ export async function refreshToken() {
     }),
   });
 
-  return (await resp.json()) as TokenResponse;
-}
-
-export async function getUserData() {
-  const { data: oidc_config, error } = await karaberus.GET(
-    "/api/oidc_discovery",
-  );
-  if (error) {
-    throw new Error(error.detail);
-  }
-
-  const resp = await fetch(oidc_config.userinfo_endpoint, {
-    method: "GET",
-    headers: { Authorization: "Bearer " + currentToken.access_token },
-  });
-
-  return await resp.json();
+  const json = await resp.json();
+  return json as TokenResponse;
 }

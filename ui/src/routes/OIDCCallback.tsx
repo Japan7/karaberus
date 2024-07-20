@@ -7,7 +7,6 @@ export default function OIDCCallback() {
     const args = new URLSearchParams(window.location.search);
     const code = args.get("code");
 
-    // If we find a code, we're in a callback, do a token exchange
     if (code) {
       const token = await getToken(code);
       currentToken.save(token);

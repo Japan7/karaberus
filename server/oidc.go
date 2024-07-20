@@ -13,7 +13,6 @@ type OIDCProviderDiscovery struct {
 	JWKSURI               string `json:"jwks_uri"`
 	TokenEndpoint         string `json:"token_endpoint"`
 	ClientID              string `json:"client_id"`
-	UserInfoEndpoint      string `json:"userinfo_endpoint"`
 }
 
 type OIDCAuthEndpointOutput struct {
