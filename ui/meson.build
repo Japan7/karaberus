@@ -11,6 +11,7 @@ subdir('src')
 
 npx = find_program('npx')
 
+karaberus_ui_deps = []
 openapi_ts = custom_target(
     'openapi_ts',
     command: [
@@ -22,10 +23,11 @@ openapi_ts = custom_target(
     output: 'karaberus.d.ts',
     capture: true,
 )
+karaberus_ui_deps += openapi_ts
 
 npm_run = meson.global_source_root() / 'scripts' / 'npm_run.py'
 
-karaberus_ui_deps = custom_target(
+karaberus_ui_deps += custom_target(
     'karaberus_ui_deps',
     build_by_default: true,
     env: npm_env,
@@ -80,4 +82,5 @@ test(
     python,
     args: [npm_run, 'check'],
     env: npm_env,
+    depends: karaberus_ui_deps,
 )
