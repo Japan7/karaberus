@@ -5,8 +5,6 @@ package server
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -15,9 +13,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/zitadel/oidc/v3/pkg/client/rs"
-	"github.com/zitadel/oidc/v3/pkg/oidc"
-	"gorm.io/gorm"
 )
 
 type KaraberusError struct {
@@ -28,24 +23,11 @@ func (m *KaraberusError) Error() string {
 	return m.Message
 }
 
-func getCurrentUser(ctx context.Context) User {
-	return ctx.Value("current_user").(User)
+func addMiddlewares(api huma.API) {
+	api.UseMiddleware(authMiddleware)
 }
 
-func getBearerToken(auth string) (string, error) {
-	if strings.HasPrefix(auth, oidc.BearerToken) {
-		return strings.TrimPrefix(auth, oidc.PrefixBearer), nil
-	}
-	return "", &KaraberusError{"Authorization header is missing."}
-}
-
-func setSecurity(security []map[string][]string) func(o *huma.Operation) {
-	return func(o *huma.Operation) {
-		o.Security = security
-	}
-}
-
-func routes(api huma.API) {
+func addRoutes(api huma.API) {
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
 
@@ -83,96 +65,10 @@ func routes(api huma.API) {
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
 }
 
-func checkToken(ctx huma.Context, bearer_token string, operation_security []map[string][]string) (huma.Context, error) {
-	provider, err := rs.NewResourceServerClientCredentials(
-		ctx.Context(), CONFIG.OIDC.Issuer, CONFIG.OIDC.ClientID, CONFIG.OIDC.ClientSecret)
-	if err != nil {
-		getLogger().Print(err)
+func setSecurity(security []map[string][]string) func(o *huma.Operation) {
+	return func(o *huma.Operation) {
+		o.Security = security
 	}
-
-	if bearer_token == "" {
-		return ctx, errors.New("No bearer token")
-	}
-
-	db := GetDB(ctx.Context())
-
-	for _, sec := range operation_security {
-		if len(sec["scopes"]) > 0 {
-			scope := sec["scopes"][0]
-			db_token := &Token{}
-			err := db.Where(Token{ID: bearer_token}).First(db_token).Error
-			if err == nil {
-				if db_token.HasScope(scope) {
-					ctx = huma.WithValue(ctx, "current_user", db_token.User)
-					return ctx, nil
-				} else {
-					return ctx, errors.New(fmt.Sprintf("Token doesn't have the %s API scope", scope))
-				}
-			} else {
-				getLogger().Printf(DBErrToHumaErr(err).Error())
-			}
-		}
-
-		if len(sec["oidc"]) > 0 {
-			resp, err := rs.Introspect[*oidc.IntrospectionResponse](ctx.Context(), provider, bearer_token)
-			if err != nil {
-				return ctx, err
-			}
-			if !resp.Active {
-				return ctx, errors.New("Forbidden: Inactive account")
-			}
-
-			var user_id string
-			if CONFIG.OIDC.IDClaim == "" {
-				user_id = resp.Subject
-			} else {
-				user_id = fmt.Sprintf("%v", resp.Claims[CONFIG.OIDC.IDClaim])
-			}
-
-			user := User{ID: user_id}
-			err = db.First(&user, resp.Subject).Error
-			if err != nil {
-				if errors.Is(gorm.ErrRecordNotFound, err) {
-					// The user doesn't exist yet
-					err = db.Create(&user).Error
-					if err != nil {
-						return ctx, DBErrToHumaErr(err)
-					}
-				} else {
-					return ctx, DBErrToHumaErr(err)
-				}
-			}
-			ctx = huma.WithValue(ctx, "current_user", user)
-			return ctx, nil
-		}
-	}
-
-	return ctx, errors.New("Forbidden")
-}
-
-func middlewares(api huma.API) {
-	// OIDC/Auth middleware
-	api.UseMiddleware(
-		func(ctx huma.Context, next func(huma.Context)) {
-			auth := ctx.Header("authorization")
-			bearer_token, _ := getBearerToken(auth)
-			// error value is not needed
-
-			operation_security := ctx.Operation().Security
-
-			if len(operation_security) == 0 {
-				next(ctx)
-				return
-			}
-
-			ctx, err := checkToken(ctx, bearer_token, operation_security)
-			if err != nil {
-				huma.WriteErr(api, ctx, 403, "Forbidden", err)
-				return
-			}
-			next(ctx)
-		},
-	)
 }
 
 func setupKaraberus() (*fiber.App, huma.API) {
@@ -193,9 +89,12 @@ func setupKaraberus() (*fiber.App, huma.API) {
 		},
 	}))
 
-	oidcRoutes(app)
+	addOidcRoutes(app)
 
 	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
+
+	addMiddlewares(api)
+	addRoutes(api)
 
 	// sec := huma.SecurityScheme{
 	// 	Type: "openIdConnect",
@@ -203,9 +102,6 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	// 	In: "header",
 	// 	Scheme: "bearer",
 	// }
-
-	middlewares(api)
-	routes(api)
 
 	return app, api
 }

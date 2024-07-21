@@ -45,7 +45,7 @@ func getTestAPI(t *testing.T) humatest.TestAPI {
 	db := GetDB(context.TODO())
 	init_model(db)
 
-	routes(api)
+	addRoutes(api)
 	return api
 }
 
