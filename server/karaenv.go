@@ -9,8 +9,9 @@ import (
 )
 
 type KaraberusListenConfig struct {
-	Host string `envkey:"HOST"`
-	Port int    `envkey:"PORT" default:"8888"`
+	Host    string `envkey:"HOST" default:"127.0.0.1"`
+	Port    int    `envkey:"PORT" default:"8888"`
+	BaseUrl string `envkey:"BASE_URL" default:"http://localhost:8888"`
 }
 
 func (c KaraberusListenConfig) Addr() string {
@@ -18,22 +19,26 @@ func (c KaraberusListenConfig) Addr() string {
 }
 
 type KaraberusOIDCConfig struct {
-	Issuer   string `envkey:"ISSUER"`
-	KeyID    string `envkey:"KEY_ID"`
-	Key      string `envkey:"KEY"`
-	IDClaim  string `envkey:"ID_CLAIM"`
-	ClientID string `envkey:"CLIENT_ID"`
+	Issuer       string `envkey:"ISSUER"`
+	ClientID     string `envkey:"CLIENT_ID"`
+	ClientSecret string `envkey:"CLIENT_SECRET"`
+	Scopes       string `envkey:"SCOPES" default:"openid profile email"`
+	IDClaim      string `envkey:"ID_CLAIM"`
+	JwtSignKey   string `envkey:"JWT_SIGN_KEY"`
 }
 
 func (c KaraberusOIDCConfig) Validate() error {
 	if c.Issuer == "" {
 		return &KaraberusError{"OIDC issuer is not set"}
 	}
-	if c.Key == "" {
-		return &KaraberusError{"OIDC key is not set"}
-	}
 	if c.ClientID == "" {
 		return &KaraberusError{"OIDC client ID is not set"}
+	}
+	if c.ClientSecret == "" {
+		return &KaraberusError{"OIDC client secret is not set"}
+	}
+	if c.JwtSignKey == "" {
+		return &KaraberusError{"JWT signing key is not set"}
 	}
 
 	return nil

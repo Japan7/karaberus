@@ -27,7 +27,13 @@ export default function Layout({ children }: { children: JSX.Element }) {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Karaberus
           </Typography>
-          <Button color="inherit" href={routes.OIDC_LOGIN}>
+          <Button
+            color="inherit"
+            href={routes.API_OIDC_LOGIN}
+            onClick={() => {
+              location.href = routes.API_OIDC_LOGIN;
+            }}
+          >
             Login
           </Button>
         </Toolbar>

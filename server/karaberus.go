@@ -14,11 +14,10 @@ import (
 	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
-	"gorm.io/gorm"
-
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/zitadel/oidc/v3/pkg/client/rs"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
+	"gorm.io/gorm"
 )
 
 type KaraberusError struct {
@@ -82,12 +81,11 @@ func routes(api huma.API) {
 
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
-
-	huma.Get(api, "/api/oidc_discovery", getOIDCDiscovery)
 }
 
 func checkToken(ctx huma.Context, bearer_token string, operation_security []map[string][]string) (huma.Context, error) {
-	provider, err := rs.NewResourceServerJWTProfile(ctx.Context(), CONFIG.OIDC.Issuer, CONFIG.OIDC.ClientID, CONFIG.OIDC.KeyID, []byte(CONFIG.OIDC.Key))
+	provider, err := rs.NewResourceServerClientCredentials(
+		ctx.Context(), CONFIG.OIDC.Issuer, CONFIG.OIDC.ClientID, CONFIG.OIDC.ClientSecret)
 	if err != nil {
 		getLogger().Print(err)
 	}
@@ -194,6 +192,8 @@ func setupKaraberus() (*fiber.App, huma.API) {
 			return strings.HasPrefix(c.Path(), "/api")
 		},
 	}))
+
+	oidcRoutes(app)
 
 	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
