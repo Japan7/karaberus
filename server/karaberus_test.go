@@ -278,6 +278,47 @@ func uploadFile(t *testing.T, api humatest.TestAPI, kid uint, filepath string, f
 	return data_upload
 }
 
+func uploadFont(t *testing.T, api humatest.TestAPI, filepath string) UploadFontOutput {
+	f, err := os.Open(filepath)
+	if err != nil {
+		panic("failed to open " + filepath)
+	}
+
+	buf := new(bytes.Buffer)
+	multipart_writer := multipart.NewWriter(buf)
+	fwriter, err := multipart_writer.CreateFormFile("file", filepath)
+	if err != nil {
+		panic("failed to create multipart file")
+	}
+
+	tmpbuf := make([]byte, 1024*4)
+	for {
+		n, err := f.Read(tmpbuf)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		fwriter.Write(tmpbuf[:n])
+	}
+
+	multipart_writer.Close()
+
+	path := "/api/font/upload"
+	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
+	resp := assertRespCode(t,
+		api.Post(path, headers, buf),
+		200,
+	)
+
+	data_upload := UploadFontOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data_upload.Body)
+	return data_upload
+}
+
 func CompareDownloadedFile(t *testing.T, api humatest.TestAPI, original_file string, kid uint, filetype string) {
 	path := fmt.Sprintf("/api/kara/%d/download/%s", kid, filetype)
 	resp := assertRespCode(t,
@@ -301,7 +342,42 @@ func CompareDownloadedFile(t *testing.T, api humatest.TestAPI, original_file str
 		}
 
 		if len(orig_buf) != len(dl_buf) {
-			t.Fatal("buf sizes differ")
+			t.Fatalf("buf sizes differ %s", original_file)
+		}
+
+		for i := 0; i < len(orig_buf); i++ {
+			if orig_buf[i] != dl_buf[i] {
+				t.Fatalf("downloaded file is different from original file %s", original_file)
+			}
+		}
+
+		if errors.Is(oerr, io.EOF) {
+			break
+		}
+	}
+}
+
+func CompareDownloadedFont(t *testing.T, api humatest.TestAPI, original_file string, id uint) {
+	path := fmt.Sprintf("/api/font/%d", id)
+	resp := assertRespCode(t, api.Get(path), 200)
+
+	orig, err := os.Open(original_file)
+	if err != nil {
+		t.Fatalf("failed to open %s", original_file)
+	}
+
+	for {
+		orig_buf := make([]byte, 1024*1024)
+		dl_buf := make([]byte, 1024*1024)
+		_, oerr := orig.Read(orig_buf)
+		_, dlerr := resp.Result().Body.Read(dl_buf)
+
+		if oerr != dlerr {
+			t.Fatalf("%s %s: oerr=%v != dlerr=%v", original_file, path, oerr, dlerr)
+		}
+
+		if len(orig_buf) != len(dl_buf) {
+			t.Fatalf("buf sizes differ %s", original_file)
 		}
 
 		for i := 0; i < len(orig_buf); i++ {
@@ -412,4 +488,15 @@ func TestUploadKara(t *testing.T) {
 	if data.Body.Kara.KaraokeCreationTime.Unix() != newCreationTime {
 		t.Fatal("failed to set karaoke creation date")
 	}
+}
+
+func testUploadFont(t *testing.T) {
+	skipCI(t)
+
+	api := getTestAPI(t)
+
+	font_test_file := path.Join(TEST_CONFIG.Directory, "test.ass")
+	resp := uploadFont(t, api, font_test_file)
+
+	CompareDownloadedFont(t, api, font_test_file, resp.Body.Font.ID)
 }

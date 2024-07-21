@@ -4,6 +4,7 @@ karaberus_server_files = files(
     'avtags.go',
     'cli.go',
     'db.go',
+    'fonts.go',
     'kara.go',
     'karaberus.go',
     'karaenv.go',

@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"path/filepath"
 
 	"github.com/Japan7/karaberus/karaberus_tools"
 	"github.com/minio/minio-go/v7"
@@ -44,11 +43,16 @@ func CheckValidFiletype(type_directory string) bool {
 	}
 }
 
-func SaveFileToS3(ctx context.Context, fd io.Reader, kid string, type_directory string, filesize int64) error {
+func SaveFileToS3(ctx context.Context, fd io.Reader, kid uint, type_directory string, filesize int64) error {
 	if !CheckValidFiletype(type_directory) {
 		return errors.New("Unknown file type " + type_directory)
 	}
-	filename := filepath.Join(type_directory, "/", kid)
+	filename := fmt.Sprintf("%s/%d", type_directory, kid)
+	return UploadToS3(ctx, fd, filename, filesize)
+}
+
+func SaveFontToS3(ctx context.Context, fd io.Reader, id uint, filesize int64) error {
+	filename := getS3FontFilename(id)
 	return UploadToS3(ctx, fd, filename, filesize)
 }
 
@@ -103,6 +107,21 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 	}
 
 	return out, nil
+}
+
+func getS3FontFilename(id uint) string {
+	return fmt.Sprintf("font/%d", id)
+}
+
+func GetFontObject(ctx context.Context, id uint) (*minio.Object, error) {
+	client, err := getS3Client()
+	if err != nil {
+		return nil, err
+	}
+
+	filename := getS3FontFilename(id)
+	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, filename, minio.GetObjectOptions{})
+	return obj, err
 }
 
 func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*minio.Object, error) {

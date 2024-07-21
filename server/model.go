@@ -162,8 +162,15 @@ type KaraInfoDB struct {
 	UploadInfo
 }
 
+type Font struct {
+	gorm.Model
+	Name       string
+	UploadedAt time.Time
+	// TODO: font properties (family name, weight, ...)
+}
+
 func init_model(db *gorm.DB) {
-	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{})
+	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{}, &Font{})
 }
 
 func createAdditionalNames(names []string) []AdditionalName {
