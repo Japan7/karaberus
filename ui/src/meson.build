@@ -1,6 +1,4 @@
 ui_src += files(
-    'App.tsx',
-    'index.tsx',
     'layout' / 'Layout.tsx',
     'routes' / 'Home.tsx',
     'routes' / 'OIDCCallback.tsx',
@@ -8,4 +6,6 @@ ui_src += files(
     'utils' / 'karaberus-client.ts',
     'utils' / 'oidc.ts',
     'utils' / 'routes.ts',
+    'App.tsx',
+    'index.tsx',
 )

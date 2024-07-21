@@ -1,10 +1,10 @@
 ui_pkg = files('package-lock.json')
 
 ui_src = files(
+    'public' / 'vite.svg',
     'index.html',
     'package.json',
     'vite.config.ts',
-    'public' / 'vite.svg',
 )
 
 subdir('src')
@@ -18,7 +18,8 @@ openapi_ts = custom_target(
         npx,
         'openapi-typescript',
         openapi_spec,
-        '-o', '@CURRENT_SOURCE_DIR@/src/utils/karaberus.d.ts',
+        '-o',
+        '@CURRENT_SOURCE_DIR@/src/utils/karaberus.d.ts',
     ],
     output: 'karaberus.d.ts',
     capture: true,
@@ -33,12 +34,7 @@ karaberus_ui_deps += custom_target(
     env: npm_env,
     input: ui_pkg,
     output: '.npm_ci',
-    command: [
-        python,
-        npm_run,
-        'ci',
-        '@OUTPUT@',
-    ],
+    command: [python, npm_run, 'ci', '@OUTPUT@'],
 )
 
 karaberus_ui = custom_target(
@@ -47,12 +43,7 @@ karaberus_ui = custom_target(
     env: npm_env,
     input: [ui_src, openapi_ts],
     output: 'ui_dist',
-    command: [
-        python,
-        npm_run,
-        'build',
-        karaberus_ui_dist_dir,
-    ],
+    command: [python, npm_run, 'build', karaberus_ui_dist_dir],
     depends: karaberus_ui_deps,
     install: true,
     install_dir: 'share' / 'karaberus',
@@ -61,11 +52,7 @@ karaberus_ui = custom_target(
 karaberus_ui_run = run_target(
     'ui_run',
     env: npm_env,
-    command: [
-        python,
-        npm_run,
-        'dev',
-    ],
+    command: [python, npm_run, 'dev'],
     depends: karaberus_ui_deps,
 )
 

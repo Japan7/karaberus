@@ -1,8 +1,5 @@
 # EditorConfig is awesome: https://EditorConfig.org
 
-# top-most EditorConfig file
-root = true
-
 [*]
 ### Prettier ###
 # https://prettier.io/docs/en/configuration.html#editorconfig
@@ -14,3 +11,8 @@ indent_size = 2
 max_line_length = 80
 ### ---------- ###
 trim_trailing_whitespace = true
+
+[meson.build]
+charset = utf-8
+indent_style = space
+indent_size = 4

@@ -15,6 +15,4 @@ karaberus_server_files = files(
     'upload.go',
 )
 
-karaberus_server_tests = files(
-    'karaberus_test.go',
-)
+karaberus_server_tests = files('karaberus_test.go')
