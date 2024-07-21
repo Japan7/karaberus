@@ -5,8 +5,6 @@ import { Route, Router } from "@solidjs/router";
 import { CssBaseline, ThemeProvider, createTheme } from "@suid/material";
 import Layout from "./layout/Layout";
 import Home from "./routes/Home";
-import OIDCCallback from "./routes/OIDCCallback";
-import OIDCLogin from "./routes/OIDCLogin";
 import routes from "./utils/routes";
 
 const theme = createTheme({
@@ -23,8 +21,6 @@ export default function App() {
       <Layout>
         <Router>
           <Route path={routes.HOME} component={Home} />
-          <Route path={routes.OIDC_CALLBACK} component={OIDCCallback} />
-          <Route path={routes.OIDC_LOGIN} component={OIDCLogin} />
         </Router>
       </Layout>
     </ThemeProvider>
