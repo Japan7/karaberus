@@ -29,10 +29,8 @@ jobs:
       - name: Setup S3 bucket
         run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
 
-      - name: Compile karaberus
-        run: |
-          meson setup build
-          meson compile -C build
+      - name: Configure karaberus
+        run: meson setup build
 
       - name: Run tests
         run: meson test -C build --verbose
