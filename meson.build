@@ -64,7 +64,7 @@ libkaraberus_tools = static_library(
     'karaberus_tools',
     karaberus_tools_c,
     karaberus_tools_h,
-    dependencies: dakara_check,
+    dependencies: karaberus_tools_deps,
     objects: dakara_check_objects,
     include_directories: inc_karaberus_tools,
     install: true,
