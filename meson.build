@@ -39,7 +39,7 @@ karaberus_tools_deps = []
 
 dakara_check = dependency(
     'dakara_check',
-    version: '>=4.0.1',
+    version: '>4.0.4',
     required: true,
     default_options: ['default_library=static', 'prefer_static=true'],
 )
