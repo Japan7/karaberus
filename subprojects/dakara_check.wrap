@@ -1,6 +1,6 @@
 [wrap-git]
 url = https://github.com/Japan7/dakara_check.git
-revision = head
+revision = master
 
 [provide]
 dakara_check = dakara_check_dep
