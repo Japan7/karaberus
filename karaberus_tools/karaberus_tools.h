@@ -11,11 +11,10 @@
 
 #define KARABERUS_BUFSIZE 1024 * 1024
 
-struct dakara_check_results *
-karaberus_dakara_check_avio(void *obj,
-                            int (*read_packet)(void *, uint8_t *, int),
-                            int64_t (*seek)(void *, int64_t, int));
-
-void karaberus_dakara_check_results_free(struct dakara_check_results *res);
+void karaberus_dakara_check_avio(void *obj,
+                                 int (*read_packet)(void *, uint8_t *, int),
+                                 int64_t (*seek)(void *, int64_t, int),
+                                 dakara_check_results *res,
+                                 bool needs_duration);
 
 #endif
