@@ -34,7 +34,7 @@ func MakeCli() {
 		Short: "Create a token for the given user",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			_, signed, err := CreateTokenForUser(cmd.Context(), args[0], nil)
+			_, signed, err := CreateTokenForUser(cmd.Context(), args[0], nil, nil)
 			if err != nil {
 				getLogger().Fatalln(err)
 			}
