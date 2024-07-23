@@ -70,7 +70,7 @@ libkaraberus_tools = static_library(
     karaberus_tools_h,
     dependencies: karaberus_tools_deps,
     include_directories: inc_karaberus_tools,
-    install: true,
+    install: false,
 )
 
 pkg = import('pkgconfig')
