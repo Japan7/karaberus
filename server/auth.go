@@ -17,12 +17,8 @@ import (
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
-type Time int64
-
 type KaraberusClaims struct {
-	Subject       string `json:"sub,omitempty"`
-	IssuedAt      Time   `json:"iat,omitempty"`
-	Expiration    Time   `json:"exp,omitempty"`
+	oidc.IDTokenClaims
 	jwt.MapClaims `json:"-"`
 }
 
@@ -64,7 +60,7 @@ func callbackHandler(
 	}
 
 	expiresAt := time.Now().Add(time.Hour)
-	_, signed, err := CreateTokenForUser(r.Context(), sub, &expiresAt)
+	_, signed, err := CreateTokenForUser(r.Context(), sub, &expiresAt, info)
 	if err != nil {
 		getLogger().Print(err)
 		http.Error(w, "Failed to create token", http.StatusInternalServerError)
@@ -80,17 +76,23 @@ func callbackHandler(
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func CreateTokenForUser(ctx context.Context, sub string, expiresAt *time.Time) (*jwt.Token, string, error) {
+func CreateTokenForUser(
+	ctx context.Context,
+	sub string,
+	expiresAt *time.Time,
+	info *oidc.UserInfo) (*jwt.Token, string, error) {
 	user, err := getOrCreateUser(ctx, sub)
 	if err != nil {
 		return nil, "", err
 	}
-	claims := KaraberusClaims{
-		Subject:  user.ID,
-		IssuedAt: Time(time.Now().Unix()),
+	claims := KaraberusClaims{}
+	if info != nil {
+		claims.SetUserInfo(info)
 	}
+	claims.Subject = user.ID
+	claims.IssuedAt = oidc.Time(time.Now().Unix())
 	if expiresAt != nil {
-		claims.Expiration = Time(expiresAt.Unix())
+		claims.IDTokenClaims.TokenClaims.Expiration = oidc.Time(expiresAt.Unix())
 	}
 	return createToken(claims)
 }
