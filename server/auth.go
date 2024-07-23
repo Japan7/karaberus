@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofiber/fiber/v2"
@@ -14,10 +15,21 @@ import (
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
-	"gorm.io/gorm"
 )
 
-var sessionCookieName = "karaberus_session"
+type Time int64
+
+type KaraberusClaims struct {
+	Subject       string `json:"sub,omitempty"`
+	IssuedAt      Time   `json:"iat,omitempty"`
+	Expiration    Time   `json:"exp,omitempty"`
+	jwt.MapClaims `json:"-"`
+}
+
+var (
+	sessionCookieName = "karaberus_session"
+	currentUserCtxKey = "current_user"
+)
 
 func addOidcRoutes(app *fiber.App) {
 	provider, err := rp.NewRelyingPartyOIDC(
@@ -36,10 +48,10 @@ func addOidcRoutes(app *fiber.App) {
 	app.Get("/api/oidc/login",
 		adaptor.HTTPHandler(rp.AuthURLHandler(state, provider)))
 	app.Get("/api/oidc/callback",
-		adaptor.HTTPHandler(rp.CodeExchangeHandler(rp.UserinfoCallback(setSessionCookie), provider)))
+		adaptor.HTTPHandler(rp.CodeExchangeHandler(rp.UserinfoCallback(callbackHandler), provider)))
 }
 
-func setSessionCookie(
+func callbackHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 	tokens *oidc.Tokens[*oidc.IDTokenClaims],
@@ -50,23 +62,43 @@ func setSessionCookie(
 	if CONFIG.OIDC.IDClaim != "" {
 		sub = info.Claims[CONFIG.OIDC.IDClaim].(string)
 	}
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":          sub,
-		"access_token": tokens.AccessToken,
-	})
-	signed, err := jwtToken.SignedString([]byte(CONFIG.OIDC.JwtSignKey))
+
+	expiresAt := time.Now().Add(time.Hour)
+	_, signed, err := CreateTokenForUser(r.Context(), sub, &expiresAt)
 	if err != nil {
 		getLogger().Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Failed to create token", http.StatusInternalServerError)
 		return
 	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:    sessionCookieName,
 		Value:   signed,
 		Path:    "/",
-		Expires: tokens.Expiry,
+		Expires: expiresAt,
 	})
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func CreateTokenForUser(ctx context.Context, sub string, expiresAt *time.Time) (*jwt.Token, string, error) {
+	user, err := getOrCreateUser(ctx, sub)
+	if err != nil {
+		return nil, "", err
+	}
+	claims := KaraberusClaims{
+		Subject:  user.ID,
+		IssuedAt: Time(time.Now().Unix()),
+	}
+	if expiresAt != nil {
+		claims.Expiration = Time(expiresAt.Unix())
+	}
+	return createToken(claims)
+}
+
+func createToken(claims KaraberusClaims) (*jwt.Token, string, error) {
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := jwtToken.SignedString([]byte(CONFIG.OIDC.JwtSignKey))
+	return jwtToken, signed, err
 }
 
 func authMiddleware(ctx huma.Context, next func(huma.Context)) {
@@ -78,8 +110,7 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 	}
 
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		_, ok := token.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(CONFIG.OIDC.JwtSignKey), nil
@@ -89,29 +120,23 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 		ctx.SetStatus(http.StatusUnauthorized)
 		return
 	}
-	claims := jwtToken.Claims.(jwt.MapClaims)
 
-	db := GetDB(ctx.Context())
-	user_id := claims["sub"].(string)
-	user := User{ID: user_id}
-	err = db.First(&user, user_id).Error
+	sub, err := jwtToken.Claims.GetSubject()
 	if err != nil {
-		if errors.Is(gorm.ErrRecordNotFound, err) {
-			// The user doesn't exist yet
-			err = db.Create(&user).Error
-			if err != nil {
-				getLogger().Print(err)
-				ctx.SetStatus(http.StatusInternalServerError)
-				return
-			}
-		} else {
-			getLogger().Print(err)
-			ctx.SetStatus(http.StatusInternalServerError)
-			return
-		}
+		getLogger().Print(err)
+		ctx.SetStatus(http.StatusUnauthorized)
+		return
 	}
 
-	ctx = huma.WithValue(ctx, "current_user", user)
+	db := GetDB(ctx.Context())
+	user := User{ID: sub}
+	if err = db.First(&user, sub).Error; err != nil {
+		getLogger().Print(err)
+		ctx.SetStatus(http.StatusUnauthorized)
+		return
+	}
+
+	ctx = huma.WithValue(ctx, currentUserCtxKey, user)
 	next(ctx)
 }
 
@@ -132,5 +157,5 @@ func getRequestToken(ctx huma.Context) (string, error) {
 }
 
 func getCurrentUser(ctx context.Context) User {
-	return ctx.Value("current_user").(User)
+	return ctx.Value(currentUserCtxKey).(User)
 }

@@ -30,14 +30,15 @@ func MakeCli() {
 	})
 
 	rootCmd.AddCommand(&cobra.Command{
-		Use:   "create-token",
-		Short: "Print the OpenAPI spec",
+		Use:   "create-token <user_id>",
+		Short: "Create a token for the given user",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			token, err := CreateSystemToken()
+			_, signed, err := CreateTokenForUser(cmd.Context(), args[0], nil)
 			if err != nil {
 				getLogger().Fatalln(err)
 			}
-			println(token)
+			println(signed)
 		},
 	})
 

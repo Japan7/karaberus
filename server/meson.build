@@ -1,5 +1,6 @@
 karaberus_server_files = files(
     'artists.go',
+    'auth.go',
     'authors.go',
     'avtags.go',
     'cli.go',
@@ -9,12 +10,12 @@ karaberus_server_files = files(
     'kara.go',
     'karaberus.go',
     'karaenv.go',
+    'logger.go',
     'media.go',
     'model.go',
-    'oidc.go',
     's3.go',
-    'token.go',
     'upload.go',
+    'user.go',
 )
 
 karaberus_server_tests = files('karaberus_test.go')
