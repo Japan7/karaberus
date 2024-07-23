@@ -47,13 +47,17 @@ karaberus_tools_deps += dakara_check
 karaberus_tools_deps += dependency('libavutil', required: true)
 karaberus_tools_deps += dependency('libavformat', required: true)
 
-dakara_check_objects = []
-
+# force dakara_check deps to be linked whole too
 if dakara_check.type_name() == 'internal'
     dakara_check_sub = subproject('dakara_check')
-    libdakara_check = dakara_check_sub.get_variable('libdakara_check')
-    dakara_check_objects = libdakara_check.extract_all_objects(recursive: true)
+    karaberus_tools_deps += dakara_check_sub.get_variable('deps')
 endif
+
+foreach d : karaberus_tools_deps
+    if d.type_name() == 'internal'
+        karaberus_tools_deps += d.as_link_whole()
+    endif
+endforeach
 
 karaberus_tools_c = files('karaberus_tools' / 'karaberus_tools.c')
 karaberus_tools_h = files('karaberus_tools' / 'karaberus_tools.h')
@@ -65,7 +69,6 @@ libkaraberus_tools = static_library(
     karaberus_tools_c,
     karaberus_tools_h,
     dependencies: karaberus_tools_deps,
-    objects: dakara_check_objects,
     include_directories: inc_karaberus_tools,
     install: true,
 )
