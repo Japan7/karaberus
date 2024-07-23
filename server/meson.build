@@ -3,6 +3,7 @@ karaberus_server_files = files(
     'authors.go',
     'avtags.go',
     'cli.go',
+    'dakara.go',
     'db.go',
     'fonts.go',
     'kara.go',

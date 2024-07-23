@@ -1,19 +1,58 @@
 package server
 
 import (
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
 )
 
-type KaraberusType struct {
-	ID   string // used in the database/API
-	Name string // user visible name
+type MediaType struct {
+	ID       string // used in the database/API
+	Name     string // user visible name
+	IconName string // font-awesome icon name
 }
 
-type MediaType KaraberusType
-type VideoTag KaraberusType
-type AudioTag KaraberusType
+type TagInterface interface {
+	getID() string   // used in the database/API
+	getName() string // user visible name
+	// Hue in deg
+	getHue() uint
+}
+
+type TagType struct {
+	ID   string // used in the database/API
+	Name string // user visible name
+	// Hue in deg
+	Hue uint
+}
+
+type VideoTag TagType
+type AudioTag TagType
+
+func (t AudioTag) getID() string {
+	return t.ID
+}
+
+func (t AudioTag) getName() string {
+	return t.Name
+}
+
+func (t AudioTag) getHue() uint {
+	return t.Hue
+}
+
+func (t VideoTag) getID() string {
+	return t.ID
+}
+
+func (t VideoTag) getName() string {
+	return t.Name
+}
+
+func (t VideoTag) getHue() uint {
+	return t.Hue
+}
 
 // Users
 type User struct {
@@ -71,10 +110,10 @@ type Artist struct {
 
 // Media types
 var MediaTypes []MediaType = []MediaType{
-	{ID: "ANIME", Name: "Anime"},
-	{ID: "GAME", Name: "Game"},
-	{ID: "LIVE", Name: "Live"},
-	{ID: "CARTOON", Name: "Cartoon"},
+	{ID: "ANIME", Name: "Anime", IconName: "tv"},
+	{ID: "GAME", Name: "Game", IconName: "gamepad"},
+	{ID: "LIVE", Name: "Live action", IconName: "film"},
+	{ID: "CARTOON", Name: "Cartoon", IconName: "globe"},
 }
 
 type MediaDB struct {
@@ -85,25 +124,25 @@ type MediaDB struct {
 }
 
 // Video tags
-var VideoTags []VideoTag = []VideoTag{
-	{ID: "FANMADE", Name: "Fanmade"},
-	{ID: "STREAM", Name: "Stream"},
-	{ID: "CONCERT", Name: "Concert"},
-	{ID: "AD", Name: "Advertisement"},
-	{ID: "TRAILER", Name: "Trailer"},
-	{ID: "NSFW", Name: "Not Safe For Work"},
-	{ID: "SPOILER", Name: "Spoiler"},
-	{ID: "MV", Name: "Music Video"},
+var VideoTags = []VideoTag{
+	{ID: "FANMADE", Name: "Fanmade", Hue: 140},
+	{ID: "STREAM", Name: "Stream", Hue: 160},
+	{ID: "CONCERT", Name: "Concert", Hue: 260},
+	{ID: "AD", Name: "Advertisement", Hue: 120},
+	{ID: "TRAILER", Name: "Trailer", Hue: 100},
+	{ID: "NSFW", Name: "Not Safe For Work", Hue: 0},
+	{ID: "SPOILER", Name: "Spoiler", Hue: 20},
+	{ID: "MV", Name: "Music Video", Hue: 120},
 }
 
 // Audio tags
-var AudioTags []AudioTag = []AudioTag{
-	{ID: "OP", Name: "Opening"},
-	{ID: "ED", Name: "Ending"},
-	{ID: "INS", Name: "Insert"},
-	{ID: "IS", Name: "Image Song"},
-	{ID: "LIVE", Name: "Live"},
-	{ID: "REMIX", Name: "Remix/Cover"},
+var AudioTags = []AudioTag{
+	{ID: "OP", Name: "Opening", Hue: 280},
+	{ID: "ED", Name: "Ending", Hue: 280},
+	{ID: "INS", Name: "Insert", Hue: 280},
+	{ID: "IS", Name: "Image Song", Hue: 280},
+	{ID: "LIVE", Name: "Live", Hue: 240},
+	{ID: "REMIX", Name: "Remix/Cover", Hue: 220},
 }
 
 type AdditionalName struct {
@@ -127,6 +166,7 @@ type UploadInfo struct {
 	SubtitlesUploaded    bool
 	SubtitlesModTime     time.Time
 	Hardsubbed           bool
+	Duration             int32
 	// date of the first upload of the sub file
 	KaraokeCreationTime time.Time
 }
@@ -160,6 +200,46 @@ type KaraInfoDB struct {
 	SongOrder     uint
 	Language      string
 	UploadInfo
+}
+
+func (k KaraInfoDB) getAudioTags() ([]AudioTag, error) {
+	audio_tags := make([]AudioTag, len(k.AudioTags))
+
+	for i, tag := range k.AudioTags {
+		audio_tag, err := getAudioTag(tag.ID)
+		if err != nil {
+			return nil, err
+		}
+		audio_tags[i] = *audio_tag
+	}
+
+	return audio_tags, nil
+}
+
+func (k KaraInfoDB) getVideoTags() ([]VideoTag, error) {
+	video_tags := make([]VideoTag, len(k.VideoTags))
+
+	for i, tag := range k.VideoTags {
+		video_tag, err := getVideoTag(tag.ID)
+		if err != nil {
+			return nil, err
+		}
+		video_tags[i] = *video_tag
+	}
+
+	return video_tags, nil
+}
+
+func (k KaraInfoDB) VideoFilename() string {
+	return fmt.Sprintf("%d.mkv", k.ID)
+}
+
+func (k KaraInfoDB) AudioFilename() string {
+	return fmt.Sprintf("%d.mka", k.ID)
+}
+
+func (k KaraInfoDB) SubsFilename() string {
+	return fmt.Sprintf("%d.ass", k.ID)
 }
 
 type Font struct {

@@ -98,6 +98,18 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		return nil, err
 	}
 
+	if res.Video.Duration != kara.Duration {
+		kara.Duration = res.Video.Duration
+		err = GetDB(ctx).Save(&kara).Error
+		if err != nil {
+			return nil, DBErrToHumaErr(err)
+		}
+	}
+
+	if CONFIG.Dakara.BaseURL != "" && kara.UploadInfo.VideoUploaded && kara.UploadInfo.SubtitlesUploaded {
+		go SyncDakara(context.Background())
+	}
+
 	resp := &UploadOutput{}
 	resp.Body.CheckResults = *res
 	resp.Body.KID = input.KID

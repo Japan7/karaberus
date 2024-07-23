@@ -216,8 +216,13 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 		panic(err)
 	}
 
-	db := GetDB(context.TODO())
+	ctx := context.Background()
+	db := GetDB(ctx)
 	init_model(db)
+
+	if CONFIG.Dakara.BaseURL != "" {
+		go SyncDakara(ctx)
+	}
 
 	listen_addr := CONFIG.Listen.Addr()
 	getLogger().Printf("Starting server on %s...\n", listen_addr)

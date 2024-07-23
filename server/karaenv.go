@@ -53,11 +53,17 @@ type KaraberusDBConfig struct {
 	File   string `envkey:"FILE" default:"karaberus.db"`
 }
 
+type KaraberusDakaraConfig struct {
+	BaseURL string `envkey:"BASE_URL"`
+	Token   string `envkey:"TOKEN"`
+}
+
 type KaraberusConfig struct {
 	S3        KaraberusS3Config     `env_prefix:"S3"`
 	OIDC      KaraberusOIDCConfig   `env_prefix:"OIDC"`
 	Listen    KaraberusListenConfig `env_prefix:"LISTEN"`
 	DB        KaraberusDBConfig     `env_prefix:"DB"`
+	Dakara    KaraberusDakaraConfig `env_prefix:"DAKARA"`
 	UIDistDir string                `envkey:"UI_DIST_DIR" default:"/usr/share/karaberus/ui_dist"`
 }
 
