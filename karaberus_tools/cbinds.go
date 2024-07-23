@@ -75,7 +75,7 @@ func DakaraCheckResults(obj *minio.Object) DakaraCheckResultsOutput {
 	}
 	out := DakaraCheckResultsOutput{
 		Passed:   passed,
-		Duration: int16(res.duration),
+		Duration: int32(res.duration),
 	}
 	return out
 }
