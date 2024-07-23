@@ -423,46 +423,37 @@ func TestUploadKara(t *testing.T) {
 	mkv_test_file := path.Join(TEST_CONFIG.GeneratedDirectory, "karaberus_test.mkv")
 	video_upload := uploadFile(t, api, data.Body.Kara.ID, mkv_test_file, "video")
 	if !video_upload.Body.CheckResults.Video.Passed {
-		t.Log("Video did not pass checks.")
-		t.Fail()
+		t.Fatal("Video did not pass checks.")
 	}
 	if video_upload.Body.CheckResults.Instrumental != nil {
-		t.Log("Instrumental should be uploaded yet.")
-		t.Fail()
+		t.Fatal("Instrumental should be uploaded yet.")
 	}
 	if video_upload.Body.CheckResults.Subtitles != nil {
-		t.Log("Subtitles should be uploaded yet.")
-		t.Fail()
+		t.Fatal("Subtitles should be uploaded yet.")
 	}
 
 	ass_test_file := path.Join(TEST_CONFIG.Directory, "test.ass")
 	sub_upload := uploadFile(t, api, data.Body.Kara.ID, ass_test_file, "sub")
 	if !sub_upload.Body.CheckResults.Video.Passed {
-		t.Log("Video did not pass checks.")
-		t.Fail()
+		t.Fatal("Video did not pass checks.")
 	}
 	if !sub_upload.Body.CheckResults.Subtitles.Passed {
-		t.Log("Subtitles did not pass checks.")
-		t.Fail()
+		t.Fatal("Subtitles did not pass checks.")
 	}
 	if sub_upload.Body.CheckResults.Instrumental != nil {
-		t.Log("Instrumental should be uploaded yet.")
-		t.Fail()
+		t.Fatal("Instrumental should be uploaded yet.")
 	}
 
 	inst_test_file := path.Join(TEST_CONFIG.GeneratedDirectory, "karaberus_test.opus")
 	inst_upload := uploadFile(t, api, data.Body.Kara.ID, inst_test_file, "inst")
 	if !inst_upload.Body.CheckResults.Video.Passed {
-		t.Log("Video did not pass checks.")
-		t.Fail()
+		t.Fatal("Video did not pass checks.")
 	}
 	if !inst_upload.Body.CheckResults.Subtitles.Passed {
-		t.Log("Subtitles did not pass checks.")
-		t.Fail()
+		t.Fatal("Subtitles did not pass checks.")
 	}
 	if !inst_upload.Body.CheckResults.Instrumental.Passed {
-		t.Log("Instrumental did not pass checks.")
-		t.Fail()
+		t.Fatal("Instrumental did not pass checks.")
 	}
 
 	CompareDownloadedFile(t, api, mkv_test_file, data.Body.Kara.ID, "video")
