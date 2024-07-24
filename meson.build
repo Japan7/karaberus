@@ -285,10 +285,12 @@ else
     summary('S3 tests', 'Disabled')
 endif
 
-test(
-    'karaberus_run_test',
-    karaberus_test,
-    depends: test_deps,
-    env: go_test_env,
-    timeout: 300,
-)
+if get_option('test')
+    test(
+        'karaberus_run_test',
+        karaberus_test,
+        depends: test_deps,
+        env: go_test_env,
+        timeout: 300,
+    )
+endif
