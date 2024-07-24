@@ -173,7 +173,7 @@ if go_os == '' and go_arch == ''
         depend_files: karaberus_inputs,
     )
 else
-    if qemu_user.found()
+    if qemu_user.found() and get_option('sysroot') != ''
         openapi_spec = custom_target(
             'openapi_spec',
             command: [
