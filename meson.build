@@ -158,7 +158,7 @@ karaberus_test = custom_target(
         '-c',
         karaberus_server_path,
     ],
-    depends: libkaraberus_tools,
+    depends: [libkaraberus_tools, karaberus],
 )
 
 spec_env = environment()
