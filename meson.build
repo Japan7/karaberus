@@ -11,8 +11,9 @@ project(
 
 go = find_program('go', required: true)
 ffmpeg = find_program('ffmpeg', required: false)
-python = find_program('python3')
-npm = find_program('npm')
+python = find_program('python3', required: true)
+npm = find_program('npm', required: true)
+qemu_user = find_program('qemu-' + host_machine.cpu_family(), required: false)
 
 go_files = files('go.mod', 'go.sum', 'main.go')
 go_files += files(
@@ -172,14 +173,38 @@ if go_os == '' and go_arch == ''
         depend_files: karaberus_inputs,
     )
 else
-    openapi_spec = custom_target(
-        'openapi_spec',
-        command: [go, 'run', '-C', meson.current_source_dir(), '.', 'openapi'],
-        output: 'openapi.yaml',
-        capture: true,
-        depend_files: karaberus_inputs,
-        env: spec_env,
-    )
+    if qemu_user.found()
+        openapi_spec = custom_target(
+            'openapi_spec',
+            command: [
+                qemu_user,
+                '-L',
+                get_option('sysroot'),
+                karaberus,
+                'openapi',
+            ],
+            output: 'openapi.yaml',
+            capture: true,
+            depend_files: karaberus_inputs,
+            env: spec_env,
+        )
+    else
+        openapi_spec = custom_target(
+            'openapi_spec',
+            command: [
+                go,
+                'run',
+                '-C',
+                meson.current_source_dir(),
+                '.',
+                'openapi',
+            ],
+            output: 'openapi.yaml',
+            capture: true,
+            depend_files: karaberus_inputs,
+            env: spec_env,
+        )
+    endif
 endif
 
 subdir('ui')

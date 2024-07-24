@@ -1,2 +1,3 @@
 option('go_os', type: 'string', value: '', description: 'Go host OS')
 option('go_arch', type: 'string', value: '', description: 'Go host arch')
+option('sysroot', type: 'string', value: '', description: 'Cross builds sysroot')

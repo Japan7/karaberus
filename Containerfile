@@ -2,6 +2,7 @@ ARG BUILDER_IMAGE=ghcr.io/odrling/chimera:cross
 FROM ${BUILDER_IMAGE} AS builder
 
 ARG CHOST
+ARG ARCH
 
 COPY . /karaberus
 RUN cd /karaberus && CHOST=$CHOST ci/build.sh

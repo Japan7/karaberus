@@ -1,5 +1,8 @@
+[constants]
+CHOST = 'riscv64-chimera-linux-musl'
+
 [binaries]
-c = 'riscv64-chimera-linux-musl-clang'
+c = CHOST + '-clang'
 ld = 'ld.lld'
 objcopy = 'llvm-objcopy'
 strip = 'llvm-strip'
@@ -13,3 +16,4 @@ endian = 'little'
 [project options]
 go_os = 'linux'
 go_arch = 'riscv64'
+sysroot = '/usr/' + CHOST

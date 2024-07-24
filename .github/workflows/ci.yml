@@ -90,6 +90,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             CHOST=${{ matrix.config.chost }}
+            ARCH=${{ matrix.config.arch }}
             BUILDER_IMAGE=ghcr.io/odrling/chimera:cross-x86_64
           containerfiles: Containerfile
 

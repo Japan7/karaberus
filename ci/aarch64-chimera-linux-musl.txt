@@ -1,5 +1,8 @@
+[constants]
+CHOST = 'aarch64-chimera-linux-musl'
+
 [binaries]
-c = 'aarch64-chimera-linux-musl-clang'
+c = CHOST + '-clang'
 ld = 'ld.lld'
 objcopy = 'llvm-objcopy'
 strip = 'llvm-strip'
@@ -17,3 +20,4 @@ endian = 'little'
 [project options]
 go_os = 'linux'
 go_arch = 'arm64'
+sysroot = '/usr/' + CHOST
