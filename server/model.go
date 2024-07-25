@@ -65,7 +65,7 @@ type Token struct {
 
 type Artist struct {
 	gorm.Model
-	Name            string           `gorm:"unique_index:idx_name_type"`
+	Name            string           `gorm:"uniqueIndex:idx_artist_name"`
 	AdditionalNames []AdditionalName `gorm:"many2many:artists_additional_name"`
 }
 
@@ -79,8 +79,8 @@ var MediaTypes []MediaType = []MediaType{
 
 type MediaDB struct {
 	gorm.Model
-	Name            string           `json:"name" example:"Shinseiki Evangelion"`
-	Type            string           `json:"media_type" example:"ANIME"`
+	Name            string           `json:"name" example:"Shinseiki Evangelion" gorm:"uniqueIndex:idx_media_name_type"`
+	Type            string           `json:"media_type" example:"ANIME" gorm:"uniqueIndex:idx_media_name_type"`
 	AdditionalNames []AdditionalName `json:"additional_name" gorm:"many2many:media_additional_name"`
 }
 

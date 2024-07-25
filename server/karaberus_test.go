@@ -125,7 +125,7 @@ func TestFindArtistTag(t *testing.T) {
 	resp := assertRespCode(t,
 		api.Post("/api/tags/artist",
 			map[string]any{
-				"name":             "artist_name",
+				"name":             "artist_name_find_test",
 				"additional_names": []string{},
 			},
 		),
@@ -136,7 +136,7 @@ func TestFindArtistTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/api/tags/artist?name=artist_name"), 200)
+	resp = assertRespCode(t, api.Get("/api/tags/artist?name=artist_name_find_test"), 200)
 
 	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.Artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
@@ -178,7 +178,7 @@ func TestFindMedia(t *testing.T) {
 	resp := assertRespCode(t,
 		api.Post("/api/tags/media",
 			map[string]any{
-				"name":             "media_name",
+				"name":             "media_name_find_test",
 				"media_type":       "ANIME",
 				"additional_names": []string{},
 			},
@@ -190,7 +190,7 @@ func TestFindMedia(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/api/tags/media?name=media_name"), 200)
+	resp = assertRespCode(t, api.Get("/api/tags/media?name=media_name_find_test"), 200)
 
 	path := fmt.Sprintf("/api/tags/media/%d", data.Body.Media.ID)
 	assertRespCode(t, api.Delete(path), 204)
