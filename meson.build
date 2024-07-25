@@ -95,6 +95,8 @@ endif
 go_env.set('KARABERUS_DB_FILE', db_file)
 go_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
+meson.add_devenv(go_env)
+
 # go test env
 go_test_env = environment()
 go_test_env.set('KARABERUS_DB_FILE', 'file::memory:?cache=shared')
@@ -213,13 +215,6 @@ run_target(
     'run',
     command: [karaberus],
     depends: [libkaraberus_tools, karaberus_ui],
-    env: go_env,
-)
-
-run_target(
-    'create-token',
-    command: [karaberus, 'create-token'],
-    depends: libkaraberus_tools,
     env: go_env,
 )
 
