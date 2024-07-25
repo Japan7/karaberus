@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Media struct {
@@ -217,7 +218,7 @@ func DeleteKara(ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, 
 
 func GetKaraByID(db *gorm.DB, kara_id uint) (KaraInfoDB, error) {
 	kara := &KaraInfoDB{}
-	err := db.First(kara, kara_id).Error
+	err := db.Preload(clause.Associations).First(kara, kara_id).Error
 	return *kara, err
 }
 
@@ -230,6 +231,6 @@ type GetAllKarasOutput struct {
 func GetAllKaras(ctx context.Context, input *struct{}) (*GetAllKarasOutput, error) {
 	out := &GetAllKarasOutput{}
 	db := GetDB(ctx)
-	err := db.Find(&out.Body.Karas).Error
+	err := db.Preload(clause.Associations).Find(&out.Body.Karas).Error
 	return out, DBErrToHumaErr(err)
 }
