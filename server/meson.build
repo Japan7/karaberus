@@ -14,6 +14,7 @@ karaberus_server_files = files(
     'media.go',
     'model.go',
     's3.go',
+    'token.go',
     'upload.go',
     'user.go',
 )
