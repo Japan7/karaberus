@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -34,11 +35,16 @@ func MakeCli() {
 		Short: "Create a token for the given user",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			_, signed, err := CreateTokenForUser(cmd.Context(), args[0], nil, nil)
-			if err != nil {
-				getLogger().Fatalln(err)
+			db := GetDB(context.TODO())
+			user := User{ID: args[0]}
+			if err := db.First(&user).Error; err != nil {
+				panic(err)
 			}
-			println(signed)
+			token, err := createTokenForUser(context.TODO(), user)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(token.ID)
 		},
 	})
 

@@ -60,7 +60,7 @@ func callbackHandler(
 	}
 
 	expiresAt := time.Now().Add(time.Hour)
-	_, signed, err := CreateTokenForUser(r.Context(), sub, &expiresAt, info)
+	_, signed, err := CreateJwtForUser(r.Context(), sub, &expiresAt, info)
 	if err != nil {
 		getLogger().Print(err)
 		http.Error(w, "Failed to create token", http.StatusInternalServerError)
@@ -76,7 +76,7 @@ func callbackHandler(
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func CreateTokenForUser(
+func CreateJwtForUser(
 	ctx context.Context,
 	sub string,
 	expiresAt *time.Time,
@@ -94,52 +94,47 @@ func CreateTokenForUser(
 	if expiresAt != nil {
 		claims.IDTokenClaims.TokenClaims.Expiration = oidc.Time(expiresAt.Unix())
 	}
-	return createToken(claims)
+	return createJwt(claims)
 }
 
-func createToken(claims KaraberusClaims) (*jwt.Token, string, error) {
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := jwtToken.SignedString([]byte(CONFIG.OIDC.JwtSignKey))
-	return jwtToken, signed, err
+func createJwt(claims KaraberusClaims) (*jwt.Token, string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := token.SignedString([]byte(CONFIG.OIDC.JwtSignKey))
+	return token, signed, err
 }
 
 func authMiddleware(ctx huma.Context, next func(huma.Context)) {
-	token, err := getRequestToken(ctx)
-	if err != nil {
-		getLogger().Print(err)
-		ctx.SetStatus(http.StatusUnauthorized)
-		return
-	}
+	var (
+		token string
+		user  *User
+		err   error
+	)
 
-	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+	// Check for a token in the request.
+	token, err = getRequestToken(ctx)
+	// If we have a token, try to get the user.
+	if err == nil {
+		user, err = getUserFromApiToken(ctx.Context(), token)
+		if err != nil {
+			user, err = getUserFromJwt(ctx.Context(), token)
 		}
-		return []byte(CONFIG.OIDC.JwtSignKey), nil
-	})
-	if err != nil || !jwtToken.Valid {
-		getLogger().Printf("Invalid token, %v", err)
-		ctx.SetStatus(http.StatusUnauthorized)
+	}
+	// If we have a user, add it to the context.
+	if err == nil {
+		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+	}
+
+	if ok := checkOperationSecurity(ctx, user); ok {
+		next(ctx)
 		return
 	}
 
-	sub, err := jwtToken.Claims.GetSubject()
 	if err != nil {
 		getLogger().Print(err)
 		ctx.SetStatus(http.StatusUnauthorized)
-		return
+	} else {
+		ctx.SetStatus(http.StatusForbidden)
 	}
-
-	db := GetDB(ctx.Context())
-	user := User{ID: sub}
-	if err = db.First(&user, sub).Error; err != nil {
-		getLogger().Print(err)
-		ctx.SetStatus(http.StatusUnauthorized)
-		return
-	}
-
-	ctx = huma.WithValue(ctx, currentUserCtxKey, user)
-	next(ctx)
 }
 
 func getRequestToken(ctx huma.Context) (string, error) {
@@ -158,6 +153,65 @@ func getRequestToken(ctx huma.Context) (string, error) {
 	}
 }
 
-func getCurrentUser(ctx context.Context) User {
-	return ctx.Value(currentUserCtxKey).(User)
+func getUserFromApiToken(ctx context.Context, token string) (*User, error) {
+	db := GetDB(ctx)
+	apiToken := Token{ID: token}
+	if err := db.First(&apiToken).Error; err != nil {
+		return nil, err
+	}
+	return &apiToken.User, nil
+}
+
+func getUserFromJwt(ctx context.Context, token string) (*User, error) {
+	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(CONFIG.OIDC.JwtSignKey), nil
+	})
+	if err != nil || !jwtToken.Valid {
+		return nil, &KaraberusError{"invalid token"}
+	}
+
+	sub, err := jwtToken.Claims.GetSubject()
+	if err != nil {
+		return nil, err
+	}
+
+	db := GetDB(ctx)
+	user := User{ID: sub}
+	if err := db.First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func checkOperationSecurity(ctx huma.Context, user *User) bool {
+	var authRequired bool
+	var opScopes []string = []string{}
+	for _, opScheme := range ctx.Operation().Security {
+		var ok bool
+		if _, ok = opScheme["oidc"]; ok {
+			authRequired = true
+		}
+		if opScopes, ok = opScheme["scopes"]; ok {
+			break
+		}
+	}
+
+	if authRequired && user == nil {
+		return false
+	}
+
+	if user.Admin {
+		return true
+	}
+
+	for _, v := range opScopes {
+		if !user.Scopes.HasScope(v) {
+			return false
+		}
+	}
+
+	return true
 }

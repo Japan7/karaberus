@@ -28,6 +28,7 @@ func addMiddlewares(api huma.API) {
 }
 
 func addRoutes(api huma.API) {
+	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
 
 	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_security))
@@ -59,6 +60,9 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_security))
 	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara_security))
+
+	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
+	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {

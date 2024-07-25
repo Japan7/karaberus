@@ -63,6 +63,7 @@ type User struct {
 	Admin           bool
 	TimingProfileID uint
 	TimingProfile   TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
+	Scopes
 }
 
 type TimingAuthor struct {
@@ -90,14 +91,9 @@ func (scopes Scopes) HasScope(scope string) bool {
 
 type Token struct {
 	ID        string `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
 	UserID    string
 	User      User `gorm:"foreignKey:UserID;references:ID"`
-	Admin     bool
-	ReadOnly  bool
-	Scopes
+	CreatedAt time.Time
 }
 
 // Artists
