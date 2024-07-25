@@ -40,7 +40,7 @@ func MakeCli() {
 			if err := db.First(&user).Error; err != nil {
 				panic(err)
 			}
-			token, err := createTokenForUser(context.TODO(), user)
+			token, err := createTokenForUser(context.TODO(), user, AllScopes)
 			if err != nil {
 				panic(err)
 			}

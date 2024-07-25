@@ -19,6 +19,7 @@ import (
 
 type KaraberusClaims struct {
 	oidc.IDTokenClaims
+	Scopes
 	jwt.MapClaims `json:"-"`
 }
 
@@ -94,6 +95,7 @@ func CreateJwtForUser(
 	if expiresAt != nil {
 		claims.IDTokenClaims.TokenClaims.Expiration = oidc.Time(expiresAt.Unix())
 	}
+	claims.Scopes = AllScopes
 	return createJwt(claims)
 }
 
@@ -105,18 +107,19 @@ func createJwt(claims KaraberusClaims) (*jwt.Token, string, error) {
 
 func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 	var (
-		token string
-		user  *User
-		err   error
+		token  string
+		user   *User
+		scopes *Scopes
+		err    error
 	)
 
 	// Check for a token in the request.
 	token, err = getRequestToken(ctx)
 	// If we have a token, try to get the user.
 	if err == nil {
-		user, err = getUserFromApiToken(ctx.Context(), token)
+		user, scopes, err = getUserScopesFromApiToken(ctx.Context(), token)
 		if err != nil {
-			user, err = getUserFromJwt(ctx.Context(), token)
+			user, scopes, err = getUserScopesFromJwt(ctx.Context(), token)
 		}
 	}
 	// If we have a user, add it to the context.
@@ -124,7 +127,7 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
 	}
 
-	if ok := checkOperationSecurity(ctx, user); ok {
+	if ok := checkOperationSecurity(ctx, user, scopes); ok {
 		next(ctx)
 		return
 	}
@@ -153,40 +156,54 @@ func getRequestToken(ctx huma.Context) (string, error) {
 	}
 }
 
-func getUserFromApiToken(ctx context.Context, token string) (*User, error) {
+func getUserScopesFromApiToken(ctx context.Context, token string) (*User, *Scopes, error) {
 	db := GetDB(ctx)
 	apiToken := Token{ID: token}
 	if err := db.First(&apiToken).Error; err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return &apiToken.User, nil
+	return &apiToken.User, &apiToken.Scopes, nil
 }
 
-func getUserFromJwt(ctx context.Context, token string) (*User, error) {
-	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+func getUserScopesFromJwt(ctx context.Context, token string) (*User, *Scopes, error) {
+	// claims := KaraberusClaims{} // FIXME: deserialization is not working with Scopes
+	claims := jwt.MapClaims{}
+	jwtToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(CONFIG.OIDC.JwtSignKey), nil
 	})
 	if err != nil || !jwtToken.Valid {
-		return nil, &KaraberusError{"invalid token"}
+		return nil, nil, &KaraberusError{"invalid token"}
 	}
 
 	sub, err := jwtToken.Claims.GetSubject()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	db := GetDB(ctx)
 	user := User{ID: sub}
 	if err := db.First(&user).Error; err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return &user, nil
+
+	// FIXME: replace with proper deserialization
+	scopes := Scopes{}
+	for key, val := range claims {
+		if key == "kara" {
+			scopes.Kara = val.(bool)
+		}
+		if key == "user" {
+			scopes.User = val.(bool)
+		}
+	}
+
+	return &user, &scopes, nil
 }
 
-func checkOperationSecurity(ctx huma.Context, user *User) bool {
+func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes) bool {
 	var authRequired bool
 	var opScopes []string = []string{}
 	for _, opScheme := range ctx.Operation().Security {
@@ -208,7 +225,7 @@ func checkOperationSecurity(ctx huma.Context, user *User) bool {
 	}
 
 	for _, v := range opScopes {
-		if !user.Scopes.HasScope(v) {
+		if !scopes.HasScope(v) {
 			return false
 		}
 	}
