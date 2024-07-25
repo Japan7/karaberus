@@ -398,15 +398,41 @@ func TestUploadKara(t *testing.T) {
 	api := getTestAPI(t)
 
 	resp := assertRespCode(t,
+		api.Post("/api/tags/media",
+			map[string]any{
+				"name":             "test_media_karaupload",
+				"media_type":       "ANIME",
+				"additional_names": []string{},
+			}),
+		200,
+	)
+
+	media_data := MediaOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&media_data.Body)
+
+	resp = assertRespCode(t,
+		api.Post("/api/tags/artist",
+			map[string]any{
+				"name":             "test_artist_karaupload",
+				"additional_names": []string{},
+			}),
+		200,
+	)
+	artist_data := ArtistOutput{}
+	dec = json.NewDecoder(resp.Body)
+	dec.Decode(&artist_data.Body)
+
+	resp = assertRespCode(t,
 		api.Post("/api/kara",
 			map[string]any{
 				"title":         "kara_upload_title",
 				"title_aliases": []string{},
 				"authors":       []uint{},
-				"artists":       []uint{},
-				"source_media":  0,
+				"artists":       []uint{artist_data.Body.Artist.ID},
+				"source_media":  media_data.Body.Media.ID,
 				"song_order":    0,
-				"medias":        []uint{},
+				"medias":        []uint{media_data.Body.Media.ID},
 				"audio_tags":    []string{},
 				"video_tags":    []string{},
 				"comment":       "",
@@ -417,8 +443,20 @@ func TestUploadKara(t *testing.T) {
 	)
 
 	data := KaraOutput{}
-	dec := json.NewDecoder(resp.Body)
+	dec = json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
+
+	if data.Body.Kara.SourceMedia.ID != media_data.Body.Media.ID {
+		t.Fatal("Kara source media is not set")
+	}
+
+	if data.Body.Kara.Medias[0].ID != media_data.Body.Media.ID {
+		t.Fatal("Kara medias are badly set")
+	}
+
+	if data.Body.Kara.Artists[0].ID != artist_data.Body.Artist.ID {
+		t.Fatal("Kara artists are badly set")
+	}
 
 	mkv_test_file := path.Join(TEST_CONFIG.GeneratedDirectory, "karaberus_test.mkv")
 	video_upload := uploadFile(t, api, data.Body.Kara.ID, mkv_test_file, "video")
