@@ -63,7 +63,6 @@ type User struct {
 	Admin           bool
 	TimingProfileID uint
 	TimingProfile   TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
-	Scopes
 }
 
 type TimingAuthor struct {
@@ -94,6 +93,7 @@ type Token struct {
 	UserID    string
 	User      User `gorm:"foreignKey:UserID;references:ID"`
 	CreatedAt time.Time
+	Scopes
 }
 
 // Artists

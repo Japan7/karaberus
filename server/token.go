@@ -8,14 +8,18 @@ import (
 	"time"
 )
 
+type CreateTokenInput struct {
+	Body Scopes
+}
+
 type CreateTokenOutput struct {
 	Body struct {
 		Token string `json:"token"`
 	}
 }
 
-func CreateToken(ctx context.Context, input *struct{}) (*CreateTokenOutput, error) {
-	token, err := createTokenForUser(ctx, getCurrentUser(ctx))
+func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
+	token, err := createTokenForUser(ctx, getCurrentUser(ctx), input.Body)
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
@@ -24,7 +28,7 @@ func CreateToken(ctx context.Context, input *struct{}) (*CreateTokenOutput, erro
 	return out, nil
 }
 
-func createTokenForUser(ctx context.Context, user User) (*Token, error) {
+func createTokenForUser(ctx context.Context, user User, scopes Scopes) (*Token, error) {
 	token_id, err := generateToken()
 	if err != nil {
 		return nil, err
@@ -34,6 +38,7 @@ func createTokenForUser(ctx context.Context, user User) (*Token, error) {
 		ID:        token_id,
 		User:      user,
 		CreatedAt: time.Now(),
+		Scopes:    scopes,
 	}
 	if err = db.Create(&token).Error; err != nil {
 		return nil, err
