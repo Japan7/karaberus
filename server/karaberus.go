@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 type KaraberusError struct {
@@ -78,6 +79,7 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	})
 
 	app.Use(logger.New())
+	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.Dir(CONFIG.UIDistDir),
