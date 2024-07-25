@@ -17,7 +17,7 @@
     "@suid/icons-material": "0.7.0",
     "@suid/material": "0.16.0",
     "openapi-fetch": "0.10.2",
-    "solid-js": "1.8.18"
+    "solid-js": "1.8.19"
   },
   "devDependencies": {
     "@suid/vite-plugin": "0.2.0",
