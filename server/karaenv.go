@@ -11,7 +11,7 @@ import (
 type KaraberusListenConfig struct {
 	Host    string `envkey:"HOST" default:"127.0.0.1"`
 	Port    int    `envkey:"PORT" default:"8888"`
-	BaseUrl string `envkey:"BASE_URL" default:"http://localhost:8888"`
+	BaseURL string `envkey:"BASE_URL"`
 }
 
 func (c KaraberusListenConfig) Addr() string {
@@ -124,6 +124,12 @@ func getKaraberusConfig() KaraberusConfig {
 	config_type := reflect.TypeOf(config)
 
 	setConfigValue(config_value, config_type, "KARABERUS_")
+
+	if config.Listen.BaseURL == "" {
+		// default to listen address
+		config.Listen.BaseURL = "http://" + config.Listen.Addr()
+		getLogger().Printf("Base URL implicitly set to %s", config.Listen.BaseURL)
+	}
 
 	return config
 }
