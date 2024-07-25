@@ -220,10 +220,6 @@ func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes) bool {
 		return false
 	}
 
-	if user.Admin {
-		return true
-	}
-
 	for _, v := range opScopes {
 		if !scopes.HasScope(v) {
 			return false
