@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +26,8 @@ type TagType struct {
 	Name string // user visible name
 	// Hue in deg
 	Hue uint
+	// Mugen tag ID (optional)
+	MugenTags []string
 }
 
 type VideoTag TagType
@@ -56,7 +59,7 @@ func (t VideoTag) getHue() uint {
 
 // Users
 type User struct {
-	ID              string `gorm:"primary_key"`
+	ID              string `gorm:"primarykey"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       gorm.DeletedAt `gorm:"index"`
@@ -67,7 +70,8 @@ type User struct {
 
 type TimingAuthor struct {
 	gorm.Model
-	Name string
+	Name    string     `gorm:"uniqueIndex:idx_timing_author_name"`
+	MugenID *uuid.UUID `gorm:"uniqueIndex:idx_timing_author_mugen_id"`
 }
 
 type Scopes struct {
@@ -89,7 +93,7 @@ func (scopes Scopes) HasScope(scope string) bool {
 }
 
 type Token struct {
-	ID        string `gorm:"primary_key"`
+	ID        string `gorm:"primarykey"`
 	UserID    string
 	User      User `gorm:"foreignKey:UserID;references:ID"`
 	CreatedAt time.Time
@@ -121,24 +125,27 @@ type MediaDB struct {
 
 // Video tags
 var VideoTags = []VideoTag{
-	{ID: "FANMADE", Name: "Fanmade", Hue: 140},
-	{ID: "STREAM", Name: "Stream", Hue: 160},
-	{ID: "CONCERT", Name: "Concert", Hue: 260},
-	{ID: "AD", Name: "Advertisement", Hue: 120},
-	{ID: "TRAILER", Name: "Trailer", Hue: 100},
-	{ID: "NSFW", Name: "Not Safe For Work", Hue: 0},
-	{ID: "SPOILER", Name: "Spoiler", Hue: 20},
-	{ID: "MV", Name: "Music Video", Hue: 120},
+	// Mugen tag is AMV, not exhaustive but best we can do
+	{ID: "FANMADE", Name: "Fanmade", Hue: 140, MugenTags: []string{"a6c79ce5-89ee-4d50-afe8-3abd7317f6c2"}},
+	{ID: "STREAM", Name: "Stream", Hue: 160, MugenTags: []string{"55ce3d79-dcc2-453c-b00a-60ce0c1eba1c"}},
+	{ID: "CONCERT", Name: "Concert", Hue: 260, MugenTags: []string{"a0167949-580c-4de3-bf13-497e462e02f3"}},
+	{ID: "AD", Name: "Advertisement", Hue: 120, MugenTags: []string{"2ddb5358-e674-46fa-a6e1-7f5c5d56f8fa"}},
+	{ID: "NSFW", Name: "Not Safe For Work", Hue: 0, MugenTags: []string{"e82ce681-6d7b-4fb6-abe4-daa8aaa9bbf9"}},
+	{ID: "SPOILER", Name: "Spoiler", Hue: 20, MugenTags: []string{"24371984-5e4c-4485-a937-fb0c480ca23b"}},
+	{ID: "EPILEPSY", Name: "Epilepsy", Hue: 0, MugenTags: []string{"51288600-29e0-4e41-a42b-77f0498e5691"}},
+	{ID: "MV", Name: "Music Video", Hue: 120, MugenTags: []string{"7be1b15c-cff8-4b37-a649-5c90f3d569a9"}},
 }
 
 // Audio tags
 var AudioTags = []AudioTag{
-	{ID: "OP", Name: "Opening", Hue: 280},
-	{ID: "ED", Name: "Ending", Hue: 280},
-	{ID: "INS", Name: "Insert", Hue: 280},
-	{ID: "IS", Name: "Image Song", Hue: 280},
-	{ID: "LIVE", Name: "Live", Hue: 240},
-	{ID: "REMIX", Name: "Remix/Cover", Hue: 220},
+	{ID: "OP", Name: "Opening", Hue: 280, MugenTags: []string{"f02ad9b3-0bd9-4aad-85b3-9976739ba0e4"}},
+	{ID: "ED", Name: "Ending", Hue: 280, MugenTags: []string{"38c77c56-2b95-4040-b676-0994a8cb0597"}},
+	{ID: "INS", Name: "Insert", Hue: 280, MugenTags: []string{"5e5250d9-351a-4a82-98eb-55db50ad8962"}},
+	{ID: "IS", Name: "Image Song", Hue: 280, MugenTags: []string{"10a1ad3e-a05c-4f5c-84b6-f491e3e3a92e"}},
+	// Mugen tags are Concert and Streaming
+	{ID: "LIVE", Name: "Live", Hue: 240, MugenTags: []string{"a0167949-580c-4de3-bf13-497e462e02f3", "55ce3d79-dcc2-453c-b00a-60ce0c1eba1c"}},
+	// Mugen tags are version tags: Cover, Metal
+	{ID: "REMIX", Name: "Remix/Cover", Hue: 220, MugenTags: []string{"03e1e1d2-8641-47b7-bbcb-39a3df9ff21c", "188a5c46-63ff-4e9f-89e4-763468b6ea4a"}},
 }
 
 type AdditionalName struct {
@@ -198,6 +205,12 @@ type KaraInfoDB struct {
 	UploadInfo
 }
 
+type MugenImport struct {
+	MugenKID uuid.UUID `gorm:"primarykey"`
+	KaraID   uint
+	Kara     KaraInfoDB `gorm:"foreignKey:KaraID;references:ID"`
+}
+
 func (k KaraInfoDB) getAudioTags() ([]AudioTag, error) {
 	audio_tags := make([]AudioTag, len(k.AudioTags))
 
@@ -246,7 +259,7 @@ type Font struct {
 }
 
 func init_model(db *gorm.DB) {
-	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{}, &Font{})
+	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
 }
 
 func createAdditionalNames(names []string) []AdditionalName {

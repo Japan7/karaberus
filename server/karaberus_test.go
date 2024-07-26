@@ -82,7 +82,7 @@ func TestFindAuthorTag(t *testing.T) {
 	resp := assertRespCode(t,
 		api.Post("/api/tags/author",
 			map[string]any{
-				"name": "author_name",
+				"name": "author_name_find_test",
 			},
 		),
 		200,
@@ -92,7 +92,7 @@ func TestFindAuthorTag(t *testing.T) {
 	dec := json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	resp = assertRespCode(t, api.Get("/api/tags/author?name=author_name"), 200)
+	resp = assertRespCode(t, api.Get("/api/tags/author?name=author_name_find_test"), 200)
 
 	path := fmt.Sprintf("/api/tags/author/%d", data.Body.Author.ID)
 	assertRespCode(t, api.Delete(path), 204)

@@ -44,20 +44,25 @@ func getMedia(tx *gorm.DB, name string, media_type_str string) (MediaDB, error) 
 	return media, DBErrToHumaErr(err)
 }
 
+func createMedia(tx *gorm.DB, name string, media_type MediaType, additional_names []string, media *MediaDB) error {
+	err := tx.Transaction(func(tx *gorm.DB) error {
+		media.Name = name
+		media.Type = media_type.ID
+		media.AdditionalNames = createAdditionalNames(additional_names)
+
+		err := tx.Create(&media).Error
+		return DBErrToHumaErr(err)
+	})
+
+	return err
+}
+
 func CreateMedia(ctx context.Context, input *CreateMediaInput) (*MediaOutput, error) {
-	db := GetDB(ctx)
 	media_output := &MediaOutput{}
 	media_type := getMediaType(input.Body.MediaType)
 
-	err := db.Transaction(func(tx *gorm.DB) error {
-		media_output.Body.Media = MediaDB{Name: input.Body.Name, Type: media_type.ID}
-
-		additional_names := createAdditionalNames(input.Body.AdditionalNames)
-		media_output.Body.Media.AdditionalNames = additional_names
-
-		err := tx.Create(&media_output.Body.Media).Error
-		return DBErrToHumaErr(err)
-	})
+	db := GetDB(ctx)
+	err := createMedia(db, input.Body.Name, media_type, input.Body.AdditionalNames, &media_output.Body.Media)
 
 	return media_output, err
 }
@@ -87,10 +92,14 @@ type FindMediaInput struct {
 	Name string `query:"name"`
 }
 
+func findMedia(tx *gorm.DB, names []string, media *MediaDB) error {
+	err := tx.Where("Name in ?", names).First(&media).Error
+	return err
+}
+
 func FindMedia(ctx context.Context, input *FindMediaInput) (*MediaOutput, error) {
-	db := GetDB(ctx)
 	out := &MediaOutput{}
-	err := db.Where(&MediaDB{Name: input.Name}).First(&out.Body.Media).Error
+	err := findMedia(GetDB(ctx), []string{input.Name}, &out.Body.Media)
 	return out, DBErrToHumaErr(err)
 }
 

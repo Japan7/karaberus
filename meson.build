@@ -24,8 +24,6 @@ go_files += files(
 
 karaberus_server_path = join_paths(meson.current_source_dir(), 'server')
 
-subdir('server')
-
 go_os = get_option('go_os')
 go_arch = get_option('go_arch')
 
@@ -110,9 +108,14 @@ npm_env = environment()
 npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', ui_source)
 
+subdir('server')
+
 karaberus_inputs = go_files + karaberus_server_files
 karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 karaberus_output = meson.current_build_dir() / 'karaberus'
+
+karaberus_deps = [libkaraberus_tools]
+karaberus_deps += karaberus_generate
 
 karaberus = custom_target(
     'karaberus',
@@ -133,7 +136,7 @@ karaberus = custom_target(
         karaberus_output,
         meson.current_source_dir(),
     ],
-    depends: libkaraberus_tools,
+    depends: karaberus_deps,
     install: true,
     install_dir: 'bin',
     install_mode: 'rwxr-xr-x',
@@ -160,7 +163,7 @@ karaberus_test = custom_target(
         '-c',
         karaberus_server_path,
     ],
-    depends: [libkaraberus_tools, karaberus],
+    depends: [karaberus_deps, karaberus],
 )
 
 spec_env = environment()

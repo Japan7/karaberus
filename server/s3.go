@@ -22,13 +22,13 @@ func getS3Client() (*minio.Client, error) {
 	return client, err
 }
 
-func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64) error {
+func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64, user_metadata map[string]string) error {
 	client, err := getS3Client()
 	if err != nil {
 		return err
 	}
 
-	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{})
+	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{UserMetadata: user_metadata})
 	getLogger().Printf("upload info: %v\n", info)
 
 	return err
@@ -43,17 +43,21 @@ func CheckValidFiletype(type_directory string) bool {
 	}
 }
 
-func SaveFileToS3(ctx context.Context, fd io.Reader, kid uint, type_directory string, filesize int64) error {
+func SaveFileToS3WithMetadata(ctx context.Context, fd io.Reader, kid uint, type_directory string, filesize int64, user_metadata map[string]string) error {
 	if !CheckValidFiletype(type_directory) {
 		return errors.New("Unknown file type " + type_directory)
 	}
 	filename := fmt.Sprintf("%s/%d", type_directory, kid)
-	return UploadToS3(ctx, fd, filename, filesize)
+	return UploadToS3(ctx, fd, filename, filesize, user_metadata)
+}
+
+func SaveFileToS3(ctx context.Context, fd io.Reader, kid uint, type_directory string, filesize int64) error {
+	return SaveFileToS3WithMetadata(ctx, fd, kid, type_directory, filesize, nil)
 }
 
 func SaveFontToS3(ctx context.Context, fd io.Reader, id uint, filesize int64) error {
 	filename := getS3FontFilename(id)
-	return UploadToS3(ctx, fd, filename, filesize)
+	return UploadToS3(ctx, fd, filename, filesize, nil)
 }
 
 type CheckS3FileOutput struct {

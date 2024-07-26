@@ -66,6 +66,8 @@ func addRoutes(api huma.API) {
 	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara_security))
 
+	huma.Post(api, "/api/mugen", ImportMugenKara, setSecurity(kara_security))
+
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
 }
@@ -125,6 +127,8 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 	if CONFIG.Dakara.BaseURL != "" {
 		go SyncDakara(ctx)
 	}
+
+	go SyncMugen(ctx)
 
 	listen_addr := CONFIG.Listen.Addr()
 	getLogger().Printf("Starting server on %s...\n", listen_addr)

@@ -13,6 +13,7 @@ karaberus_server_files = files(
     'logger.go',
     'media.go',
     'model.go',
+    'mugen.go',
     's3.go',
     'token.go',
     'upload.go',
@@ -20,3 +21,6 @@ karaberus_server_files = files(
 )
 
 karaberus_server_tests = files('karaberus_test.go')
+
+karaberus_generate = []
+subdir('clients')
