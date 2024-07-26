@@ -1,36 +1,33 @@
-import { Icon } from "solid-heroicons";
-import { bars_3 } from "solid-heroicons/outline";
-import type { JSX } from "solid-js";
-import routes from "../utils/routes";
+import type { RouteSectionProps } from "@solidjs/router";
 import { getSessionInfos } from "../utils/session";
-import ProfileDropdown from "./ProfileDropdown";
 import AuthHero from "./AuthHero";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
-export default function Layout({ children }: { children: JSX.Element }) {
+export default function Layout({ children }: RouteSectionProps) {
   const infos = getSessionInfos();
 
-  return infos ? (
-    <>
-      <div class="m-2">
-        <div class="navbar bg-base-100 shadow-xl rounded-box">
-          <div class="flex-none">
-            <button class="btn btn-square btn-ghost">
-              <Icon path={bars_3} class="size-6" />
-            </button>
-          </div>
-          <div class="flex-1">
-            <a href={routes.HOME} class="btn btn-ghost text-xl">
-              Karaberus
-            </a>
-          </div>
-          <div class="flex-none">
-            <ProfileDropdown infos={infos} />
-          </div>
-        </div>
-      </div>
-      {children}
-    </>
-  ) : (
+  return !infos ? (
     <AuthHero />
+  ) : (
+    <div class="drawer lg:drawer-open">
+      <input id="main-drawer" type="checkbox" class="drawer-toggle" />
+
+      <div class="drawer-content">
+        <div class="mt-2 mx-2">
+          <Navbar infos={infos} />
+        </div>
+        <main class="flex flex-col p-4">{children}</main>
+      </div>
+
+      <div class="drawer-side">
+        <label
+          for="main-drawer"
+          aria-label="close sidebar"
+          class="drawer-overlay"
+        />
+        <Sidebar />
+      </div>
+    </div>
   );
 }
