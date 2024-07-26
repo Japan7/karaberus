@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { Icon } from "solid-heroicons";
 import { atSymbol, musicalNote } from "solid-heroicons/outline";
 import {
@@ -6,7 +7,6 @@ import {
   globeAsiaAustralia,
 } from "solid-heroicons/solid";
 import routes from "../utils/routes";
-import { A } from "@solidjs/router";
 
 export default function Sidebar() {
   return (
@@ -14,7 +14,7 @@ export default function Sidebar() {
       <li>
         <h2 class="menu-title flex gap-x-2">
           <Icon path={musicalNote} class="size-5" />
-          Karaoke
+          Karaokes
         </h2>
         <ul>
           <li>
@@ -30,10 +30,10 @@ export default function Sidebar() {
             </A>
           </li>
           <li class="disabled">
-            <A href={routes.KARAOKE_ISSUES} activeClass="active">
+            <a>
               <Icon path={exclamationCircle} class="size-5" />
               Issues
-            </A>
+            </a>
           </li>
         </ul>
       </li>

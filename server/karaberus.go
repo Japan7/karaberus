@@ -41,6 +41,7 @@ func addRoutes(api huma.API) {
 	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara_security))
 	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_security))
 
+	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_security))
 	huma.Post(api, "/api/font", UploadFont, setSecurity(kara_security))
 	huma.Get(api, "/api/font/{id}", DownloadFont, setSecurity(kara_security))
 

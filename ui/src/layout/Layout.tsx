@@ -17,7 +17,7 @@ export default function Layout({ children }: RouteSectionProps) {
         <div class="mt-2 mx-2">
           <Navbar infos={infos} />
         </div>
-        <main class="flex flex-col p-4">{children}</main>
+        <main class="flex flex-col container">{children}</main>
       </div>
 
       <div class="drawer-side">

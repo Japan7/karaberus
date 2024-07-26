@@ -8,6 +8,19 @@ import (
 	"gorm.io/gorm"
 )
 
+type GetAllFontsOutput struct {
+	Body struct {
+		Fonts []Font
+	}
+}
+
+func GetAllFonts(ctx context.Context, input *struct{}) (*GetAllFontsOutput, error) {
+	db := GetDB(ctx)
+	out := &GetAllFontsOutput{}
+	err := db.Find(&out.Body.Fonts).Error
+	return out, DBErrToHumaErr(err)
+}
+
 type UploadFontInput struct {
 	RawBody huma.MultipartFormFiles[UploadData]
 }
