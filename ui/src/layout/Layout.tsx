@@ -1,44 +1,45 @@
-import { Menu } from "@suid/icons-material";
-import {
-  AppBar,
-  Box,
-  Button,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@suid/material";
+import { Icon } from "solid-heroicons";
+import { bars_3 } from "solid-heroicons/outline";
 import type { JSX } from "solid-js";
 import routes from "../utils/routes";
+import { getSessionInfos } from "../utils/session";
+import ProfileDropdown from "./ProfileDropdown";
 
 export default function Layout({ children }: { children: JSX.Element }) {
+  const infos = getSessionInfos();
+
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <Menu />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Karaberus
-          </Typography>
-          <Button
-            color="inherit"
-            href={routes.API_OIDC_LOGIN}
-            onClick={() => {
-              location.href = routes.API_OIDC_LOGIN;
-            }}
-          >
-            Login
-          </Button>
-        </Toolbar>
-      </AppBar>
+    <>
+      <div class="m-2">
+        <div class="navbar bg-base-100 shadow-xl rounded-box">
+          <div class="flex-none">
+            <button class="btn btn-square btn-ghost">
+              <Icon path={bars_3} class="size-6" />
+            </button>
+          </div>
+          <div class="flex-1">
+            <a href={routes.HOME} class="btn btn-ghost text-xl">
+              Karaberus
+            </a>
+          </div>
+          <div class="flex-none">
+            {infos ? (
+              <ProfileDropdown infos={infos} />
+            ) : (
+              <a
+                href={routes.API_OIDC_LOGIN}
+                onClick={() => {
+                  location.href = routes.API_OIDC_LOGIN;
+                }}
+                class="btn btn-ghost"
+              >
+                Login
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
       {children}
-    </Box>
+    </>
   );
 }

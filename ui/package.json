@@ -11,22 +11,24 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource/roboto": "5.0.13",
     "@solid-primitives/storage": "3.8.0",
     "@solidjs/router": "0.14.1",
-    "@suid/icons-material": "0.7.0",
-    "@suid/material": "0.16.0",
+    "jose": "^5.6.3",
     "openapi-fetch": "0.10.2",
+    "solid-heroicons": "^3.2.4",
     "solid-js": "1.8.19"
   },
   "devDependencies": {
-    "@suid/vite-plugin": "0.2.0",
     "@typescript-eslint/eslint-plugin": "7.17.0",
     "@typescript-eslint/parser": "7.17.0",
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.12.10",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
+    "postcss": "^8.4.40",
     "prettier": "3.3.3",
+    "tailwindcss": "^3.4.7",
     "typescript": "5.5.4",
     "vite": "5.3.5",
     "vite-plugin-solid": "2.10.2"
