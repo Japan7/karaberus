@@ -4,7 +4,7 @@ import { createResource } from "solid-js";
 import { karaberus } from "../../utils/karaberus-client";
 
 export default function FontsBrowse() {
-  const [fonts, { refetch }] = createResource(async () => {
+  const [fonts] = createResource(async () => {
     const resp = await karaberus.GET("/api/font");
     return resp.data?.Fonts;
   });
