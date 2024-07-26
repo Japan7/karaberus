@@ -4,11 +4,12 @@ import type { JSX } from "solid-js";
 import routes from "../utils/routes";
 import { getSessionInfos } from "../utils/session";
 import ProfileDropdown from "./ProfileDropdown";
+import AuthHero from "./AuthHero";
 
 export default function Layout({ children }: { children: JSX.Element }) {
   const infos = getSessionInfos();
 
-  return (
+  return infos ? (
     <>
       <div class="m-2">
         <div class="navbar bg-base-100 shadow-xl rounded-box">
@@ -23,23 +24,13 @@ export default function Layout({ children }: { children: JSX.Element }) {
             </a>
           </div>
           <div class="flex-none">
-            {infos ? (
-              <ProfileDropdown infos={infos} />
-            ) : (
-              <a
-                href={routes.API_OIDC_LOGIN}
-                onClick={() => {
-                  location.href = routes.API_OIDC_LOGIN;
-                }}
-                class="btn btn-ghost"
-              >
-                Login
-              </a>
-            )}
+            <ProfileDropdown infos={infos} />
           </div>
         </div>
       </div>
       {children}
     </>
+  ) : (
+    <AuthHero />
   );
 }

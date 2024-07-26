@@ -1,4 +1,5 @@
 ui_src += files(
+    'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
     'layout' / 'ProfileDropdown.tsx',
     'routes' / 'Home.tsx',

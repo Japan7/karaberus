@@ -16,8 +16,10 @@ export interface KaraberusTokenPayload {
   user: boolean;
 }
 
+export const SESSION_TOKEN_NAME = "karaberus_session";
+
 export function getSessionInfos() {
-  const token = cookieStorage.getItem("karaberus_session");
+  const token = cookieStorage.getItem(SESSION_TOKEN_NAME);
   if (!token) {
     return null;
   }
@@ -26,4 +28,8 @@ export function getSessionInfos() {
     return null;
   }
   return payload;
+}
+
+export function clearSession() {
+  cookieStorage.removeItem(SESSION_TOKEN_NAME);
 }
