@@ -18,7 +18,7 @@ export default function FontsBrowse() {
           <tr>
             <th></th>
             <th>Name</th>
-            <th>Uploaded At</th>
+            <th>Updated At</th>
             <th></th>
           </tr>
         </thead>
@@ -27,7 +27,7 @@ export default function FontsBrowse() {
             <tr class="hover">
               <th>{font.ID}</th>
               <td>{font.Name}</td>
-              <td>{font.UploadedAt}</td>
+              <td>{new Date(font.UpdatedAt).toLocaleString()}</td>
               <td>
                 <button disabled class="btn btn-sm">
                   <Icon path={trash} class="size-4" />
