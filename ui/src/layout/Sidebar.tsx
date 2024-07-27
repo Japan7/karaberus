@@ -16,7 +16,7 @@ export default function Sidebar() {
           <Icon path={musicalNote} class="size-5" />
           Karaokes
         </h2>
-        <ul>
+        <ul class="space-y-1">
           <li>
             <A href={routes.KARAOKE_UPLOAD} activeClass="active">
               <Icon path={arrowUpTray} class="size-5" />
@@ -42,7 +42,7 @@ export default function Sidebar() {
           <Icon path={atSymbol} class="size-5" />
           Fonts
         </h2>
-        <ul>
+        <ul class="space-y-1">
           <li>
             <A href={routes.FONTS_UPLOAD} activeClass="active">
               <Icon path={arrowUpTray} class="size-5" />

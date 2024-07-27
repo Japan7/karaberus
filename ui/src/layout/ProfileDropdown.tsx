@@ -7,7 +7,7 @@ export default function ProfileDropdown({
 }: {
   infos: KaraberusTokenPayload;
 }) {
-  const logout: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = () => {
+  const logout: JSX.EventHandler<HTMLElement, MouseEvent> = () => {
     clearSession();
     location.href = routes.HOME;
   };

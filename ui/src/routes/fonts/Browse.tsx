@@ -4,7 +4,7 @@ import { createResource } from "solid-js";
 import { karaberus } from "../../utils/karaberus-client";
 
 export default function FontsBrowse() {
-  const [fonts] = createResource(async () => {
+  const [getFonts] = createResource(async () => {
     const resp = await karaberus.GET("/api/font");
     return resp.data?.Fonts;
   });
@@ -13,7 +13,7 @@ export default function FontsBrowse() {
     <>
       <h1 class="text-6xl font-bold mt-16 mb-8">Browse Fonts</h1>
 
-      <table class="table table-zebra">
+      <table class="table">
         <thead>
           <tr>
             <th></th>
@@ -23,7 +23,7 @@ export default function FontsBrowse() {
           </tr>
         </thead>
         <tbody>
-          {fonts()?.map((font) => (
+          {getFonts()?.map((font) => (
             <tr class="hover">
               <th>{font.ID}</th>
               <td>{font.Name}</td>
