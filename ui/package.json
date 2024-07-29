@@ -15,7 +15,7 @@
     "@solidjs/router": "0.14.1",
     "jose": "5.6.3",
     "openapi-fetch": "0.10.2",
-    "solid-heroicons": "3.2.4",
+    "solid-icons": "1.1.0",
     "solid-js": "1.8.19"
   },
   "devDependencies": {

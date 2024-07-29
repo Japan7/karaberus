@@ -10,19 +10,18 @@ export default function AuthHero() {
           <p class="py-6">wow such empty</p>
         </div>
         <div class="card bg-base-100 bg-opacity-60 w-full max-w-sm shrink-0 shadow-2xl">
-          <form class="card-body">
+          <div class="card-body">
             <div class="form-control">
-              <a
-                href={routes.API_OIDC_LOGIN}
-                onClick={() => {
+              <button
+                onclick={() => {
                   location.href = routes.API_OIDC_LOGIN;
                 }}
                 class="btn btn-primary"
               >
                 Login with OpenID Connect
-              </a>
+              </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

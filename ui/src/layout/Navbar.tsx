@@ -1,5 +1,4 @@
-import { Icon } from "solid-heroicons";
-import { bars_3 } from "solid-heroicons/outline";
+import { HiOutlineBars3 } from "solid-icons/hi";
 import routes from "../utils/routes";
 import type { KaraberusTokenPayload } from "../utils/session";
 import ProfileDropdown from "./ProfileDropdown";
@@ -9,7 +8,7 @@ export default function Navbar({ infos }: { infos: KaraberusTokenPayload }) {
     <div class="navbar bg-base-100 shadow-xl rounded-box">
       <div class="flex-none">
         <label for="main-drawer" class="btn btn-square btn-ghost lg:hidden">
-          <Icon path={bars_3} class="size-6" />
+          <HiOutlineBars3 class="size-6" />
         </label>
       </div>
       <div class="flex-1">

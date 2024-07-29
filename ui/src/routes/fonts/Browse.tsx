@@ -1,5 +1,4 @@
-import { Icon } from "solid-heroicons";
-import { trash } from "solid-heroicons/solid";
+import { HiSolidTrash } from "solid-icons/hi";
 import { createResource } from "solid-js";
 import { karaberus } from "../../utils/karaberus-client";
 
@@ -30,7 +29,7 @@ export default function FontsBrowse() {
               <td>{new Date(font.UpdatedAt).toLocaleString()}</td>
               <td>
                 <button disabled class="btn btn-sm">
-                  <Icon path={trash} class="size-4" />
+                  <HiSolidTrash class="size-4" />
                 </button>
               </td>
             </tr>
