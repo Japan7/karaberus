@@ -15,7 +15,7 @@ export default function FontsUpload() {
 
     const resp = await karaberus.POST("/api/font", fileForm(file));
     if (resp.error) {
-      alert("Failed to upload font");
+      alert(resp.error);
     } else {
       alert("Font uploaded");
     }

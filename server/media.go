@@ -93,3 +93,14 @@ func FindMedia(ctx context.Context, input *FindMediaInput) (*MediaOutput, error)
 	err := db.Where(&MediaDB{Name: input.Name}).First(&out.Body.Media).Error
 	return out, DBErrToHumaErr(err)
 }
+
+type AllMediasOutput struct {
+	Body []MediaDB `json:"medias"`
+}
+
+func GetAllMedias(ctx context.Context, input *struct{}) (*AllMediasOutput, error) {
+	db := GetDB(ctx)
+	out := &AllMediasOutput{}
+	err := db.Preload("AdditionalNames").Find(&out.Body).Error
+	return out, DBErrToHumaErr(err)
+}

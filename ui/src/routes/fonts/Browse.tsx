@@ -23,11 +23,11 @@ export default function FontsBrowse() {
         </thead>
         <tbody>
           <Index each={getFonts()}>
-            {(getItem) => (
+            {(getFont) => (
               <tr class="hover">
-                <th>{getItem().ID}</th>
-                <td>{getItem().Name}</td>
-                <td>{new Date(getItem().UpdatedAt).toLocaleString()}</td>
+                <th>{getFont().ID}</th>
+                <td>{getFont().Name}</td>
+                <td>{new Date(getFont().UpdatedAt).toLocaleString()}</td>
                 <td>
                   <button disabled class="btn btn-sm">
                     <HiSolidTrash class="size-4" />

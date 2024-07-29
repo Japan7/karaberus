@@ -85,3 +85,14 @@ func FindArtist(ctx context.Context, input *FindArtistInput) (*ArtistOutput, err
 
 	return out, nil
 }
+
+type AllArtistsOutput struct {
+	Body []Artist `json:"artists"`
+}
+
+func GetAllArtists(ctx context.Context, input *struct{}) (*AllArtistsOutput, error) {
+	db := GetDB(ctx)
+	out := &AllArtistsOutput{}
+	err := db.Preload("AdditionalNames").Find(&out.Body).Error
+	return out, DBErrToHumaErr(err)
+}

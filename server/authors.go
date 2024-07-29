@@ -77,3 +77,14 @@ func FindAuthor(ctx context.Context, input *FindAuthorInput) (*AuthorOutput, err
 	err := db.Where(&TimingAuthor{Name: input.Name}).First(&out.Body.Author).Error
 	return out, DBErrToHumaErr(err)
 }
+
+type AllAuthorOutput struct {
+	Body []TimingAuthor `json:"authors"`
+}
+
+func GetAllAuthors(ctx context.Context, input *struct{}) (*AllAuthorOutput, error) {
+	db := GetDB(ctx)
+	out := &AllAuthorOutput{}
+	err := db.Find(&out.Body).Error
+	return out, DBErrToHumaErr(err)
+}

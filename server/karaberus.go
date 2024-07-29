@@ -48,17 +48,20 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(kara_security))
 
-	huma.Get(api, "/api/tags/author", FindAuthor, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/author", GetAllAuthors, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/author/search", FindAuthor, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/author/{id}", GetAuthor, setSecurity(kara_security))
 	huma.Delete(api, "/api/tags/author/{id}", DeleteAuthor, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/author", CreateAuthor, setSecurity(kara_security))
 
-	huma.Get(api, "/api/tags/artist", FindArtist, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/artist", GetAllArtists, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/artist/search", FindArtist, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/artist/{id}", GetArtist, setSecurity(kara_security))
 	huma.Delete(api, "/api/tags/artist/{id}", DeleteArtist, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/artist", CreateArtist, setSecurity(kara_security))
 
-	huma.Get(api, "/api/tags/media", FindMedia, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/media", GetAllMedias, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/media/search", FindMedia, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_security))
 	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara_security))
