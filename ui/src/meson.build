@@ -8,8 +8,12 @@ ui_src += files(
     'routes' / 'fonts' / 'Browse.tsx',
     'routes' / 'fonts' / 'Upload.tsx',
     'routes' / 'karaoke' / 'Browse.tsx',
+    'routes' / 'karaoke' / 'Create.tsx',
     'routes' / 'karaoke' / 'Issues.tsx',
     'routes' / 'karaoke' / 'Upload.tsx',
+    'routes' / 'tags' / 'Artist.tsx',
+    'routes' / 'tags' / 'Author.tsx',
+    'routes' / 'tags' / 'Media.tsx',
     'routes' / 'Home.tsx',
 
     'utils' / 'karaberus-client.ts',
