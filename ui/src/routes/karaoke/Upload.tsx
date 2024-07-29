@@ -1,7 +1,7 @@
 export default function KaraokeUpload() {
   return (
     <>
-      <h1 class="text-6xl font-bold mt-16 mb-8">Upload Karaoke</h1>
+      <h1 class="header">Upload Karaoke</h1>
     </>
   );
 }

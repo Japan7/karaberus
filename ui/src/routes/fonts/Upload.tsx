@@ -23,7 +23,7 @@ export default function FontsUpload() {
 
   return (
     <>
-      <h1 class="text-6xl font-bold mt-16 mb-8">Upload Font</h1>
+      <h1 class="header">Upload Font</h1>
 
       <form onsubmit={onsubmit} class="flex gap-x-2">
         <input

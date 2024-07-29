@@ -1,7 +1,7 @@
 export default function KaraokeCreate() {
   return (
     <>
-      <h1 class="text-6xl font-bold mt-16 mb-8">Create Karaoke</h1>
+      <h1 class="header">Create Karaoke</h1>
 
       <form class="flex flex-col">
         <label>
