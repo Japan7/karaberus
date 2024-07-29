@@ -1,4 +1,5 @@
 option('go_os', type: 'string', value: '', description: 'Go host OS')
 option('go_arch', type: 'string', value: '', description: 'Go host arch')
 option('sysroot', type: 'string', value: '', description: 'Cross builds sysroot')
+option('network_tests', type: 'boolean', value: true, description: 'Run tests that require an internet connection')
 option('test', type: 'boolean', value: true, description: 'Build tests')
