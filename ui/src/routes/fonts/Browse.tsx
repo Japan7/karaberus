@@ -1,5 +1,5 @@
 import { HiSolidTrash } from "solid-icons/hi";
-import { createResource } from "solid-js";
+import { createResource, Index } from "solid-js";
 import { karaberus } from "../../utils/karaberus-client";
 
 export default function FontsBrowse() {
@@ -22,18 +22,20 @@ export default function FontsBrowse() {
           </tr>
         </thead>
         <tbody>
-          {getFonts()?.map((font) => (
-            <tr class="hover">
-              <th>{font.ID}</th>
-              <td>{font.Name}</td>
-              <td>{new Date(font.UpdatedAt).toLocaleString()}</td>
-              <td>
-                <button disabled class="btn btn-sm">
-                  <HiSolidTrash class="size-4" />
-                </button>
-              </td>
-            </tr>
-          ))}
+          <Index each={getFonts()}>
+            {(getItem) => (
+              <tr class="hover">
+                <th>{getItem().ID}</th>
+                <td>{getItem().Name}</td>
+                <td>{new Date(getItem().UpdatedAt).toLocaleString()}</td>
+                <td>
+                  <button disabled class="btn btn-sm">
+                    <HiSolidTrash class="size-4" />
+                  </button>
+                </td>
+              </tr>
+            )}
+          </Index>
         </tbody>
       </table>
     </>
