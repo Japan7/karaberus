@@ -83,7 +83,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	}
 	defer fd.Close()
 
-	res, err := SaveFileToS3(ctx, db, fd, kara, input.FileType, file.Size)
+	res, err := SaveFileToS3(ctx, db, fd, &kara, input.FileType, file.Size)
 	if err != nil {
 		return nil, err
 	}

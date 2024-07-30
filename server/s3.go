@@ -44,7 +44,7 @@ func CheckValidFiletype(type_directory string) bool {
 	}
 }
 
-func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, kara KaraInfoDB, type_directory string, filesize int64, user_metadata map[string]string) (*CheckKaraOutput, error) {
+func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, kara *KaraInfoDB, type_directory string, filesize int64, user_metadata map[string]string) (*CheckKaraOutput, error) {
 	kid := kara.ID
 
 	if !CheckValidFiletype(type_directory) {
@@ -56,12 +56,12 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		return nil, err
 	}
 
-	err = updateKaraokeAfterUpload(tx, &kara, type_directory)
+	err = updateKaraokeAfterUpload(tx, kara, type_directory)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := CheckKara(ctx, kara)
+	res, err := CheckKara(ctx, *kara)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 	return res, nil
 }
 
-func SaveFileToS3(ctx context.Context, tx *gorm.DB, fd io.Reader, kara KaraInfoDB, type_directory string, filesize int64) (*CheckKaraOutput, error) {
+func SaveFileToS3(ctx context.Context, tx *gorm.DB, fd io.Reader, kara *KaraInfoDB, type_directory string, filesize int64) (*CheckKaraOutput, error) {
 	return SaveFileToS3WithMetadata(ctx, tx, fd, kara, type_directory, filesize, nil)
 }
 

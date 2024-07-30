@@ -271,7 +271,7 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 		return nil, err
 	}
 
-	return SaveFileToS3WithMetadata(ctx, tx, resp.Body, kara.Kara, type_directory, content_length, user_metadata)
+	return SaveFileToS3WithMetadata(ctx, tx, resp.Body, &kara.Kara, type_directory, content_length, user_metadata)
 }
 
 func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) error {
