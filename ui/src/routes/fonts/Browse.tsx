@@ -22,7 +22,7 @@ export default function FontsBrowse() {
       alert(resp.error);
       return;
     }
-    setFile(undefined);
+    (e.target as HTMLFormElement).reset();
     refetch();
   };
 

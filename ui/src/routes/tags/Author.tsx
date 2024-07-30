@@ -19,7 +19,7 @@ export default function TagsAuthor() {
       alert(resp.error);
       return;
     }
-    setName("");
+    (e.target as HTMLFormElement).reset();
     refetch();
   };
 

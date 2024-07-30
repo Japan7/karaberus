@@ -29,8 +29,7 @@ export default function TagsMedia() {
       alert(resp.error);
       return;
     }
-    setName("");
-    setAdditionalNames("");
+    (e.target as HTMLFormElement).reset();
     refetch();
   };
 

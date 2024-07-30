@@ -23,8 +23,7 @@ export default function TagsArtist() {
       alert(resp.error);
       return;
     }
-    setName("");
-    setAdditionalNames("");
+    (e.target as HTMLFormElement).reset();
     refetch();
   };
 
