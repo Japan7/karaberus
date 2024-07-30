@@ -239,7 +239,7 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 		return err
 	}
 
-	go mugenDownload(context.Background(), *mugen_import)
+	go mugenDownload(context.Background(), GetDB(ctx), *mugen_import)
 
 	return nil
 }
@@ -262,19 +262,19 @@ func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportM
 	return out, err
 }
 
-func SaveMugenResponseToS3(ctx context.Context, resp *http.Response, kid uint, type_directory string, user_metadata map[string]string) error {
+func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response, kara MugenImport, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
 	if resp.StatusCode != 200 {
-		return errors.New(fmt.Sprintf("%d: failed to download, received code %d", kid, resp.StatusCode))
+		return nil, errors.New(fmt.Sprintf("%d: failed to download, received code %d", kara.MugenKID, resp.StatusCode))
 	}
 	content_length, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return SaveFileToS3WithMetadata(ctx, resp.Body, kid, type_directory, content_length, user_metadata)
+	return SaveFileToS3WithMetadata(ctx, tx, resp.Body, kara.Kara, type_directory, content_length, user_metadata)
 }
 
-func mugenDownload(ctx context.Context, mugen_import MugenImport) error {
+func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) error {
 	mugen_client := mugen.GetClient()
 	mugen_kara, err := mugen_client.GetKara(ctx, mugen_import.MugenKID)
 	if err != nil {
@@ -311,7 +311,7 @@ func mugenDownload(ctx context.Context, mugen_import MugenImport) error {
 			return err
 		}
 		defer resp.Body.Close()
-		err = SaveMugenResponseToS3(ctx, resp, mugen_import.Kara.ID, "video", nil)
+		_, err = SaveMugenResponseToS3(ctx, tx, resp, mugen_import, "video", nil)
 		if err != nil {
 			return err
 		}
@@ -347,7 +347,10 @@ func mugenDownload(ctx context.Context, mugen_import MugenImport) error {
 		defer resp.Body.Close()
 		// we're essentially using the checksum as a version
 		user_metadata := map[string]string{"Mugenchecksum": mugen_kara.SubChecksum}
-		err = SaveMugenResponseToS3(ctx, resp, mugen_import.Kara.ID, "sub", user_metadata)
+		_, err = SaveMugenResponseToS3(ctx, tx, resp, mugen_import, "sub", user_metadata)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -355,14 +358,15 @@ func mugenDownload(ctx context.Context, mugen_import MugenImport) error {
 
 func SyncMugen(ctx context.Context) {
 	mugen_imports := []MugenImport{}
-	err := GetDB(ctx).Preload(clause.Associations).Find(&mugen_imports).Error
+	db := GetDB(ctx)
+	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
 	if err != nil {
 		getLogger().Println(err)
 		return
 	}
 
 	for _, mugen_import := range mugen_imports {
-		err = mugenDownload(ctx, mugen_import)
+		err = mugenDownload(ctx, db, mugen_import)
 		if err != nil {
 			getLogger().Println(err)
 		}

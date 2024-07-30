@@ -12,6 +12,7 @@ import (
 	"github.com/Japan7/karaberus/karaberus_tools"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"gorm.io/gorm"
 )
 
 func getS3Client() (*minio.Client, error) {
@@ -43,16 +44,45 @@ func CheckValidFiletype(type_directory string) bool {
 	}
 }
 
-func SaveFileToS3WithMetadata(ctx context.Context, fd io.Reader, kid uint, type_directory string, filesize int64, user_metadata map[string]string) error {
+func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, kara KaraInfoDB, type_directory string, filesize int64, user_metadata map[string]string) (*CheckKaraOutput, error) {
+	kid := kara.ID
+
 	if !CheckValidFiletype(type_directory) {
-		return errors.New("Unknown file type " + type_directory)
+		return nil, errors.New("Unknown file type " + type_directory)
 	}
 	filename := fmt.Sprintf("%s/%d", type_directory, kid)
-	return UploadToS3(ctx, fd, filename, filesize, user_metadata)
+	err := UploadToS3(ctx, fd, filename, filesize, user_metadata)
+	if err != nil {
+		return nil, err
+	}
+
+	err = updateKaraokeAfterUpload(tx, &kara, type_directory)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := CheckKara(ctx, kara)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.Video.Duration != kara.Duration {
+		kara.Duration = res.Video.Duration
+		err = GetDB(ctx).Save(&kara).Error
+		if err != nil {
+			return nil, DBErrToHumaErr(err)
+		}
+	}
+
+	if CONFIG.Dakara.BaseURL != "" && kara.UploadInfo.VideoUploaded && kara.UploadInfo.SubtitlesUploaded {
+		go SyncDakara(context.Background())
+	}
+
+	return res, nil
 }
 
-func SaveFileToS3(ctx context.Context, fd io.Reader, kid uint, type_directory string, filesize int64) error {
-	return SaveFileToS3WithMetadata(ctx, fd, kid, type_directory, filesize, nil)
+func SaveFileToS3(ctx context.Context, tx *gorm.DB, fd io.Reader, kara KaraInfoDB, type_directory string, filesize int64) (*CheckKaraOutput, error) {
+	return SaveFileToS3WithMetadata(ctx, tx, fd, kara, type_directory, filesize, nil)
 }
 
 func SaveFontToS3(ctx context.Context, fd io.Reader, id uint, filesize int64) error {

@@ -83,31 +83,9 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	}
 	defer fd.Close()
 
-	err = SaveFileToS3(ctx, fd, kid, input.FileType, file.Size)
+	res, err := SaveFileToS3(ctx, db, fd, kara, input.FileType, file.Size)
 	if err != nil {
 		return nil, err
-	}
-
-	err = updateKaraokeAfterUpload(db, &kara, input.FileType)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := CheckKara(ctx, kara)
-	if err != nil {
-		return nil, err
-	}
-
-	if res.Video.Duration != kara.Duration {
-		kara.Duration = res.Video.Duration
-		err = GetDB(ctx).Save(&kara).Error
-		if err != nil {
-			return nil, DBErrToHumaErr(err)
-		}
-	}
-
-	if CONFIG.Dakara.BaseURL != "" && kara.UploadInfo.VideoUploaded && kara.UploadInfo.SubtitlesUploaded {
-		go SyncDakara(context.Background())
 	}
 
 	resp := &UploadOutput{}
