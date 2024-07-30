@@ -6,6 +6,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"time"
@@ -101,10 +102,24 @@ type DownloadInput struct {
 }
 
 func serveObject(obj *minio.Object) (*huma.StreamResponse, error) {
-	var err error
+	stat, err := obj.Stat()
+
 	return &huma.StreamResponse{
 		Body: func(ctx huma.Context) {
 			defer obj.Close()
+
+			if err != nil {
+				resp := minio.ToErrorResponse(err)
+				if resp.Code == "NoSuchKey" {
+					ctx.SetStatus(404)
+				} else {
+					ctx.SetStatus(500)
+					getLogger().Printf("%+v\n", resp)
+				}
+				return
+			}
+
+			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", stat.Size))
 
 			writer := ctx.BodyWriter()
 
