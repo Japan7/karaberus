@@ -31,39 +31,40 @@ func addMiddlewares(api huma.API) {
 func addRoutes(api huma.API) {
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
+	kara_ro_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}}}
 
-	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_security))
-	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_security))
+	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_ro_security))
 	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara_security))
 	// TODO: should be reserved to admins
 	huma.Patch(api, "/api/kara/{id}/creation_time", SetKaraUploadTime, setSecurity(kara_security))
 	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))
 	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara_security))
-	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_security))
+	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_security))
 
-	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_security))
+	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
 	huma.Post(api, "/api/font", UploadFont, setSecurity(kara_security))
-	huma.Get(api, "/api/font/{id}", DownloadFont, setSecurity(kara_security))
+	huma.Get(api, "/api/font/{id}", DownloadFont, setSecurity(kara_ro_security))
 
-	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(kara_ro_security))
 
-	huma.Get(api, "/api/tags/author", GetAllAuthors, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/author/search", FindAuthor, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/author/{id}", GetAuthor, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/author", GetAllAuthors, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/author/search", FindAuthor, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/author/{id}", GetAuthor, setSecurity(kara_ro_security))
 	huma.Delete(api, "/api/tags/author/{id}", DeleteAuthor, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/author", CreateAuthor, setSecurity(kara_security))
 
-	huma.Get(api, "/api/tags/artist", GetAllArtists, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/artist/search", FindArtist, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/artist/{id}", GetArtist, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/artist", GetAllArtists, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/artist/search", FindArtist, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/artist/{id}", GetArtist, setSecurity(kara_ro_security))
 	huma.Delete(api, "/api/tags/artist/{id}", DeleteArtist, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/artist", CreateArtist, setSecurity(kara_security))
 
-	huma.Get(api, "/api/tags/media", GetAllMedias, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/media/types", GetAllMediaTypes, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/media/search", FindMedia, setSecurity(kara_security))
-	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/media", GetAllMedias, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/media/types", GetAllMediaTypes, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/media/search", FindMedia, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_ro_security))
 	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara_security))
 	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara_security))
 

@@ -75,15 +75,19 @@ type TimingAuthor struct {
 }
 
 type Scopes struct {
-	Kara bool `json:"kara"`
-	User bool `json:"user"`
+	Kara   bool `json:"kara"`
+	KaraRO bool `json:"kara_ro"`
+	User   bool `json:"user"`
 }
 
-var AllScopes = Scopes{Kara: true, User: true}
+var AllScopes = Scopes{Kara: true, KaraRO: true, User: true}
 
 func (scopes Scopes) HasScope(scope string) bool {
 	if scope == "kara" {
 		return scopes.Kara
+	}
+	if scope == "kara_ro" {
+		return scopes.Kara || scopes.KaraRO
 	}
 	if scope == "user" {
 		return scopes.User
