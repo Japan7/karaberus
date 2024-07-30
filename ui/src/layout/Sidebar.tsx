@@ -3,7 +3,6 @@ import {
   HiOutlineAtSymbol,
   HiOutlineMusicalNote,
   HiOutlineTag,
-  HiSolidArrowUpTray,
   HiSolidExclamationCircle,
   HiSolidGlobeAsiaAustralia,
   HiSolidMicrophone,
@@ -26,12 +25,6 @@ export default function Sidebar() {
             <A href={routes.KARAOKE_CREATE} activeClass="active">
               <HiSolidPencilSquare class="size-5" />
               Create
-            </A>
-          </li>
-          <li>
-            <A href={routes.KARAOKE_UPLOAD} activeClass="active">
-              <HiSolidArrowUpTray class="size-5" />
-              Upload
             </A>
           </li>
           <li>
@@ -82,12 +75,6 @@ export default function Sidebar() {
           Fonts
         </h2>
         <ul class="space-y-1">
-          <li>
-            <A href={routes.FONTS_UPLOAD} activeClass="active">
-              <HiSolidArrowUpTray class="size-5" />
-              Upload
-            </A>
-          </li>
           <li>
             <A href={routes.FONTS_BROWSE} activeClass="active">
               <HiSolidGlobeAsiaAustralia class="size-5" />
