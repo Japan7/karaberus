@@ -124,7 +124,7 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 	}
 	// If we have a user, add it to the context.
 	if err == nil {
-		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+		ctx = huma.WithValue(ctx, currentUserCtxKey, *user)
 	}
 
 	if ok := checkOperationSecurity(ctx, user, scopes); ok {
