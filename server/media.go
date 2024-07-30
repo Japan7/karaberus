@@ -113,3 +113,11 @@ func GetAllMedias(ctx context.Context, input *struct{}) (*AllMediasOutput, error
 	err := db.Preload("AdditionalNames").Find(&out.Body).Error
 	return out, DBErrToHumaErr(err)
 }
+
+type AllMediaTypesOutput struct {
+	Body []MediaType `json:"media_types"`
+}
+
+func GetAllMediaTypes(ctx context.Context, input *struct{}) (*AllMediaTypesOutput, error) {
+	return &AllMediaTypesOutput{MediaTypes}, nil
+}

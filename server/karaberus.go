@@ -61,6 +61,7 @@ func addRoutes(api huma.API) {
 	huma.Post(api, "/api/tags/artist", CreateArtist, setSecurity(kara_security))
 
 	huma.Get(api, "/api/tags/media", GetAllMedias, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/media/types", GetAllMediaTypes, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/media/search", FindMedia, setSecurity(kara_security))
 	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_security))
 	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara_security))

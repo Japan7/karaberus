@@ -3,6 +3,10 @@ import { createResource, createSignal, Index, type JSX } from "solid-js";
 import { karaberus } from "../../utils/karaberus-client";
 
 export default function TagsMedia() {
+  const [getAllMediaTypes] = createResource(async () => {
+    const resp = await karaberus.GET("/api/tags/media/types");
+    return resp.data;
+  });
   const [getMedias, { refetch }] = createResource(async () => {
     const resp = await karaberus.GET("/api/tags/media");
     return resp.data;
@@ -25,7 +29,6 @@ export default function TagsMedia() {
       alert(resp.error);
       return;
     }
-    setMediaType("ANIME");
     setName("");
     setAdditionalNames("");
     refetch();
@@ -59,10 +62,11 @@ export default function TagsMedia() {
             onchange={(e) => setMediaType(e.currentTarget.value)}
             class="select select-bordered w-full"
           >
-            <option value="ANIME">Anime</option>
-            <option value="GAME">Game</option>
-            <option value="LIVE">Live action</option>
-            <option value="CARTOON">Cartoon</option>
+            <Index each={getAllMediaTypes()}>
+              {(getMediaType) => (
+                <option value={getMediaType().ID}>{getMediaType().Name}</option>
+              )}
+            </Index>
           </select>
         </label>
 
