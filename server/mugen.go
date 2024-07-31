@@ -251,7 +251,8 @@ type ImportMugenKaraInput struct {
 }
 
 type ImportMugenKaraOutput struct {
-	Body struct {
+	Status int
+	Body   struct {
 		Import MugenImport `json:"import"`
 	}
 }
@@ -259,6 +260,17 @@ type ImportMugenKaraOutput struct {
 func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportMugenKaraOutput, error) {
 	out := &ImportMugenKaraOutput{}
 	err := importMugenKara(ctx, input.Body.MugenKID, &out.Body.Import)
+	if err == nil {
+		out.Status = 200
+	} else {
+		err_select := GetDB(ctx).First(&out.Body.Import, input.Body.MugenKID).Error
+		if err_select == nil {
+			err = nil
+			out.Status = 204
+		} else {
+			out.Status = 500
+		}
+	}
 	return out, err
 }
 
