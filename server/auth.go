@@ -195,6 +195,9 @@ func getUserScopesFromJwt(ctx context.Context, token string) (*User, *Scopes, er
 		if key == "kara" {
 			scopes.Kara = val.(bool)
 		}
+		if key == "kara_ro" {
+			scopes.KaraRO = val.(bool)
+		}
 		if key == "user" {
 			scopes.User = val.(bool)
 		}
