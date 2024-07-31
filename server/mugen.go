@@ -85,9 +85,12 @@ func getMugenArtist(tx *gorm.DB, mugen_artist mugen.MugenTag, karaberus_artist *
 func getMugenTimingAuthor(tx *gorm.DB, mugen_author mugen.MugenTag, author *TimingAuthor) error {
 	err := tx.Where(&TimingAuthor{MugenID: &mugen_author.TID}).First(author).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		author.Name = mugen_author.Name
-		author.MugenID = &mugen_author.TID
-		err = tx.Create(author).Error
+		err = tx.Where(&TimingAuthor{Name: mugen_author.Name}).First(author).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			author.Name = mugen_author.Name
+			author.MugenID = &mugen_author.TID
+			err = tx.Create(author).Error
+		}
 	}
 	return err
 }
