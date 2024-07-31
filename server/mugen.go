@@ -186,7 +186,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 		for _, mugen_tag := range mugenTags {
 			for _, mapped_tag := range audio_tag.MugenTags {
 				if mapped_tag == mugen_tag.TID.String() {
-					kara_info.VideoTags = append(kara_info.VideoTags, VideoTagDB{ID: audio_tag.ID})
+					kara_info.AudioTags = append(kara_info.AudioTags, AudioTagDB{ID: audio_tag.ID})
 				}
 			}
 		}
