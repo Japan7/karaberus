@@ -11,6 +11,7 @@ import (
 	"github.com/Japan7/karaberus/server/clients/mugen"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
+	"golang.org/x/sync/semaphore"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -289,7 +290,15 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 	return SaveFileToS3WithMetadata(ctx, tx, resp.Body, &kara.Kara, type_directory, content_length, user_metadata)
 }
 
+var MugenDownloadSemaphore = semaphore.NewWeighted(5)
+
 func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) error {
+	err := MugenDownloadSemaphore.Acquire(ctx, 1)
+	if err != nil {
+		return err
+	}
+	defer MugenDownloadSemaphore.Release(1)
+
 	mugen_client := mugen.GetClient()
 	mugen_kara, err := mugen_client.GetKara(ctx, mugen_import.MugenKID)
 	if err != nil {
@@ -379,6 +388,8 @@ func SyncMugen(ctx context.Context) {
 		getLogger().Println(err)
 		return
 	}
+
+	getLogger().Printf("Syncing %d karaokes from Mugen", len(mugen_imports))
 
 	for _, mugen_import := range mugen_imports {
 		err = mugenDownload(ctx, db, mugen_import)
