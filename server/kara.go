@@ -7,6 +7,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -193,6 +194,56 @@ func SetKaraUploadTime(ctx context.Context, input *SetKaraUploadTimeInput) (*Kar
 		return err
 	})
 	return out, err
+}
+
+type UpdateKaraInput struct {
+	Id   uint `path:"id"`
+	Body struct {
+		KaraInfo
+		KaraokeCreationDate int64 `json:"karaoke_creation_time" example:"42"`
+		IsHardsub           bool  `json:"is_hardsub" example:"false"`
+	}
+}
+
+func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error) {
+	user := getCurrentUser(ctx)
+
+	db := GetDB(ctx)
+	current_kara := KaraInfoDB{}
+	err := db.First(&current_kara, input.Id).Error
+	if err != nil {
+		return nil, err
+	}
+	new_kara, err := input.Body.to_KaraInfoDB(db)
+	if err != nil {
+		return nil, err
+	}
+
+	upload_info := current_kara.UploadInfo
+
+	if user.Admin {
+		upload_info.Hardsubbed = input.Body.IsHardsub
+		upload_info.KaraokeCreationTime = time.Unix(input.Body.KaraokeCreationDate, 0)
+	}
+
+	new_kara.UploadInfo = upload_info
+
+	if new_kara.Hardsubbed && new_kara.Hardsubbed != current_kara.Hardsubbed && new_kara.KaraokeCreationTime != current_kara.KaraokeCreationTime {
+		user := getCurrentUser(ctx)
+		if !user.Admin {
+			return nil, huma.Error403Forbidden("Only admins can change the hardsubbed and karaoke creation time fields")
+		}
+	}
+
+	err = db.Save(&new_kara).Error
+	if err != nil {
+		return nil, err
+	}
+
+	out := &KaraOutput{}
+	out.Body.Kara = new_kara
+
+	return out, nil
 }
 
 type GetKaraInput struct {

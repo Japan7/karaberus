@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/humatest"
 )
 
@@ -39,12 +40,40 @@ func getKaraberusTestConfig() KaraberusTestConfig {
 
 var TEST_CONFIG = getKaraberusTestConfig()
 
+func testUserMiddleware(ctx huma.Context, next func(huma.Context)) {
+	ctx = huma.WithValue(ctx, currentUserCtxKey, User{
+		ID:    "test_user",
+		Admin: false,
+	})
+	next(ctx)
+}
+
+func testAdminMiddleware(ctx huma.Context, next func(huma.Context)) {
+	ctx = huma.WithValue(ctx, currentUserCtxKey, User{
+		ID:    "test_admin",
+		Admin: true,
+	})
+	next(ctx)
+}
+
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
 
 	db := GetDB(context.TODO())
 	init_model(db)
 
+	api.UseMiddleware(testUserMiddleware)
+	addRoutes(api)
+	return api
+}
+
+func getTestAPIAdmin(t *testing.T) humatest.TestAPI {
+	_, api := humatest.New(t)
+
+	db := GetDB(context.TODO())
+	init_model(db)
+
+	api.UseMiddleware(testAdminMiddleware)
 	addRoutes(api)
 	return api
 }
@@ -231,6 +260,66 @@ func TestCreateKara(t *testing.T) {
 	assertRespCode(t, api.Delete(path), 204)
 }
 
+func TestUpdateKara(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/api/kara",
+			map[string]any{
+				"title":         "kara_title_pre_update",
+				"title_aliases": []string{"kara_update_title_alias"},
+				"authors":       []uint{},
+				"artists":       []uint{},
+				"source_media":  0,
+				"song_order":    0,
+				"medias":        []uint{},
+				"audio_tags":    []string{},
+				"video_tags":    []string{},
+				"comment":       "",
+				"version":       "",
+				"language":      "",
+			}),
+		200,
+	)
+
+	data := KaraOutput{}
+	dec := json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
+
+	resp = assertRespCode(t,
+		api.Patch(path,
+			map[string]any{
+				"title":                 "kara_title_post_update",
+				"title_aliases":         []string{"kara_update_title_alias"},
+				"authors":               []uint{},
+				"artists":               []uint{},
+				"source_media":          0,
+				"song_order":            0,
+				"medias":                []uint{},
+				"audio_tags":            []string{},
+				"video_tags":            []string{},
+				"comment":               "",
+				"version":               "",
+				"language":              "",
+				"is_hardsub":            false,
+				"karaoke_creation_time": 0,
+			}),
+		200,
+	)
+
+	data = KaraOutput{}
+	dec = json.NewDecoder(resp.Body)
+	dec.Decode(&data.Body)
+
+	if data.Body.Kara.Title != "kara_title_post_update" {
+		t.Fatal("Failed to update karaoke")
+	}
+
+	assertRespCode(t, api.Delete(path), 204)
+}
+
 func skipCI(t *testing.T) {
 	if os.Getenv("SKIP_S3_TESTS") != "" {
 		t.Skip("Skipping testing in CI environment")
@@ -395,7 +484,7 @@ func CompareDownloadedFont(t *testing.T, api humatest.TestAPI, original_file str
 func TestUploadKara(t *testing.T) {
 	skipCI(t)
 
-	api := getTestAPI(t)
+	api := getTestAPIAdmin(t)
 
 	resp := assertRespCode(t,
 		api.Post("/api/tags/media",
@@ -503,11 +592,24 @@ func TestUploadKara(t *testing.T) {
 	dec = json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
 
-	kara_path_creation_time := fmt.Sprintf("/api/kara/%d/creation_time", data.Body.Kara.ID)
+	kara_path_creation_time := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 	newCreationTime := data.Body.Kara.KaraokeCreationTime.Add(-3600 * time.Second).Unix()
 	resp = assertRespCode(t,
 		api.Patch(kara_path_creation_time, map[string]any{
-			"creation_time": newCreationTime,
+			"title":                 "kara_upload_title",
+			"title_aliases":         []string{},
+			"authors":               []uint{},
+			"artists":               []uint{artist_data.Body.Artist.ID},
+			"source_media":          media_data.Body.Media.ID,
+			"song_order":            0,
+			"medias":                []uint{media_data.Body.Media.ID},
+			"audio_tags":            []string{},
+			"video_tags":            []string{},
+			"comment":               "",
+			"version":               "",
+			"language":              "",
+			"karaoke_creation_time": newCreationTime,
+			"is_hardsub":            false,
 		}),
 		200,
 	)
@@ -515,7 +617,7 @@ func TestUploadKara(t *testing.T) {
 	dec.Decode(&data.Body)
 
 	if data.Body.Kara.KaraokeCreationTime.Unix() != newCreationTime {
-		t.Fatal("failed to set karaoke creation date")
+		t.Fatal("failed to set karaoke creation date", data.Body.Kara.KaraokeCreationTime)
 	}
 }
 
