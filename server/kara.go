@@ -228,13 +228,6 @@ func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error
 
 	new_kara.UploadInfo = upload_info
 
-	if new_kara.Hardsubbed && new_kara.Hardsubbed != current_kara.Hardsubbed && new_kara.KaraokeCreationTime != current_kara.KaraokeCreationTime {
-		user := getCurrentUser(ctx)
-		if !user.Admin {
-			return nil, huma.Error403Forbidden("Only admins can change the hardsubbed and karaoke creation time fields")
-		}
-	}
-
 	err = db.Save(&new_kara).Error
 	if err != nil {
 		return nil, err
