@@ -15,12 +15,17 @@ import (
 	"gorm.io/gorm"
 )
 
+var S3_CLIENT *minio.Client = nil
+
 func getS3Client() (*minio.Client, error) {
-	client, err := minio.New(CONFIG.S3.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(CONFIG.S3.KeyID, CONFIG.S3.Secret, ""),
-		Secure: CONFIG.S3.Secure,
-	})
-	return client, err
+	var err error = nil
+	if S3_CLIENT == nil {
+		S3_CLIENT, err = minio.New(CONFIG.S3.Endpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(CONFIG.S3.KeyID, CONFIG.S3.Secret, ""),
+			Secure: CONFIG.S3.Secure,
+		})
+	}
+	return S3_CLIENT, err
 }
 
 func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize int64, user_metadata map[string]string) error {
