@@ -36,6 +36,11 @@ func init_db() {
 		if err != nil {
 			panic("Could not connect to the database")
 		}
+		sqlite_db, err := db.DB()
+		if err != nil {
+			panic("Could not get underlying sqlite db")
+		}
+		sqlite_db.SetMaxOpenConns(1)
 
 		db_instance = db
 	} else if CONFIG.DB.Driver == "postgres" {
