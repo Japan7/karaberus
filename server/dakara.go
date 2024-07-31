@@ -466,7 +466,7 @@ func dakaraFilterAudioTags(audio_tags []AudioTag) []AudioTag {
 	return out
 }
 
-func DakaraKarasQuery(db *gorm.DB) *gorm.DB {
+func UploadedKaras(db *gorm.DB) *gorm.DB {
 	return db.Where("video_uploaded AND (subtitles_uploaded OR hardsubbed)")
 }
 
@@ -493,7 +493,7 @@ func SyncDakara(ctx context.Context) error {
 	}
 
 	all_karas := []KaraInfoDB{}
-	err = DakaraKarasQuery(db).Preload(clause.Associations).Find(&all_karas).Error
+	err = db.Scopes(UploadedKaras).Preload(clause.Associations).Find(&all_karas).Error
 	if err != nil {
 		getLogger().Println(err)
 		return err
@@ -686,7 +686,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 		}
 
 		kara := &KaraInfoDB{}
-		err = DakaraKarasQuery(db).First(kara, id).Error
+		err = db.Scopes(UploadedKaras).First(kara, id).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// We don't know this karaoke (deleted or never existed)
