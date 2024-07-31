@@ -309,9 +309,15 @@ func TestUpdateKara(t *testing.T) {
 		200,
 	)
 
+	prev_ID := data.Body.Kara.ID
+
 	data = KaraOutput{}
 	dec = json.NewDecoder(resp.Body)
 	dec.Decode(&data.Body)
+
+	if data.Body.Kara.ID != prev_ID {
+		t.Fatal("Karaoke ID changed after PATCH")
+	}
 
 	if data.Body.Kara.Title != "kara_title_post_update" {
 		t.Fatal("Failed to update karaoke")

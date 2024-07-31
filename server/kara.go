@@ -225,6 +225,7 @@ func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error
 		upload_info.KaraokeCreationTime = time.Unix(input.Body.KaraokeCreationDate, 0)
 	}
 
+	new_kara.ID = input.Id
 	new_kara.UploadInfo = upload_info
 
 	err = db.Save(&new_kara).Error
