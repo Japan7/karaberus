@@ -22,9 +22,9 @@ export default function Sidebar() {
         </h2>
         <ul class="space-y-1">
           <li>
-            <A href={routes.KARAOKE_CREATE} activeClass="active">
+            <A href={routes.KARAOKE_NEW} activeClass="active">
               <HiSolidPencilSquare class="size-5" />
-              Create
+              New
             </A>
           </li>
           <li>

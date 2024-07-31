@@ -3,8 +3,8 @@ import Layout from "./layout/Layout";
 import FontsBrowse from "./routes/fonts/Browse";
 import Home from "./routes/Home";
 import KaraokeBrowse from "./routes/karaoke/Browse";
-import KaraokeCreate from "./routes/karaoke/Create";
 import KaraokeIssues from "./routes/karaoke/Issues";
+import KaraokeNew from "./routes/karaoke/New";
 import TagsArtist from "./routes/tags/Artist";
 import TagsAuthor from "./routes/tags/Author";
 import TagsMedia from "./routes/tags/Media";
@@ -15,7 +15,7 @@ export default function App() {
     <Router root={Layout}>
       <Route path={routes.HOME} component={Home} />
 
-      <Route path={routes.KARAOKE_CREATE} component={KaraokeCreate} />
+      <Route path={routes.KARAOKE_NEW} component={KaraokeNew} />
       <Route path={routes.KARAOKE_BROWSE} component={KaraokeBrowse} />
       <Route path={routes.KARAOKE_ISSUES} component={KaraokeIssues} />
 

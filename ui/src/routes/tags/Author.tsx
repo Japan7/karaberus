@@ -44,6 +44,7 @@ export default function TagsAuthor() {
         <label>
           <div class="label">
             <span class="label-text">Name</span>
+            <span class="label-text-alt">(required)</span>
           </div>
           <input
             type="text"

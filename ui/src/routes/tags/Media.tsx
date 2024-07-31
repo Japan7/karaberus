@@ -54,6 +54,7 @@ export default function TagsMedia() {
         <label>
           <div class="label">
             <span class="label-text">Media type</span>
+            <span class="label-text-alt">(required)</span>
           </div>
           <select
             required
@@ -72,6 +73,7 @@ export default function TagsMedia() {
         <label>
           <div class="label">
             <span class="label-text">Name</span>
+            <span class="label-text-alt">(required)</span>
           </div>
           <input
             type="text"

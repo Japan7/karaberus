@@ -1,4 +1,7 @@
 ui_src += files(
+    'components' / 'Autocomplete.tsx',
+    'components' / 'AutocompleteMultiple.tsx',
+
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
     'layout' / 'Navbar.tsx',
@@ -7,8 +10,8 @@ ui_src += files(
 
     'routes' / 'fonts' / 'Browse.tsx',
     'routes' / 'karaoke' / 'Browse.tsx',
-    'routes' / 'karaoke' / 'Create.tsx',
     'routes' / 'karaoke' / 'Issues.tsx',
+    'routes' / 'karaoke' / 'New.tsx',
     'routes' / 'tags' / 'Artist.tsx',
     'routes' / 'tags' / 'Author.tsx',
     'routes' / 'tags' / 'Media.tsx',

@@ -2,7 +2,7 @@ export default {
   HOME: "/",
   API_OIDC_LOGIN: "/api/oidc/login",
 
-  KARAOKE_CREATE: "/karaoke/create",
+  KARAOKE_NEW: "/karaoke/new",
   KARAOKE_BROWSE: "/karaoke/browse",
   KARAOKE_ISSUES: "/karaoke/issues",
 
