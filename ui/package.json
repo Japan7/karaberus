@@ -14,7 +14,7 @@
     "@solid-primitives/storage": "3.8.0",
     "@solidjs/router": "0.14.1",
     "jose": "5.6.3",
-    "openapi-fetch": "0.10.2",
+    "openapi-fetch": "0.10.4",
     "solid-icons": "1.1.0",
     "solid-js": "1.8.19"
   },
