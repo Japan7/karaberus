@@ -777,13 +777,19 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 	}
 	// NOTE: kara.Media is not usable because we don't know what link_type should be
 
+	comment := kara.Comment
+	if len(kara.Comment) > 255 {
+		getLogger().Printf("kara %d: comment is %d chars long", kara.ID, len(kara.Comment))
+		comment = kara.Comment[:255]
+	}
+
 	return &DakaraSongBody{
 		Title:           kara.Title,
 		Filename:        kara.VideoFilename(),
 		Duration:        kara.Duration,
 		Directory:       "",
 		Version:         kara.Version,
-		Detail:          kara.Comment,
+		Detail:          comment,
 		DetailVideo:     "",
 		Tags:            tags,
 		Artists:         artists,
