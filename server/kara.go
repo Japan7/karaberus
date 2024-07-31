@@ -128,6 +128,7 @@ func (info KaraInfo) to_KaraInfoDB(tx *gorm.DB) (KaraInfoDB, error) {
 		Title:       info.Title,
 		ExtraTitles: makeExtraTitles(info),
 		Comment:     info.Comment,
+		Version:     info.Version,
 		SongOrder:   info.SongOrder,
 		UploadInfo:  NewUploadInfo(),
 	}
