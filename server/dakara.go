@@ -450,13 +450,6 @@ func cleanUpWorkTypes(worktypes []DakaraWorkType) error {
 	return nil
 }
 
-var KaraUploaded = KaraInfoDB{
-	UploadInfo: UploadInfo{
-		VideoUploaded:     true,
-		SubtitlesUploaded: true,
-	},
-}
-
 var DakaraSyncLock = sync.Mutex{}
 
 func dakaraFilterAudioTags(audio_tags []AudioTag) []AudioTag {
@@ -471,6 +464,10 @@ func dakaraFilterAudioTags(audio_tags []AudioTag) []AudioTag {
 	}
 
 	return out
+}
+
+func DakaraKarasQuery(db *gorm.DB) *gorm.DB {
+	return db.Where("video_uploaded AND (subtitles_uploaded OR hardsubbed)")
 }
 
 func SyncDakara(ctx context.Context) error {
@@ -496,11 +493,12 @@ func SyncDakara(ctx context.Context) error {
 	}
 
 	all_karas := []KaraInfoDB{}
-	err = db.Preload(clause.Associations).Where(&KaraUploaded).Find(&all_karas).Error
+	err = DakaraKarasQuery(db).Preload(clause.Associations).Find(&all_karas).Error
 	if err != nil {
 		getLogger().Println(err)
 		return err
 	}
+	getLogger().Printf("Syncing %d karas to Dakara", len(all_karas))
 
 	// sync media / works
 	works, err := dakaraGetWorks(ctx)
@@ -688,7 +686,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 		}
 
 		kara := &KaraInfoDB{}
-		err = db.Where(&KaraUploaded).First(kara, id).Error
+		err = DakaraKarasQuery(db).First(kara, id).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// We don't know this karaoke (deleted or never existed)
