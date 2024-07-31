@@ -7,7 +7,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
