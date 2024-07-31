@@ -1,9 +1,9 @@
 import { HiOutlineBars3 } from "solid-icons/hi";
 import routes from "../utils/routes";
-import type { KaraberusTokenPayload } from "../utils/session";
+import type { KaraberusJwtPayload } from "../utils/session";
 import ProfileDropdown from "./ProfileDropdown";
 
-export default function Navbar({ infos }: { infos: KaraberusTokenPayload }) {
+export default function Navbar({ infos }: { infos: KaraberusJwtPayload }) {
   return (
     <div class="navbar bg-base-100 shadow-xl rounded-box">
       <div class="flex-none">

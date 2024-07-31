@@ -1,7 +1,7 @@
 import { cookieStorage } from "@solid-primitives/storage";
 import { decodeJwt } from "jose";
 
-export interface KaraberusTokenPayload {
+export interface KaraberusJwtPayload {
   sub: string;
   exp: number;
   iat: number;
@@ -23,7 +23,7 @@ export function getSessionInfos() {
   if (!token) {
     return null;
   }
-  const payload = decodeJwt<KaraberusTokenPayload>(token);
+  const payload = decodeJwt<KaraberusJwtPayload>(token);
   if (payload.exp < Date.now() / 1000) {
     return null;
   }

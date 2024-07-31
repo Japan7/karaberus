@@ -1,11 +1,11 @@
 import type { JSX } from "solid-js";
 import routes from "../utils/routes";
-import { clearSession, type KaraberusTokenPayload } from "../utils/session";
+import { clearSession, type KaraberusJwtPayload } from "../utils/session";
 
 export default function ProfileDropdown({
   infos,
 }: {
-  infos: KaraberusTokenPayload;
+  infos: KaraberusJwtPayload;
 }) {
   const logout: JSX.EventHandler<HTMLElement, MouseEvent> = () => {
     clearSession();
