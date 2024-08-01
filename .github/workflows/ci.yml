@@ -13,7 +13,15 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-13 # x64
+          - macos-latest # arm64
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ startsWith(matrix.os, 'macos') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,10 +29,17 @@ jobs:
       - name: Install meson
         run: pip install meson
 
-      - name: Install system dependencies
+      - name: Install dependencies (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
           sudo apt-get install ffmpeg libavcodec-dev libavutil-dev libavformat-dev ninja-build
+
+      - name: Install dependencies (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew update
+          brew install ffmpeg
 
       - name: Setup S3 bucket
         run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
@@ -41,7 +56,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ci' || startsWith(github.ref, 'refs/heads/renovate/') }}
+    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/ci' || startsWith(github.ref, 'refs/heads/renovate/') }}
     permissions:
       contents: read
       packages: write
