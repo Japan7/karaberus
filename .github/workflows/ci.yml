@@ -37,7 +37,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           brew update
-          brew install meson ffmpeg
+          brew install meson go ffmpeg
 
       - name: Setup S3 bucket
         if: startsWith(matrix.os, 'ubuntu')
