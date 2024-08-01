@@ -13,7 +13,7 @@ int karaberus_add_report(karaberus_reports *reports, karaberus_report report) {
     reports->failed = true;
 
   reports->reports =
-      reallocarray(reports->reports, sizeof(report), reports->n_reports + 1);
+      realloc(reports->reports, sizeof(report) * (reports->n_reports + 1));
   if (reports->reports == NULL) {
     perror("failed to allocate memory for new report");
     return -1;
