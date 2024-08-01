@@ -55,9 +55,13 @@ if dakara_check.type_name() == 'internal'
     karaberus_tools_deps += dakara_check_sub.get_variable('deps')
 endif
 
+karaberus_tools_deps_fr = []
+
 foreach d : karaberus_tools_deps
     if d.type_name() == 'internal'
-        karaberus_tools_deps += d.as_link_whole()
+        karaberus_tools_deps_fr += d.as_link_whole()
+    else
+        karaberus_tools_deps_fr += d
     endif
 endforeach
 
@@ -70,7 +74,7 @@ libkaraberus_tools = static_library(
     'karaberus_tools',
     karaberus_tools_c,
     karaberus_tools_h,
-    dependencies: karaberus_tools_deps,
+    dependencies: karaberus_tools_deps_fr,
     include_directories: inc_karaberus_tools,
     install: false,
 )
