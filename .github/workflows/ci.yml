@@ -26,12 +26,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install meson
-        run: pip install meson
-
       - name: Install dependencies (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
+          pip install meson
           sudo apt-get update
           sudo apt-get install ffmpeg libavcodec-dev libavutil-dev libavformat-dev ninja-build
 
@@ -39,9 +37,10 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           brew update
-          brew install ffmpeg
+          brew install meson ffmpeg
 
       - name: Setup S3 bucket
+        if: startsWith(matrix.os, 'ubuntu')
         run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
 
       - name: Configure karaberus
@@ -50,6 +49,7 @@ jobs:
       - name: Run tests
         run: meson test -C build --verbose
         env:
+          SKIP_S3_TESTS: ${{ startsWith(matrix.os, 'macos') && 'y' || '' }}
           KARABERUS_S3_ENDPOINT: localhost:9000
           KARABERUS_S3_KEYID: minio
           KARABERUS_S3_SECRET: miniosecret
