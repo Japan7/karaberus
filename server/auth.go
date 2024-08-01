@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
+	"gorm.io/gorm/clause"
 )
 
 type KaraberusClaims struct {
@@ -159,7 +160,7 @@ func getRequestToken(ctx huma.Context) (string, error) {
 func getUserScopesFromApiToken(ctx context.Context, token string) (*User, *Scopes, error) {
 	db := GetDB(ctx)
 	apiToken := Token{ID: token}
-	if err := db.First(&apiToken).Error; err != nil {
+	if err := db.Preload(clause.Associations).First(&apiToken).Error; err != nil {
 		return nil, nil, err
 	}
 	return &apiToken.User, &apiToken.Scopes, nil
