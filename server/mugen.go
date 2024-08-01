@@ -312,7 +312,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	}
 	defer obj.Close()
 
-	should_download_video := false
+	should_download_video := !mugen_import.Kara.VideoUploaded
 
 	stat, err := obj.Stat()
 	if err != nil {
@@ -349,7 +349,8 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	}
 	defer obj.Close()
 
-	should_download_sub := false
+	should_download_sub := !mugen_import.Kara.SubtitlesUploaded
+
 	stat, err = obj.Stat()
 	if err != nil {
 		resp := minio.ToErrorResponse(err)
