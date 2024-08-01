@@ -84,16 +84,19 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	}
 	defer fd.Close()
 
-	res, err := SaveFileToS3(ctx, db, fd, &kara, input.FileType, file.Size)
-	if err != nil {
-		return nil, err
-	}
-
 	resp := &UploadOutput{}
-	resp.Body.CheckResults = *res
-	resp.Body.KID = input.KID
+	err = db.Transaction(func(tx *gorm.DB) error {
+		res, err := SaveFileToS3(ctx, tx, fd, &kara, input.FileType, file.Size)
+		if err != nil {
+			return err
+		}
 
-	return resp, nil
+		resp.Body.CheckResults = *res
+		resp.Body.KID = input.KID
+		return nil
+	})
+
+	return resp, err
 }
 
 type DownloadInput struct {

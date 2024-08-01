@@ -243,7 +243,10 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 		return err
 	}
 
-	go mugenDownload(context.Background(), GetDB(ctx), *mugen_import)
+	dlDB := GetDB(ctx)
+	go dlDB.Transaction(func(tx *gorm.DB) error {
+		return mugenDownload(context.Background(), tx, *mugen_import)
+	})
 
 	return nil
 }
@@ -397,7 +400,9 @@ func SyncMugen(ctx context.Context) {
 	getLogger().Printf("Syncing %d karaokes from Mugen", len(mugen_imports))
 
 	for _, mugen_import := range mugen_imports {
-		err = mugenDownload(ctx, db, mugen_import)
+		err = db.Transaction(func(tx *gorm.DB) error {
+			return mugenDownload(ctx, db, mugen_import)
+		})
 		if err != nil {
 			getLogger().Println(err)
 		}

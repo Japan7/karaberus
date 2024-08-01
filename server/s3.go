@@ -74,7 +74,7 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 	if res.Video != nil {
 		if res.Video.Duration != kara.Duration {
 			kara.Duration = res.Video.Duration
-			err = GetDB(ctx).Save(&kara).Error
+			err = tx.Save(&kara).Error
 			if err != nil {
 				return nil, DBErrToHumaErr(err)
 			}
