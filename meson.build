@@ -6,6 +6,8 @@ project(
     default_options: [
         'ffmpegaacsucks:prefer_static=true',
         'ffmpegaacsucks:default_library=static',
+        'c_std=gnu17',
+        'warning_level=2',
     ],
 )
 
