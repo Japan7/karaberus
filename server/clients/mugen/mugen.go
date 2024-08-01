@@ -98,7 +98,7 @@ func (c MugenClient) SendRequest(ctx context.Context, method string, path string
 
 	if resp.StatusCode/100 != 2 {
 		defer resp.Body.Close()
-		buf := make([]byte, 1024*1024*1024)
+		buf := make([]byte, resp.ContentLength)
 		n, err := resp.Body.Read(buf)
 		if err != nil {
 			fmt.Printf("Failed to read body of mugen response: %s\n%s %s\nbody: %+v", buf[:n], method, path, bodyData)

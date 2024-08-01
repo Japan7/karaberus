@@ -49,7 +49,7 @@ func dakaraSendRequest(ctx context.Context, method string, path string, bodyData
 
 	if resp.StatusCode/100 != 2 {
 		defer resp.Body.Close()
-		buf := make([]byte, 1024*1024*1024)
+		buf := make([]byte, resp.ContentLength)
 		n, err := resp.Body.Read(buf)
 		if err != nil {
 			getLogger().Printf("Failed to read body of dakara response: %s\n%s %s\nbody: %+v", buf[:n], method, path, bodyData)

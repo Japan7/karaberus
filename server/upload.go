@@ -112,9 +112,9 @@ func serveObject(obj *minio.Object) (*huma.StreamResponse, error) {
 
 			writer := ctx.BodyWriter()
 
+			buf := make([]byte, 1024*1024)
 			var n int
 			for {
-				buf := make([]byte, 1024*1024)
 				n, err = obj.Read(buf)
 				writer.Write(buf[:n])
 				if err != nil {
