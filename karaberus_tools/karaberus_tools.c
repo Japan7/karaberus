@@ -9,13 +9,13 @@
 void karaberus_dakara_check_avio(void *obj,
                                  int (*read_packet)(void *, uint8_t *, int),
                                  int64_t (*seek)(void *, int64_t, int),
-                                 dakara_check_results *res,
-                                 bool needs_duration) {
+                                 dakara_check_results *res, bool video_stream) {
   dakara_check_avio(KARABERUS_BUFSIZE, obj, read_packet, seek, res);
-  if (needs_duration) {
+  if (video_stream) {
     res->report.errors.global_duration = false;
   } else {
     res->report.errors.no_duration = false;
+    res->report.errors.no_video_stream = false;
   }
   dakara_check_print_results(res, "minio object");
 }
