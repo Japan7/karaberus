@@ -314,19 +314,21 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 
 	should_download_video := !mugen_import.Kara.VideoUploaded
 
-	stat, err := obj.Stat()
-	if err != nil {
-		resp := minio.ToErrorResponse(err)
-		if resp.Code == "NoSuchKey" {
-			should_download_video = true
+	if !should_download_video {
+		stat, err := obj.Stat()
+		if err != nil {
+			resp := minio.ToErrorResponse(err)
+			if resp.Code == "NoSuchKey" {
+				should_download_video = true
+			} else {
+				return resp
+			}
 		} else {
-			return resp
+			// afaik file size is the only possible check (other than downloading on
+			// any update of the metadata)
+			should_download_video = stat.Size != int64(mugen_kara.MediaSize)
 		}
 	}
-
-	// afaik file size is the only possible check (other than downloading on
-	// any update of the metadata)
-	should_download_video = should_download_video || stat.Size != int64(mugen_kara.MediaSize)
 
 	if should_download_video {
 		getLogger().Printf("Downloading %s (%s)", mugen_kara.MediaFile, mugen_kara.KID)
@@ -351,17 +353,19 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 
 	should_download_sub := !mugen_import.Kara.SubtitlesUploaded
 
-	stat, err = obj.Stat()
-	if err != nil {
-		resp := minio.ToErrorResponse(err)
-		if resp.Code == "NoSuchKey" {
-			should_download_sub = true
+	if !should_download_sub {
+		stat, err := obj.Stat()
+		if err != nil {
+			resp := minio.ToErrorResponse(err)
+			if resp.Code == "NoSuchKey" {
+				should_download_sub = true
+			} else {
+				return resp
+			}
 		} else {
-			return resp
+			should_download_sub = stat.UserMetadata["Mugenchecksum"] != mugen_kara.SubChecksum
 		}
 	}
-
-	should_download_sub = should_download_sub || stat.UserMetadata["Mugenchecksum"] != mugen_kara.SubChecksum
 
 	if should_download_sub {
 		getLogger().Printf("Downloading %s (%s)", mugen_kara.SubFile, mugen_kara.KID)
