@@ -36,7 +36,7 @@ export default function KaraokeNew() {
   >([]);
   const [getSourceMedia, setSourceMedia] =
     createSignal<components["schemas"]["MediaDB"]>();
-  const [getSongOrder, setSongOrder] = createSignal(1);
+  const [getSongOrder, setSongOrder] = createSignal<number>();
   const [getMedias, setMedias] = createSignal<
     components["schemas"]["MediaDB"][]
   >([]);
@@ -59,7 +59,7 @@ export default function KaraokeNew() {
       authors: getAuthors().map((author) => author.ID) || null,
       artists: getArtists().map((artist) => artist.ID) || null,
       source_media: getSourceMedia()!.ID,
-      song_order: getSongOrder(),
+      song_order: getSongOrder()!,
       medias: getMedias().map((media) => media.ID) || null,
       audio_tags: getAudioTags().map((tag) => tag.ID) || null,
       video_tags: getVideoTags().map((tag) => tag.ID) || null,
@@ -77,8 +77,8 @@ export default function KaraokeNew() {
       return;
     }
 
-    (e.target as HTMLFormElement).reset();
     alert("Karaoke added!");
+    location.reload();
   };
 
   return (
@@ -120,6 +120,7 @@ export default function KaraokeNew() {
           <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
             {(getAllAuthors) => (
               <AutocompleteMultiple
+                placeholder="RhiobeT"
                 items={getAllAuthors()}
                 getItemName={(author) => author.Name}
                 getState={getAuthors}
@@ -136,6 +137,7 @@ export default function KaraokeNew() {
           <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
             {(getAllArtists) => (
               <AutocompleteMultiple
+                placeholder="Yoko Takahashi"
                 items={getAllArtists()}
                 getItemName={(artist) => artist.Name}
                 getState={getArtists}
@@ -154,6 +156,7 @@ export default function KaraokeNew() {
             {(getAllMedias) => (
               <Autocomplete
                 required
+                placeholder="Shin Seiki Evangelion"
                 items={getAllMedias()}
                 getItemName={(media) => `[${media.media_type}] ${media.name}`}
                 getState={getSourceMedia}
@@ -172,6 +175,7 @@ export default function KaraokeNew() {
             type="number"
             min={1}
             required
+            placeholder="1"
             value={getSongOrder()}
             onchange={(e) => setSongOrder(e.target.valueAsNumber)}
             class="input input-bordered w-full"
@@ -185,6 +189,7 @@ export default function KaraokeNew() {
           <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
             {(getAllMedias) => (
               <AutocompleteMultiple
+                placeholder="Japan7"
                 items={getAllMedias()}
                 getItemName={(media) => `[${media.media_type}] ${media.name}`}
                 getState={getMedias}
@@ -204,6 +209,7 @@ export default function KaraokeNew() {
           >
             {(getAllAudioTags) => (
               <AutocompleteMultiple
+                placeholder="Opening"
                 items={getAllAudioTags()}
                 getItemName={(tag) => tag.Name}
                 getState={getAudioTags}
@@ -223,6 +229,7 @@ export default function KaraokeNew() {
           >
             {(getAllVideoTags) => (
               <AutocompleteMultiple
+                placeholder="Fanmade"
                 items={getAllVideoTags()}
                 getItemName={(tag) => tag.Name}
                 getState={getVideoTags}
@@ -237,6 +244,7 @@ export default function KaraokeNew() {
             <span class="label-text">Comment</span>
           </div>
           <textarea
+            placeholder="From https://youtu.be/dQw4w9WgXcQ"
             value={getComment()}
             oninput={(e) => setComment(e.currentTarget.value)}
             class="textarea textarea-bordered w-full"
@@ -249,6 +257,7 @@ export default function KaraokeNew() {
           </div>
           <input
             type="text"
+            placeholder="iykyk"
             value={getVersion()}
             oninput={(e) => setVersion(e.currentTarget.value)}
             class="input input-bordered w-full"
@@ -261,6 +270,7 @@ export default function KaraokeNew() {
           </div>
           <input
             type="text"
+            placeholder="FR"
             value={getLanguage()}
             oninput={(e) => setLanguage(e.currentTarget.value)}
             class="input input-bordered w-full"

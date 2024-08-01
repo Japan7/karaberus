@@ -1,5 +1,11 @@
 import { HiSolidXMark } from "solid-icons/hi";
-import { createSignal, For, type Accessor, type Setter } from "solid-js";
+import {
+  createSignal,
+  For,
+  type Accessor,
+  type JSX,
+  type Setter,
+} from "solid-js";
 
 export default function AutocompleteMultiple<T>({
   items,
@@ -8,14 +14,14 @@ export default function AutocompleteMultiple<T>({
   setState,
   required,
   allowDuplicates,
+  ...inputProps
 }: {
   items: T[];
   getItemName: (item: T) => string;
   getState: Accessor<T[]>;
   setState: Setter<T[]>;
-  required?: boolean;
   allowDuplicates?: boolean;
-}) {
+} & JSX.InputHTMLAttributes<HTMLInputElement>) {
   let inputEl!: HTMLInputElement;
   const [getInput, setInput] = createSignal("");
 
@@ -51,6 +57,7 @@ export default function AutocompleteMultiple<T>({
           oninput={(e) => setInput(e.currentTarget.value)}
           ref={inputEl}
           class="outline-none w-full"
+          {...inputProps}
         />
       </div>
       <ul class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow">

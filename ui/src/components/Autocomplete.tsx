@@ -1,19 +1,25 @@
 import { HiSolidXMark } from "solid-icons/hi";
-import { createSignal, For, Show, type Accessor, type Setter } from "solid-js";
+import {
+  createSignal,
+  For,
+  Show,
+  type Accessor,
+  type JSX,
+  type Setter,
+} from "solid-js";
 
 export default function Autocomplete<T>({
   items,
   getItemName,
   getState,
   setState,
-  required,
+  ...inputProps
 }: {
   items: T[];
   getItemName: (item: T) => string;
   getState: Accessor<T | undefined>;
   setState: Setter<T | undefined>;
-  required?: boolean;
-}) {
+} & JSX.InputHTMLAttributes<HTMLInputElement>) {
   const [getInput, setInput] = createSignal("");
 
   return (
@@ -24,10 +30,10 @@ export default function Autocomplete<T>({
           fallback={
             <input
               type="text"
-              required={required}
               value={getInput()}
               oninput={(e) => setInput(e.currentTarget.value)}
               class="outline-none w-full"
+              {...inputProps}
             />
           }
         >
