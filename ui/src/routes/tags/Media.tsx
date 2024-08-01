@@ -119,7 +119,7 @@ export default function TagsMedia() {
                 <td>{getMedia().media_type}</td>
                 <td>{getMedia().name}</td>
                 <td>
-                  <ul class="list-disc list-inside">
+                  <ul>
                     <Index each={getMedia().additional_name}>
                       {(getAdditionalName) => (
                         <li>{getAdditionalName().Name}</li>

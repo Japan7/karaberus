@@ -92,7 +92,7 @@ export default function TagsArtist() {
                 <th>{getArtist().ID}</th>
                 <td>{getArtist().Name}</td>
                 <td>
-                  <ul class="list-disc list-inside">
+                  <ul>
                     <Index each={getArtist().AdditionalNames}>
                       {(getAdditionalName) => (
                         <li>{getAdditionalName().Name}</li>

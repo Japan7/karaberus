@@ -1,6 +1,7 @@
 ui_src += files(
     'components' / 'Autocomplete.tsx',
     'components' / 'AutocompleteMultiple.tsx',
+    'components' / 'KaraCard.tsx',
 
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
