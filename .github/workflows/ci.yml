@@ -29,9 +29,7 @@ jobs:
       - name: Install dependencies (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install meson
-          sudo apt-get update
-          sudo apt-get install ninja-build
+          pip install meson ninja
 
       - name: Install dependencies (macOS)
         if: startsWith(matrix.os, 'macos')
@@ -47,7 +45,7 @@ jobs:
         run: meson setup build -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled
 
       - name: Run tests
-        run: meson test -C build --verbose
+        run: meson compile -C build && meson test -C build --verbose
         env:
           SKIP_S3_TESTS: ${{ startsWith(matrix.os, 'macos') && 'y' || '' }}
           KARABERUS_S3_ENDPOINT: localhost:9000
