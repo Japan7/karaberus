@@ -31,9 +31,14 @@ import (
 
 //export AVIORead
 func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
-	obj := pointer.Restore(opaque).(*minio.Object)
-	rbuf := make([]byte, n)
-	nread, err := obj.Read(rbuf)
+	objbuf := pointer.Restore(opaque).(ObjectBuf)
+	var rbuf []byte
+	if int(n) < len(objbuf.Buffer) {
+		rbuf = objbuf.Buffer[:n]
+	} else {
+		rbuf = objbuf.Buffer
+	}
+	nread, err := objbuf.Object.Read(rbuf)
 	if errors.Is(err, io.EOF) {
 		if nread == 0 {
 			return C.AVERROR_EOF
@@ -47,26 +52,39 @@ func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
 
 //export AVIOSeek
 func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
-	obj := pointer.Restore(opaque).(*minio.Object)
+	objbuf := pointer.Restore(opaque).(ObjectBuf)
 	if whence == C.AVSEEK_SIZE {
-		stat, err := obj.Stat()
+		stat, err := objbuf.Object.Stat()
 		if err != nil {
 			panic(err)
 		}
 		return C.int64_t(stat.Size)
 	}
-	pos, err := obj.Seek(int64(offset), int(whence))
+	pos, err := objbuf.Object.Seek(int64(offset), int(whence))
 	if err != nil {
 		panic(err)
 	}
 	return C.int64_t(pos)
 }
 
+type ObjectBuf struct {
+	Object *minio.Object
+	Buffer []byte
+}
+
+func NewObjectBuf(obj *minio.Object) ObjectBuf {
+	return ObjectBuf{
+		Object: obj,
+		Buffer: make([]byte, C.KARABERUS_BUFSIZE),
+	}
+}
+
 func DakaraCheckResults(obj *minio.Object) DakaraCheckResultsOutput {
 	stat, _ := obj.Stat()
 	ftype, _, _ := strings.Cut(stat.Key, "/")
 	video_stream := ftype == "video"
-	res := C.karaberus_dakara_check(pointer.Save(obj), C.bool(video_stream))
+	object_buf := NewObjectBuf(obj)
+	res := C.karaberus_dakara_check(pointer.Save(object_buf), C.bool(video_stream))
 	defer C.free_reports(res)
 
 	passed := !bool(res.failed)
