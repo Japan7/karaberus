@@ -37,42 +37,28 @@ func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) er
 	currentTime := time.Now().UTC()
 	switch filetype {
 	case "video":
-		err := tx.Model(kara).Updates(&KaraInfoDB{
-			UploadInfo: UploadInfo{
-				VideoUploaded: true,
-				VideoModTime:  currentTime,
-			}}).Error
-		return DBErrToHumaErr(err)
+		kara.VideoUploaded = true
+		kara.VideoModTime = currentTime
+		return nil
 	case "inst":
-		err := tx.Model(kara).Updates(&KaraInfoDB{
-			UploadInfo: UploadInfo{
-				InstrumentalUploaded: true,
-				InstrumentalModTime:  currentTime,
-			}}).Error
-		return DBErrToHumaErr(err)
+		kara.InstrumentalUploaded = true
+		kara.InstrumentalModTime = currentTime
+		return nil
 	case "sub":
+		kara.SubtitlesUploaded = true
+		kara.SubtitlesModTime = currentTime
 		if kara.KaraokeCreationTime.Unix() == 0 {
-			err := tx.Model(kara).Updates(&KaraInfoDB{
-				UploadInfo: UploadInfo{
-					SubtitlesUploaded:   true,
-					SubtitlesModTime:    currentTime,
-					KaraokeCreationTime: currentTime,
-				}}).Error
-			return DBErrToHumaErr(err)
-		} else {
-			err := tx.Model(kara).Updates(&KaraInfoDB{
-				UploadInfo: UploadInfo{
-					SubtitlesUploaded: true,
-					SubtitlesModTime:  currentTime,
-				}}).Error
-			return DBErrToHumaErr(err)
+			kara.KaraokeCreationTime = currentTime
 		}
+		return nil
 	}
 	return errors.New("Unknown file type " + filetype)
 }
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	db := GetDB(ctx)
+
+	defer input.RawBody.Form.RemoveAll()
 
 	kid := input.KID
 	kara, err := GetKaraByID(db, kid)
