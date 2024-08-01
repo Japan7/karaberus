@@ -14,8 +14,8 @@ package karaberus_tools
 int AVIORead(void *obj, uint8_t *buf, int n);
 int64_t AVIOSeek(void *obj, int64_t offset, int whence);
 
-static inline void karaberus_dakara_check(void *obj, dakara_check_results *res, bool video_stream) {
-  karaberus_dakara_check_avio(obj, AVIORead, AVIOSeek, res, video_stream);
+static inline karaberus_reports karaberus_dakara_check(void *obj, bool video_stream) {
+  return karaberus_dakara_check_avio(obj, AVIORead, AVIOSeek, video_stream);
 }
 */
 import "C"
@@ -63,16 +63,13 @@ func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 }
 
 func DakaraCheckResults(obj *minio.Object) DakaraCheckResultsOutput {
-	res := C.dakara_check_results{}
 	stat, _ := obj.Stat()
 	ftype, _, _ := strings.Cut(stat.Key, "/")
 	video_stream := ftype == "video"
-	C.karaberus_dakara_check(pointer.Save(obj), &res, C.bool(video_stream))
+	res := C.karaberus_dakara_check(pointer.Save(obj), C.bool(video_stream))
+	defer C.free_reports(res)
 
-	passed := true
-	for i := 0; i < len(res.report); i++ {
-		passed = passed && (res.report[i] == 0)
-	}
+	passed := !bool(res.failed)
 	out := DakaraCheckResultsOutput{
 		Passed:   passed,
 		Duration: int32(res.duration),
