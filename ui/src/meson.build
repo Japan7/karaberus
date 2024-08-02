@@ -10,7 +10,8 @@ ui_src += files(
     'layout' / 'Sidebar.tsx',
 
     'routes' / 'fonts' / 'Browse.tsx',
-    'routes' / 'karaoke' / 'Browse.tsx',
+    'routes' / 'karaoke' / 'browse' / 'Id.tsx',
+    'routes' / 'karaoke' / 'browse' / 'Index.tsx',
     'routes' / 'karaoke' / 'Issues.tsx',
     'routes' / 'karaoke' / 'New.tsx',
     'routes' / 'tags' / 'Artist.tsx',

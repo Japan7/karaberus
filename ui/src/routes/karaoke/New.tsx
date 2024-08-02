@@ -1,10 +1,14 @@
+import { useNavigate } from "@solidjs/router";
 import { createResource, createSignal, Show, type JSX } from "solid-js";
 import Autocomplete from "../../components/Autocomplete";
 import AutocompleteMultiple from "../../components/AutocompleteMultiple";
 import type { components } from "../../utils/karaberus";
 import { karaberus } from "../../utils/karaberus-client";
+import routes from "../../utils/routes";
 
 export default function KaraokeNew() {
+  const navigate = useNavigate();
+
   const [getAllAuthors] = createResource(async () => {
     const resp = await karaberus.GET("/api/tags/author");
     return resp.data;
@@ -77,8 +81,7 @@ export default function KaraokeNew() {
       return;
     }
 
-    alert("Karaoke added!");
-    location.reload();
+    navigate(routes.KARAOKE_BROWSE + "/" + resp.data.kara.ID);
   };
 
   return (

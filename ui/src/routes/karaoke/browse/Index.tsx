@@ -1,6 +1,6 @@
 import { createResource, Index, Show } from "solid-js";
-import KaraCard from "../../components/KaraCard";
-import { karaberus } from "../../utils/karaberus-client";
+import KaraCard from "../../../components/KaraCard";
+import { karaberus } from "../../../utils/karaberus-client";
 
 export default function KaraokeBrowse() {
   const [getAllKaras] = createResource(async () => {
