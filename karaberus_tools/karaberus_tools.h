@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define KARABERUS_BUFSIZE 1024 * 1024
+#define KARABERUS_BUFSIZE 1024 * 8
 
 enum KaraberusReports {
   NO_VIDEO_STREAM,
