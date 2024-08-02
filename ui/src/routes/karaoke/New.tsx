@@ -62,8 +62,8 @@ export default function KaraokeNew() {
       title_aliases: getExtraTitles().trim().split("\n") || null,
       authors: getAuthors().map((author) => author.ID) || null,
       artists: getArtists().map((artist) => artist.ID) || null,
-      source_media: getSourceMedia()!.ID,
-      song_order: getSongOrder()!,
+      source_media: getSourceMedia()?.ID || 0,
+      song_order: getSongOrder() || 0,
       medias: getMedias().map((media) => media.ID) || null,
       audio_tags: getAudioTags().map((tag) => tag.ID) || null,
       video_tags: getVideoTags().map((tag) => tag.ID) || null,
@@ -153,12 +153,10 @@ export default function KaraokeNew() {
         <label>
           <div class="label">
             <span class="label-text">Source media</span>
-            <span class="label-text-alt">(required)</span>
           </div>
           <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
             {(getAllMedias) => (
               <Autocomplete
-                required
                 placeholder="Shin Seiki Evangelion"
                 items={getAllMedias()}
                 getItemName={(media) => `[${media.media_type}] ${media.name}`}
@@ -172,12 +170,10 @@ export default function KaraokeNew() {
         <label>
           <div class="label">
             <span class="label-text">Song order</span>
-            <span class="label-text-alt">(required)</span>
           </div>
           <input
             type="number"
             min={1}
-            required
             placeholder="1"
             value={getSongOrder()}
             onchange={(e) => setSongOrder(e.target.valueAsNumber)}
