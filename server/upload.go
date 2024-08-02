@@ -8,7 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"mime/multipart"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -20,11 +23,107 @@ type UploadData struct {
 	UploadFile multipart.File `form-data:"file" required:"true"`
 }
 
-type UploadInput struct {
+type UploadInputDefinition struct {
 	KID      uint   `path:"id" example:"1"`
 	FileType string `path:"filetype" example:"video"`
 	RawBody  huma.MultipartFormFiles[UploadData]
 }
+
+type UploadTempFile struct {
+	Fd   *os.File
+	Size int64
+	// original file name
+	Name string
+}
+
+type UploadInput struct {
+	KID      uint   `path:"id" example:"1"`
+	FileType string `path:"filetype" example:"video"`
+	File     UploadTempFile
+}
+
+// write uploaded file to temporary file so fasthttp can't store it in memory
+// which could easily lead to OOMs.
+// minio PutObject wants a io.Seeker or will write file to a buffer which is
+// another reason for a temporary file (otherwise we could just stream it).
+func createTempFile(ctx huma.Context, tempfile *UploadTempFile) error {
+	content_type, params, err := mime.ParseMediaType(ctx.Header("Content-Type"))
+	if err != nil {
+		return err
+	}
+	if !strings.HasPrefix(content_type, "multipart/") {
+		return errors.New("not a multipart request")
+	}
+	boundary := params["boundary"]
+
+	reader := ctx.BodyReader()
+	mr := multipart.NewReader(reader, boundary)
+
+	if err != nil {
+		return err
+	}
+
+	for {
+		part, err := mr.NextPart()
+		if err != nil {
+			return err
+		}
+		defer part.Close()
+
+		if part.FormName() == "file" {
+			tempfile.Name = part.FileName()
+
+			fd, err := os.CreateTemp("", "karaberus-*")
+			if err != nil {
+				return err
+			}
+
+			// roughly io.Copy but with a small buffer
+			// don't change mindlessly
+			buf := make([]byte, 1024*8)
+			for {
+				n, err := part.Read(buf)
+				if errors.Is(err, io.EOF) {
+					if n == 0 {
+						break
+					}
+				} else if err != nil {
+					return err
+				}
+				_, err = fd.Write(buf[:n])
+				if err != nil {
+					return err
+				}
+			}
+
+			tempfile.Fd = fd
+
+			stat, err := fd.Stat()
+			if err != nil {
+				return err
+			}
+			tempfile.Size = stat.Size()
+
+			_, err = fd.Seek(0, 0)
+			if err != nil {
+				return err
+			}
+			break
+		}
+	}
+
+	return nil
+}
+
+func (i *UploadInput) Resolve(ctx huma.Context) []error {
+	err := createTempFile(ctx, &i.File)
+	if err != nil {
+		return []error{err}
+	}
+	return nil
+}
+
+var _ huma.Resolver = (*UploadInput)(nil)
 
 type UploadOutput struct {
 	Body struct {
@@ -57,22 +156,15 @@ func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) er
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	db := GetDB(ctx)
-
-	defer input.RawBody.Form.RemoveAll()
+	defer os.Remove(input.File.Fd.Name())
+	defer input.File.Fd.Close()
 
 	kid := input.KID
 	kara, err := GetKaraByID(db, kid)
 
-	file := input.RawBody.Form.File["file"][0]
-	fd, err := file.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer fd.Close()
-
 	resp := &UploadOutput{}
 	err = db.Transaction(func(tx *gorm.DB) error {
-		res, err := SaveFileToS3(ctx, tx, fd, &kara, input.FileType, file.Size)
+		res, err := SaveFileToS3(ctx, tx, input.File.Fd, &kara, input.FileType, input.File.Size)
 		if err != nil {
 			return err
 		}

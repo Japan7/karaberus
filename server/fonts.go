@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -21,9 +22,23 @@ func GetAllFonts(ctx context.Context, input *struct{}) (*GetAllFontsOutput, erro
 	return out, DBErrToHumaErr(err)
 }
 
-type UploadFontInput struct {
+type UploadFontInputDefinition struct {
 	RawBody huma.MultipartFormFiles[UploadData]
 }
+
+type UploadFontInput struct {
+	File UploadTempFile
+}
+
+func (i *UploadFontInput) Resolve(ctx huma.Context) []error {
+	err := createTempFile(ctx, &i.File)
+	if err != nil {
+		return []error{err}
+	}
+	return nil
+}
+
+var _ huma.Resolver = (*UploadFontInput)(nil)
 
 type UploadFontOutput struct {
 	Body struct {
@@ -46,21 +61,15 @@ func createFont(ctx context.Context, name string) (Font, error) {
 
 func UploadFont(ctx context.Context, input *UploadFontInput) (*UploadFontOutput, error) {
 	out := &UploadFontOutput{}
+	defer os.Remove(input.File.Fd.Name())
+	defer input.File.Fd.Close()
 
-	file := input.RawBody.Form.File["file"][0]
-
-	fd, err := file.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer fd.Close()
-
-	font, err := createFont(ctx, file.Filename)
+	font, err := createFont(ctx, input.File.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	err = SaveFontToS3(ctx, fd, font.ID, file.Size)
+	err = SaveFontToS3(ctx, input.File.Fd, font.ID, input.File.Size)
 	if err != nil {
 		return nil, err
 	}

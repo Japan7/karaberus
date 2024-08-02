@@ -34,7 +34,10 @@ func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize i
 		return err
 	}
 
-	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{UserMetadata: user_metadata})
+	info, err := client.PutObject(ctx, CONFIG.S3.BucketName, filename, file, filesize, minio.PutObjectOptions{
+		UserMetadata: user_metadata,
+		PartSize:     5 * 1024 * 1024,
+	})
 	getLogger().Printf("upload info: %v\n", info)
 
 	return err

@@ -82,7 +82,9 @@ func setSecurity(security []map[string][]string) func(o *huma.Operation) {
 func setupKaraberus() (*fiber.App, huma.API) {
 	// Create a new router & API
 	app := fiber.New(fiber.Config{
-		BodyLimit: 1024 * 1024 * 1024, // 1GiB
+		BodyLimit:                    1024 * 1024 * 1024, // 1GiB
+		StreamRequestBody:            true,
+		DisablePreParseMultipartForm: true,
 	})
 
 	app.Use(logger.New())
