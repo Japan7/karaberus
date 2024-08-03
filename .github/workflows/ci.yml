@@ -38,7 +38,12 @@ jobs:
         run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
 
       - name: Configure karaberus
+        if: startsWith(matrix.os, 'ubuntu')
         run: meson setup build -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled
+
+      - name: Configure karaberus
+        if: startsWith(matrix.os, 'macos')
+        run: meson setup build -Dno_native_deps=true
 
       - name: Run tests
         run: meson compile -C build && meson test -C build --verbose
