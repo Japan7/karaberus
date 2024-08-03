@@ -297,6 +297,15 @@ if get_option('test')
 endif
 
 test(
+    'errcheck',
+    go,
+    args: ['run', 'github.com/kisielk/errcheck@latest', './...'],
+    depends: karaberus,
+    env: go_env,
+    workdir: meson.current_source_dir(),
+)
+
+test(
     'meson_format_check',
     meson_cmd,
     args: ['format', '-r', '-q', meson.current_source_dir()],
