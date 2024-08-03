@@ -84,7 +84,9 @@ func DakaraCheckResults(obj *minio.Object) DakaraCheckResultsOutput {
 	ftype, _, _ := strings.Cut(stat.Key, "/")
 	video_stream := ftype == "video"
 	object_buf := NewObjectBuf(obj)
-	res := C.karaberus_dakara_check(pointer.Save(object_buf), C.bool(video_stream))
+	ptr := pointer.Save(object_buf)
+	defer pointer.Unref(ptr)
+	res := C.karaberus_dakara_check(ptr, C.bool(video_stream))
 	defer C.free_reports(res)
 
 	passed := !bool(res.failed)
