@@ -40,7 +40,9 @@ type KaraInfo struct {
 	// Version (8-bit, Episode 12, ...)
 	Version string `json:"version" example:"iykyk"`
 	// Language (FR, EN, ...)
-	Language string `json:"language" example:"FR"`
+	Language            string `json:"language" example:"FR"`
+	KaraokeCreationDate *int64 `json:"karaoke_creation_time,omitempty" example:"42"`
+	IsHardsub           *bool  `json:"is_hardsub,omitempty" example:"false"`
 }
 
 type AllTags struct {
@@ -113,31 +115,38 @@ func makeExtraTitles(info KaraInfo) []AdditionalName {
 	return extra_titles
 }
 
-func (info KaraInfo) to_KaraInfoDB(tx *gorm.DB) (KaraInfoDB, error) {
+func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *KaraInfoDB) error {
 	tags, err := makeTags(tx, info)
 	if err != nil {
-		return KaraInfoDB{}, err
+		return err
 	}
 
-	kara_info := KaraInfoDB{
-		VideoTags:   tags.Video,
-		AudioTags:   tags.Audio,
-		Authors:     tags.Authors,
-		Artists:     tags.Artists,
-		Medias:      tags.Media,
-		Title:       info.Title,
-		ExtraTitles: makeExtraTitles(info),
-		Comment:     info.Comment,
-		Version:     info.Version,
-		SongOrder:   info.SongOrder,
-		UploadInfo:  NewUploadInfo(),
+	kara_info.VideoTags = tags.Video
+	kara_info.AudioTags = tags.Audio
+	kara_info.Authors = tags.Authors
+	kara_info.Artists = tags.Artists
+	kara_info.Medias = tags.Media
+	kara_info.Title = info.Title
+	kara_info.ExtraTitles = makeExtraTitles(info)
+	kara_info.Comment = info.Comment
+	kara_info.Version = info.Version
+	kara_info.SongOrder = info.SongOrder
+
+	user := getCurrentUser(ctx)
+	if user.Admin {
+		if info.IsHardsub != nil {
+			kara_info.Hardsubbed = *info.IsHardsub
+		}
+		if info.KaraokeCreationDate != nil {
+			kara_info.KaraokeCreationTime = time.Unix(*info.KaraokeCreationDate, 0)
+		}
 	}
 
 	if info.SourceMedia > 0 {
 		kara_info.SourceMedia, err = getMediaByID(tx, info.SourceMedia)
 	}
 
-	return kara_info, err
+	return err
 }
 
 type CreateKaraInput struct {
@@ -155,7 +164,8 @@ func CreateKara(ctx context.Context, input *CreateKaraInput) (*KaraOutput, error
 	output := KaraOutput{}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		kara, err := input.Body.to_KaraInfoDB(tx)
+		kara := KaraInfoDB{}
+		err := input.Body.to_KaraInfoDB(ctx, tx, &kara)
 		if err != nil {
 			return err
 		}
@@ -175,66 +185,30 @@ type SetKaraUploadTimeInput struct {
 	}
 }
 
-func SetKaraUploadTime(ctx context.Context, input *SetKaraUploadTimeInput) (*KaraOutput, error) {
-	db := GetDB(ctx)
-	out := &KaraOutput{}
-	err := db.Transaction(func(tx *gorm.DB) error {
-		kara, err := GetKaraByID(tx, input.Id)
-		if err != nil {
-			return err
-		}
-
-		kara.KaraokeCreationTime = time.Unix(input.Body.CreationDate, 0)
-		err = tx.Save(&kara).Error
-		if err != nil {
-			return err
-		}
-		out.Body.Kara = kara
-		return err
-	})
-	return out, err
-}
-
 type UpdateKaraInput struct {
 	Id   uint `path:"id"`
-	Body struct {
-		KaraInfo
-		KaraokeCreationDate int64 `json:"karaoke_creation_time" example:"42"`
-		IsHardsub           bool  `json:"is_hardsub" example:"false"`
-	}
+	Body KaraInfo
 }
 
 func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error) {
-	user := getCurrentUser(ctx)
-
 	db := GetDB(ctx)
-	current_kara := KaraInfoDB{}
-	err := db.First(&current_kara, input.Id).Error
+	kara := KaraInfoDB{}
+	err := db.First(&kara, input.Id).Error
 	if err != nil {
 		return nil, err
 	}
-	new_kara, err := input.Body.to_KaraInfoDB(db)
+	err = input.Body.to_KaraInfoDB(ctx, db, &kara)
 	if err != nil {
 		return nil, err
 	}
 
-	upload_info := current_kara.UploadInfo
-
-	if user.Admin {
-		upload_info.Hardsubbed = input.Body.IsHardsub
-		upload_info.KaraokeCreationTime = time.Unix(input.Body.KaraokeCreationDate, 0)
-	}
-
-	new_kara.ID = input.Id
-	new_kara.UploadInfo = upload_info
-
-	err = db.Save(&new_kara).Error
+	err = db.Save(&kara).Error
 	if err != nil {
 		return nil, err
 	}
 
 	out := &KaraOutput{}
-	out.Body.Kara = new_kara
+	out.Body.Kara = kara
 
 	return out, nil
 }

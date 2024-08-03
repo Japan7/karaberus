@@ -1,9 +1,22 @@
 import { useParams } from "@solidjs/router";
 import KaraPlayer from "../../../components/KaraPlayer";
 import { fileForm, karaberus } from "../../../utils/karaberus-client";
+import { createResource, Show } from "solid-js";
+import KaraokeEditor from "../Editor";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
+
+  const [getKara] = createResource(async () => {
+    const resp = await karaberus.GET("/api/kara/{id}", {
+      params: {
+        path: {
+          id: parseInt(params.id),
+        },
+      },
+    });
+    return resp.data;
+  });
 
   const upload = async (filetype: string, file?: File) => {
     if (!file) return;
@@ -41,6 +54,10 @@ export default function KaraokeBrowseId() {
       />
 
       <KaraPlayer id={params.id} />
+
+      <Show when={getKara()?.kara} fallback={<p>loading karaoke...</p>}>
+        {(getKara) => <KaraokeEditor kara={getKara()} />}
+      </Show>
     </>
   );
 }

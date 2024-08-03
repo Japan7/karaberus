@@ -3,27 +3,24 @@ ui_src += files(
     'components' / 'AutocompleteMultiple.tsx',
     'components' / 'KaraCard.tsx',
     'components' / 'KaraPlayer.tsx',
-
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
     'layout' / 'Navbar.tsx',
     'layout' / 'ProfileDropdown.tsx',
     'layout' / 'Sidebar.tsx',
-
     'routes' / 'fonts' / 'Browse.tsx',
     'routes' / 'karaoke' / 'browse' / 'Id.tsx',
     'routes' / 'karaoke' / 'browse' / 'Index.tsx',
     'routes' / 'karaoke' / 'Issues.tsx',
     'routes' / 'karaoke' / 'New.tsx',
+    'routes' / 'karaoke' / 'Editor.tsx',
     'routes' / 'tags' / 'Artist.tsx',
     'routes' / 'tags' / 'Author.tsx',
     'routes' / 'tags' / 'Media.tsx',
     'routes' / 'Home.tsx',
-
     'utils' / 'karaberus-client.ts',
     'utils' / 'routes.ts',
     'utils' / 'session.ts',
-
     'App.tsx',
     'index.css',
     'index.tsx',

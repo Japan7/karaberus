@@ -16,7 +16,6 @@ import (
 	"path"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/humatest"
@@ -599,7 +598,7 @@ func TestUploadKara(t *testing.T) {
 	dec.Decode(&data.Body)
 
 	kara_path_creation_time := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
-	newCreationTime := data.Body.Kara.KaraokeCreationTime.Add(-3600 * time.Second).Unix()
+	newCreationTime := int64(3600)
 	resp = assertRespCode(t,
 		api.Patch(kara_path_creation_time, map[string]any{
 			"title":                 "kara_upload_title",
