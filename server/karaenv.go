@@ -9,9 +9,10 @@ import (
 )
 
 type KaraberusListenConfig struct {
-	Host    string `envkey:"HOST" default:"127.0.0.1"`
-	Port    int    `envkey:"PORT" default:"8888"`
-	BaseURL string `envkey:"BASE_URL"`
+	Host      string `envkey:"HOST" default:"127.0.0.1"`
+	Port      int    `envkey:"PORT" default:"8888"`
+	BaseURL   string `envkey:"BASE_URL"`
+	Profiling bool   `envkey:"PROFILING"`
 }
 
 func (c KaraberusListenConfig) Addr() string {

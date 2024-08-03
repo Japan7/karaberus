@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
@@ -89,6 +90,9 @@ func setupKaraberus() (*fiber.App, huma.API) {
 
 	app.Use(logger.New())
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
+	if CONFIG.Listen.Profiling {
+		app.Use(pprof.New())
+	}
 
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.Dir(CONFIG.UIDistDir),
