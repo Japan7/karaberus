@@ -1,46 +1,79 @@
-import { onMount } from "solid-js";
+import wasmURL from "@ffmpeg/core-mt/wasm?url";
+import coreURL from "@ffmpeg/core-mt?url";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
+import { createSignal, Match, onMount, Show, Switch } from "solid-js";
 
 export default function KaraPlayer({ id }: { id: number | string }) {
-  let playerRef!: HTMLVideoElement;
+  const [getFFmpeg, setFFmpeg] = createSignal<FFmpeg>();
+  const [getProgress, setProgress] = createSignal<number>();
+  const [getSrc, setSrc] = createSignal<string>();
 
-  onMount(() => {
-    const subtitlesOctopusScript = document.createElement("script");
-    subtitlesOctopusScript.src = "/libass-wasm/subtitles-octopus.js";
-    subtitlesOctopusScript.async = true;
-    subtitlesOctopusScript.onload = subtitlesOctopusInstantiate;
-    document.head.appendChild(subtitlesOctopusScript);
+  onMount(async () => {
+    const ffmpeg = new FFmpeg();
+    ffmpeg.on("log", ({ message }) => {
+      console.log(message);
+    });
+    ffmpeg.on("progress", ({ progress }) => {
+      setProgress(progress);
+    });
+    await ffmpeg.load({
+      coreURL,
+      wasmURL,
+      workerURL: "/ffmpeg-core.worker.js",
+    });
+    setFFmpeg(ffmpeg);
+    console.log("FFmpeg is ready");
   });
 
-  const subtitlesOctopusInstantiate = () => {
-    const options = {
-      video: playerRef,
-      subUrl: `/api/kara/${id}/download/sub`,
-      fonts: [
-        "/amaranth/amaranth-latin-400-italic.woff",
-        "/amaranth/amaranth-latin-400-italic.woff2",
-        "/amaranth/amaranth-latin-400-normal.woff",
-        "/amaranth/amaranth-latin-400-normal.woff2",
-        "/amaranth/amaranth-latin-700-italic.woff",
-        "/amaranth/amaranth-latin-700-italic.woff2",
-        "/amaranth/amaranth-latin-700-normal.woff",
-        "/amaranth/amaranth-latin-700-normal.woff2",
-      ],
-      workerUrl: "/libass-wasm/subtitles-octopus-worker.js",
-      legacyWorkerUrl: "/libass-wasm/subtitles-octopus-worker-legacy.js",
-    };
-    // @ts-expect-error: global variable
-    window.octopusInstance = new SubtitlesOctopus(options);
+  const transcode = async () => {
+    const ffmpeg = getFFmpeg();
+    if (!ffmpeg) {
+      console.error("FFmpeg is not ready");
+      return;
+    }
+    const video = await fetchFile(`/api/kara/${id}/download/video`);
+    const sub = await fetchFile(`/api/kara/${id}/download/sub`);
+    const font = await fetchFile("/Amaranth-Regular.ttf");
+    await ffmpeg.writeFile("video", video);
+    await ffmpeg.writeFile("sub", sub);
+    await ffmpeg.writeFile("/tmp/Amaranth-Regular.ttf", font);
+    ffmpeg.exec([
+      "-i",
+      "video",
+      "-vf",
+      "subtitles=sub:fontsdir=/tmp:force_style='Fontname='Amaranth'",
+      "-preset",
+      "ultrafast",
+      "output.mp4",
+    ]);
+    const data = await ffmpeg.readFile("output.mp4");
+    setSrc(URL.createObjectURL(new Blob([data], { type: "video/mp4" })));
   };
 
   return (
-    <video
-      src={`/api/kara/${id}/download/video`}
-      controls
-      // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
-      controlslist="nofullscreen"
-      playsinline
-      loop
-      ref={playerRef}
-    />
+    <Switch
+      fallback={
+        <Show when={getFFmpeg()} fallback={<p>Loading FFmpeg...</p>}>
+          <button onClick={transcode} class="btn">
+            Preview
+          </button>
+        </Show>
+      }
+    >
+      <Match when={getSrc()}>
+        {(getSrc) => (
+          <video src={getSrc()} controls autoplay loop playsinline />
+        )}
+      </Match>
+      <Match when={getProgress()}>
+        {(getProgress) => (
+          <div class="flex items-center gap-x-2">
+            <progress value={getProgress()} class="progress" />
+            <p>{Math.round(getProgress() * 100)}%</p>
+          </div>
+        )}
+      </Match>
+    </Switch>
   );
 }

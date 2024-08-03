@@ -11,11 +11,12 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource/amaranth": "5.0.12",
+    "@ffmpeg/core-mt": "0.12.6",
+    "@ffmpeg/ffmpeg": "0.12.10",
+    "@ffmpeg/util": "0.12.1",
     "@solid-primitives/storage": "3.8.0",
     "@solidjs/router": "0.14.1",
     "jose": "5.6.3",
-    "libass-wasm": "4.1.0",
     "openapi-fetch": "0.10.5",
     "solid-icons": "1.1.0",
     "solid-js": "1.8.19"

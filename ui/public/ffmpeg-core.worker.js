@@ -1,0 +1,1 @@
+../node_modules/@ffmpeg/core-mt/dist/esm/ffmpeg-core.worker.js

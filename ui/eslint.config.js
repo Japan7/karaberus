@@ -9,7 +9,7 @@ export default tseslint.config(
   // @ts-expect-error: prettier types are not up-to-date
   eslintPluginPrettierRecommended,
   {
-    ignores: ["dist", "src/utils/karaberus.d.ts"],
+    ignores: ["dist", "public", "src/utils/karaberus.d.ts"],
   },
   {
     rules: {
