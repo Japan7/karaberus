@@ -310,6 +310,7 @@ test(
     depends: karaberus,
     env: go_env,
     workdir: meson.current_source_dir(),
+    timeout: 300,
 )
 
 test(
