@@ -173,7 +173,7 @@ export default function KaraokeNew() {
           </div>
           <input
             type="number"
-            min={1}
+            min={0}
             placeholder="1"
             value={getSongOrder()}
             onchange={(e) => setSongOrder(e.target.valueAsNumber)}
