@@ -188,19 +188,6 @@ type UploadInfo struct {
 	KaraokeCreationTime time.Time
 }
 
-func NewUploadInfo() UploadInfo {
-	return UploadInfo{
-		VideoUploaded:        false,
-		InstrumentalUploaded: false,
-		SubtitlesUploaded:    false,
-		Hardsubbed:           false,
-		VideoModTime:         time.Unix(0, 0),
-		InstrumentalModTime:  time.Unix(0, 0),
-		SubtitlesModTime:     time.Unix(0, 0),
-		KaraokeCreationTime:  time.Unix(0, 0),
-	}
-}
-
 type KaraInfoDB struct {
 	gorm.Model
 	Authors       []TimingAuthor `gorm:"many2many:kara_authors_tags"`

@@ -146,7 +146,7 @@ func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) er
 	case "sub":
 		kara.SubtitlesUploaded = true
 		kara.SubtitlesModTime = currentTime
-		if kara.KaraokeCreationTime.Unix() == 0 {
+		if kara.KaraokeCreationTime.IsZero() {
 			kara.KaraokeCreationTime = currentTime
 		}
 		return nil
