@@ -25,6 +25,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest # arm64
+          - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -48,12 +49,12 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: docker run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
 
-      - name: Configure karaberus
+      - name: Configure karaberus (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: meson setup build -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled
 
-      - name: Configure karaberus
-        if: startsWith(matrix.os, 'macos')
+      - name: Configure karaberus (MacOS/Windows)
+        if: ${{ startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows') }}
         run: meson setup build -Dno_native_deps=true -Ds3_tests=disabled
 
       - name: Run tests
