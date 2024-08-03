@@ -247,7 +247,7 @@ func GetKara(ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
 	db := GetDB(ctx)
 
 	kara_output := &KaraOutput{}
-	err := db.First(&kara_output.Body.Kara, input.Id).Error
+	err := db.Preload(clause.Associations).First(&kara_output.Body.Kara, input.Id).Error
 	return kara_output, DBErrToHumaErr(err)
 }
 
