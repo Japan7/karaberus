@@ -21,21 +21,13 @@ jobs:
           - macos-13 # x64
           - macos-latest # arm64
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ startsWith(matrix.os, 'macos') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: Install dependencies
         run: |
           pip install meson ninja
-
-      - name: Install dependencies (macOS)
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          brew update
-          brew install meson go
 
       - name: Setup S3 bucket
         if: startsWith(matrix.os, 'ubuntu')
