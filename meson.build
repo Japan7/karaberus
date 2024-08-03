@@ -16,6 +16,7 @@ ffmpeg = find_program('ffmpeg', required: false)
 python = find_program('python3', required: true)
 npm = find_program('npm', required: true)
 qemu_user = find_program('qemu-' + host_machine.cpu_family(), required: false)
+meson_cmd = find_program('meson', required: true)
 
 go_files = files('go.mod', 'go.sum', 'main.go')
 go_files += files(
@@ -294,3 +295,9 @@ if get_option('test')
         timeout: 300,
     )
 endif
+
+test(
+    'meson_format_check',
+    meson_cmd,
+    args: ['format', '-r', '-q', meson.current_source_dir()],
+)
