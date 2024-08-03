@@ -16,16 +16,12 @@ if get_option('network_tests') and get_option('test')
             'test',
             '-C',
             meson.current_source_dir(),
-            '-buildmode=pie',
-            '-trimpath',
-            '-ldflags',
-            '-linkmode=external -s',
+            go_build_flags,
             '-o',
             meson.current_build_dir() / mugen_test_output,
             '-c',
             meson.current_source_dir(),
         ],
-        depends: karaberus_generate,
     )
 
     test('mugen_run_test', mugen_test, env: go_test_env, timeout: 300)

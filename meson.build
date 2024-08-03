@@ -37,54 +37,60 @@ db_file = meson.current_build_dir() / 'karaberus.db'
 karaberus_ui_dist_dir = meson.current_build_dir() / 'ui' / 'ui_dist'
 pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
 
-karaberus_tools_deps = []
+if not get_option('no_native_deps')
+    karaberus_tools_deps = []
 
-dakara_check = dependency(
-    'dakara_check',
-    version: '>4.0.4',
-    required: true,
-    default_options: ['default_library=static', 'prefer_static=true'],
-)
-karaberus_tools_deps += dakara_check
-karaberus_tools_deps += dependency('libavutil', required: true)
-karaberus_tools_deps += dependency('libavformat', required: true)
+    dakara_check = dependency(
+        'dakara_check',
+        version: '>4.0.4',
+        required: true,
+        default_options: ['default_library=static', 'prefer_static=true'],
+    )
+    karaberus_tools_deps += dakara_check
+    karaberus_tools_deps += dependency('libavutil', required: true)
+    karaberus_tools_deps += dependency('libavformat', required: true)
 
-# force dakara_check deps to be linked whole too
-if dakara_check.type_name() == 'internal'
-    dakara_check_sub = subproject('dakara_check')
-    karaberus_tools_deps += dakara_check_sub.get_variable('deps')
-endif
-
-karaberus_tools_deps_fr = []
-
-foreach d : karaberus_tools_deps
-    if d.type_name() == 'internal'
-        karaberus_tools_deps_fr += d.as_link_whole()
-    else
-        karaberus_tools_deps_fr += d
+    # force dakara_check deps to be linked whole too
+    if dakara_check.type_name() == 'internal'
+        dakara_check_sub = subproject('dakara_check')
+        karaberus_tools_deps += dakara_check_sub.get_variable('deps')
     endif
-endforeach
 
-karaberus_tools_c = files('karaberus_tools' / 'karaberus_tools.c')
-karaberus_tools_h = files('karaberus_tools' / 'karaberus_tools.h')
+    karaberus_tools_deps_fr = []
 
-inc_karaberus_tools = include_directories('karaberus_tools')
+    foreach d : karaberus_tools_deps
+        if d.type_name() == 'internal'
+            karaberus_tools_deps_fr += d.as_link_whole()
+        else
+            karaberus_tools_deps_fr += d
+        endif
+    endforeach
 
-libkaraberus_tools = static_library(
-    'karaberus_tools',
-    karaberus_tools_c,
-    karaberus_tools_h,
-    dependencies: karaberus_tools_deps_fr,
-    include_directories: inc_karaberus_tools,
-    install: false,
-)
+    karaberus_tools_c = files('karaberus_tools' / 'karaberus_tools.c')
+    karaberus_tools_h = files('karaberus_tools' / 'karaberus_tools.h')
 
-pkg = import('pkgconfig')
-pkg.generate(libkaraberus_tools)
+    inc_karaberus_tools = include_directories('karaberus_tools')
+
+    libkaraberus_tools = static_library(
+        'karaberus_tools',
+        karaberus_tools_c,
+        karaberus_tools_h,
+        dependencies: karaberus_tools_deps_fr,
+        include_directories: inc_karaberus_tools,
+        install: false,
+    )
+
+    pkg = import('pkgconfig')
+    pkg.generate(libkaraberus_tools)
+endif
 
 # go build env
 go_env = environment()
-go_env.set('CGO_ENABLED', '1')
+if get_option('no_native_deps')
+    go_env.set('CGO_ENABLED', '0')
+else
+    go_env.set('CGO_ENABLED', '1')
+endif
 go_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
 go_env.set('CC', cc_cmd)
 
@@ -109,6 +115,17 @@ go_test_env.set('KARABERUS_TEST_DIR_GENERATED', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
+if get_option('no_native_deps')
+    go_build_flags = ['-buildmode=pie', '-trimpath']
+else
+    go_build_flags = [
+        '-buildmode=pie',
+        '-trimpath',
+        '-ldflags',
+        '-linkmode=external -s',
+    ]
+endif
+
 ui_source = meson.current_source_dir() / 'ui'
 
 npm_env = environment()
@@ -121,8 +138,10 @@ karaberus_inputs = go_files + karaberus_server_files
 karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 karaberus_output = meson.current_build_dir() / 'karaberus'
 
-karaberus_deps = [libkaraberus_tools]
-karaberus_deps += karaberus_generate
+karaberus_deps = []
+if not get_option('no_native_deps')
+    karaberus_deps += libkaraberus_tools
+endif
 
 karaberus = custom_target(
     'karaberus',
@@ -135,10 +154,7 @@ karaberus = custom_target(
         'build',
         '-C',
         meson.current_source_dir(),
-        '-buildmode=pie',
-        '-trimpath',
-        '-ldflags',
-        '-linkmode=external -s',
+        go_build_flags,
         '-o',
         karaberus_output,
         meson.current_source_dir(),
@@ -161,10 +177,7 @@ karaberus_test = custom_target(
         'test',
         '-C',
         meson.current_source_dir(),
-        '-buildmode=pie',
-        '-trimpath',
-        '-ldflags',
-        '-linkmode=external -s',
+        go_build_flags,
         '-o',
         karaberus_test_output,
         '-c',
@@ -172,9 +185,6 @@ karaberus_test = custom_target(
     ],
     depends: [karaberus_deps, karaberus],
 )
-
-spec_env = environment()
-spec_env.set('CGO_ENABLED', '0')
 
 if go_os == '' and go_arch == ''
     openapi_spec = custom_target(
@@ -198,7 +208,7 @@ else
             output: 'openapi.yaml',
             capture: true,
             depend_files: karaberus_inputs,
-            env: spec_env,
+            env: {'CGO_ENABLED': '0'},
         )
     else
         openapi_spec = custom_target(
@@ -224,11 +234,11 @@ subdir('ui')
 run_target(
     'run',
     command: [karaberus],
-    depends: [libkaraberus_tools, karaberus_ui],
+    depends: [karaberus_deps, karaberus_ui],
     env: go_env,
 )
 
-test_deps = [libkaraberus_tools, karaberus_test]
+test_deps = [karaberus_deps, karaberus_test]
 
 if ffmpeg.found()
     mkv_test_file = 'karaberus_test.mkv'

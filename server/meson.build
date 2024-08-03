@@ -22,5 +22,4 @@ karaberus_server_files = files(
 
 karaberus_server_tests = files('karaberus_test.go')
 
-karaberus_generate = []
 subdir('clients')
