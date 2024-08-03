@@ -38,7 +38,7 @@ func UploadToS3(ctx context.Context, file io.Reader, filename string, filesize i
 		UserMetadata: user_metadata,
 		PartSize:     5 * 1024 * 1024,
 	})
-	getLogger().Printf("upload info: %v\n", info)
+	getLogger().Printf("upload info: %+v\n", info)
 
 	return err
 }
