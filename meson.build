@@ -296,11 +296,18 @@ if get_option('test')
     )
 endif
 
+errcheck = custom_target(
+    'errcheck',
+    command: [go, 'install', 'github.com/kisielk/errcheck@latest'],
+    output: '.errcheck',
+    capture: true,
+)
+
 test(
     'errcheck',
     go,
     args: ['run', 'github.com/kisielk/errcheck@latest', './...'],
-    depends: karaberus,
+    depends: [karaberus, errcheck],
     env: go_env,
     workdir: meson.current_source_dir(),
 )
