@@ -208,7 +208,6 @@ else
             output: 'openapi.yaml',
             capture: true,
             depend_files: karaberus_inputs,
-            env: {'CGO_ENABLED': '0'},
         )
     else
         openapi_spec = custom_target(
@@ -224,7 +223,7 @@ else
             output: 'openapi.yaml',
             capture: true,
             depend_files: karaberus_inputs,
-            env: spec_env,
+            env: {'CGO_ENABLED': '0'},
         )
     endif
 endif
