@@ -299,15 +299,15 @@ endif
 errcheck = custom_target(
     'errcheck',
     command: [go, 'install', 'github.com/kisielk/errcheck@latest'],
-    output: '.errcheck',
-    capture: true,
+    output: 'errcheck',
+    env: {'GOBIN': meson.current_build_dir()},
 )
 
 test(
     'errcheck',
-    go,
-    args: ['run', 'github.com/kisielk/errcheck@latest', './...'],
-    depends: [karaberus, errcheck],
+    errcheck,
+    args: ['./...'],
+    depends: karaberus,
     env: go_env,
     workdir: meson.current_source_dir(),
 )
