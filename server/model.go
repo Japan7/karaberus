@@ -30,8 +30,18 @@ type TagType struct {
 	MugenTags []string
 }
 
+type AudioTag struct {
+	ID   string // used in the database/API
+	Name string // user visible name
+	// Hue in deg
+	Hue uint
+	// Mugen tag ID (optional)
+	MugenTags []string
+	// true if this type can have a song order
+	HasSongOrder bool
+}
+
 type VideoTag TagType
-type AudioTag TagType
 
 func (t AudioTag) getID() string {
 	return t.ID
@@ -142,10 +152,10 @@ var VideoTags = []VideoTag{
 
 // Audio tags
 var AudioTags = []AudioTag{
-	{ID: "OP", Name: "Opening", Hue: 280, MugenTags: []string{"f02ad9b3-0bd9-4aad-85b3-9976739ba0e4"}},
-	{ID: "ED", Name: "Ending", Hue: 280, MugenTags: []string{"38c77c56-2b95-4040-b676-0994a8cb0597"}},
-	{ID: "INS", Name: "Insert", Hue: 280, MugenTags: []string{"5e5250d9-351a-4a82-98eb-55db50ad8962"}},
-	{ID: "IS", Name: "Image Song", Hue: 280, MugenTags: []string{"10a1ad3e-a05c-4f5c-84b6-f491e3e3a92e"}},
+	{ID: "OP", Name: "Opening", Hue: 280, MugenTags: []string{"f02ad9b3-0bd9-4aad-85b3-9976739ba0e4"}, HasSongOrder: true},
+	{ID: "ED", Name: "Ending", Hue: 280, MugenTags: []string{"38c77c56-2b95-4040-b676-0994a8cb0597"}, HasSongOrder: true},
+	{ID: "INS", Name: "Insert", Hue: 280, MugenTags: []string{"5e5250d9-351a-4a82-98eb-55db50ad8962"}, HasSongOrder: true},
+	{ID: "IS", Name: "Image Song", Hue: 280, MugenTags: []string{"10a1ad3e-a05c-4f5c-84b6-f491e3e3a92e"}, HasSongOrder: true},
 	// Mugen tags are Concert and Streaming
 	{ID: "LIVE", Name: "Live", Hue: 240, MugenTags: []string{"a0167949-580c-4de3-bf13-497e462e02f3", "55ce3d79-dcc2-453c-b00a-60ce0c1eba1c"}},
 	// Mugen tags are version tags: Cover, Metal

@@ -169,20 +169,6 @@ export default function KaraokeNew() {
 
         <label>
           <div class="label">
-            <span class="label-text">Song order</span>
-          </div>
-          <input
-            type="number"
-            min={0}
-            placeholder="1"
-            value={getSongOrder()}
-            onchange={(e) => setSongOrder(e.target.valueAsNumber)}
-            class="input input-bordered w-full"
-          />
-        </label>
-
-        <label>
-          <div class="label">
             <span class="label-text">Medias</span>
           </div>
           <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
@@ -217,6 +203,22 @@ export default function KaraokeNew() {
             )}
           </Show>
         </label>
+
+        <Show when={getAudioTags().some((tag) => tag.HasSongOrder)}>
+          <label>
+            <div class="label">
+              <span class="label-text">Song order</span>
+            </div>
+            <input
+              type="number"
+              min={0}
+              placeholder="1"
+              value={getSongOrder()}
+              onchange={(e) => setSongOrder(e.target.valueAsNumber)}
+              class="input input-bordered w-full"
+            />
+          </label>
+        </Show>
 
         <label>
           <div class="label">
