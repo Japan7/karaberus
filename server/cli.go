@@ -56,5 +56,8 @@ func MakeCli() {
 	)
 
 	// Run the CLI. When passed no commands, it starts the server.
-	rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		panic(err)
+	}
 }

@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -78,6 +80,13 @@ func (c MugenClient) GetEndpoint(path string) string {
 	return fmt.Sprintf("%s%s", server_base, path)
 }
 
+func Closer(closer io.Closer) {
+	err := closer.Close()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+}
+
 func (c MugenClient) SendRequest(ctx context.Context, method string, path string, bodyData any) (*http.Response, error) {
 	endpoint := c.GetEndpoint(path)
 	body, err := json.Marshal(bodyData)
@@ -97,7 +106,7 @@ func (c MugenClient) SendRequest(ctx context.Context, method string, path string
 	}
 
 	if resp.StatusCode/100 != 2 {
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 		buf := make([]byte, resp.ContentLength)
 		n, err := resp.Body.Read(buf)
 		if err != nil {
@@ -117,7 +126,7 @@ func (c MugenClient) GetKara(ctx context.Context, kid uuid.UUID) (*Kara, error) 
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	dec := json.NewDecoder(resp.Body)
 	data := &Kara{}

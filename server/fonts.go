@@ -61,8 +61,13 @@ func createFont(ctx context.Context, name string) (Font, error) {
 
 func UploadFont(ctx context.Context, input *UploadFontInput) (*UploadFontOutput, error) {
 	out := &UploadFontOutput{}
-	defer os.Remove(input.File.Fd.Name())
-	defer input.File.Fd.Close()
+	defer func() {
+		err := os.Remove(input.File.Fd.Name())
+		if err != nil {
+			getLogger().Println(err)
+		}
+	}()
+	defer Closer(input.File.Fd)
 
 	font, err := createFont(ctx, input.File.Name)
 	if err != nil {

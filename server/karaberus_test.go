@@ -98,7 +98,10 @@ func TestAuthorTag(t *testing.T) {
 
 	data := AuthorOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	path := fmt.Sprintf("/api/tags/author/%d", data.Body.Author.ID)
 	assertRespCode(t, api.Delete(path), 204)
@@ -118,7 +121,10 @@ func TestFindAuthorTag(t *testing.T) {
 
 	data := AuthorOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	resp = assertRespCode(t, api.Get("/api/tags/author?name=author_name_find_test"), 200)
 
@@ -141,7 +147,10 @@ func TestArtistTag(t *testing.T) {
 
 	data := ArtistOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.Artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
@@ -162,7 +171,10 @@ func TestFindArtistTag(t *testing.T) {
 
 	data := ArtistOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	resp = assertRespCode(t, api.Get("/api/tags/artist?name=artist_name_find_test"), 200)
 
@@ -187,7 +199,10 @@ func TestMediaTag(t *testing.T) {
 
 		data := MediaOutput{}
 		dec := json.NewDecoder(resp.Body)
-		dec.Decode(&data.Body)
+		err := dec.Decode(&data.Body)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		if data.Body.Media.AdditionalNames[0].Name != "additional_media_name" {
 			t.Log("Failed to set media additional name")
@@ -216,7 +231,10 @@ func TestFindMedia(t *testing.T) {
 
 	data := MediaOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	resp = assertRespCode(t, api.Get("/api/tags/media?name=media_name_find_test"), 200)
 
@@ -248,7 +266,10 @@ func TestCreateKara(t *testing.T) {
 
 	data := KaraOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if data.Body.Kara.ExtraTitles[0].Name != "kara_title_alias" {
 		t.Log("failed to set extra title to karaoke")
@@ -283,7 +304,10 @@ func TestUpdateKara(t *testing.T) {
 
 	data := KaraOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 
@@ -312,7 +336,10 @@ func TestUpdateKara(t *testing.T) {
 
 	data = KaraOutput{}
 	dec = json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if data.Body.Kara.ID != prev_ID {
 		t.Fatal("Karaoke ID changed after PATCH")
@@ -344,20 +371,15 @@ func uploadFile(t *testing.T, api humatest.TestAPI, kid uint, filepath string, f
 		panic("failed to create multipart file")
 	}
 
-	tmpbuf := make([]byte, 1024*4)
-	for {
-		n, err := f.Read(tmpbuf)
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-
-		fwriter.Write(tmpbuf[:n])
+	_, err = io.Copy(fwriter, f)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	multipart_writer.Close()
+	err = multipart_writer.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	path := fmt.Sprintf("/api/kara/%d/upload/%s", kid, filetype)
 	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
@@ -368,7 +390,10 @@ func uploadFile(t *testing.T, api humatest.TestAPI, kid uint, filepath string, f
 
 	data_upload := UploadOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data_upload.Body)
+	err = dec.Decode(&data_upload.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return data_upload
 }
 
@@ -385,20 +410,15 @@ func uploadFont(t *testing.T, api humatest.TestAPI, filepath string) UploadFontO
 		panic("failed to create multipart file")
 	}
 
-	tmpbuf := make([]byte, 1024*4)
-	for {
-		n, err := f.Read(tmpbuf)
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-
-		fwriter.Write(tmpbuf[:n])
+	_, err = io.Copy(fwriter, f)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	multipart_writer.Close()
+	err = multipart_writer.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	path := "/api/font/upload"
 	headers := "Content-Type: multipart/form-data; boundary=" + multipart_writer.Boundary()
@@ -409,7 +429,10 @@ func uploadFont(t *testing.T, api humatest.TestAPI, filepath string) UploadFontO
 
 	data_upload := UploadFontOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&data_upload.Body)
+	err = dec.Decode(&data_upload.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return data_upload
 }
 
@@ -503,7 +526,10 @@ func TestUploadKara(t *testing.T) {
 
 	media_data := MediaOutput{}
 	dec := json.NewDecoder(resp.Body)
-	dec.Decode(&media_data.Body)
+	err := dec.Decode(&media_data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	resp = assertRespCode(t,
 		api.Post("/api/tags/artist",
@@ -515,7 +541,10 @@ func TestUploadKara(t *testing.T) {
 	)
 	artist_data := ArtistOutput{}
 	dec = json.NewDecoder(resp.Body)
-	dec.Decode(&artist_data.Body)
+	err = dec.Decode(&artist_data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	resp = assertRespCode(t,
 		api.Post("/api/kara",
@@ -538,7 +567,10 @@ func TestUploadKara(t *testing.T) {
 
 	data := KaraOutput{}
 	dec = json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if data.Body.Kara.SourceMedia.ID != media_data.Body.Media.ID {
 		t.Fatal("Kara source media is not set")
@@ -595,7 +627,10 @@ func TestUploadKara(t *testing.T) {
 	kara_path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 	resp = assertRespCode(t, api.Get(kara_path), 200)
 	dec = json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	kara_path_creation_time := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 	newCreationTime := int64(3600)
@@ -619,7 +654,10 @@ func TestUploadKara(t *testing.T) {
 		200,
 	)
 	dec = json.NewDecoder(resp.Body)
-	dec.Decode(&data.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if data.Body.Kara.KaraokeCreationTime.Unix() != newCreationTime {
 		t.Fatal("failed to set karaoke creation date", data.Body.Kara.KaraokeCreationTime)

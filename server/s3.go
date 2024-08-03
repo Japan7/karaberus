@@ -119,7 +119,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer obj.Close()
+		defer Closer(obj)
 		video_check_res := CheckS3File(ctx, obj)
 		if !video_check_res.Passed {
 			return nil, errors.New(fmt.Sprintf("Checks failed for kara %d", kara.ID))
@@ -131,7 +131,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer obj.Close()
+		defer Closer(obj)
 		sub_check_res, err := CheckS3Ass(ctx, obj)
 		if err != nil {
 			return nil, err
@@ -143,7 +143,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer obj.Close()
+		defer Closer(obj)
 		inst_check_res := CheckS3File(ctx, obj)
 		if !inst_check_res.Passed {
 			return nil, errors.New(fmt.Sprintf("Checks failed for kara %d", kara.ID))

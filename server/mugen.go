@@ -244,7 +244,7 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 	}
 
 	dlDB := GetDB(ctx)
-	go mugenDownload(context.Background(), dlDB, *mugen_import)
+	go MugenDownload(context.Background(), dlDB, *mugen_import)
 
 	return nil
 }
@@ -311,7 +311,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	if err != nil {
 		return err
 	}
-	defer obj.Close()
+	defer Closer(obj)
 
 	should_download_video := !mugen_import.Kara.VideoUploaded
 
@@ -337,7 +337,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 		if err != nil {
 			return err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 		_, err = SaveMugenResponseToS3(ctx, tx, resp, mugen_import, "video", nil)
 		if err != nil {
 			return err
@@ -350,7 +350,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	if err != nil {
 		return err
 	}
-	defer obj.Close()
+	defer Closer(obj)
 
 	should_download_sub := !mugen_import.Kara.SubtitlesUploaded
 
@@ -374,7 +374,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 		if err != nil {
 			return err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 		// we're essentially using the checksum as a version
 		user_metadata := map[string]string{"Mugenchecksum": mugen_kara.SubChecksum}
 		_, err = SaveMugenResponseToS3(ctx, tx, resp, mugen_import, "sub", user_metadata)
@@ -384,6 +384,13 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	}
 
 	return nil
+}
+
+func MugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) {
+	err := mugenDownload(ctx, tx, mugen_import)
+	if err != nil {
+		getLogger().Println(err)
+	}
 }
 
 func SyncMugen(ctx context.Context) {

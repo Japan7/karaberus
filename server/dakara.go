@@ -48,7 +48,7 @@ func dakaraSendRequest(ctx context.Context, method string, path string, bodyData
 	}
 
 	if resp.StatusCode/100 != 2 {
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 		buf := make([]byte, resp.ContentLength)
 		n, err := resp.Body.Read(buf)
 		if err != nil {
@@ -111,11 +111,14 @@ func dakaraGetArtists(ctx context.Context) (map[string]*DakaraArtist, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 
 		dec := json.NewDecoder(resp.Body)
 		data := DakaraGetArtistsResponse{}
-		dec.Decode(&data)
+		err = dec.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
 		for _, artist := range data.Results {
 			artists[artist.Name] = &artist
 		}
@@ -143,11 +146,14 @@ func dakaraGetWorkTypes(ctx context.Context) (map[string]*DakaraWorkType, error)
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 
 		dec := json.NewDecoder(resp.Body)
 		data := DakaraGetWorkTypesResponse{}
-		dec.Decode(&data)
+		err = dec.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
 		for _, worktype := range data.Results {
 			worktypes[worktype.QueryName] = &worktype
 		}
@@ -187,11 +193,14 @@ func dakaraGetWorks(ctx context.Context) (map[string]map[string]*DakaraWork, err
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 
 		dec := json.NewDecoder(resp.Body)
 		data := DakaraGetWorksResponse{}
-		dec.Decode(&data)
+		err = dec.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
 		for _, work := range data.Results {
 			worktypes[work.WorkType.QueryName][work.Title] = &work
 		}
@@ -226,11 +235,14 @@ func dakaraGetTags(ctx context.Context) (map[string]*DakaraTag, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 
 		dec := json.NewDecoder(resp.Body)
 		data := DakaraGetTagsResponse{}
-		dec.Decode(&data)
+		err = dec.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
 		for _, worktype := range data.Results {
 			worktypes[worktype.Name] = &worktype
 		}
@@ -281,11 +293,14 @@ func dakaraGetSongs(ctx context.Context) (map[string]*DakaraSong, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer Closer(resp.Body)
 
 		dec := json.NewDecoder(resp.Body)
 		data := DakaraGetSongsResponse{}
-		dec.Decode(&data)
+		err = dec.Decode(&data)
+		if err != nil {
+			return nil, err
+		}
 		for _, worktype := range data.Results {
 			worktypes[worktype.Filename] = &worktype
 		}
@@ -310,7 +325,7 @@ func dakaraAddArtist(ctx context.Context, artist Artist) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return nil
 }
@@ -344,7 +359,7 @@ func dakaraAddWorkType(ctx context.Context, media_type MediaType) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return nil
 }
@@ -359,7 +374,7 @@ func dakaraAddWork(ctx context.Context, work DakaraWorkBody) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return nil
 }
@@ -379,7 +394,7 @@ func dakaraAddTag(ctx context.Context, tag TagInterface) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return nil
 }
@@ -395,7 +410,7 @@ func dakaraPutTag(ctx context.Context, id int, tag TagInterface) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return nil
 }
@@ -426,7 +441,7 @@ func dakaraAddSong(ctx context.Context, song *DakaraSongBody) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return nil
 }
@@ -470,7 +485,7 @@ func UploadedKaras(db *gorm.DB) *gorm.DB {
 	return db.Where("video_uploaded AND (subtitles_uploaded OR hardsubbed)")
 }
 
-func SyncDakara(ctx context.Context) error {
+func SyncDakara(ctx context.Context) {
 	DakaraSyncLock.Lock()
 	defer DakaraSyncLock.Unlock()
 
@@ -479,7 +494,7 @@ func SyncDakara(ctx context.Context) error {
 	worktypes, err := dakaraGetWorkTypes(ctx)
 	if err != nil {
 		getLogger().Println(err)
-		return err
+		return
 	}
 
 	for _, media_type := range MediaTypes {
@@ -487,7 +502,7 @@ func SyncDakara(ctx context.Context) error {
 			err = dakaraAddWorkType(ctx, media_type)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		}
 	}
@@ -496,7 +511,7 @@ func SyncDakara(ctx context.Context) error {
 	err = db.Scopes(UploadedKaras).Preload(clause.Associations).Find(&all_karas).Error
 	if err != nil {
 		getLogger().Println(err)
-		return err
+		return
 	}
 	getLogger().Printf("Syncing %d karas to Dakara", len(all_karas))
 
@@ -504,7 +519,7 @@ func SyncDakara(ctx context.Context) error {
 	works, err := dakaraGetWorks(ctx)
 	if err != nil {
 		getLogger().Println(err)
-		return err
+		return
 	}
 
 	all_medias := map[uint]MediaDB{}
@@ -531,7 +546,7 @@ func SyncDakara(ctx context.Context) error {
 			})
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		}
 	}
@@ -540,7 +555,7 @@ func SyncDakara(ctx context.Context) error {
 	dakara_artists, err := dakaraGetArtists(ctx)
 	if err != nil {
 		getLogger().Println(err)
-		return err
+		return
 	}
 
 	for _, artist := range all_artists {
@@ -548,7 +563,7 @@ func SyncDakara(ctx context.Context) error {
 			err = dakaraAddArtist(ctx, artist)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		}
 	}
@@ -557,7 +572,7 @@ func SyncDakara(ctx context.Context) error {
 	dakara_tags, err := dakaraGetTags(ctx)
 	if err != nil {
 		getLogger().Println(err)
-		return err
+		return
 	}
 
 	// sync audio tags
@@ -567,13 +582,13 @@ func SyncDakara(ctx context.Context) error {
 			err = dakaraAddTag(ctx, audio_tag)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		} else {
 			err = dakaraPutTag(ctx, dakara_tag.ID, audio_tag)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		}
 	}
@@ -585,13 +600,13 @@ func SyncDakara(ctx context.Context) error {
 			err = dakaraAddTag(ctx, video_tag)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		} else {
 			err = dakaraPutTag(ctx, dakara_tag.ID, video_tag)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		}
 	}
@@ -601,41 +616,45 @@ func SyncDakara(ctx context.Context) error {
 	songs, err := dakaraGetSongs(ctx)
 	if err != nil {
 		getLogger().Println(err)
+		return
 	}
 
 	dakara_tags, err = dakaraGetTags(ctx)
 	if err != nil {
 		getLogger().Println(err)
+		return
 	}
 
 	dakara_artists, err = dakaraGetArtists(ctx)
 	if err != nil {
 		getLogger().Println(err)
+		return
 	}
 
 	works, err = dakaraGetWorks(ctx)
 	if err != nil {
 		getLogger().Println(err)
+		return
 	}
 
 	for _, kara := range all_karas {
 		song_body, err := createDakaraSongBody(ctx, kara, dakara_tags, dakara_artists, works)
 		if err != nil {
 			getLogger().Println(err)
-			return err
+			return
 		}
 		dakara_song := songs[kara.VideoFilename()]
 		if dakara_song == nil {
 			err = dakaraAddSong(ctx, song_body)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		} else {
 			err = dakaraUpdateSong(ctx, dakara_song, song_body)
 			if err != nil {
 				getLogger().Println(err)
-				return err
+				return
 			}
 		}
 	}
@@ -654,7 +673,7 @@ func SyncDakara(ctx context.Context) error {
 	}
 
 	// cleanUpWorkTypes(worktypes)
-	return nil
+	return
 }
 
 func dakaraSongEndpoint(dakara_song_id int) string {
@@ -666,7 +685,7 @@ func dakaraUpdateSong(ctx context.Context, dakara_song *DakaraSong, song_body *D
 
 	path := dakaraSongEndpoint(dakara_song.ID)
 	resp, err := dakaraPut(ctx, path, song_body)
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 
 	return err
 }
@@ -679,7 +698,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 		id, err := strconv.Atoi(id_str)
 		if err != nil {
 			// not our song, probably
-			deleteDakaraSong(ctx, song)
+			err = deleteDakaraSong(ctx, song)
 			if err != nil {
 				return err
 			}
@@ -706,21 +725,21 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 func deleteDakaraSong(ctx context.Context, song *DakaraSong) error {
 	path := dakaraSongEndpoint(song.ID)
 	resp, err := dakaraDelete(ctx, path)
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 	return err
 }
 
 func cleanUpDakaraWorks(ctx context.Context) error {
 	path := "/api/library/works/prune/"
 	resp, err := dakaraDelete(ctx, path)
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 	return err
 }
 
 func cleanUpDakaraArtists(ctx context.Context) error {
 	path := "/api/library/artists/prune/"
 	resp, err := dakaraDelete(ctx, path)
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 	return err
 }
 

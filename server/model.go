@@ -260,7 +260,10 @@ type Font struct {
 }
 
 func init_model(db *gorm.DB) {
-	db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
+	err := db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 func createAdditionalNames(names []string) []AdditionalName {

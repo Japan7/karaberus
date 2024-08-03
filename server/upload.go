@@ -68,7 +68,7 @@ func createTempFile(ctx huma.Context, tempfile *UploadTempFile) error {
 		if err != nil {
 			return err
 		}
-		defer part.Close()
+		defer Closer(part)
 
 		if part.FormName() == "file" {
 			tempfile.Name = part.FileName()
@@ -156,8 +156,14 @@ func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) er
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
 	db := GetDB(ctx)
-	defer os.Remove(input.File.Fd.Name())
-	defer input.File.Fd.Close()
+	var err error
+	defer func() {
+		err := os.Remove(input.File.Fd.Name())
+		if err != nil {
+			getLogger().Println(err)
+		}
+	}()
+	defer Closer(input.File.Fd)
 
 	kid := input.KID
 	kara, err := GetKaraByID(db, kid)
@@ -173,6 +179,9 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		resp.Body.KID = input.KID
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return resp, err
 }
@@ -187,7 +196,7 @@ func serveObject(obj *minio.Object) (*huma.StreamResponse, error) {
 
 	return &huma.StreamResponse{
 		Body: func(ctx huma.Context) {
-			defer obj.Close()
+			defer Closer(obj)
 
 			if err != nil {
 				resp := minio.ToErrorResponse(err)
@@ -208,11 +217,18 @@ func serveObject(obj *minio.Object) (*huma.StreamResponse, error) {
 			var n int
 			for {
 				n, err = obj.Read(buf)
-				writer.Write(buf[:n])
-				if err != nil {
-					if errors.Is(err, io.EOF) {
-						err = nil
+				if errors.Is(err, io.EOF) {
+					err = nil
+					if n == 0 {
+						break
 					}
+				}
+				if err != nil {
+					break
+				}
+				_, err = writer.Write(buf[:n])
+				if err != nil {
+					err = nil
 					break
 				}
 			}
