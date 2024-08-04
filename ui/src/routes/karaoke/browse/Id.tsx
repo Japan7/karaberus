@@ -1,8 +1,9 @@
 import { useParams } from "@solidjs/router";
-import KaraPlayer from "../../../components/KaraPlayer";
-import { fileForm, karaberus } from "../../../utils/karaberus-client";
 import { createResource, Show } from "solid-js";
 import KaraEditor from "../../../components/KaraEditor";
+import KaraPlayer from "../../../components/KaraPlayer";
+import type { components } from "../../../utils/karaberus";
+import { fileForm, karaberus } from "../../../utils/karaberus-client";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -40,6 +41,24 @@ export default function KaraokeBrowseId() {
     location.reload();
   };
 
+  const edit = async (info: components["schemas"]["KaraInfo"]) => {
+    const resp = await karaberus.PATCH("/api/kara/{id}", {
+      body: info,
+      params: {
+        path: {
+          id: parseInt(params.id),
+        },
+      },
+    });
+
+    if (resp.error) {
+      alert(resp.error);
+      return;
+    }
+
+    location.reload();
+  };
+
   return (
     <>
       <input
@@ -56,7 +75,7 @@ export default function KaraokeBrowseId() {
       <KaraPlayer id={params.id} />
 
       <Show when={getKara()?.kara} fallback={<p>loading karaoke...</p>}>
-        {(getKara) => <KaraEditor kara={getKara()} />}
+        {(getKara) => <KaraEditor kara={getKara()} onSubmit={edit} />}
       </Show>
     </>
   );

@@ -1,11 +1,30 @@
+import { useNavigate } from "@solidjs/router";
 import KaraEditor from "../../components/KaraEditor";
+import type { components } from "../../utils/karaberus";
+import { karaberus } from "../../utils/karaberus-client";
+import routes from "../../utils/routes";
 
 export default function KaraokeNew() {
+  const navigate = useNavigate();
+
+  const onSubmit = async (info: components["schemas"]["KaraInfo"]) => {
+    const resp = await karaberus.POST("/api/kara", {
+      body: info,
+    });
+
+    if (resp.error) {
+      alert(resp.error);
+      return;
+    }
+
+    navigate(routes.KARAOKE_BROWSE + "/" + resp.data.kara.ID);
+  };
+
   return (
     <>
       <h1 class="header">New Karaoke</h1>
 
-      <KaraEditor kara={null} />
+      <KaraEditor onSubmit={onSubmit} />
     </>
   );
 }
