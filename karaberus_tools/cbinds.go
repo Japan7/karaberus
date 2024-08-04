@@ -22,7 +22,6 @@ import "C"
 import (
 	"errors"
 	"io"
-	"strings"
 	"unsafe"
 
 	"github.com/mattn/go-pointer"
@@ -79,9 +78,7 @@ func NewObjectBuf(obj *minio.Object) ObjectBuf {
 	}
 }
 
-func DakaraCheckResults(obj *minio.Object) DakaraCheckResultsOutput {
-	stat, _ := obj.Stat()
-	ftype, _, _ := strings.Cut(stat.Key, "/")
+func DakaraCheckResults(obj *minio.Object, ftype string) DakaraCheckResultsOutput {
 	video_stream := ftype == "video"
 	object_buf := NewObjectBuf(obj)
 	ptr := pointer.Save(object_buf)

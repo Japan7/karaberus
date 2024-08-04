@@ -120,11 +120,11 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 			return nil, err
 		}
 		defer Closer(obj)
-		video_check_res := CheckS3File(ctx, obj)
+		video_check_res := CheckS3Video(ctx, obj)
 		if !video_check_res.Passed {
 			return nil, errors.New(fmt.Sprintf("Checks failed for kara %d", kara.ID))
 		}
-		out.Video = video_check_res
+		out.Video = &video_check_res
 	}
 	if kara.SubtitlesUploaded {
 		obj, err := GetKaraObject(ctx, kara, "sub")
@@ -136,7 +136,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-		out.Subtitles = sub_check_res
+		out.Subtitles = &sub_check_res
 	}
 	if kara.InstrumentalUploaded {
 		obj, err := GetKaraObject(ctx, kara, "inst")
@@ -144,11 +144,11 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 			return nil, err
 		}
 		defer Closer(obj)
-		inst_check_res := CheckS3File(ctx, obj)
+		inst_check_res := CheckS3Inst(ctx, obj)
 		if !inst_check_res.Passed {
 			return nil, errors.New(fmt.Sprintf("Checks failed for kara %d", kara.ID))
 		}
-		out.Instrumental = inst_check_res
+		out.Instrumental = &inst_check_res
 	}
 
 	return out, nil
@@ -184,11 +184,16 @@ func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*mini
 	return obj, err
 }
 
-func CheckS3File(ctx context.Context, obj *minio.Object) *karaberus_tools.DakaraCheckResultsOutput {
-	res := karaberus_tools.DakaraCheckResults(obj)
-	return &res
+func CheckS3Video(ctx context.Context, obj *minio.Object) karaberus_tools.DakaraCheckResultsOutput {
+	res := karaberus_tools.DakaraCheckResults(obj, "video")
+	return res
 }
 
-func CheckS3Ass(ctx context.Context, obj *minio.Object) (*karaberus_tools.DakaraCheckResultsOutput, error) {
-	return &karaberus_tools.DakaraCheckResultsOutput{Passed: true}, nil
+func CheckS3Inst(ctx context.Context, obj *minio.Object) karaberus_tools.DakaraCheckResultsOutput {
+	res := karaberus_tools.DakaraCheckResults(obj, "inst")
+	return res
+}
+
+func CheckS3Ass(ctx context.Context, obj *minio.Object) (karaberus_tools.DakaraCheckResultsOutput, error) {
+	return karaberus_tools.DakaraCheckResultsOutput{Passed: true}, nil
 }
