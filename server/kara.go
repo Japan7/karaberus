@@ -231,7 +231,7 @@ type DeleteKaraResponse struct {
 
 func DeleteKara(ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, error) {
 	db := GetDB(ctx)
-	err := db.Delete(&TimingAuthor{}, input.Id).Error
+	err := db.Delete(&KaraInfoDB{}, input.Id).Error
 	return &DeleteKaraResponse{204}, DBErrToHumaErr(err)
 }
 

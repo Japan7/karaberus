@@ -2,6 +2,7 @@ import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index } from "solid-js";
 import AuthorEditor from "../../components/AuthorEditor";
 import { karaberus } from "../../utils/karaberus-client";
+import { isAdmin } from "../../utils/session";
 
 export default function TagsAuthor() {
   const [getAuthors, { refetch }] = createResource(async () => {
@@ -51,6 +52,7 @@ export default function TagsAuthor() {
                 <td>{getAuthor().Name}</td>
                 <td>
                   <button
+                    disabled={!isAdmin()}
                     onclick={() => deleteAuthor(getAuthor().ID)}
                     class="btn btn-sm"
                   >

@@ -2,6 +2,7 @@ import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index } from "solid-js";
 import ArtistEditor from "../../components/ArtistEditor";
 import { karaberus } from "../../utils/karaberus-client";
+import { isAdmin } from "../../utils/session";
 
 export default function TagsArtist() {
   const [getArtists, { refetch }] = createResource(async () => {
@@ -61,6 +62,7 @@ export default function TagsArtist() {
                 </td>
                 <td>
                   <button
+                    disabled={!isAdmin()}
                     onclick={() => deleteArtist(getArtist().ID)}
                     class="btn btn-sm"
                   >

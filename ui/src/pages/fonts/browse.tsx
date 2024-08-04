@@ -38,7 +38,15 @@ export default function FontsBrowse() {
             {(getFont) => (
               <tr class="hover">
                 <th>{getFont().ID}</th>
-                <td>{getFont().Name}</td>
+                <td>
+                  <a
+                    href={"/api/font/" + getFont().ID}
+                    download={getFont().Name}
+                    class="link"
+                  >
+                    {getFont().Name}
+                  </a>
+                </td>
                 <td>{new Date(getFont().UpdatedAt).toLocaleString()}</td>
                 <td>
                   <button disabled class="btn btn-sm">

@@ -35,3 +35,5 @@ export function getSessionInfos() {
 export function clearSession() {
   cookieStorage.removeItem(SESSION_TOKEN_NAME);
 }
+
+export const isAdmin = () => getSessionInfos()?.is_admin ?? false;

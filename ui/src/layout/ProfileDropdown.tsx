@@ -1,5 +1,9 @@
 import type { JSX } from "solid-js";
-import { clearSession, type KaraberusJwtPayload } from "../utils/session";
+import {
+  clearSession,
+  isAdmin,
+  type KaraberusJwtPayload,
+} from "../utils/session";
 
 export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
   const logout: JSX.EventHandler<HTMLElement, MouseEvent> = () => {
@@ -21,9 +25,7 @@ export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
         <li>
           <a href="/profile" class="flex flex-col gap-0">
             <span class="w-full font-bold text-lg">{props.infos.name}</span>
-            <span class="w-full font-bold">
-              {props.infos.is_admin ? "Admin" : "User"}
-            </span>
+            <span class="w-full font-bold">{isAdmin() ? "Admin" : "User"}</span>
           </a>
         </li>
         <li>

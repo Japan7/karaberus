@@ -2,6 +2,7 @@ import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index } from "solid-js";
 import MediaEditor from "../../components/MediaEditor";
 import { karaberus } from "../../utils/karaberus-client";
+import { isAdmin } from "../../utils/session";
 
 export default function TagsMedia() {
   const [getMedias, { refetch }] = createResource(async () => {
@@ -63,6 +64,7 @@ export default function TagsMedia() {
                 </td>
                 <td>
                   <button
+                    disabled={!isAdmin()}
                     onclick={() => deleteArtist(getMedia().ID)}
                     class="btn btn-sm"
                   >
