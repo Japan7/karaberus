@@ -1,8 +1,11 @@
 import { createResource, createSignal, Index, Show, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
+import ArtistEditor from "./ArtistEditor";
+import AuthorEditor from "./AuthorEditor";
 import Autocomplete from "./Autocomplete";
 import AutocompleteMultiple from "./AutocompleteMultiple";
+import MediaEditor from "./MediaEditor";
 
 function getAudioTag(
   allAudioTags: components["schemas"]["AudioTag"][],
@@ -19,15 +22,19 @@ export default function KaraEditor({
   onSubmit: (info: components["schemas"]["KaraInfo"]) => void;
 }) {
   //#region Resources
-  const [getAllAuthors] = createResource(async () => {
-    const resp = await karaberus.GET("/api/tags/author");
-    return resp.data;
-  });
-  const [getAllArtists] = createResource(async () => {
-    const resp = await karaberus.GET("/api/tags/artist");
-    return resp.data;
-  });
-  const [getAllMedias] = createResource(async () => {
+  const [getAllAuthors, { refetch: refetchAuthors }] = createResource(
+    async () => {
+      const resp = await karaberus.GET("/api/tags/author");
+      return resp.data;
+    },
+  );
+  const [getAllArtists, { refetch: refetchArtists }] = createResource(
+    async () => {
+      const resp = await karaberus.GET("/api/tags/artist");
+      return resp.data;
+    },
+  );
+  const [getAllMedias, { refetch: refetchMedia }] = createResource(async () => {
     const resp = await karaberus.GET("/api/tags/media");
     return resp.data;
   });
@@ -87,9 +94,13 @@ export default function KaraEditor({
 
     setSongOrder(kara.SongOrder);
   }
+
+  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
   //#endregion
 
   //#region Handlers
+  let modalRef!: HTMLDialogElement;
+
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
     e.preventDefault();
 
@@ -109,6 +120,45 @@ export default function KaraEditor({
     };
 
     onSubmit(payload);
+  };
+
+  const openAddAuthorModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
+    e.preventDefault();
+    setModalForm(
+      <AuthorEditor
+        onAdd={() => {
+          refetchAuthors();
+          modalRef.close();
+        }}
+      />,
+    );
+    modalRef.showModal();
+  };
+
+  const openAddArtistModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
+    e.preventDefault();
+    setModalForm(
+      <ArtistEditor
+        onAdd={() => {
+          refetchArtists();
+          modalRef.close();
+        }}
+      />,
+    );
+    modalRef.showModal();
+  };
+
+  const openAddMediaModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
+    e.preventDefault();
+    setModalForm(
+      <MediaEditor
+        onAdd={() => {
+          refetchMedia();
+          modalRef.close();
+        }}
+      />,
+    );
+    modalRef.showModal();
   };
   //#endregion
 
@@ -146,6 +196,11 @@ export default function KaraEditor({
     <label>
       <div class="label">
         <span class="label-text">Authors</span>
+        <span class="label-text-alt">
+          <button class="link" onclick={openAddAuthorModal}>
+            Add new
+          </button>
+        </span>
       </div>
       <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
         {(getAllAuthors) => (
@@ -164,6 +219,11 @@ export default function KaraEditor({
     <label>
       <div class="label">
         <span class="label-text">Artists</span>
+        <span class="label-text-alt">
+          <button class="link" onclick={openAddArtistModal}>
+            Add new
+          </button>
+        </span>
       </div>
       <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
         {(getAllArtists) => (
@@ -182,6 +242,11 @@ export default function KaraEditor({
     <label>
       <div class="label">
         <span class="label-text">Source media</span>
+        <span class="label-text-alt">
+          <button class="link" onclick={openAddMediaModal}>
+            Add new
+          </button>
+        </span>
       </div>
       <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
         {(getAllMedias) => (
@@ -215,6 +280,11 @@ export default function KaraEditor({
     <label>
       <div class="label">
         <span class="label-text">Other medias</span>
+        <span class="label-text-alt">
+          <button class="link" onclick={openAddMediaModal}>
+            Add new
+          </button>
+        </span>
       </div>
       <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
         {(getAllMedias) => (
@@ -333,53 +403,58 @@ export default function KaraEditor({
   //#endregion
 
   return (
-    <form onsubmit={onsubmit} class="flex flex-col gap-y-4">
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title">Titles</h2>
-            {titleInput()}
-            {extraTitlesInput()}
+    <>
+      <form onsubmit={onsubmit} class="flex flex-col gap-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+              <h2 class="card-title">Titles</h2>
+              {titleInput()}
+              {extraTitlesInput()}
+            </div>
+          </div>
+          <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+              <h2 class="card-title">Audio</h2>
+              {artistsInput()}
+              {audioTagsInput()}
+              <Show
+                when={getAudioTags().some(
+                  (tag) =>
+                    getAudioTag(getAllAudioTags() || [], tag.ID)?.HasSongOrder,
+                )}
+              >
+                {sourceMediaInput()}
+                {songOrderInput()}
+              </Show>
+              {languageInput()}
+            </div>
+          </div>
+          <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+              <h2 class="card-title">Video</h2>
+              {videoTagsInput()}
+              {mediasInput()}
+            </div>
+          </div>
+          <div class="card bg-base-100 shadow-xl md:row-start-1 md:col-start-2">
+            <div class="card-body">
+              <h2 class="card-title">Additional informations</h2>
+              {authorsInput()}
+              {commentInput()}
+              {versionInput()}
+            </div>
           </div>
         </div>
+        <input type="submit" class="btn" />
+      </form>
 
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title">Audio</h2>
-            {artistsInput()}
-            {audioTagsInput()}
-            <Show
-              when={getAudioTags().some(
-                (tag) =>
-                  getAudioTag(getAllAudioTags() || [], tag.ID)?.HasSongOrder,
-              )}
-            >
-              {sourceMediaInput()}
-              {songOrderInput()}
-            </Show>
-            {languageInput()}
-          </div>
-        </div>
-
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body">
-            <h2 class="card-title">Video</h2>
-            {videoTagsInput()}
-            {mediasInput()}
-          </div>
-        </div>
-
-        <div class="card bg-base-100 shadow-xl md:row-start-1 md:col-start-2">
-          <div class="card-body">
-            <h2 class="card-title">Additional informations</h2>
-            {authorsInput()}
-            {commentInput()}
-            {versionInput()}
-          </div>
-        </div>
-      </div>
-
-      <input type="submit" class="btn" />
-    </form>
+      <dialog ref={modalRef} class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box flex justify-center">{getModalForm()}</div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+    </>
   );
 }
