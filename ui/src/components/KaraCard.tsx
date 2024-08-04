@@ -38,9 +38,9 @@ export default function KaraCard(props: {
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">
-          <A href={"./" + props.kara.ID} class="link-primary">
+          <a href={"/karaoke/browse/" + props.kara.ID} class="link-primary">
             {props.kara.Title}
-          </A>
+          </a>
         </h2>
 
         <div class="flex flex-col gap-y-2">

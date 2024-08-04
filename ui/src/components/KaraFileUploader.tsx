@@ -61,9 +61,9 @@ export default function KaraFileUploader(props: {
       </label>
 
       <Show when={getProgress()}>
-        <div class="flex items-center gap-x-2">
+        <div class="flex items-center gap-x-1">
           <progress value={getProgress()} class="progress" />
-          <span>{(getProgress() * 100).toFixed(2)}%</span>
+          <pre>{(getProgress() * 100).toFixed(1).padStart(5)}%</pre>
         </div>
       </Show>
     </div>

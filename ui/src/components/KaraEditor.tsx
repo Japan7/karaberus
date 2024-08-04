@@ -187,6 +187,7 @@ export default function KaraEditor(props: {
     <label>
       <div class="label">
         <span class="label-text">Aliases</span>
+        <span class="label-text-alt">1 per line</span>
       </div>
       <textarea
         placeholder="A Cruel Angel's Thesis&#10;Zankoku na Tenshi no Thesis"
