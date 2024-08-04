@@ -18,15 +18,16 @@ export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
         tabindex="0"
         class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
       >
-        <li class="menu-title">
-          <h1 class="text-lg">{props.infos.name}</h1>
-          <span>{props.infos.is_admin ? "Admin" : "User"}</span>
+        <li>
+          <a href="/profile" class="flex flex-col gap-0">
+            <span class="w-full font-bold text-lg">{props.infos.name}</span>
+            <span class="w-full font-bold">
+              {props.infos.is_admin ? "Admin" : "User"}
+            </span>
+          </a>
         </li>
-        <li class="disabled">
-          <a>Profile</a>
-        </li>
-        <li class="disabled">
-          <a>Settings</a>
+        <li>
+          <a href="/settings">Settings</a>
         </li>
         <li>
           <a onclick={logout}>Logout</a>
