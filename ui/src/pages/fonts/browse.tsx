@@ -40,7 +40,7 @@ export default function FontsBrowse() {
                 <th>{getFont().ID}</th>
                 <td>
                   <a
-                    href={"/api/font/" + getFont().ID}
+                    href={`/api/font/${getFont().ID}/download`}
                     download={getFont().Name}
                     class="link"
                   >

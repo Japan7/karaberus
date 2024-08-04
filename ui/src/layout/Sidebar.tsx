@@ -1,4 +1,5 @@
 import { A } from "@solidjs/router";
+import { FaSolidInfinity } from "solid-icons/fa";
 import {
   HiOutlineAtSymbol,
   HiOutlineMusicalNote,
@@ -23,7 +24,13 @@ export default function Sidebar() {
           <li>
             <A href="/karaoke/new" activeClass="active">
               <HiSolidPencilSquare class="size-5" />
-              New
+              New Karaoke
+            </A>
+          </li>
+          <li>
+            <A href="/karaoke/mugen" activeClass="active">
+              <FaSolidInfinity class="size-5" />
+              Mugen Import
             </A>
           </li>
           <li>

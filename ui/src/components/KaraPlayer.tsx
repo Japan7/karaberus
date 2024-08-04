@@ -1,12 +1,15 @@
-import { createEffect, onCleanup } from "solid-js";
+import { onCleanup } from "solid-js";
 
 export default function KaraPlayer(props: { id: number | string }) {
   let playerRef!: HTMLVideoElement;
 
-  createEffect(() => {
+  const videoSrc = `/api/kara/${props.id}/download/video`;
+  const subSrc = `/api/kara/${props.id}/download/sub`;
+
+  const setupOctopus = () => {
     const options = {
       video: playerRef,
-      subUrl: `/api/kara/${props.id}/download/sub`,
+      subUrl: subSrc,
       fonts: [
         "/amaranth/amaranth-latin-400-italic.woff",
         "/amaranth/amaranth-latin-400-italic.woff2",
@@ -23,16 +26,21 @@ export default function KaraPlayer(props: { id: number | string }) {
     // @ts-expect-error: global variable
     const octopus = new SubtitlesOctopus(options);
     onCleanup(() => octopus.dispose());
-  });
+  };
 
   return (
     <video
-      src={`/api/kara/${props.id}/download/video`}
+      src={videoSrc}
       controls
       // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
       controlslist="nofullscreen"
       playsinline
       loop
+      oncanplay={setupOctopus}
+      onerror={async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        playerRef.src = videoSrc;
+      }}
       ref={playerRef}
       class="rounded-2xl"
     />
