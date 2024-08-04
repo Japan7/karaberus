@@ -1,4 +1,3 @@
-import type { JSX } from "solid-js";
 import {
   clearSession,
   isAdmin,
@@ -6,9 +5,9 @@ import {
 } from "../utils/session";
 
 export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
-  const logout: JSX.EventHandler<HTMLElement, MouseEvent> = () => {
+  const logout = () => {
     clearSession();
-    location.href = "/";
+    location.reload();
   };
 
   const closeDropdown = () => {
@@ -39,7 +38,7 @@ export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
           <a href="/settings">Settings</a>
         </li>
         <li onclick={() => closeDropdown()}>
-          <a onclick={logout}>Logout</a>
+          <a onclick={() => logout()}>Logout</a>
         </li>
       </ul>
     </div>

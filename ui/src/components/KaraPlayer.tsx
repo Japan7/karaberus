@@ -46,9 +46,9 @@ export default function KaraPlayer(props: { id: number | string }) {
       loop
       oncanplay={setupOctopus}
       onerror={async () => {
-        if (getRetryCount() < 3) {
+        if (getRetryCount() < 10) {
           setRetryCount((count) => count + 1);
-          await new Promise((resolve) => setTimeout(resolve, 5000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           playerRef.src = videoSrc;
         }
       }}

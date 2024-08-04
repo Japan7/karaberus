@@ -1,5 +1,5 @@
 import type { RouteSectionProps } from "@solidjs/router";
-import { Show } from "solid-js";
+import { createEffect, Show } from "solid-js";
 import { getSessionInfos } from "../utils/session";
 import AuthHero from "./AuthHero";
 import Navbar from "./Navbar";
@@ -9,6 +9,16 @@ export default function Layout(props: RouteSectionProps) {
   const infos = getSessionInfos();
 
   let checkboxRef!: HTMLInputElement;
+
+  createEffect(() => {
+    const preloginHref = localStorage.getItem("prelogin_href");
+    if (preloginHref) {
+      localStorage.removeItem("prelogin_href");
+      if (location.href !== preloginHref) {
+        location.href = preloginHref;
+      }
+    }
+  });
 
   return (
     <Show when={infos} fallback={<AuthHero />}>
