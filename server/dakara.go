@@ -490,6 +490,13 @@ func UploadedKaras(db *gorm.DB) *gorm.DB {
 }
 
 func SyncDakara(ctx context.Context) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			getLogger().Println("recovered from panic in SyncDakara", r)
+		}
+	}()
+
 	DakaraSyncLock.Lock()
 	defer DakaraSyncLock.Unlock()
 
