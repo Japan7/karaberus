@@ -1,5 +1,6 @@
 import { HiSolidTrash } from "solid-icons/hi";
-import { createResource, createSignal, Index, type JSX } from "solid-js";
+import { createResource, Index } from "solid-js";
+import AuthorEditor from "../../components/AuthorEditor";
 import { karaberus } from "../../utils/karaberus-client";
 
 export default function TagsAuthor() {
@@ -7,21 +8,6 @@ export default function TagsAuthor() {
     const resp = await karaberus.GET("/api/tags/author");
     return resp.data;
   });
-
-  const [getName, setName] = createSignal("");
-
-  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
-    e.preventDefault();
-    const resp = await karaberus.POST("/api/tags/author", {
-      body: { name: getName() },
-    });
-    if (resp.error) {
-      alert(resp.error);
-      return;
-    }
-    (e.target as HTMLFormElement).reset();
-    refetch();
-  };
 
   const deleteAuthor = async (id: number) => {
     const resp = await karaberus.DELETE("/api/tags/author/{id}", {
@@ -40,23 +26,12 @@ export default function TagsAuthor() {
 
       <h2 class="text-2xl font-semibold">Add author</h2>
 
-      <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full max-w-xs">
-        <label>
-          <div class="label">
-            <span class="label-text">Name</span>
-            <span class="label-text-alt">(required)</span>
-          </div>
-          <input
-            type="text"
-            required
-            value={getName()}
-            onInput={(e) => setName(e.currentTarget.value)}
-            class="input input-bordered w-full"
-          />
-        </label>
-
-        <input type="submit" class="btn" />
-      </form>
+      <AuthorEditor
+        onAdd={() => {
+          alert("Author added!");
+          refetch();
+        }}
+      />
 
       <h2 class="text-2xl font-semibold mt-8">Browse</h2>
 

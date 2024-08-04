@@ -1,10 +1,13 @@
 ui_src += files(
+    'components' / 'ArtistEditor.tsx',
+    'components' / 'AuthorEditor.tsx',
     'components' / 'Autocomplete.tsx',
     'components' / 'AutocompleteMultiple.tsx',
     'components' / 'KaraCard.tsx',
     'components' / 'KaraEditor.tsx',
     'components' / 'KaraFileUploader.tsx',
     'components' / 'KaraPlayer.tsx',
+    'components' / 'MediaEditor.tsx',
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
     'layout' / 'Navbar.tsx',
