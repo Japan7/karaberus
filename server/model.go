@@ -111,7 +111,7 @@ type Token struct {
 	UserID    string
 	User      User `gorm:"foreignKey:UserID;references:ID"`
 	CreatedAt time.Time
-	Scopes
+	Scopes    Scopes `gorm:"embedded" json:"scopes"`
 }
 
 // Artists

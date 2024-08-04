@@ -8,6 +8,20 @@ import (
 	"time"
 )
 
+type GetAllTokensOutput struct {
+	Body []Token
+}
+
+func GetAllUserTokens(ctx context.Context, input *struct{}) (*GetAllTokensOutput, error) {
+	db := GetDB(ctx)
+	user := getCurrentUser(ctx)
+	tokens := []Token{}
+	db.Where(&Token{User: user}).Find(&tokens)
+	out := &GetAllTokensOutput{}
+	out.Body = tokens
+	return out, nil
+}
+
 type CreateTokenInput struct {
 	Body Scopes
 }
@@ -72,7 +86,7 @@ func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutp
 
 	var err error
 	if user.Admin {
-		err = db.Delete(&Token{}, input.TokenID).Error
+		err = db.Where(&Token{ID: input.TokenID}).Delete(&Token{}).Error
 	} else {
 		err = db.Where(&Token{ID: input.TokenID, User: user}).Delete(&Token{}).Error
 	}
