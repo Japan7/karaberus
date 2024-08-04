@@ -143,7 +143,11 @@ func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *
 	}
 
 	if info.SourceMedia > 0 {
-		kara_info.SourceMedia, err = getMediaByID(tx, info.SourceMedia)
+		source_media, err := getMediaByID(tx, info.SourceMedia)
+		if err != nil {
+			return err
+		}
+		kara_info.SourceMedia = &source_media
 	}
 
 	return err

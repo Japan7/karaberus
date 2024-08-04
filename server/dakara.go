@@ -537,8 +537,8 @@ func SyncDakara(ctx context.Context) {
 	all_artists := map[uint]Artist{}
 
 	for _, kara := range all_karas {
-		if kara.SourceMediaID > 0 {
-			all_medias[kara.SourceMedia.ID] = kara.SourceMedia
+		if kara.SourceMedia != nil {
+			all_medias[kara.SourceMedia.ID] = *kara.SourceMedia
 		}
 		for _, media := range kara.Medias {
 			all_medias[media.ID] = media
@@ -783,12 +783,12 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 	}
 
 	n_works := 0
-	if kara.SourceMediaID > 0 {
+	if kara.SourceMediaID != nil {
 		n_works += 1
 	}
 	works := make([]DakaraSongWork, n_works)
 
-	if kara.SourceMediaID > 0 {
+	if kara.SourceMediaID != nil {
 		dakara_worktype := dakara_works[strings.ToLower(kara.SourceMedia.Type)]
 		dakara_work := dakara_worktype[kara.SourceMedia.Name]
 

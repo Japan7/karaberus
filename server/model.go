@@ -74,8 +74,8 @@ type User struct {
 	UpdatedAt       time.Time
 	DeletedAt       gorm.DeletedAt `gorm:"index"`
 	Admin           bool
-	TimingProfileID uint
-	TimingProfile   TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
+	TimingProfileID *uint
+	TimingProfile   *TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
 }
 
 type TimingAuthor struct {
@@ -194,8 +194,8 @@ type KaraInfoDB struct {
 	Artists       []Artist       `gorm:"many2many:kara_artist_tags"`
 	VideoTags     []VideoTagDB   `gorm:"many2many:kara_video_tags"`
 	AudioTags     []AudioTagDB   `gorm:"many2many:kara_audio_tags"`
-	SourceMediaID uint
-	SourceMedia   MediaDB   `gorm:"foreignKey:SourceMediaID;references:ID"`
+	SourceMediaID *uint
+	SourceMedia   *MediaDB  `gorm:"foreignKey:SourceMediaID;references:ID"`
 	Medias        []MediaDB `gorm:"many2many:kara_media_tags"`
 	Title         string
 	ExtraTitles   []AdditionalName `gorm:"many2many:kara_info_additional_name"`
