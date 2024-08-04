@@ -10,7 +10,6 @@ import {
   HiSolidTv,
   HiSolidUser,
 } from "solid-icons/hi";
-import routes from "../utils/routes";
 
 export default function Sidebar() {
   return (
@@ -22,19 +21,19 @@ export default function Sidebar() {
         </h2>
         <ul class="space-y-1">
           <li>
-            <A href={routes.KARAOKE_NEW} activeClass="active">
+            <A href="/karaoke/new" activeClass="active">
               <HiSolidPencilSquare class="size-5" />
               New
             </A>
           </li>
           <li>
-            <A href={routes.KARAOKE_BROWSE} activeClass="active">
+            <A href="/karaoke/browse" activeClass="active">
               <HiSolidGlobeAsiaAustralia class="size-5" />
               Browse
             </A>
           </li>
           <li class="disabled">
-            {/* <A href={routes.KARAOKE_ISSUES} activeClass="active"> */}
+            {/* <A href="/karaoke/issues" activeClass="active"> */}
             <a>
               <HiSolidExclamationCircle class="size-5" />
               Issues
@@ -50,19 +49,19 @@ export default function Sidebar() {
         </h2>
         <ul class="space-y-1">
           <li>
-            <A href={routes.TAGS_MEDIA} activeClass="active">
+            <A href="/tags/media" activeClass="active">
               <HiSolidTv class="size-5" />
               Media
             </A>
           </li>
           <li>
-            <A href={routes.TAGS_ARTIST} activeClass="active">
+            <A href="/tags/artist" activeClass="active">
               <HiSolidMicrophone class="size-5" />
               Artist
             </A>
           </li>
           <li>
-            <A href={routes.TAGS_AUTHOR} activeClass="active">
+            <A href="/tags/author" activeClass="active">
               <HiSolidUser class="size-5" />
               Author
             </A>
@@ -76,7 +75,7 @@ export default function Sidebar() {
         </h2>
         <ul class="space-y-1">
           <li>
-            <A href={routes.FONTS_BROWSE} activeClass="active">
+            <A href="/fonts/browse" activeClass="active">
               <HiSolidGlobeAsiaAustralia class="size-5" />
               Browse
             </A>

@@ -1,5 +1,3 @@
-import routes from "../utils/routes";
-
 export default function AuthHero() {
   return (
     <div class="hero bg-base-200 min-h-screen [background-image:url(https://cdn.myanimelist.net/s/common/uploaded_files/1445139435-b6abfa181eae79d82e5eb41cf52bb72f.jpeg)]">
@@ -14,7 +12,7 @@ export default function AuthHero() {
             <div class="form-control">
               <button
                 onclick={() => {
-                  location.href = routes.API_OIDC_LOGIN;
+                  location.href = "/api/oidc/login";
                 }}
                 class="btn btn-primary"
               >

@@ -1,5 +1,4 @@
 import { HiOutlineBars3 } from "solid-icons/hi";
-import routes from "../utils/routes";
 import type { KaraberusJwtPayload } from "../utils/session";
 import ProfileDropdown from "./ProfileDropdown";
 
@@ -12,7 +11,7 @@ export default function Navbar({ infos }: { infos: KaraberusJwtPayload }) {
         </label>
       </div>
       <div class="flex-1">
-        <a href={routes.HOME} class="btn btn-ghost text-xl">
+        <a href="/" class="btn btn-ghost text-xl">
           Karaberus
         </a>
       </div>

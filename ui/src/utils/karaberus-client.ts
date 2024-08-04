@@ -1,6 +1,5 @@
 import createClient from "openapi-fetch";
 import type { paths } from "./karaberus";
-import routes from "./routes";
 
 export const karaberus = createClient<paths>({
   baseUrl: import.meta.env.BASE_URL,
@@ -10,7 +9,7 @@ export const karaberus = createClient<paths>({
 karaberus.use({
   onResponse: ({ response }) => {
     if (response.status === 401) {
-      location.href = routes.HOME;
+      location.href = "/";
     }
   },
 });

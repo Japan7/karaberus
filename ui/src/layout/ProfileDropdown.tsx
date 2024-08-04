@@ -1,5 +1,4 @@
 import type { JSX } from "solid-js";
-import routes from "../utils/routes";
 import { clearSession, type KaraberusJwtPayload } from "../utils/session";
 
 export default function ProfileDropdown({
@@ -9,7 +8,7 @@ export default function ProfileDropdown({
 }) {
   const logout: JSX.EventHandler<HTMLElement, MouseEvent> = () => {
     clearSession();
-    location.href = routes.HOME;
+    location.href = "/";
   };
 
   return (

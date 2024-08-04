@@ -2,7 +2,6 @@ import { useNavigate } from "@solidjs/router";
 import KaraEditor from "../../components/KaraEditor";
 import type { components } from "../../utils/karaberus";
 import { karaberus } from "../../utils/karaberus-client";
-import routes from "../../utils/routes";
 
 export default function KaraokeNew() {
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ export default function KaraokeNew() {
       return;
     }
 
-    navigate(routes.KARAOKE_BROWSE + "/" + resp.data.kara.ID);
+    navigate("/karaoke/browse/" + resp.data.kara.ID);
   };
 
   return (
