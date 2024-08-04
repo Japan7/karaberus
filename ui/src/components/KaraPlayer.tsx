@@ -1,8 +1,10 @@
 import SubtitlesOctopus from "libass-wasm";
-import { createEffect, onCleanup } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 
 export default function KaraPlayer(props: { id: number | string }) {
   let playerRef!: HTMLVideoElement;
+
+  const [getRetryCount, setRetryCount] = createSignal(0);
 
   let octopus: SubtitlesOctopus | undefined;
 
@@ -44,8 +46,11 @@ export default function KaraPlayer(props: { id: number | string }) {
       loop
       oncanplay={setupOctopus}
       onerror={async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        playerRef.src = videoSrc;
+        if (getRetryCount() < 3) {
+          setRetryCount((count) => count + 1);
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          playerRef.src = videoSrc;
+        }
       }}
       ref={playerRef}
       class="rounded-2xl"
