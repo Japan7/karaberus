@@ -202,7 +202,11 @@ func dakaraGetWorks(ctx context.Context) (map[string]map[string]*DakaraWork, err
 			return nil, err
 		}
 		for _, work := range data.Results {
-			worktypes[work.WorkType.QueryName][work.Title] = &work
+			worktype_map := worktypes[work.WorkType.QueryName]
+			if worktype_map == nil {
+				continue
+			}
+			worktype_map[work.Title] = &work
 		}
 
 		if data.Pagination.Current == data.Pagination.Last {
