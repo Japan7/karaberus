@@ -9,6 +9,7 @@ package karaberus_tools
 #include <unistd.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 int AVIORead(void *obj, uint8_t *buf, int n);
@@ -45,7 +46,9 @@ func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
 	} else if err != nil {
 		panic(err)
 	}
-	C.memcpy(unsafe.Pointer(buf), C.CBytes(rbuf), C.size_t(nread))
+	c_rbuf := C.CBytes(rbuf)
+	defer C.free(c_rbuf)
+	C.memcpy(unsafe.Pointer(buf), c_rbuf, C.size_t(nread))
 	return C.int(nread)
 }
 
