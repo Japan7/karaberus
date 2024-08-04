@@ -5,8 +5,10 @@ import { karaberus } from "../utils/karaberus-client";
 export default function MugenImport(props: {
   onImport: (kara: components["schemas"]["MugenImport"]) => void;
 }) {
-  const [getKid, setKid] = createSignal("");
+  const [getInput, setInput] = createSignal("");
   const [getName, setName] = createSignal("");
+
+  const getKid = () => getInput().split("/").pop() ?? getInput();
 
   createEffect(async () => {
     if (getKid().length !== 36) {
@@ -40,14 +42,14 @@ export default function MugenImport(props: {
     <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full max-w-xs">
       <label>
         <div class="label">
-          <span class="label-text">Karaoke ID</span>
+          <span class="label-text">Karaoke ID/URL</span>
           <span class="label-text-alt">(required)</span>
         </div>
         <input
           type="text"
           required
-          value={getKid()}
-          onInput={(e) => setKid(e.currentTarget.value)}
+          value={getInput()}
+          onInput={(e) => setInput(e.currentTarget.value)}
           class="input input-bordered w-full"
         />
         <div class="label">
