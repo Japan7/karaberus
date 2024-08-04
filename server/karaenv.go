@@ -25,6 +25,8 @@ type KaraberusOIDCConfig struct {
 	ClientSecret string `envkey:"CLIENT_SECRET"`
 	Scopes       string `envkey:"SCOPES" default:"openid profile email"`
 	IDClaim      string `envkey:"ID_CLAIM"`
+	GroupsClaim  string `envkey:"GROUPS_CLAIM"`
+	AdminGroup   string `envkey:"ADMIN_GROUP"`
 	JwtSignKey   string `envkey:"JWT_SIGN_KEY"`
 }
 
@@ -40,6 +42,12 @@ func (c KaraberusOIDCConfig) Validate() error {
 	}
 	if c.JwtSignKey == "" {
 		return &KaraberusError{"JWT signing key is not set"}
+	}
+	if c.GroupsClaim == "" {
+		return &KaraberusError{"Groups claim is not set"}
+	}
+	if c.AdminGroup == "" {
+		return &KaraberusError{"Admin group is not set"}
 	}
 
 	return nil

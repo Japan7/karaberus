@@ -13,7 +13,9 @@ export interface KaraberusJwtPayload {
   email: string;
   email_verified: boolean;
   kara: boolean;
+  kara_ro: boolean;
   user: boolean;
+  is_admin: boolean;
 }
 
 export const SESSION_TOKEN_NAME = "karaberus_session";

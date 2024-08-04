@@ -19,8 +19,9 @@ import (
 )
 
 type KaraberusClaims struct {
-	oidc.IDTokenClaims
+	IsAdmin bool `json:"is_admin"`
 	Scopes
+	oidc.IDTokenClaims
 	jwt.MapClaims `json:"-"`
 }
 
@@ -83,7 +84,7 @@ func CreateJwtForUser(
 	sub string,
 	expiresAt *time.Time,
 	info *oidc.UserInfo) (*jwt.Token, string, error) {
-	user, err := getOrCreateUser(ctx, sub)
+	user, err := getOrCreateUser(ctx, sub, info)
 	if err != nil {
 		return nil, "", err
 	}
@@ -97,6 +98,7 @@ func CreateJwtForUser(
 		claims.IDTokenClaims.TokenClaims.Expiration = oidc.Time(expiresAt.Unix())
 	}
 	claims.Scopes = AllScopes
+	claims.IsAdmin = user.Admin
 	return createJwt(claims)
 }
 
