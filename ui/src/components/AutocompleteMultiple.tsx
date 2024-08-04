@@ -60,25 +60,27 @@ export default function AutocompleteMultiple<T>({
           {...inputProps}
         />
       </div>
-      <ul class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow">
-        <For each={filteredItems()}>
-          {(item) => (
-            <li>
-              <a
-                href="#"
-                onclick={(e) => {
-                  e.preventDefault();
-                  setState((state) => [...state, item]);
-                  setInput("");
-                  inputEl.focus();
-                }}
-              >
-                {getItemName(item)}
-              </a>
-            </li>
-          )}
-        </For>
-      </ul>
+      <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-80 overflow-y-auto">
+        <ul>
+          <For each={filteredItems()}>
+            {(item) => (
+              <li>
+                <a
+                  href="#"
+                  onclick={(e) => {
+                    e.preventDefault();
+                    setState((state) => [...state, item]);
+                    setInput("");
+                    inputEl.focus();
+                  }}
+                >
+                  {getItemName(item)}
+                </a>
+              </li>
+            )}
+          </For>
+        </ul>
+      </div>
     </div>
   );
 }

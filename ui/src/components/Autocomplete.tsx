@@ -22,6 +22,11 @@ export default function Autocomplete<T>({
 } & JSX.InputHTMLAttributes<HTMLInputElement>) {
   const [getInput, setInput] = createSignal("");
 
+  const filteredItems = () =>
+    items.filter((item) =>
+      getItemName(item).toLowerCase().includes(getInput().toLowerCase()),
+    );
+
   return (
     <div class="dropdown w-full">
       <div class="textarea textarea-bordered w-full">
@@ -49,24 +54,26 @@ export default function Autocomplete<T>({
         </Show>
       </div>
       <Show when={getState() === undefined}>
-        <ul class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow">
-          <For each={items}>
-            {(item) => (
-              <li>
-                <a
-                  href="#"
-                  onclick={(e) => {
-                    e.preventDefault();
-                    setState(() => item);
-                    setInput("");
-                  }}
-                >
-                  {getItemName(item)}
-                </a>
-              </li>
-            )}
-          </For>
-        </ul>
+        <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-80 overflow-y-auto">
+          <ul>
+            <For each={filteredItems()}>
+              {(item) => (
+                <li>
+                  <a
+                    href="#"
+                    onclick={(e) => {
+                      e.preventDefault();
+                      setState(() => item);
+                      setInput("");
+                    }}
+                  >
+                    {getItemName(item)}
+                  </a>
+                </li>
+              )}
+            </For>
+          </ul>
+        </div>
       </Show>
     </div>
   );
