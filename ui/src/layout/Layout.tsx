@@ -8,10 +8,17 @@ import Sidebar from "./Sidebar";
 export default function Layout(props: RouteSectionProps) {
   const infos = getSessionInfos();
 
+  let checkboxRef!: HTMLInputElement;
+
   return (
     <Show when={infos} fallback={<AuthHero />}>
       <div class="drawer lg:drawer-open">
-        <input id="main-drawer" type="checkbox" class="drawer-toggle" />
+        <input
+          id="main-drawer"
+          type="checkbox"
+          ref={checkboxRef}
+          class="drawer-toggle"
+        />
 
         <div class="drawer-content">
           <div class="mt-2 mx-2">
@@ -28,7 +35,11 @@ export default function Layout(props: RouteSectionProps) {
             aria-label="close sidebar"
             class="drawer-overlay"
           />
-          <Sidebar />
+          <Sidebar
+            closeDrawer={() => {
+              checkboxRef.checked = false;
+            }}
+          />
         </div>
       </div>
     </Show>

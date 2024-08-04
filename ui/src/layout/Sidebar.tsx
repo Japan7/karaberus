@@ -12,7 +12,7 @@ import {
   HiSolidUser,
 } from "solid-icons/hi";
 
-export default function Sidebar() {
+export default function Sidebar(props: { closeDrawer: () => void }) {
   return (
     <ul class="menu menu-lg bg-base-200 text-base-content min-h-full w-80 p-4">
       <li>
@@ -21,25 +21,25 @@ export default function Sidebar() {
           Karaokes
         </h2>
         <ul class="space-y-1">
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/karaoke/new" activeClass="active">
               <HiSolidPencilSquare class="size-5" />
               New Karaoke
             </A>
           </li>
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/karaoke/mugen" activeClass="active">
               <FaSolidInfinity class="size-5" />
               Mugen Import
             </A>
           </li>
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/karaoke/browse" activeClass="active">
               <HiSolidGlobeAsiaAustralia class="size-5" />
               Browse
             </A>
           </li>
-          <li class="disabled">
+          <li onclick={() => props.closeDrawer()} class="disabled">
             {/* <A href="/karaoke/issues" activeClass="active"> */}
             <a>
               <HiSolidExclamationCircle class="size-5" />
@@ -55,19 +55,19 @@ export default function Sidebar() {
           Tags
         </h2>
         <ul class="space-y-1">
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/tags/media" activeClass="active">
               <HiSolidTv class="size-5" />
               Media
             </A>
           </li>
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/tags/artist" activeClass="active">
               <HiSolidMicrophone class="size-5" />
               Artist
             </A>
           </li>
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/tags/author" activeClass="active">
               <HiSolidUser class="size-5" />
               Author
@@ -81,7 +81,7 @@ export default function Sidebar() {
           Fonts
         </h2>
         <ul class="space-y-1">
-          <li>
+          <li onclick={() => props.closeDrawer()}>
             <A href="/fonts/browse" activeClass="active">
               <HiSolidGlobeAsiaAustralia class="size-5" />
               Browse
