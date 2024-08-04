@@ -1,9 +1,10 @@
 import { useParams } from "@solidjs/router";
 import { createResource, Show } from "solid-js";
 import KaraEditor from "../../../components/KaraEditor";
+import KaraFileUploader from "../../../components/KaraFileUploader";
 import KaraPlayer from "../../../components/KaraPlayer";
 import type { components } from "../../../utils/karaberus";
-import { fileForm, karaberus } from "../../../utils/karaberus-client";
+import { karaberus } from "../../../utils/karaberus-client";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -18,28 +19,6 @@ export default function KaraokeBrowseId() {
     });
     return resp.data;
   });
-
-  const upload = async (filetype: string, file?: File) => {
-    if (!file) return;
-
-    const resp = await karaberus.PUT("/api/kara/{id}/upload/{filetype}", {
-      params: {
-        path: {
-          id: parseInt(params.id),
-          filetype,
-        },
-      },
-      ...fileForm(file),
-    });
-
-    if (resp.error) {
-      alert(resp.error);
-      return;
-    }
-
-    alert(filetype + " uploaded successfully");
-    location.reload();
-  };
 
   const edit = async (info: components["schemas"]["KaraInfo"]) => {
     const resp = await karaberus.PATCH("/api/kara/{id}", {
@@ -61,18 +40,29 @@ export default function KaraokeBrowseId() {
 
   return (
     <>
-      <input
-        type="file"
-        onchange={(e) => upload("video", e.target.files?.[0])}
-        class="file-input file-input-bordered w-full max-w-xs"
-      />
-      <input
-        type="file"
-        onchange={(e) => upload("sub", e.target.files?.[0])}
-        class="file-input file-input-bordered w-full max-w-xs"
-      />
-
       <KaraPlayer id={params.id} />
+
+      <h2 class="text-2xl font-semibold mt-4">Upload files</h2>
+
+      <div class="grid md:grid-cols-3 gap-x-2">
+        <KaraFileUploader
+          title="Video"
+          putUrl={`/api/kara/${params.id}/upload/video`}
+          downloadUrl={`/api/kara/${params.id}/download/video`}
+        />
+        <KaraFileUploader
+          title="Instrumental"
+          putUrl={`/api/kara/${params.id}/upload/inst`}
+          downloadUrl={`/api/kara/${params.id}/download/inst`}
+        />
+        <KaraFileUploader
+          title="Subtitles"
+          putUrl={`/api/kara/${params.id}/upload/sub`}
+          downloadUrl={`/api/kara/${params.id}/download/sub`}
+        />
+      </div>
+
+      <h2 class="text-2xl font-semibold mt-4">Edit</h2>
 
       <Show when={getKara()?.kara} fallback={<p>loading karaoke...</p>}>
         {(getKara) => <KaraEditor kara={getKara()} onSubmit={edit} />}

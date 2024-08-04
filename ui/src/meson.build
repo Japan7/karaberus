@@ -3,6 +3,7 @@ ui_src += files(
     'components' / 'AutocompleteMultiple.tsx',
     'components' / 'KaraCard.tsx',
     'components' / 'KaraEditor.tsx',
+    'components' / 'KaraFileUploader.tsx',
     'components' / 'KaraPlayer.tsx',
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',

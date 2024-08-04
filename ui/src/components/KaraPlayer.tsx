@@ -34,6 +34,7 @@ export default function KaraPlayer({ id }: { id: number | string }) {
       playsinline
       loop
       ref={playerRef}
+      class="rounded-2xl"
     />
   );
 }
