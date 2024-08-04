@@ -114,197 +114,219 @@ export default function KaraEditor({
   };
 
   return (
-    <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full max-w-xs">
-      <label>
-        <div class="label">
-          <span class="label-text">Title</span>
-          <span class="label-text-alt">(required)</span>
-        </div>
-        <input
-          type="text"
-          required
-          placeholder="Zankoku na Tenshi no These"
-          value={getTitle()}
-          oninput={(e) => setTitle(e.currentTarget.value)}
-          class="input input-bordered w-full"
-        />
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Extra titles</span>
-        </div>
-        <textarea
-          placeholder="A Cruel Angel's Thesis&#10;Zankoku na Tenshi no Thesis"
-          value={getExtraTitles()}
-          oninput={(e) => setExtraTitles(e.currentTarget.value)}
-          class="textarea textarea-bordered w-full"
-        />
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Authors</span>
-        </div>
-        <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
-          {(getAllAuthors) => (
-            <AutocompleteMultiple
-              placeholder="RhiobeT"
-              items={getAllAuthors()}
-              getItemName={(author) => author.Name}
-              getState={getAuthors}
-              setState={setAuthors}
-            />
-          )}
-        </Show>
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Artists</span>
-        </div>
-        <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
-          {(getAllArtists) => (
-            <AutocompleteMultiple
-              placeholder="Yoko Takahashi"
-              items={getAllArtists()}
-              getItemName={(artist) => artist.Name}
-              getState={getArtists}
-              setState={setArtists}
-            />
-          )}
-        </Show>
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Source media</span>
-        </div>
-        <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
-          {(getAllMedias) => (
-            <Autocomplete
-              placeholder="Shin Seiki Evangelion"
-              items={getAllMedias()}
-              getItemName={(media) => `[${media.media_type}] ${media.name}`}
-              getState={getSourceMedia}
-              setState={setSourceMedia}
-            />
-          )}
-        </Show>
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Medias</span>
-        </div>
-        <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
-          {(getAllMedias) => (
-            <AutocompleteMultiple
-              placeholder="Japan7"
-              items={getAllMedias()}
-              getItemName={(media) => `[${media.media_type}] ${media.name}`}
-              getState={getMedias}
-              setState={setMedias}
-            />
-          )}
-        </Show>
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Audio tags</span>
-        </div>
-        <Show when={getAllAudioTags()} fallback={<p>Loading audio tags...</p>}>
-          {(getAllAudioTags) => (
-            <AutocompleteMultiple
-              placeholder="Opening"
-              items={getAllAudioTags()}
-              getItemName={(tag) =>
-                getAudioTag(getAllAudioTags(), tag.ID)?.Name || ""
-              }
-              getState={getAudioTags}
-              setState={setAudioTags}
-            />
-          )}
-        </Show>
-      </label>
-
-      <Show
-        when={getAudioTags().some(
-          (tag) => getAudioTag(getAllAudioTags() || [], tag.ID)?.HasSongOrder,
-        )}
-      >
-        <label>
-          <div class="label">
-            <span class="label-text">Song order</span>
+    <form onsubmit={onsubmit} class="flex flex-col gap-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Title(s)</h2>
+            <label>
+              <div class="label">
+                <span class="label-text">Title</span>
+                <span class="label-text-alt">(required)</span>
+              </div>
+              <input
+                type="text"
+                required
+                placeholder="Zankoku na Tenshi no These"
+                value={getTitle()}
+                oninput={(e) => setTitle(e.currentTarget.value)}
+                class="input input-bordered w-full"
+              />
+            </label>
+            <label>
+              <div class="label">
+                <span class="label-text">Aliases</span>
+              </div>
+              <textarea
+                placeholder="A Cruel Angel's Thesis&#10;Zankoku na Tenshi no Thesis"
+                value={getExtraTitles()}
+                oninput={(e) => setExtraTitles(e.currentTarget.value)}
+                class="textarea textarea-bordered w-full"
+              />
+            </label>
           </div>
-          <input
-            type="number"
-            min={0}
-            placeholder="1"
-            value={getSongOrder()}
-            onchange={(e) => setSongOrder(e.target.valueAsNumber)}
-            class="input input-bordered w-full"
-          />
-        </label>
-      </Show>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Video tags</span>
         </div>
-        <Show when={getAllVideoTags()} fallback={<p>Loading video tags...</p>}>
-          {(getAllVideoTags) => (
-            <AutocompleteMultiple
-              placeholder="Fanmade"
-              items={getAllVideoTags()}
-              getItemName={(tag) =>
-                getVideoTag(getAllVideoTags(), tag.ID)?.Name || ""
-              }
-              getState={getVideoTags}
-              setState={setVideoTags}
-            />
-          )}
-        </Show>
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Comment</span>
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Identity</h2>
+            <label>
+              <div class="label">
+                <span class="label-text">Language</span>
+              </div>
+              <input
+                type="text"
+                placeholder="FR"
+                value={getLanguage()}
+                oninput={(e) => setLanguage(e.currentTarget.value)}
+                class="input input-bordered w-full"
+              />
+            </label>
+            <label>
+              <div class="label">
+                <span class="label-text">Source media</span>
+              </div>
+              <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
+                {(getAllMedias) => (
+                  <Autocomplete
+                    placeholder="Shin Seiki Evangelion"
+                    items={getAllMedias()}
+                    getItemName={(media) =>
+                      `[${media.media_type}] ${media.name}`
+                    }
+                    getState={getSourceMedia}
+                    setState={setSourceMedia}
+                  />
+                )}
+              </Show>
+            </label>
+            <label>
+              <div class="label">
+                <span class="label-text">Other medias</span>
+              </div>
+              <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
+                {(getAllMedias) => (
+                  <AutocompleteMultiple
+                    placeholder="Japan7"
+                    items={getAllMedias()}
+                    getItemName={(media) =>
+                      `[${media.media_type}] ${media.name}`
+                    }
+                    getState={getMedias}
+                    setState={setMedias}
+                  />
+                )}
+              </Show>
+            </label>
+            <label>
+              <div class="label">
+                <span class="label-text">Song types</span>
+              </div>
+              <Show
+                when={getAllAudioTags()}
+                fallback={<p>Loading audio tags...</p>}
+              >
+                {(getAllAudioTags) => (
+                  <AutocompleteMultiple
+                    placeholder="Opening"
+                    items={getAllAudioTags()}
+                    getItemName={(tag) =>
+                      getAudioTag(getAllAudioTags(), tag.ID)?.Name || ""
+                    }
+                    getState={getAudioTags}
+                    setState={setAudioTags}
+                  />
+                )}
+              </Show>
+            </label>
+            <Show
+              when={getAudioTags().some(
+                (tag) =>
+                  getAudioTag(getAllAudioTags() || [], tag.ID)?.HasSongOrder,
+              )}
+            >
+              <label>
+                <div class="label">
+                  <span class="label-text">Song order</span>
+                </div>
+                <input
+                  type="number"
+                  min={0}
+                  placeholder="1"
+                  value={getSongOrder()}
+                  onchange={(e) => setSongOrder(e.target.valueAsNumber)}
+                  class="input input-bordered w-full"
+                />
+              </label>
+            </Show>
+            <label>
+              <div class="label">
+                <span class="label-text">Artists</span>
+              </div>
+              <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
+                {(getAllArtists) => (
+                  <AutocompleteMultiple
+                    placeholder="Yoko Takahashi"
+                    items={getAllArtists()}
+                    getItemName={(artist) => artist.Name}
+                    getState={getArtists}
+                    setState={setArtists}
+                  />
+                )}
+              </Show>
+            </label>
+          </div>
         </div>
-        <textarea
-          placeholder="From https://youtu.be/dQw4w9WgXcQ"
-          value={getComment()}
-          oninput={(e) => setComment(e.currentTarget.value)}
-          class="textarea textarea-bordered w-full"
-        />
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Version</span>
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Categorization</h2>
+            <label>
+              <div class="label">
+                <span class="label-text">Tags</span>
+              </div>
+              <Show
+                when={getAllVideoTags()}
+                fallback={<p>Loading video tags...</p>}
+              >
+                {(getAllVideoTags) => (
+                  <AutocompleteMultiple
+                    placeholder="Fanmade"
+                    items={getAllVideoTags()}
+                    getItemName={(tag) =>
+                      getVideoTag(getAllVideoTags(), tag.ID)?.Name || ""
+                    }
+                    getState={getVideoTags}
+                    setState={setVideoTags}
+                  />
+                )}
+              </Show>
+            </label>
+            <label>
+              <div class="label">
+                <span class="label-text">Version</span>
+              </div>
+              <input
+                type="text"
+                placeholder="iykyk"
+                value={getVersion()}
+                oninput={(e) => setVersion(e.currentTarget.value)}
+                class="input input-bordered w-full"
+              />
+            </label>
+          </div>
         </div>
-        <input
-          type="text"
-          placeholder="iykyk"
-          value={getVersion()}
-          oninput={(e) => setVersion(e.currentTarget.value)}
-          class="input input-bordered w-full"
-        />
-      </label>
-
-      <label>
-        <div class="label">
-          <span class="label-text">Language</span>
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Metadata</h2>
+            <label>
+              <div class="label">
+                <span class="label-text">Authors</span>
+              </div>
+              <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
+                {(getAllAuthors) => (
+                  <AutocompleteMultiple
+                    placeholder="RhiobeT"
+                    items={getAllAuthors()}
+                    getItemName={(author) => author.Name}
+                    getState={getAuthors}
+                    setState={setAuthors}
+                  />
+                )}
+              </Show>
+            </label>
+            <label>
+              <div class="label">
+                <span class="label-text">Comments</span>
+              </div>
+              <textarea
+                placeholder="From https://youtu.be/dQw4w9WgXcQ"
+                value={getComment()}
+                oninput={(e) => setComment(e.currentTarget.value)}
+                class="textarea textarea-bordered w-full"
+              />
+            </label>
+          </div>
         </div>
-        <input
-          type="text"
-          placeholder="FR"
-          value={getLanguage()}
-          oninput={(e) => setLanguage(e.currentTarget.value)}
-          class="input input-bordered w-full"
-        />
-      </label>
+      </div>
 
       <input type="submit" class="btn" />
     </form>
