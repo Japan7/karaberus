@@ -299,12 +299,14 @@ else
     summary('S3 tests', 'Disabled')
 endif
 
-errcheck = custom_target(
-    'errcheck',
-    command: [go, 'install', 'github.com/kisielk/errcheck@latest'],
-    output: 'errcheck',
-    env: {'GOBIN': meson.current_build_dir()},
-)
+if get_option('errcheck')
+    errcheck = custom_target(
+        'errcheck',
+        command: [go, 'install', 'github.com/kisielk/errcheck@latest'],
+        output: 'errcheck',
+        env: {'GOBIN': meson.current_build_dir()},
+    )
+endif
 
 if get_option('test')
     test(
@@ -315,15 +317,17 @@ if get_option('test')
         timeout: 300,
     )
 
-    test(
-        'errcheck',
-        errcheck,
-        args: ['./...'],
-        depends: karaberus,
-        env: go_env,
-        workdir: meson.current_source_dir(),
-        timeout: 300,
-    )
+    if get_option('errcheck')
+        test(
+            'errcheck',
+            errcheck,
+            args: ['./...'],
+            depends: karaberus,
+            env: go_env,
+            workdir: meson.current_source_dir(),
+            timeout: 300,
+        )
+    endif
 endif
 
 test(
