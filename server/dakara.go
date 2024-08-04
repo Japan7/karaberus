@@ -490,15 +490,15 @@ func UploadedKaras(db *gorm.DB) *gorm.DB {
 }
 
 func SyncDakara(ctx context.Context) {
+	DakaraSyncLock.Lock()
+
 	defer func() {
 		r := recover()
 		if r != nil {
 			getLogger().Println("recovered from panic in SyncDakara", r)
 		}
+		DakaraSyncLock.Unlock()
 	}()
-
-	DakaraSyncLock.Lock()
-	defer DakaraSyncLock.Unlock()
 
 	db := GetDB(ctx)
 	// sync media types / work types

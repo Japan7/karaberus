@@ -298,7 +298,14 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	if err != nil {
 		return err
 	}
-	defer MugenDownloadSemaphore.Release(1)
+
+	defer func() {
+		r := recover()
+		if r != nil {
+			getLogger().Println("recovered from panic in SyncMugen", r)
+		}
+		MugenDownloadSemaphore.Release(1)
+	}()
 
 	mugen_client := mugen.GetClient()
 	mugen_kara, err := mugen_client.GetKara(ctx, mugen_import.MugenKID)
@@ -394,12 +401,6 @@ func MugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) {
 }
 
 func SyncMugen(ctx context.Context) {
-	defer func() {
-		r := recover()
-		if r != nil {
-			getLogger().Println("recovered from panic in SyncMugen", r)
-		}
-	}()
 	mugen_imports := []MugenImport{}
 	db := GetDB(ctx)
 	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
