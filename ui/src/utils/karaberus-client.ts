@@ -9,7 +9,8 @@ export const karaberus = createClient<paths>({
 karaberus.use({
   onResponse: ({ response }) => {
     if (response.status === 401) {
-      location.href = "/";
+      // force rerender of authhero
+      location.reload();
     }
   },
 });
