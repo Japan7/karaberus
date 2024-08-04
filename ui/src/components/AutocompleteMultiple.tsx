@@ -60,7 +60,7 @@ export default function AutocompleteMultiple<T>({
           {...inputProps}
         />
       </div>
-      <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-80 overflow-y-auto">
+      <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto">
         <ul>
           <For each={filteredItems()}>
             {(item) => (
