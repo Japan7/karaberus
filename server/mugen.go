@@ -394,6 +394,12 @@ func MugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) {
 }
 
 func SyncMugen(ctx context.Context) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			getLogger().Println("recovered from panic in SyncMugen", r)
+		}
+	}()
 	mugen_imports := []MugenImport{}
 	db := GetDB(ctx)
 	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
