@@ -2,9 +2,7 @@ import { createSignal, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
-export default function AuthorEditor({
-  onAdd,
-}: {
+export default function AuthorEditor(props: {
   onAdd: (author: components["schemas"]["TimingAuthor"]) => void;
 }) {
   const [getName, setName] = createSignal("");
@@ -19,7 +17,7 @@ export default function AuthorEditor({
       return;
     }
     (e.target as HTMLFormElement).reset();
-    onAdd(resp.data.author);
+    props.onAdd(resp.data.author);
   };
 
   return (

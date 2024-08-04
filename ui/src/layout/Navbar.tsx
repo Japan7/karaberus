@@ -2,7 +2,7 @@ import { HiOutlineBars3 } from "solid-icons/hi";
 import type { KaraberusJwtPayload } from "../utils/session";
 import ProfileDropdown from "./ProfileDropdown";
 
-export default function Navbar({ infos }: { infos: KaraberusJwtPayload }) {
+export default function Navbar(props: { infos: KaraberusJwtPayload }) {
   return (
     <div class="navbar bg-base-100 shadow-xl rounded-box">
       <div class="flex-none">
@@ -16,7 +16,7 @@ export default function Navbar({ infos }: { infos: KaraberusJwtPayload }) {
         </a>
       </div>
       <div class="flex-none">
-        <ProfileDropdown infos={infos} />
+        <ProfileDropdown infos={props.infos} />
       </div>
     </div>
   );

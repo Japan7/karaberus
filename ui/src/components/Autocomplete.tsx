@@ -3,35 +3,39 @@ import {
   createSignal,
   For,
   Show,
+  splitProps,
   type Accessor,
   type JSX,
   type Setter,
 } from "solid-js";
 
-export default function Autocomplete<T>({
-  items,
-  getItemName,
-  getState,
-  setState,
-  ...inputProps
-}: {
-  items: T[];
-  getItemName: (item: T) => string;
-  getState: Accessor<T | undefined>;
-  setState: Setter<T | undefined>;
-} & JSX.InputHTMLAttributes<HTMLInputElement>) {
+export default function Autocomplete<T>(
+  props: {
+    items: T[];
+    getItemName: (item: T) => string;
+    getState: Accessor<T | undefined>;
+    setState: Setter<T | undefined>;
+  } & JSX.InputHTMLAttributes<HTMLInputElement>,
+) {
+  const [local, inputProps] = splitProps(props, [
+    "items",
+    "getItemName",
+    "getState",
+    "setState",
+  ]);
+
   const [getInput, setInput] = createSignal("");
 
   const filteredItems = () =>
-    items.filter((item) =>
-      getItemName(item).toLowerCase().includes(getInput().toLowerCase()),
+    local.items.filter((item) =>
+      local.getItemName(item).toLowerCase().includes(getInput().toLowerCase()),
     );
 
   return (
     <div class="dropdown w-full">
       <div class="textarea textarea-bordered w-full">
         <Show
-          when={getState()}
+          when={local.getState()}
           fallback={
             <input
               type="text"
@@ -44,16 +48,16 @@ export default function Autocomplete<T>({
         >
           {(getState) => (
             <div
-              onclick={() => setState(undefined)}
+              onclick={() => local.setState(undefined)}
               class="btn w-full flex justify-evenly"
             >
-              <span>{getItemName(getState())}</span>
+              <span>{local.getItemName(getState())}</span>
               <HiSolidXMark class="size-5" />
             </div>
           )}
         </Show>
       </div>
-      <Show when={getState() === undefined}>
+      <Show when={local.getState() === undefined}>
         <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto">
           <ul>
             <For each={filteredItems()}>
@@ -63,11 +67,11 @@ export default function Autocomplete<T>({
                     href="#"
                     onclick={(e) => {
                       e.preventDefault();
-                      setState(() => item);
+                      local.setState(() => item);
                       setInput("");
                     }}
                   >
-                    {getItemName(item)}
+                    {local.getItemName(item)}
                   </a>
                 </li>
               )}

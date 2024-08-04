@@ -2,9 +2,7 @@ import { createSignal, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
-export default function ArtistEditor({
-  onAdd,
-}: {
+export default function ArtistEditor(props: {
   onAdd: (artist: components["schemas"]["Artist"]) => void;
 }) {
   const [getName, setName] = createSignal("");
@@ -23,7 +21,7 @@ export default function ArtistEditor({
       return;
     }
     (e.target as HTMLFormElement).reset();
-    onAdd(resp.data.artist);
+    props.onAdd(resp.data.artist);
   };
 
   return (

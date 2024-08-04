@@ -1,11 +1,7 @@
 import type { JSX } from "solid-js";
 import { clearSession, type KaraberusJwtPayload } from "../utils/session";
 
-export default function ProfileDropdown({
-  infos,
-}: {
-  infos: KaraberusJwtPayload;
-}) {
+export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
   const logout: JSX.EventHandler<HTMLElement, MouseEvent> = () => {
     clearSession();
     location.href = "/";
@@ -15,7 +11,7 @@ export default function ProfileDropdown({
     <div class="dropdown dropdown-bottom dropdown-end">
       <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
         <div class="w-10 rounded-full">
-          <img alt={infos.name} src={infos.picture} />
+          <img alt={props.infos.name} src={props.infos.picture} />
         </div>
       </div>
       <ul

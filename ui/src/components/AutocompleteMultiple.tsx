@@ -2,49 +2,57 @@ import { HiSolidXMark } from "solid-icons/hi";
 import {
   createSignal,
   For,
+  splitProps,
   type Accessor,
   type JSX,
   type Setter,
 } from "solid-js";
 
-export default function AutocompleteMultiple<T>({
-  items,
-  getItemName,
-  getState,
-  setState,
-  required,
-  allowDuplicates,
-  ...inputProps
-}: {
-  items: T[];
-  getItemName: (item: T) => string;
-  getState: Accessor<T[]>;
-  setState: Setter<T[]>;
-  allowDuplicates?: boolean;
-} & JSX.InputHTMLAttributes<HTMLInputElement>) {
+export default function AutocompleteMultiple<T>(
+  props: {
+    items: T[];
+    getItemName: (item: T) => string;
+    getState: Accessor<T[]>;
+    setState: Setter<T[]>;
+    allowDuplicates?: boolean;
+  } & JSX.InputHTMLAttributes<HTMLInputElement>,
+) {
+  const [local, inputProps] = splitProps(props, [
+    "items",
+    "getItemName",
+    "getState",
+    "setState",
+    "allowDuplicates",
+  ]);
+
   let inputEl!: HTMLInputElement;
   const [getInput, setInput] = createSignal("");
 
   const filteredItems = () =>
-    items.filter(
+    local.items.filter(
       (item) =>
-        (allowDuplicates || !getState().includes(item)) &&
-        getItemName(item).toLowerCase().includes(getInput().toLowerCase()),
+        (local.allowDuplicates || !local.getState().includes(item)) &&
+        local
+          .getItemName(item)
+          .toLowerCase()
+          .includes(getInput().toLowerCase()),
     );
 
   return (
     <div class="dropdown w-full">
       <div class="textarea textarea-bordered w-full">
         <div class="flex flex-wrap gap-1">
-          <For each={getState()}>
+          <For each={local.getState()}>
             {(item, index) => (
               <div
                 onclick={() =>
-                  setState((state) => state.filter((_, i) => i !== index()))
+                  local.setState((state) =>
+                    state.filter((_, i) => i !== index()),
+                  )
                 }
                 class="btn btn-xs"
               >
-                <span>{getItemName(item)}</span>
+                <span>{local.getItemName(item)}</span>
                 <HiSolidXMark class="size-4" />
               </div>
             )}
@@ -52,7 +60,7 @@ export default function AutocompleteMultiple<T>({
         </div>
         <input
           type="text"
-          required={required && getState().length === 0}
+          required={inputProps.required && local.getState().length === 0}
           value={getInput()}
           oninput={(e) => setInput(e.currentTarget.value)}
           ref={inputEl}
@@ -69,12 +77,12 @@ export default function AutocompleteMultiple<T>({
                   href="#"
                   onclick={(e) => {
                     e.preventDefault();
-                    setState((state) => [...state, item]);
+                    local.setState((state) => [...state, item]);
                     setInput("");
                     inputEl.focus();
                   }}
                 >
-                  {getItemName(item)}
+                  {local.getItemName(item)}
                 </a>
               </li>
             )}

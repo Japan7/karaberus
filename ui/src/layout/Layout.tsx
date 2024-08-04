@@ -5,7 +5,7 @@ import AuthHero from "./AuthHero";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
-export default function Layout({ children }: RouteSectionProps) {
+export default function Layout(props: RouteSectionProps) {
   const infos = getSessionInfos();
 
   return (
@@ -17,7 +17,9 @@ export default function Layout({ children }: RouteSectionProps) {
           <div class="mt-2 mx-2">
             <Navbar infos={infos!} />
           </div>
-          <main class="container flex flex-col py-6 gap-y-2">{children}</main>
+          <main class="container flex flex-col py-6 gap-y-2">
+            {props.children}
+          </main>
         </div>
 
         <div class="drawer-side">

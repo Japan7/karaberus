@@ -1,12 +1,12 @@
 import { createEffect, onCleanup } from "solid-js";
 
-export default function KaraPlayer({ id }: { id: number | string }) {
+export default function KaraPlayer(props: { id: number | string }) {
   let playerRef!: HTMLVideoElement;
 
   createEffect(() => {
     const options = {
       video: playerRef,
-      subUrl: `/api/kara/${id}/download/sub`,
+      subUrl: `/api/kara/${props.id}/download/sub`,
       fonts: [
         "/amaranth/amaranth-latin-400-italic.woff",
         "/amaranth/amaranth-latin-400-italic.woff2",
@@ -27,7 +27,7 @@ export default function KaraPlayer({ id }: { id: number | string }) {
 
   return (
     <video
-      src={`/api/kara/${id}/download/video`}
+      src={`/api/kara/${props.id}/download/video`}
       controls
       // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
       controlslist="nofullscreen"

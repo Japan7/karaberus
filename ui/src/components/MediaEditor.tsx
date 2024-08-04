@@ -2,9 +2,7 @@ import { createResource, createSignal, Index, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
-export default function MediaEditor({
-  onAdd,
-}: {
+export default function MediaEditor(props: {
   onAdd: (media: components["schemas"]["MediaDB"]) => void;
 }) {
   const [getAllMediaTypes] = createResource(async () => {
@@ -30,7 +28,7 @@ export default function MediaEditor({
       return;
     }
     (e.target as HTMLFormElement).reset();
-    onAdd(resp.data.media);
+    props.onAdd(resp.data.media);
   };
 
   return (

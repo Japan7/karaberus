@@ -14,10 +14,7 @@ function getAudioTag(
   return allAudioTags.find((t) => t.ID == tagId);
 }
 
-export default function KaraEditor({
-  kara,
-  onSubmit,
-}: {
+export default function KaraEditor(props: {
   kara?: components["schemas"]["KaraInfoDB"];
   onSubmit: (info: components["schemas"]["KaraInfo"]) => void;
 }) {
@@ -73,26 +70,33 @@ export default function KaraEditor({
   const [getVersion, setVersion] = createSignal("");
   const [getLanguage, setLanguage] = createSignal("");
 
-  if (kara) {
-    console.log(kara);
-    setTitle(kara.Title);
-    if (kara.ExtraTitles)
-      setExtraTitles(kara.ExtraTitles.map((v) => v.Name).join("\n"));
-
-    if (kara.Authors) setAuthors(kara.Authors);
-
-    if (kara.SourceMedia) setSourceMedia(kara.SourceMedia);
-    if (kara.Medias) setMedias(kara.Medias);
-
-    //tags
-    if (kara.AudioTags) setAudioTags(kara.AudioTags);
-    if (kara.VideoTags) setVideoTags(kara.VideoTags);
-
-    setComment(kara.Comment);
-    setVersion(kara.Version);
-    setLanguage(kara.Language);
-
-    setSongOrder(kara.SongOrder);
+  if (props.kara) {
+    setTitle(props.kara.Title);
+    if (props.kara.ExtraTitles) {
+      setExtraTitles(props.kara.ExtraTitles.map((v) => v.Name).join("\n"));
+    }
+    if (props.kara.Authors) {
+      setAuthors(props.kara.Authors);
+    }
+    if (props.kara.Artists) {
+      setArtists(props.kara.Artists);
+    }
+    if (props.kara.SourceMedia) {
+      setSourceMedia(props.kara.SourceMedia);
+    }
+    setSongOrder(props.kara.SongOrder);
+    if (props.kara.Medias) {
+      setMedias(props.kara.Medias);
+    }
+    if (props.kara.AudioTags) {
+      setAudioTags(props.kara.AudioTags);
+    }
+    if (props.kara.VideoTags) {
+      setVideoTags(props.kara.VideoTags);
+    }
+    setComment(props.kara.Comment);
+    setVersion(props.kara.Version);
+    setLanguage(props.kara.Language);
   }
 
   const [getModalForm, setModalForm] = createSignal<JSX.Element>();
@@ -119,7 +123,7 @@ export default function KaraEditor({
       language: getLanguage(),
     };
 
-    onSubmit(payload);
+    props.onSubmit(payload);
   };
 
   const openAddAuthorModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {

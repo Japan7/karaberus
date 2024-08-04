@@ -1,11 +1,7 @@
 import { HiOutlineArrowTopRightOnSquare } from "solid-icons/hi";
 import { createSignal, Show } from "solid-js";
 
-export default function KaraFileUploader({
-  title,
-  putUrl,
-  downloadUrl,
-}: {
+export default function KaraFileUploader(props: {
   title: string;
   putUrl: string;
   downloadUrl?: string;
@@ -17,7 +13,7 @@ export default function KaraFileUploader({
 
     // xhr strikes again
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", putUrl);
+    xhr.open("PUT", props.putUrl);
 
     xhr.upload.addEventListener("progress", (event) => {
       setProgress(event.loaded / event.total);
@@ -41,8 +37,8 @@ export default function KaraFileUploader({
     <div class="flex flex-col gap-y-2">
       <label class="form-control">
         <div class="label">
-          <span class="label-text">{title}</span>
-          <Show when={downloadUrl}>
+          <span class="label-text">{props.title}</span>
+          <Show when={props.downloadUrl}>
             {(getDownloadUrl) => (
               <span class="label-text-alt">
                 <a
