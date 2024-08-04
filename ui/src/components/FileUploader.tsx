@@ -1,10 +1,12 @@
 import { HiOutlineArrowTopRightOnSquare } from "solid-icons/hi";
 import { createSignal, Show } from "solid-js";
 
-export default function KaraFileUploader(props: {
-  title: string;
-  putUrl: string;
+export default function FileUploader(props: {
+  title?: string;
+  method: string;
+  url: string;
   downloadUrl?: string;
+  onUpload: () => void;
 }) {
   const [getProgress, setProgress] = createSignal(0);
 
@@ -13,16 +15,16 @@ export default function KaraFileUploader(props: {
 
     // xhr strikes again
     const xhr = new XMLHttpRequest();
-    xhr.open("PUT", props.putUrl);
+    xhr.open(props.method, props.url);
 
     xhr.upload.addEventListener("progress", (event) => {
       setProgress(event.loaded / event.total);
     });
 
     xhr.addEventListener("load", () => {
+      setProgress(0);
       if (xhr.status === 200) {
-        alert("Upload complete!");
-        location.reload();
+        props.onUpload();
       } else {
         alert(xhr.responseText);
       }

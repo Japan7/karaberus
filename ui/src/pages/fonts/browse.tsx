@@ -1,6 +1,7 @@
 import { HiSolidTrash } from "solid-icons/hi";
-import { createResource, createSignal, Index, type JSX } from "solid-js";
-import { fileForm, karaberus } from "../../utils/karaberus-client";
+import { createResource, Index } from "solid-js";
+import FileUploader from "../../components/FileUploader";
+import { karaberus } from "../../utils/karaberus-client";
 
 export default function FontsBrowse() {
   const [getFonts, { refetch }] = createResource(async () => {
@@ -8,21 +9,8 @@ export default function FontsBrowse() {
     return resp.data?.Fonts;
   });
 
-  const [getFile, setFile] = createSignal<File>();
-
-  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
-    e.preventDefault();
-    const file = getFile();
-    if (!file) {
-      alert("Please select a file");
-      return;
-    }
-    const resp = await karaberus.POST("/api/font", fileForm(file));
-    if (resp.error) {
-      alert(resp.error);
-      return;
-    }
-    (e.target as HTMLFormElement).reset();
+  const onUpload = () => {
+    alert("Font uploaded!");
     refetch();
   };
 
@@ -32,15 +20,7 @@ export default function FontsBrowse() {
 
       <h2 class="text-2xl font-semibold">Upload</h2>
 
-      <form onsubmit={onsubmit} class="flex gap-x-2 mt-4">
-        <input
-          type="file"
-          required
-          onchange={(e) => setFile(e.target.files?.[0])}
-          class="file-input file-input-bordered w-full max-w-xs"
-        />
-        <input type="submit" class="btn" />
-      </form>
+      <FileUploader method="POST" url="/api/font" onUpload={onUpload} />
 
       <h2 class="text-2xl font-semibold mt-8">Browse</h2>
 

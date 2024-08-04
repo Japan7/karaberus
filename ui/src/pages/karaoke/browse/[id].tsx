@@ -1,7 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { createResource, Show } from "solid-js";
+import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
-import KaraFileUploader from "../../../components/KaraFileUploader";
 import KaraPlayer from "../../../components/KaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { karaberus } from "../../../utils/karaberus-client";
@@ -19,6 +19,11 @@ export default function KaraokeBrowseId() {
     });
     return resp.data;
   });
+
+  const onUpload = () => {
+    alert("Upload complete!");
+    location.reload();
+  };
 
   const edit = async (info: components["schemas"]["KaraInfo"]) => {
     const resp = await karaberus.PATCH("/api/kara/{id}", {
@@ -45,20 +50,26 @@ export default function KaraokeBrowseId() {
       <h2 class="text-2xl font-semibold mt-4">Upload files</h2>
 
       <div class="grid md:grid-cols-3 gap-x-2">
-        <KaraFileUploader
+        <FileUploader
           title="Video"
-          putUrl={`/api/kara/${params.id}/upload/video`}
+          method="PUT"
+          url={`/api/kara/${params.id}/upload/video`}
           downloadUrl={`/api/kara/${params.id}/download/video`}
+          onUpload={onUpload}
         />
-        <KaraFileUploader
+        <FileUploader
           title="Instrumental"
-          putUrl={`/api/kara/${params.id}/upload/inst`}
+          method="PUT"
+          url={`/api/kara/${params.id}/upload/inst`}
           downloadUrl={`/api/kara/${params.id}/download/inst`}
+          onUpload={onUpload}
         />
-        <KaraFileUploader
+        <FileUploader
           title="Subtitles"
-          putUrl={`/api/kara/${params.id}/upload/sub`}
+          method="PUT"
+          url={`/api/kara/${params.id}/upload/sub`}
           downloadUrl={`/api/kara/${params.id}/download/sub`}
+          onUpload={onUpload}
         />
       </div>
 

@@ -7,13 +7,6 @@ import Autocomplete from "./Autocomplete";
 import AutocompleteMultiple from "./AutocompleteMultiple";
 import MediaEditor from "./MediaEditor";
 
-function getAudioTag(
-  allAudioTags: components["schemas"]["AudioTag"][],
-  tagId: string,
-) {
-  return allAudioTags.find((t) => t.ID == tagId);
-}
-
 export default function KaraEditor(props: {
   kara?: components["schemas"]["KaraInfoDB"];
   onSubmit: (info: components["schemas"]["KaraInfo"]) => void;
@@ -43,6 +36,9 @@ export default function KaraEditor(props: {
     const resp = await karaberus.GET("/api/tags/video");
     return resp.data;
   });
+
+  const getAudioTag = (tagId: string) =>
+    (getAllAudioTags() || []).find((t) => t.ID == tagId);
   //#endregion
 
   //#region Signals
@@ -98,8 +94,6 @@ export default function KaraEditor(props: {
     setVersion(props.kara.Version);
     setLanguage(props.kara.Language);
   }
-
-  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
   //#endregion
 
   //#region Handlers
@@ -125,6 +119,8 @@ export default function KaraEditor(props: {
 
     props.onSubmit(payload);
   };
+
+  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
 
   const openAddAuthorModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
@@ -425,8 +421,7 @@ export default function KaraEditor(props: {
               {audioTagsInput()}
               <Show
                 when={getAudioTags().some(
-                  (tag) =>
-                    getAudioTag(getAllAudioTags() || [], tag.ID)?.HasSongOrder,
+                  (tag) => getAudioTag(tag.ID)?.HasSongOrder,
                 )}
               >
                 {sourceMediaInput()}
