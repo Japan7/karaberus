@@ -1,11 +1,11 @@
-import KaraokeEditor from "./Editor";
+import KaraEditor from "../../components/KaraEditor";
 
 export default function KaraokeNew() {
   return (
     <>
       <h1 class="header">New Karaoke</h1>
 
-      <KaraokeEditor kara={null} />
+      <KaraEditor kara={null} />
     </>
   );
 }

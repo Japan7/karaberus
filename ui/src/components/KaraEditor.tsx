@@ -1,10 +1,10 @@
 import { useNavigate } from "@solidjs/router";
 import { createResource, createSignal, Show, type JSX } from "solid-js";
-import Autocomplete from "../../components/Autocomplete";
-import AutocompleteMultiple from "../../components/AutocompleteMultiple";
-import type { components } from "../../utils/karaberus";
-import { karaberus } from "../../utils/karaberus-client";
-import routes from "../../utils/routes";
+import type { components } from "../utils/karaberus";
+import { karaberus } from "../utils/karaberus-client";
+import routes from "../utils/routes";
+import Autocomplete from "./Autocomplete";
+import AutocompleteMultiple from "./AutocompleteMultiple";
 
 function getAudioTag(
   allAudioTags: components["schemas"]["AudioTag"][],
@@ -20,7 +20,7 @@ function getVideoTag(
   return allVideoTags.find((t) => t.ID == tag_id);
 }
 
-export default function KaraokeEditor({
+export default function KaraEditor({
   kara,
 }: {
   kara: components["schemas"]["KaraInfoDB"] | null;

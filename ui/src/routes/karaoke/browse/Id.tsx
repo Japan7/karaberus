@@ -2,7 +2,7 @@ import { useParams } from "@solidjs/router";
 import KaraPlayer from "../../../components/KaraPlayer";
 import { fileForm, karaberus } from "../../../utils/karaberus-client";
 import { createResource, Show } from "solid-js";
-import KaraokeEditor from "../Editor";
+import KaraEditor from "../../../components/KaraEditor";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -56,7 +56,7 @@ export default function KaraokeBrowseId() {
       <KaraPlayer id={params.id} />
 
       <Show when={getKara()?.kara} fallback={<p>loading karaoke...</p>}>
-        {(getKara) => <KaraokeEditor kara={getKara()} />}
+        {(getKara) => <KaraEditor kara={getKara()} />}
       </Show>
     </>
   );
