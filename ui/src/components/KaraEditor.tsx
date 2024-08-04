@@ -198,9 +198,9 @@ export default function KaraEditor(props: {
       <div class="label">
         <span class="label-text">Authors</span>
         <span class="label-text-alt">
-          <button class="link" onclick={openAddAuthorModal}>
+          <a class="link" onclick={openAddAuthorModal}>
             Add new
-          </button>
+          </a>
         </span>
       </div>
       <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
@@ -221,9 +221,9 @@ export default function KaraEditor(props: {
       <div class="label">
         <span class="label-text">Artists</span>
         <span class="label-text-alt">
-          <button class="link" onclick={openAddArtistModal}>
+          <a class="link" onclick={openAddArtistModal}>
             Add new
-          </button>
+          </a>
         </span>
       </div>
       <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
@@ -244,9 +244,9 @@ export default function KaraEditor(props: {
       <div class="label">
         <span class="label-text">Source media</span>
         <span class="label-text-alt">
-          <button class="link" onclick={openAddMediaModal}>
+          <a class="link" onclick={openAddMediaModal}>
             Add new
-          </button>
+          </a>
         </span>
       </div>
       <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
@@ -282,9 +282,9 @@ export default function KaraEditor(props: {
       <div class="label">
         <span class="label-text">Other medias</span>
         <span class="label-text-alt">
-          <button class="link" onclick={openAddMediaModal}>
+          <a class="link" onclick={openAddMediaModal}>
             Add new
-          </button>
+          </a>
         </span>
       </div>
       <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>

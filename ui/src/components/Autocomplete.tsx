@@ -41,7 +41,7 @@ export default function Autocomplete<T>(
               type="text"
               value={getInput()}
               oninput={(e) => setInput(e.currentTarget.value)}
-              class="outline-none w-full"
+              class="bg-transparent outline-none w-full"
               {...inputProps}
             />
           }

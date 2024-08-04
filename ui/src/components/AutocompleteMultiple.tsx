@@ -64,7 +64,7 @@ export default function AutocompleteMultiple<T>(
           value={getInput()}
           oninput={(e) => setInput(e.currentTarget.value)}
           ref={inputEl}
-          class="outline-none w-full"
+          class="bg-transparent outline-none w-full"
           {...inputProps}
         />
       </div>
