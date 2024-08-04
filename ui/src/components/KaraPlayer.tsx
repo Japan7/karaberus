@@ -4,7 +4,7 @@ import { createEffect, onCleanup } from "solid-js";
 export default function KaraPlayer(props: { id: number | string }) {
   let playerRef!: HTMLVideoElement;
 
-  let octopus: SubtitlesOctopus;
+  let octopus: SubtitlesOctopus | undefined;
 
   const videoSrc = `/api/kara/${props.id}/download/video`;
   const subSrc = `/api/kara/${props.id}/download/sub`;
@@ -14,6 +14,7 @@ export default function KaraPlayer(props: { id: number | string }) {
   });
 
   const setupOctopus = () => {
+    octopus?.dispose();
     const options = {
       video: playerRef,
       subUrl: subSrc,
