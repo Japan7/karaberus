@@ -1,10 +1,17 @@
-import { onCleanup } from "solid-js";
+import SubtitlesOctopus from "libass-wasm";
+import { createEffect, onCleanup } from "solid-js";
 
 export default function KaraPlayer(props: { id: number | string }) {
   let playerRef!: HTMLVideoElement;
 
+  let octopus: SubtitlesOctopus;
+
   const videoSrc = `/api/kara/${props.id}/download/video`;
   const subSrc = `/api/kara/${props.id}/download/sub`;
+
+  createEffect(() => {
+    onCleanup(() => octopus?.dispose());
+  });
 
   const setupOctopus = () => {
     const options = {
@@ -23,9 +30,7 @@ export default function KaraPlayer(props: { id: number | string }) {
       workerUrl: "/libass-wasm/subtitles-octopus-worker.js",
       legacyWorkerUrl: "/libass-wasm/subtitles-octopus-worker-legacy.js",
     };
-    // @ts-expect-error: global variable
-    const octopus = new SubtitlesOctopus(options);
-    onCleanup(() => octopus.dispose());
+    octopus = new SubtitlesOctopus(options);
   };
 
   return (
