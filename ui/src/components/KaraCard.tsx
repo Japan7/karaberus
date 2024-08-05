@@ -15,15 +15,9 @@ const toTitleCase = (str: string) =>
 
 export default function KaraCard(props: {
   kara: components["schemas"]["KaraInfoDB"];
-  artistMap: TagMap<components["schemas"]["Artist"]>;
-  mediaMap: TagMap<components["schemas"]["MediaDB"]>;
   audioTagMap: TagMap<components["schemas"]["AudioTag"]>;
   videoTagMap: TagMap<components["schemas"]["VideoTag"]>;
 }) {
-  const getSourceMedia = () => {
-    const id = props.kara.SourceMedia?.ID;
-    return id ? props.mediaMap.get(id) : undefined;
-  };
   const getAudioTags = () =>
     props.kara.AudioTags?.map(
       (tag) => props.audioTagMap.get(tag.ID)?.Name,
@@ -57,18 +51,18 @@ export default function KaraCard(props: {
       <div class="card-body">
         <h2 class="card-title">
           <a href={"/karaoke/browse/" + props.kara.ID} class="link-primary">
-            {props.kara.Title}
+            {props.kara.Title || "[Missing Title]"}
           </a>
         </h2>
 
         <div class="flex flex-col gap-y-2">
           <p>
             <a class="link-secondary">{getPrimary()}</a>
-            <Show when={getSourceMedia()?.name}>
-              {(getName) => (
+            <Show when={props.kara.SourceMedia}>
+              {(getSourceMedia) => (
                 <>
                   {" from "}
-                  <a class="link-secondary">{getName()}</a>
+                  <a class="link-secondary">{getSourceMedia().name}</a>
                 </>
               )}
             </Show>
@@ -117,11 +111,11 @@ export default function KaraCard(props: {
               {(getArtist) => (
                 <div class="btn btn-sm btn-ghost bg-amber-600 text-base-100">
                   <FaSolidMicrophoneLines class="size-4" />
-                  {props.artistMap.get(getArtist().ID)?.Name}
+                  {getArtist().Name}
                 </div>
               )}
             </Index>
-            <Show when={getSourceMedia()}>
+            <Show when={props.kara.SourceMedia}>
               {(getSourceMedia) => (
                 <div class="btn btn-sm btn-ghost bg-blue-500 text-base-100">
                   <FaSolidDiagramProject class="size-4" />
