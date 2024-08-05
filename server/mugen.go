@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -302,7 +303,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	defer func() {
 		r := recover()
 		if r != nil {
-			getLogger().Println("recovered from panic in SyncMugen", r)
+			getLogger().Printf("recovered from panic in SyncMugen: %s\n%s\n", r, string(debug.Stack()))
 		}
 		MugenDownloadSemaphore.Release(1)
 	}()

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -495,7 +496,7 @@ func SyncDakara(ctx context.Context) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			getLogger().Println("recovered from panic in SyncDakara", r)
+			getLogger().Printf("recovered from panic in SyncDakara %s\n%s\n", r, string(debug.Stack()))
 		}
 		DakaraSyncLock.Unlock()
 	}()
