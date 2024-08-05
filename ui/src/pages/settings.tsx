@@ -19,7 +19,7 @@ export default function Settings() {
       },
     });
     if (resp.error) {
-      alert(resp.error);
+      alert(resp.error.title);
       return;
     }
     refetchTokens();

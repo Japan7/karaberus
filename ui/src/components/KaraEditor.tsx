@@ -172,7 +172,6 @@ export default function KaraEditor(props: {
       <input
         type="text"
         required
-        placeholder="Zankoku na Tenshi no These"
         value={getTitle()}
         oninput={(e) => setTitle(e.currentTarget.value)}
         class="input input-bordered w-full"
@@ -186,7 +185,6 @@ export default function KaraEditor(props: {
         <span class="label-text-alt">1 per line</span>
       </div>
       <textarea
-        placeholder="A Cruel Angel's Thesis&#10;Zankoku na Tenshi no Thesis"
         value={getExtraTitles()}
         oninput={(e) => setExtraTitles(e.currentTarget.value)}
         class="textarea textarea-bordered w-full"
@@ -206,7 +204,6 @@ export default function KaraEditor(props: {
       <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
         {(getAllAuthors) => (
           <AutocompleteMultiple
-            placeholder="RhiobeT"
             items={getAllAuthors()}
             getItemName={(author) => author.Name}
             getState={getAuthors}
@@ -229,7 +226,6 @@ export default function KaraEditor(props: {
       <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
         {(getAllArtists) => (
           <AutocompleteMultiple
-            placeholder="Yoko Takahashi"
             items={getAllArtists()}
             getItemName={(artist) => artist.Name}
             getState={getArtists}
@@ -252,7 +248,6 @@ export default function KaraEditor(props: {
       <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
         {(getAllMedias) => (
           <Autocomplete
-            placeholder="Shin Seiki Evangelion"
             items={getAllMedias()}
             getItemName={(media) => `[${media.media_type}] ${media.name}`}
             getState={getSourceMedia}
@@ -270,7 +265,6 @@ export default function KaraEditor(props: {
       <input
         type="number"
         min={0}
-        placeholder="1"
         value={getSongOrder()}
         onchange={(e) => setSongOrder(e.target.valueAsNumber)}
         class="input input-bordered w-full"
@@ -290,7 +284,6 @@ export default function KaraEditor(props: {
       <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
         {(getAllMedias) => (
           <AutocompleteMultiple
-            placeholder="Japan7"
             items={getAllMedias()}
             getItemName={(media) => `[${media.media_type}] ${media.name}`}
             getState={getMedias}
@@ -366,7 +359,6 @@ export default function KaraEditor(props: {
         <span class="label-text">Comment</span>
       </div>
       <textarea
-        placeholder="From https://youtu.be/dQw4w9WgXcQ"
         value={getComment()}
         oninput={(e) => setComment(e.currentTarget.value)}
         class="textarea textarea-bordered w-full"
@@ -380,7 +372,6 @@ export default function KaraEditor(props: {
       </div>
       <input
         type="text"
-        placeholder="iykyk"
         value={getVersion()}
         oninput={(e) => setVersion(e.currentTarget.value)}
         class="input input-bordered w-full"
@@ -394,7 +385,6 @@ export default function KaraEditor(props: {
       </div>
       <input
         type="text"
-        placeholder="FR"
         value={getLanguage()}
         oninput={(e) => setLanguage(e.currentTarget.value)}
         class="input input-bordered w-full"

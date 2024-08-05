@@ -29,7 +29,7 @@ export default function KaraCard(props: {
     return id && props.videoTagMap.get(id)?.Name;
   };
   const getSourceMedia = () => {
-    const id = props.kara.SourceMedia.ID;
+    const id = props.kara.SourceMedia?.ID;
     return id ? props.mediaMap.get(id) : undefined;
   };
 

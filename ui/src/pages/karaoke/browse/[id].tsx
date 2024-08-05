@@ -38,7 +38,7 @@ export default function KaraokeBrowseId() {
     });
 
     if (resp.error) {
-      alert(resp.error);
+      alert(resp.error.title);
       return;
     }
 
@@ -55,7 +55,7 @@ export default function KaraokeBrowseId() {
     });
 
     if (resp.error) {
-      alert(resp.error);
+      alert(resp.error.title);
       return;
     }
 

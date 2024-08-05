@@ -15,7 +15,7 @@ export default function TagsArtist() {
       params: { path: { id } },
     });
     if (resp.error) {
-      alert(resp.error);
+      alert(resp.error.title);
       return;
     }
     refetch();

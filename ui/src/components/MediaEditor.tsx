@@ -24,7 +24,7 @@ export default function MediaEditor(props: {
       },
     });
     if (resp.error) {
-      alert(resp.error);
+      alert(resp.error.title);
       return;
     }
     (e.target as HTMLFormElement).reset();

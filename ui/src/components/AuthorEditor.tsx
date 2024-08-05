@@ -13,7 +13,7 @@ export default function AuthorEditor(props: {
       body: { name: getName() },
     });
     if (resp.error) {
-      alert(resp.error);
+      alert(resp.error.title);
       return;
     }
     (e.target as HTMLFormElement).reset();
