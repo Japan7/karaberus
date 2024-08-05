@@ -714,6 +714,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 			if err != nil {
 				return err
 			}
+			continue
 		}
 
 		kara := &KaraInfoDB{}
