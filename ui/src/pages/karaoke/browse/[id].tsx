@@ -72,7 +72,7 @@ export default function KaraokeBrowseId() {
 
       <h2 class="text-2xl font-semibold mt-4">Upload files</h2>
 
-      <div class="grid md:grid-cols-3 gap-x-2">
+      <div class="flex flex-col md:grid md:grid-cols-3 md:gap-x-2">
         <FileUploader
           title="Video"
           method="PUT"
