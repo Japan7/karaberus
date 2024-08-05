@@ -1,12 +1,11 @@
-import { HiOutlineArrowTopRightOnSquare } from "solid-icons/hi";
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, type JSX } from "solid-js";
 
 export default function FileUploader(props: {
   title?: string;
   method: string;
   url: string;
-  downloadUrl?: string;
   onUpload: () => void;
+  altElement?: JSX.Element;
 }) {
   const [getProgress, setProgress] = createSignal(0);
 
@@ -40,20 +39,7 @@ export default function FileUploader(props: {
       <label class="form-control">
         <div class="label">
           <span class="label-text">{props.title}</span>
-          <Show when={props.downloadUrl}>
-            {(getDownloadUrl) => (
-              <span class="label-text-alt">
-                <a
-                  href={getDownloadUrl()}
-                  target="_blank"
-                  rel="noreferrer"
-                  class="link flex gap-x-1"
-                >
-                  Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
-                </a>
-              </span>
-            )}
-          </Show>
+          <span class="label-text-alt">{props.altElement}</span>
         </div>
         <input
           type="file"

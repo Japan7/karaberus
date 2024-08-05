@@ -1,15 +1,16 @@
 import SubtitlesOctopus from "libass-wasm";
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createEffect, onCleanup, Show } from "solid-js";
+import type { components } from "../utils/karaberus";
 
-export default function KaraPlayer(props: { id: number | string }) {
+export default function KaraPlayer(props: {
+  kara: components["schemas"]["KaraInfoDB"];
+}) {
   let playerRef!: HTMLVideoElement;
-
-  const [getRetryCount, setRetryCount] = createSignal(0);
 
   let octopus: SubtitlesOctopus | undefined;
 
-  const videoSrc = `/api/kara/${props.id}/download/video`;
-  const subSrc = `/api/kara/${props.id}/download/sub`;
+  const getVideoSrc = () => `/api/kara/${props.kara.ID}/download/video`;
+  const getSubSrc = () => `/api/kara/${props.kara.ID}/download/sub`;
 
   createEffect(() => {
     onCleanup(() => octopus?.dispose());
@@ -17,43 +18,39 @@ export default function KaraPlayer(props: { id: number | string }) {
 
   const setupOctopus = () => {
     octopus?.dispose();
-    const options = {
-      video: playerRef,
-      subUrl: subSrc,
-      fonts: [
-        "/amaranth/amaranth-latin-400-italic.woff",
-        "/amaranth/amaranth-latin-400-italic.woff2",
-        "/amaranth/amaranth-latin-400-normal.woff",
-        "/amaranth/amaranth-latin-400-normal.woff2",
-        "/amaranth/amaranth-latin-700-italic.woff",
-        "/amaranth/amaranth-latin-700-italic.woff2",
-        "/amaranth/amaranth-latin-700-normal.woff",
-        "/amaranth/amaranth-latin-700-normal.woff2",
-      ],
-      workerUrl: "/libass-wasm/subtitles-octopus-worker.js",
-      legacyWorkerUrl: "/libass-wasm/subtitles-octopus-worker-legacy.js",
-    };
-    octopus = new SubtitlesOctopus(options);
+    if (props.kara.SubtitlesUploaded) {
+      octopus = new SubtitlesOctopus({
+        video: playerRef,
+        subUrl: getSubSrc(),
+        fonts: [
+          "/amaranth/amaranth-latin-400-italic.woff",
+          "/amaranth/amaranth-latin-400-italic.woff2",
+          "/amaranth/amaranth-latin-400-normal.woff",
+          "/amaranth/amaranth-latin-400-normal.woff2",
+          "/amaranth/amaranth-latin-700-italic.woff",
+          "/amaranth/amaranth-latin-700-italic.woff2",
+          "/amaranth/amaranth-latin-700-normal.woff",
+          "/amaranth/amaranth-latin-700-normal.woff2",
+        ],
+        workerUrl: "/libass-wasm/subtitles-octopus-worker.js",
+        legacyWorkerUrl: "/libass-wasm/subtitles-octopus-worker-legacy.js",
+      });
+    }
   };
 
   return (
-    <video
-      src={videoSrc}
-      controls
-      // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
-      controlslist="nofullscreen"
-      playsinline
-      loop
-      oncanplay={setupOctopus}
-      onerror={async () => {
-        if (getRetryCount() < 10) {
-          setRetryCount((count) => count + 1);
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          playerRef.src = videoSrc;
-        }
-      }}
-      ref={playerRef}
-      class="rounded-2xl"
-    />
+    <Show when={props.kara.VideoUploaded}>
+      <video
+        src={getVideoSrc()}
+        controls
+        // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
+        controlslist="nofullscreen"
+        playsinline
+        loop
+        oncanplay={setupOctopus}
+        ref={playerRef}
+        class="rounded-2xl"
+      />
+    </Show>
   );
 }

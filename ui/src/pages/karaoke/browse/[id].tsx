@@ -1,4 +1,5 @@
-import { useParams } from "@solidjs/router";
+import { useNavigate, useParams } from "@solidjs/router";
+import { HiOutlineArrowTopRightOnSquare, HiSolidTrash } from "solid-icons/hi";
 import { createResource, Show } from "solid-js";
 import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
@@ -6,12 +7,12 @@ import KaraPlayer from "../../../components/KaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
-import { HiSolidTrash } from "solid-icons/hi";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
+  const navigate = useNavigate();
 
-  const [getKara] = createResource(async () => {
+  const [getKara, { refetch }] = createResource(async () => {
     const resp = await karaberus.GET("/api/kara/{id}", {
       params: {
         path: {
@@ -24,7 +25,7 @@ export default function KaraokeBrowseId() {
 
   const onUpload = () => {
     alert("Upload complete!");
-    location.reload();
+    refetch();
   };
 
   const editKaraoke = async (info: components["schemas"]["KaraInfo"]) => {
@@ -42,7 +43,8 @@ export default function KaraokeBrowseId() {
       return;
     }
 
-    location.reload();
+    alert("Karaoke updated!");
+    refetch();
   };
 
   const deleteKaraoke = async () => {
@@ -59,12 +61,14 @@ export default function KaraokeBrowseId() {
       return;
     }
 
-    location.href = "/karaoke/browse";
+    navigate("/karaoke/browse");
   };
 
   return (
     <>
-      <KaraPlayer id={params.id} />
+      <Show when={getKara()}>
+        {(getKara) => <KaraPlayer kara={getKara().kara} />}
+      </Show>
 
       <h2 class="text-2xl font-semibold mt-4">Upload files</h2>
 
@@ -73,22 +77,61 @@ export default function KaraokeBrowseId() {
           title="Video"
           method="PUT"
           url={`/api/kara/${params.id}/upload/video`}
-          downloadUrl={`/api/kara/${params.id}/download/video`}
           onUpload={onUpload}
+          altElement={
+            getKara()?.kara.VideoUploaded ? (
+              <a
+                href={`/api/kara/${params.id}/download/video`}
+                target="_blank"
+                rel="noreferrer"
+                class="link flex gap-x-1"
+              >
+                Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
+              </a>
+            ) : (
+              "(Not uploaded yet)"
+            )
+          }
         />
         <FileUploader
           title="Instrumental"
           method="PUT"
           url={`/api/kara/${params.id}/upload/inst`}
-          downloadUrl={`/api/kara/${params.id}/download/inst`}
           onUpload={onUpload}
+          altElement={
+            getKara()?.kara.InstrumentalUploaded ? (
+              <a
+                href={`/api/kara/${params.id}/download/inst`}
+                target="_blank"
+                rel="noreferrer"
+                class="link flex gap-x-1"
+              >
+                Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
+              </a>
+            ) : (
+              "(Not uploaded yet)"
+            )
+          }
         />
         <FileUploader
           title="Subtitles"
           method="PUT"
           url={`/api/kara/${params.id}/upload/sub`}
-          downloadUrl={`/api/kara/${params.id}/download/sub`}
           onUpload={onUpload}
+          altElement={
+            getKara()?.kara.SubtitlesUploaded ? (
+              <a
+                href={`/api/kara/${params.id}/download/sub`}
+                target="_blank"
+                rel="noreferrer"
+                class="link flex gap-x-1"
+              >
+                Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
+              </a>
+            ) : (
+              "(Not uploaded yet)"
+            )
+          }
         />
       </div>
 
