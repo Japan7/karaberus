@@ -1,19 +1,26 @@
 import { createSignal, Show, type JSX } from "solid-js";
 
+const CHUNK_SIZE = 5 * 1024 * 1024;
+
 export default function FileUploader(props: {
   title?: string;
   method: string;
   url: string;
+  chunked?: boolean;
   onUpload: () => void;
   altChildren?: JSX.Element;
 }) {
   const [getProgress, setProgress] = createSignal(0);
 
-  const upload = async (file: File | undefined) => {
+  const upload = (file: File | undefined) => {
     if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
 
     // xhr strikes again
     const xhr = new XMLHttpRequest();
+
     xhr.open(props.method, props.url);
 
     xhr.upload.addEventListener("progress", (event) => {
@@ -29,9 +36,56 @@ export default function FileUploader(props: {
       }
     });
 
-    const formData = new FormData();
-    formData.append("file", file);
+    setProgress(0);
     xhr.send(formData);
+  };
+
+  const chunkedUpload = (file: File | undefined) => {
+    if (!file) return;
+
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    let currentChunk = 0;
+
+    const uploadNextChunk = () => {
+      const start = currentChunk * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunk = file.slice(start, end);
+
+      const formData = new FormData();
+      formData.append("file", chunk, file.name);
+
+      // xhr strikes again
+      const xhr = new XMLHttpRequest();
+
+      xhr.open(props.method, props.url);
+
+      xhr.setRequestHeader(
+        "Content-Range",
+        `bytes ${start}-${end - 1}/${file.size}`,
+      );
+
+      xhr.upload.addEventListener("progress", (e) => {
+        setProgress(start + e.loaded / file.size);
+      });
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status === 200) {
+          if (++currentChunk < totalChunks) {
+            uploadNextChunk();
+          } else {
+            setProgress(0);
+            props.onUpload();
+          }
+        } else {
+          alert(xhr.responseText);
+        }
+      });
+
+      xhr.send(formData);
+    };
+
+    setProgress(0);
+    uploadNextChunk();
   };
 
   return (
@@ -43,7 +97,9 @@ export default function FileUploader(props: {
         </div>
         <input
           type="file"
-          onchange={(e) => upload(e.target.files?.[0])}
+          onchange={(e) =>
+            (props.chunked ? chunkedUpload : upload)(e.target.files?.[0])
+          }
           class="file-input file-input-bordered"
         />
       </label>

@@ -77,6 +77,7 @@ export default function KaraokeBrowseId() {
           title="Video"
           method="PUT"
           url={`/api/kara/${params.id}/upload/video`}
+          chunked
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.VideoUploaded ? (
