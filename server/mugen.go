@@ -468,3 +468,15 @@ func SyncMugen(ctx context.Context) {
 		}
 	}
 }
+
+type GetMugenImportsOutput struct {
+	Body struct {
+		Imports []MugenImport `json:"imports"`
+	}
+}
+
+func GetMugenImports(ctx context.Context, input *struct{}) (*GetMugenImportsOutput, error) {
+	out := &GetMugenImportsOutput{}
+	err := GetDB(ctx).Find(&out.Body.Imports).Error
+	return out, err
+}
