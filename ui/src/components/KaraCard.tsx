@@ -132,7 +132,7 @@ export default function KaraCard(props: {
             </Index>
             <div class="btn btn-sm btn-ghost bg-neutral-400 text-base-100">
               <FaSolidCalendarDays class="size-4" />
-              {new Date(props.kara.CreatedAt).getFullYear()}
+              {new Date(props.kara.KaraokeCreationTime).getFullYear()}
             </div>
           </div>
         </div>
