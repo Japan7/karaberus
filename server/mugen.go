@@ -136,6 +136,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 			if err != nil {
 				return err
 			}
+			kara_info.SourceMedia = &source_media
 		} else {
 			kara_info.Medias = make([]MediaDB, len(k.Series))
 			for i, series := range k.Series {
