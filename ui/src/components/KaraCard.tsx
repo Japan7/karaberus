@@ -130,10 +130,12 @@ export default function KaraCard(props: {
                 </div>
               )}
             </Index>
-            <div class="btn btn-sm btn-ghost bg-neutral-400 text-base-100">
-              <FaSolidCalendarDays class="size-4" />
-              {new Date(props.kara.KaraokeCreationTime).getFullYear()}
-            </div>
+            <Show when={props.kara.SubtitlesUploaded}>
+              <div class="btn btn-sm btn-ghost bg-neutral-400 text-base-100">
+                <FaSolidCalendarDays class="size-4" />
+                {new Date(props.kara.KaraokeCreationTime).getFullYear()}
+              </div>
+            </Show>
           </div>
         </div>
       </div>
