@@ -1,6 +1,6 @@
 export default function AuthHero() {
   const redirectToLogin = () => {
-    localStorage.setItem("prelogin_href", location.href);
+    localStorage.setItem("prelogin_path", location.pathname);
     location.href = "/api/oidc/login";
   };
 
