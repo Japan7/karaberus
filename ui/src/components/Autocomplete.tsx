@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import { HiSolidXMark } from "solid-icons/hi";
 import {
   createSignal,
@@ -26,10 +27,21 @@ export default function Autocomplete<T>(
 
   const [getInput, setInput] = createSignal("");
 
-  const filteredItems = () =>
-    local.items.filter((item) =>
-      local.getItemName(item).toLowerCase().includes(getInput().toLowerCase()),
-    );
+  const filteredItems = () => {
+    const input = getInput();
+    if (!input) {
+      return local.items;
+    }
+    const fuse = new Fuse(local.items, {
+      keys: [
+        {
+          name: "name",
+          getFn: (item) => local.getItemName(item),
+        },
+      ],
+    });
+    return fuse.search(input).map((result) => result.item);
+  };
 
   return (
     <div class="dropdown w-full">

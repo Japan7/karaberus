@@ -12,6 +12,7 @@ import {
 } from "solid-js";
 import KaraCard from "../../../components/KaraCard";
 import { karaberus } from "../../../utils/karaberus-client";
+import { karaFuseSearch } from "../../../utils/karaoke";
 
 export default function KaraokeBrowse() {
   const [getAllKaras] = createResource(async () => {
@@ -46,45 +47,19 @@ export default function KaraokeBrowse() {
       return [];
     }
 
-    const search = getSearch().toLowerCase();
+    const search = getSearch();
     if (!search) {
       return karas;
     }
 
-    return karas.filter(
-      (kara) =>
-        kara.Artists?.some(
-          (artist) =>
-            artist.Name.toLowerCase().includes(search) ||
-            artist.AdditionalNames?.some((name) =>
-              name.Name.toLowerCase().includes(search),
-            ),
-        ) ||
-        kara.AudioTags?.some((tag) =>
-          getAudioTagMap().get(tag.ID)?.Name.toLowerCase().includes(search),
-        ) ||
-        kara.Authors?.some((author) =>
-          author.Name.toLowerCase().includes(search),
-        ) ||
-        kara.Comment?.toLowerCase().includes(search) ||
-        kara.ExtraTitles?.some((title) =>
-          title.Name.toLowerCase().includes(search),
-        ) ||
-        kara.Language?.toLowerCase().includes(search) ||
-        kara.Medias?.some(
-          (media) =>
-            media.name.toLowerCase().includes(search) ||
-            media.additional_name?.some((name) =>
-              name.Name.toLowerCase().includes(search),
-            ),
-        ) ||
-        kara.SourceMedia?.name.toLowerCase().includes(search) ||
-        kara.Title.toLowerCase().includes(search) ||
-        kara.Version?.toLowerCase().includes(search) ||
-        kara.VideoTags?.some((tag) =>
-          getVideoTagMap().get(tag.ID)?.Name.toLowerCase().includes(search),
-        ),
+    const results = karaFuseSearch(
+      karas,
+      getAudioTagMap(),
+      getVideoTagMap(),
+      search,
     );
+
+    return results.map((result) => result.item);
   };
 
   const pageSize = 9;

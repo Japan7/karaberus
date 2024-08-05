@@ -28,6 +28,7 @@ ui_src += files(
     'pages' / 'profile.tsx',
     'pages' / 'settings.tsx',
     'utils' / 'karaberus-client.ts',
+    'utils' / 'karaoke.ts',
     'utils' / 'session.ts',
     'App.tsx',
     'index.css',

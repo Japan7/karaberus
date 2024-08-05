@@ -7,8 +7,7 @@ import {
 } from "solid-icons/fa";
 import { Index, Show } from "solid-js";
 import type { components } from "../utils/karaberus";
-
-type TagMap<T> = T extends { ID: infer K } ? Map<K, T> : never;
+import type { TagMap } from "../utils/karaoke";
 
 const toTitleCase = (str: string) =>
   str[0].toUpperCase() + str.slice(1).toLowerCase();
