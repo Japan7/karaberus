@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Japan7/karaberus/server/clients/mugen"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"golang.org/x/sync/semaphore"
@@ -212,6 +213,26 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 	return nil
 }
 
+func reimportMugenKara(ctx context.Context, mugen_import *MugenImport) error {
+	client := mugen.GetClient()
+	kara, err := client.GetKara(ctx, mugen_import.MugenKID)
+	if err != nil {
+		return err
+	}
+
+	err = GetDB(ctx).Transaction(func(tx *gorm.DB) error {
+		kara_info := &mugen_import.Kara
+		err = mugenKaraToKaraInfoDB(tx, *kara, kara_info)
+		if err != nil {
+			return err
+		}
+
+		return tx.Save(kara_info).Error
+	})
+
+	return err
+}
+
 func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImport) error {
 	client := mugen.GetClient()
 	kara, err := client.GetKara(ctx, kid)
@@ -279,6 +300,33 @@ func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportM
 		}
 	}
 	return out, err
+}
+
+func RefreshMugenImports(ctx context.Context) error {
+	mugen_imports := make([]MugenImport, 0)
+	err := GetDB(ctx).Find(mugen_imports).Error
+	if err != nil {
+		return err
+	}
+
+	for _, mugen_import := range mugen_imports {
+		err = reimportMugenKara(ctx, &mugen_import)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func RefreshMugen(ctx context.Context, input *struct{}) (*struct{}, error) {
+	user := getCurrentUser(ctx)
+	if !user.Admin {
+		return nil, huma.Error403Forbidden("This endpoint is reserved to administrators")
+	}
+
+	err := RefreshMugenImports(ctx)
+	return &struct{}{}, err
 }
 
 func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response, kara MugenImport, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
