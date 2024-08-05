@@ -74,6 +74,36 @@ export default function KaraCard(props: {
             </Show>
           </p>
 
+          <div class="flex justify-between">
+            <label class="label gap-x-1">
+              <input
+                type="checkbox"
+                disabled
+                checked={props.kara.VideoUploaded}
+                class="checkbox checkbox-sm checkbox-success"
+              />
+              <span class="label-text-alt">Video</span>
+            </label>
+            <label class="label gap-x-1">
+              <input
+                type="checkbox"
+                disabled
+                checked={props.kara.InstrumentalUploaded}
+                class="checkbox checkbox-sm checkbox-success"
+              />
+              <span class="label-text-alt">Instrumental</span>
+            </label>
+            <label class="label gap-x-1">
+              <input
+                type="checkbox"
+                disabled
+                checked={props.kara.SubtitlesUploaded}
+                class="checkbox checkbox-sm checkbox-success"
+              />
+              <span class="label-text-alt">Subtitles</span>
+            </label>
+          </div>
+
           <div class="flex flex-wrap gap-1">
             <Show when={props.kara.Language}>
               {(getLanguage) => (
