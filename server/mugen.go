@@ -304,7 +304,7 @@ func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportM
 
 func RefreshMugenImports(ctx context.Context) error {
 	mugen_imports := make([]MugenImport, 0)
-	err := GetDB(ctx).Find(mugen_imports).Error
+	err := GetDB(ctx).Find(&mugen_imports).Error
 	if err != nil {
 		return err
 	}
