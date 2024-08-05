@@ -78,7 +78,7 @@ export default function KaraokeBrowseId() {
           method="PUT"
           url={`/api/kara/${params.id}/upload/video`}
           onUpload={onUpload}
-          altElement={
+          altChildren={
             getKara()?.kara.VideoUploaded ? (
               <a
                 href={`/api/kara/${params.id}/download/video`}
@@ -89,7 +89,7 @@ export default function KaraokeBrowseId() {
                 Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
               </a>
             ) : (
-              "(Not uploaded yet)"
+              "(No upload yet)"
             )
           }
         />
@@ -98,7 +98,7 @@ export default function KaraokeBrowseId() {
           method="PUT"
           url={`/api/kara/${params.id}/upload/inst`}
           onUpload={onUpload}
-          altElement={
+          altChildren={
             getKara()?.kara.InstrumentalUploaded ? (
               <a
                 href={`/api/kara/${params.id}/download/inst`}
@@ -109,7 +109,7 @@ export default function KaraokeBrowseId() {
                 Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
               </a>
             ) : (
-              "(Not uploaded yet)"
+              "(No upload yet)"
             )
           }
         />
@@ -118,7 +118,7 @@ export default function KaraokeBrowseId() {
           method="PUT"
           url={`/api/kara/${params.id}/upload/sub`}
           onUpload={onUpload}
-          altElement={
+          altChildren={
             getKara()?.kara.SubtitlesUploaded ? (
               <a
                 href={`/api/kara/${params.id}/download/sub`}
@@ -129,7 +129,7 @@ export default function KaraokeBrowseId() {
                 Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
               </a>
             ) : (
-              "(Not uploaded yet)"
+              "(No upload yet)"
             )
           }
         />

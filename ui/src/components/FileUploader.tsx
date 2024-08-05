@@ -5,7 +5,7 @@ export default function FileUploader(props: {
   method: string;
   url: string;
   onUpload: () => void;
-  altElement?: JSX.Element;
+  altChildren?: JSX.Element;
 }) {
   const [getProgress, setProgress] = createSignal(0);
 
@@ -39,7 +39,7 @@ export default function FileUploader(props: {
       <label class="form-control">
         <div class="label">
           <span class="label-text">{props.title}</span>
-          <span class="label-text-alt">{props.altElement}</span>
+          <span class="label-text-alt">{props.altChildren}</span>
         </div>
         <input
           type="file"

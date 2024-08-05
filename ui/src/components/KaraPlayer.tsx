@@ -13,12 +13,14 @@ export default function KaraPlayer(props: {
   const getSubSrc = () => `/api/kara/${props.kara.ID}/download/sub`;
 
   createEffect(() => {
-    onCleanup(() => octopus?.dispose());
+    onCleanup(() => {
+      octopus?.dispose();
+      octopus = undefined;
+    });
   });
 
   const setupOctopus = () => {
-    octopus?.dispose();
-    if (props.kara.SubtitlesUploaded) {
+    if (props.kara.SubtitlesUploaded && !octopus) {
       octopus = new SubtitlesOctopus({
         video: playerRef,
         subUrl: getSubSrc(),
