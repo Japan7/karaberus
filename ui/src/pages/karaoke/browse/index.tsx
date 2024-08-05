@@ -95,9 +95,22 @@ export default function KaraokeBrowse() {
         >
           <HiSolidChevronDoubleLeft class="size-5" />
         </button>
-        <button onclick={() => setPage(0)} class="join-item btn">
-          Page {getPage() + 1}
-        </button>
+        <select
+          onchange={(e) => setPage(parseInt(e.currentTarget.value))}
+          class="join-item select bg-base-200"
+        >
+          <Index
+            each={[
+              ...Array(Math.ceil(getFilteredKaras().length / pageSize)).keys(),
+            ]}
+          >
+            {(getIndex) => (
+              <option value={getIndex()} selected={getIndex() === getPage()}>
+                Page {getIndex() + 1}
+              </option>
+            )}
+          </Index>
+        </select>
         <button
           disabled={
             getPage() * pageSize + pageSize >= getFilteredKaras().length
