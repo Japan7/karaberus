@@ -26,8 +26,10 @@ export default function AutocompleteMultiple<T>(
     "allowDuplicates",
   ]);
 
-  let inputEl!: HTMLInputElement;
   const [getInput, setInput] = createSignal("");
+
+  let inputRef!: HTMLInputElement;
+  let dropdownRef!: HTMLDivElement;
 
   const filteredItems = () => {
     const filtered = local.items.filter(
@@ -46,6 +48,46 @@ export default function AutocompleteMultiple<T>(
       ],
     });
     return fuse.search(input).map((result) => result.item);
+  };
+
+  const handleKeyDownInput: JSX.EventHandler<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const items = dropdownRef.querySelectorAll("a");
+      items[e.key === "ArrowUp" ? items.length - 1 : 0].focus();
+    }
+    if (
+      e.key === "Backspace" &&
+      e.currentTarget.selectionStart === 0 &&
+      e.currentTarget.selectionEnd === 0
+    ) {
+      e.preventDefault();
+      local.setState((state) => state.slice(0, -1));
+    }
+  };
+
+  const handleKeyDownDropdown: JSX.EventHandler<
+    HTMLDivElement,
+    KeyboardEvent
+  > = (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const items = dropdownRef.querySelectorAll("a");
+      const index = Array.from(items).indexOf(
+        document.activeElement as HTMLAnchorElement,
+      );
+      if (
+        (index === 0 && e.key === "ArrowUp") ||
+        (index === items.length - 1 && e.key === "ArrowDown")
+      ) {
+        inputRef.focus();
+      } else {
+        items[index + (e.key === "ArrowUp" ? -1 : 1)].focus();
+      }
+    }
   };
 
   return (
@@ -73,12 +115,17 @@ export default function AutocompleteMultiple<T>(
           required={inputProps.required && local.getState().length === 0}
           value={getInput()}
           oninput={(e) => setInput(e.currentTarget.value)}
-          ref={inputEl}
+          onkeydown={handleKeyDownInput}
+          ref={inputRef}
           class="bg-transparent outline-none w-full"
           {...inputProps}
         />
       </div>
-      <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto">
+      <div
+        onkeydown={handleKeyDownDropdown}
+        ref={dropdownRef}
+        class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto"
+      >
         <ul>
           <For each={filteredItems()}>
             {(item) => (
@@ -89,7 +136,7 @@ export default function AutocompleteMultiple<T>(
                     e.preventDefault();
                     local.setState((state) => [...state, item]);
                     setInput("");
-                    inputEl.focus();
+                    inputRef.focus();
                   }}
                 >
                   {local.getItemName(item)}

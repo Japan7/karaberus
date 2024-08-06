@@ -27,6 +27,9 @@ export default function Autocomplete<T>(
 
   const [getInput, setInput] = createSignal("");
 
+  let inputRef!: HTMLInputElement;
+  let dropdownRef!: HTMLDivElement;
+
   const filteredItems = () => {
     const input = getInput();
     if (!input) {
@@ -43,6 +46,38 @@ export default function Autocomplete<T>(
     return fuse.search(input).map((result) => result.item);
   };
 
+  const handleKeyDownInput: JSX.EventHandler<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const items = dropdownRef.querySelectorAll("a");
+      items[e.key === "ArrowUp" ? items.length - 1 : 0].focus();
+    }
+  };
+
+  const handleKeyDownDropdown: JSX.EventHandler<
+    HTMLDivElement,
+    KeyboardEvent
+  > = (e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const items = dropdownRef.querySelectorAll("a");
+      const index = Array.from(items).indexOf(
+        document.activeElement as HTMLAnchorElement,
+      );
+      if (
+        (index === 0 && e.key === "ArrowUp") ||
+        (index === items.length - 1 && e.key === "ArrowDown")
+      ) {
+        inputRef.focus();
+      } else {
+        items[index + (e.key === "ArrowUp" ? -1 : 1)].focus();
+      }
+    }
+  };
+
   return (
     <div class="dropdown w-full">
       <div class="textarea textarea-bordered w-full">
@@ -53,6 +88,8 @@ export default function Autocomplete<T>(
               type="text"
               value={getInput()}
               oninput={(e) => setInput(e.currentTarget.value)}
+              onkeydown={handleKeyDownInput}
+              ref={inputRef}
               class="bg-transparent outline-none w-full"
               {...inputProps}
             />
@@ -70,7 +107,11 @@ export default function Autocomplete<T>(
         </Show>
       </div>
       <Show when={local.getState() === undefined}>
-        <div class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto">
+        <div
+          onkeydown={handleKeyDownDropdown}
+          ref={dropdownRef}
+          class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto"
+        >
           <ul>
             <For each={filteredItems()}>
               {(item) => (
