@@ -120,6 +120,30 @@ type Artist struct {
 	gorm.Model
 	Name            string           `gorm:"uniqueIndex:idx_artist_name"`
 	AdditionalNames []AdditionalName `gorm:"many2many:artists_additional_name"`
+	CurrentArtistID *uint
+	CurrentArtist   *Artist
+	Editor
+}
+
+func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
+	orig_artist := &Artist{}
+	err := tx.First(orig_artist, a.ID).Error
+	if err != nil {
+		return err
+	}
+
+	// create historic entry with the previous value
+	orig_artist.ID = 0
+	orig_artist.CurrentArtist = a
+	err = tx.Create(orig_artist).Error
+
+	return err
+}
+
+func (a *Artist) BeforeSave(tx *gorm.DB) error {
+	// set editor for this new update
+	a.EditorUser = getCurrentUser(tx.Statement.Context)
+	return nil
 }
 
 // Media types
@@ -135,6 +159,30 @@ type MediaDB struct {
 	Name            string           `json:"name" example:"Shinseiki Evangelion" gorm:"uniqueIndex:idx_media_name_type"`
 	Type            string           `json:"media_type" example:"ANIME" gorm:"uniqueIndex:idx_media_name_type"`
 	AdditionalNames []AdditionalName `json:"additional_name" gorm:"many2many:media_additional_name"`
+	CurrentMediaID  *uint
+	CurrentMedia    *MediaDB
+	Editor
+}
+
+func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
+	orig_media := &MediaDB{}
+	err := tx.First(orig_media, m.ID).Error
+	if err != nil {
+		return err
+	}
+
+	// create historic entry with the previous value
+	orig_media.ID = 0
+	orig_media.CurrentMedia = m
+	err = tx.Create(orig_media).Error
+
+	return err
+}
+
+func (m *MediaDB) BeforeSave(tx *gorm.DB) error {
+	// set editor for this new update
+	m.EditorUser = getCurrentUser(tx.Statement.Context)
+	return nil
 }
 
 // Video tags
@@ -210,14 +258,14 @@ type KaraInfoDB struct {
 	Language      string
 	UploadInfo
 	// Can't be set by users
-	OriginalKaraInfoID *uint
-	OriginalKaraInfo   *KaraInfoDB
+	CurrentKaraInfoID *uint
+	CurrentKaraInfo   *KaraInfoDB
 	Editor
 }
 
 // Filter out historic entries
 func CurrentKaras(tx *gorm.DB) *gorm.DB {
-	return tx.Where(&KaraInfoDB{OriginalKaraInfoID: nil})
+	return tx.Where(&KaraInfoDB{CurrentKaraInfoID: nil})
 }
 
 func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
@@ -229,7 +277,7 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 
 	// create historic entry with the current value
 	orig_kara_info.ID = 0
-	orig_kara_info.OriginalKaraInfo = ki
+	orig_kara_info.CurrentKaraInfo = ki
 	err = tx.Create(orig_kara_info).Error
 
 	return err
