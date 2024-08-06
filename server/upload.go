@@ -251,7 +251,10 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 				ctx.SetHeader("Range", fmt.Sprintf("bytes %d-%d/%d", start, end, stat.Size))
 			}
 
-			obj.Seek(start, 0)
+			_, err = obj.Seek(start, 0)
+			if err != nil {
+				return
+			}
 
 			bytes_to_read := end - start
 			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", bytes_to_read))
@@ -265,12 +268,17 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 					buf = make([]byte, 1024*1024)
 				}
 				n, err = obj.Read(buf)
-				writer.Write(buf[:n])
+				if errors.Is(err, io.EOF) {
+					if n == 0 {
+						break
+					}
+					err = nil
+				} else if err != nil {
+					break
+				}
+				_, err = writer.Write(buf[:n])
 				bytes_to_read -= int64(n)
 				if err != nil {
-					if errors.Is(err, io.EOF) {
-						err = nil
-					}
 					break
 				}
 				if bytes_to_read <= 0 {
