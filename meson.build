@@ -12,7 +12,7 @@ project(
 )
 
 go = find_program('go', required: true)
-ffmpeg = find_program('ffmpeg', required: false)
+ffmpeg = find_program('ffmpeg', required: get_option('s3_tests').enabled())
 python = find_program('python3', required: true)
 npm = find_program('npm', required: true)
 qemu_user = find_program('qemu-' + host_machine.cpu_family(), required: false)
@@ -239,7 +239,7 @@ run_target(
 
 test_deps = [karaberus_deps, karaberus_test]
 
-if ffmpeg.found()
+if get_option('s3_tests').enabled()
     mkv_test_file = 'karaberus_test.mkv'
     test_deps += custom_target(
         'create_test_mkv',
@@ -294,9 +294,7 @@ if ffmpeg.found()
         ],
     )
 else
-    warning('ffmpeg executable was not found, S3 tests are disabled')
     go_test_env.set('SKIP_S3_TESTS', 'y')
-    summary('S3 tests', 'Disabled')
 endif
 
 if get_option('staticcheck')

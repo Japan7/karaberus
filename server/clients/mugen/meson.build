@@ -5,7 +5,7 @@ karaberus_server_files += mugen_client_file
 mugen_test_inputs = mugen_client_file + files('mugen_test.go')
 mugen_test_output = 'mugen_test'
 
-if get_option('network_tests') and get_option('test')
+if get_option('network_tests').enabled() and get_option('test')
     mugen_test = custom_target(
         'mugen_test',
         env: go_env,
