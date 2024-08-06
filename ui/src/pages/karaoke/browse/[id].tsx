@@ -82,11 +82,12 @@ export default function KaraokeBrowseId() {
             getKara()?.kara.VideoUploaded ? (
               <a
                 href={`/api/kara/${params.id}/download/video`}
-                target="_blank"
+                download={`${params.id}.mkv`}
                 rel="noreferrer"
                 class="link flex gap-x-1"
               >
-                Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
+                {"Download current video "}
+                <HiOutlineArrowTopRightOnSquare class="size-4" />
               </a>
             ) : (
               "(No upload yet)"
@@ -102,11 +103,12 @@ export default function KaraokeBrowseId() {
             getKara()?.kara.InstrumentalUploaded ? (
               <a
                 href={`/api/kara/${params.id}/download/inst`}
-                target="_blank"
+                download={`${params.id}.mka`}
                 rel="noreferrer"
                 class="link flex gap-x-1"
               >
-                Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
+                {"Download current instrumental "}
+                <HiOutlineArrowTopRightOnSquare class="size-4" />
               </a>
             ) : (
               "(No upload yet)"
@@ -122,11 +124,12 @@ export default function KaraokeBrowseId() {
             getKara()?.kara.SubtitlesUploaded ? (
               <a
                 href={`/api/kara/${params.id}/download/sub`}
-                target="_blank"
+                download={`${params.id}.ass`}
                 rel="noreferrer"
                 class="link flex gap-x-1"
               >
-                Open current <HiOutlineArrowTopRightOnSquare class="size-4" />
+                {"Download current subtitles "}
+                <HiOutlineArrowTopRightOnSquare class="size-4" />
               </a>
             ) : (
               "(No upload yet)"
