@@ -64,13 +64,12 @@ export default function KaraokeBrowse() {
     return results.map((result) => result.item);
   };
 
-  const getPageKaras = () => {
-    const karas = getFilteredKaras();
-    const page = getPage();
-    const start = page * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return karas.slice(start, end);
-  };
+  const getTotal = () => getFilteredKaras().length;
+
+  const getStart = () => getPage() * PAGE_SIZE;
+  const getEnd = () => Math.min(getStart() + PAGE_SIZE, getTotal());
+
+  const getPageKaras = () => getFilteredKaras().slice(getStart(), getEnd());
 
   return (
     <>
@@ -91,54 +90,64 @@ export default function KaraokeBrowse() {
           <HiOutlineMagnifyingGlass class="size-4 opacity-70" />
         </label>
 
-        <div class="join mx-auto">
-          <button
-            disabled={getPage() === 0}
-            onclick={() => setPage((page) => page - 1)}
-            class="join-item btn"
-          >
-            <HiSolidChevronDoubleLeft class="size-5" />
-          </button>
-          <select
-            onchange={(e) => setPage(parseInt(e.currentTarget.value))}
-            class="join-item select bg-base-200"
-          >
-            <Index
-              each={[
-                ...Array(
-                  Math.ceil(getFilteredKaras().length / PAGE_SIZE),
-                ).keys(),
-              ]}
+        <Show when={getFilteredKaras().length} fallback={<p>No results</p>}>
+          <div class="join mx-auto">
+            <button
+              disabled={getPage() === 0}
+              onclick={() => setPage((page) => page - 1)}
+              class="join-item btn"
             >
-              {(getIndex) => (
-                <option value={getIndex()} selected={getIndex() === getPage()}>
-                  Page {getIndex() + 1}
-                </option>
+              <HiSolidChevronDoubleLeft class="size-5" />
+            </button>
+            <select
+              onchange={(e) => setPage(parseInt(e.currentTarget.value))}
+              class="join-item select bg-base-200"
+            >
+              <Index
+                each={[
+                  ...Array(
+                    Math.ceil(getFilteredKaras().length / PAGE_SIZE),
+                  ).keys(),
+                ]}
+              >
+                {(getIndex) => (
+                  <option
+                    value={getIndex()}
+                    selected={getIndex() === getPage()}
+                  >
+                    Page {getIndex() + 1}
+                  </option>
+                )}
+              </Index>
+            </select>
+            <button
+              disabled={
+                getPage() * PAGE_SIZE + PAGE_SIZE >= getFilteredKaras().length
+              }
+              onclick={() => setPage((page) => page + 1)}
+              class="join-item btn"
+            >
+              <HiSolidChevronDoubleRight class="size-5" />
+            </button>
+          </div>
+
+          <p>
+            Showing <b>{getStart() + 1}</b> to <b>{getEnd()}</b> of{" "}
+            <b>{getTotal()}</b> results
+          </p>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Index each={getPageKaras()}>
+              {(getKara) => (
+                <KaraCard
+                  kara={getKara()}
+                  audioTagMap={getAudioTagMap()}
+                  videoTagMap={getVideoTagMap()}
+                />
               )}
             </Index>
-          </select>
-          <button
-            disabled={
-              getPage() * PAGE_SIZE + PAGE_SIZE >= getFilteredKaras().length
-            }
-            onclick={() => setPage((page) => page + 1)}
-            class="join-item btn"
-          >
-            <HiSolidChevronDoubleRight class="size-5" />
-          </button>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Index each={getPageKaras()} fallback={<p>No results</p>}>
-            {(getKara) => (
-              <KaraCard
-                kara={getKara()}
-                audioTagMap={getAudioTagMap()}
-                videoTagMap={getVideoTagMap()}
-              />
-            )}
-          </Index>
-        </div>
+          </div>
+        </Show>
       </Show>
     </>
   );
