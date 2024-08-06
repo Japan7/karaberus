@@ -260,12 +260,10 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", bytes_to_read))
 
 			var n int
-			var buf []byte
+			buf := make([]byte, 1024*64)
 			for {
-				if bytes_to_read < 1024*1024 {
-					buf = make([]byte, bytes_to_read)
-				} else {
-					buf = make([]byte, 1024*1024)
+				if bytes_to_read < int64(len(buf)) {
+					buf = buf[:bytes_to_read]
 				}
 				n, err = obj.Read(buf)
 				if errors.Is(err, io.EOF) {
