@@ -21,7 +21,7 @@ type ArtistOutput struct {
 
 func GetArtistByID(tx *gorm.DB, Id uint) (*Artist, error) {
 	artist := &Artist{}
-	err := tx.First(artist, Id).Error
+	err := tx.Scopes(CurrentArtists).First(artist, Id).Error
 	return artist, DBErrToHumaErr(err)
 }
 
@@ -73,7 +73,7 @@ type DeleteArtistResponse struct {
 
 func DeleteArtist(ctx context.Context, input *GetArtistInput) (*DeleteArtistResponse, error) {
 	tx := GetDB(ctx)
-	err := tx.Delete(&Artist{}, input.Id).Error
+	err := tx.Scopes(CurrentArtists).Delete(&Artist{}, input.Id).Error
 	return &DeleteArtistResponse{204}, DBErrToHumaErr(err)
 }
 
@@ -103,6 +103,6 @@ type AllArtistsOutput struct {
 func GetAllArtists(ctx context.Context, input *struct{}) (*AllArtistsOutput, error) {
 	db := GetDB(ctx)
 	out := &AllArtistsOutput{}
-	err := db.Preload("AdditionalNames").Find(&out.Body).Error
+	err := db.Preload("AdditionalNames").Scopes(CurrentArtists).Find(&out.Body).Error
 	return out, DBErrToHumaErr(err)
 }

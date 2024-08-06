@@ -33,7 +33,7 @@ func getMediaType(media_type_id string) MediaType {
 
 func getMediaByID(tx *gorm.DB, Id uint) (MediaDB, error) {
 	media := MediaDB{}
-	err := tx.First(&media, Id).Error
+	err := tx.Scopes(CurrentMedias).First(&media, Id).Error
 	return media, DBErrToHumaErr(err)
 }
 
@@ -77,14 +77,14 @@ type GetMediaInput struct {
 
 func DeleteMedia(ctx context.Context, input *GetMediaInput) (*DeleteMediaResponse, error) {
 	db := GetDB(ctx)
-	err := db.Delete(&MediaDB{}, input.Id).Error
+	err := db.Scopes(CurrentMedias).Delete(&MediaDB{}, input.Id).Error
 	return &DeleteMediaResponse{204}, DBErrToHumaErr(err)
 }
 
 func GetMedia(ctx context.Context, input *GetMediaInput) (*MediaOutput, error) {
 	db := GetDB(ctx)
 	media_output := &MediaOutput{}
-	err := db.First(&media_output.Body.Media, input.Id).Error
+	err := db.Scopes(CurrentMedias).First(&media_output.Body.Media, input.Id).Error
 	return media_output, DBErrToHumaErr(err)
 }
 
@@ -93,7 +93,7 @@ type FindMediaInput struct {
 }
 
 func findMedia(tx *gorm.DB, names []string, media *MediaDB) error {
-	err := tx.Where("Name in ?", names).First(&media).Error
+	err := tx.Scopes(CurrentMedias).Where("Name in ?", names).First(&media).Error
 	return err
 }
 
@@ -110,7 +110,7 @@ type AllMediasOutput struct {
 func GetAllMedias(ctx context.Context, input *struct{}) (*AllMediasOutput, error) {
 	db := GetDB(ctx)
 	out := &AllMediasOutput{}
-	err := db.Preload("AdditionalNames").Find(&out.Body).Error
+	err := db.Preload("AdditionalNames").Scopes(CurrentMedias).Find(&out.Body).Error
 	return out, DBErrToHumaErr(err)
 }
 

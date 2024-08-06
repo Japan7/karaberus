@@ -125,6 +125,10 @@ type Artist struct {
 	Editor
 }
 
+func CurrentArtists(tx *gorm.DB) *gorm.DB {
+	return tx.Where(&Artist{CurrentArtistID: nil})
+}
+
 func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
 	orig_artist := &Artist{}
 	err := tx.First(orig_artist, a.ID).Error
@@ -162,6 +166,10 @@ type MediaDB struct {
 	CurrentMediaID  *uint
 	CurrentMedia    *MediaDB
 	Editor
+}
+
+func CurrentMedias(tx *gorm.DB) *gorm.DB {
+	return tx.Where(&MediaDB{CurrentMediaID: nil})
 }
 
 func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
