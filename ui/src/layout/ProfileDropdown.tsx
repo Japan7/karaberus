@@ -34,6 +34,19 @@ export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
             <span class="w-full font-bold">{isAdmin() ? "Admin" : "User"}</span>
           </a>
         </li>
+        <li>
+          <div class="flex gap-x-4">
+            <p>Theme</p>
+            <select
+              data-choose-theme
+              class="flex-1 select select-bordered select-xs"
+            >
+              <option value="">💻 System</option>
+              <option value="light">🌞 Light</option>
+              <option value="dark">🌙 Dark</option>
+            </select>
+          </div>
+        </li>
         <li onclick={() => closeDropdown()}>
           <a href="/settings">Settings</a>
         </li>
