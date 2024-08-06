@@ -226,7 +226,10 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 				r := recover()
 				if r != nil {
 					// unlikely, but close object on panic just in case it happens
-					obj.Close()
+					err = obj.Close()
+					if err != nil {
+						panic(err)
+					}
 					panic(r)
 				}
 			}()
@@ -270,7 +273,7 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 			filesender := FileSender{obj, reqRange, 0}
 
 			fiber_ctx := ctx.BodyWriter().(*fiber.Ctx)
-			fiber_ctx.SendStream(&filesender, int(stat.Size))
+			err = fiber_ctx.SendStream(&filesender, int(stat.Size))
 		},
 	}, err
 }
