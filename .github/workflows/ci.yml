@@ -49,7 +49,7 @@ jobs:
 
       - name: Configure karaberus
         if: startsWith(matrix.os, 'macos')
-        run: meson setup build -Dno_native_deps=true
+        run: meson setup build -Dno_native_deps=true -Ds3_tests=disabled
 
       - name: Run tests
         run: meson compile -C build && meson test -C build --verbose
