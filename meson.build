@@ -299,6 +299,15 @@ else
     summary('S3 tests', 'Disabled')
 endif
 
+if get_option('staticcheck')
+    staticcheck = custom_target(
+        'staticcheck',
+        command: [go, 'install', 'honnef.co/go/tools/cmd/staticcheck@latest'],
+        output: 'staticcheck',
+        env: {'GOBIN': meson.current_build_dir()},
+    )
+endif
+
 if get_option('errcheck')
     errcheck = custom_target(
         'errcheck',
@@ -316,6 +325,18 @@ if get_option('test')
         env: go_test_env,
         timeout: 300,
     )
+
+    if get_option('staticcheck')
+        test(
+            'staticcheck',
+            staticcheck,
+            args: ['./...'],
+            depends: karaberus,
+            env: go_env,
+            workdir: meson.current_source_dir(),
+            timeout: 300,
+        )
+    endif
 
     if get_option('errcheck')
         test(

@@ -170,6 +170,9 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 
 	kid := input.KID
 	kara, err := GetKaraByID(db, kid)
+	if err != nil {
+		return nil, err
+	}
 
 	resp := &UploadOutput{}
 	err = db.Transaction(func(tx *gorm.DB) error {

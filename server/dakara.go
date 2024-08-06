@@ -57,7 +57,7 @@ func dakaraSendRequest(ctx context.Context, method string, path string, bodyData
 			return nil, err
 		}
 		getLogger().Printf("dakara response: %+v\n%s", resp, buf[:n])
-		return nil, errors.New(fmt.Sprintf("Dakara responded with status code %d", resp.StatusCode))
+		return nil, fmt.Errorf("dakara responded with status code %d", resp.StatusCode)
 	}
 
 	return resp, err
@@ -451,24 +451,24 @@ func dakaraAddSong(ctx context.Context, song *DakaraSongBody) error {
 	return nil
 }
 
-func worktypeShouldExist(worktype string) bool {
-	for _, media_type := range MediaTypes {
-		if strings.ToLower(media_type.ID) == worktype {
-			return true
-		}
-	}
-	return false
-}
+// func worktypeShouldExist(worktype string) bool {
+// 	for _, media_type := range MediaTypes {
+// 		if strings.ToLower(media_type.ID) == worktype {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
-func cleanUpWorkTypes(worktypes []DakaraWorkType) error {
-	for _, worktype := range worktypes {
-		if !worktypeShouldExist(worktype.QueryName) {
-			// ID is missing from the work type struct
-			// return DakaraDeleteWorkType(ctx, worktype)
-		}
-	}
-	return nil
-}
+// func cleanUpWorkTypes(worktypes []DakaraWorkType) error {
+// 	for _, worktype := range worktypes {
+// 		if !worktypeShouldExist(worktype.QueryName) {
+// 			// ID is missing from the work type struct
+// 			// return DakaraDeleteWorkType(ctx, worktype)
+// 		}
+// 	}
+// 	return nil
+// }
 
 var DakaraSyncLock = sync.Mutex{}
 
@@ -685,7 +685,6 @@ func SyncDakara(ctx context.Context) {
 	}
 
 	// cleanUpWorkTypes(worktypes)
-	return
 }
 
 func dakaraSongEndpoint(dakara_song_id int) string {
@@ -795,7 +794,7 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		dakara_work := dakara_worktype[kara.SourceMedia.Name]
 
 		if dakara_work == nil {
-			return nil, errors.New(fmt.Sprintf("could not find source media for: %+v", kara))
+			return nil, fmt.Errorf("could not find source media for: %+v", kara)
 		}
 		link_type_number := &kara.SongOrder
 		if kara.SongOrder == 0 {

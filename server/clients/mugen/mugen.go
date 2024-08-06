@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -114,7 +113,7 @@ func (c MugenClient) SendRequest(ctx context.Context, method string, path string
 			return nil, err
 		}
 		fmt.Printf("mugen response: %+v\n%s", resp, buf[:n])
-		return nil, errors.New(fmt.Sprintf("Dakara responded with status code %d", resp.StatusCode))
+		return nil, fmt.Errorf("dakara responded with status code %d", resp.StatusCode)
 	}
 
 	return resp, err

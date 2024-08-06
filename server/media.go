@@ -37,12 +37,12 @@ func getMediaByID(tx *gorm.DB, Id uint) (MediaDB, error) {
 	return media, DBErrToHumaErr(err)
 }
 
-func getMedia(tx *gorm.DB, name string, media_type_str string) (MediaDB, error) {
-	media_type := getMediaType(media_type_str)
-	media := MediaDB{}
-	err := tx.Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media).Error
-	return media, DBErrToHumaErr(err)
-}
+// func getMedia(tx *gorm.DB, name string, media_type_str string) (MediaDB, error) {
+// 	media_type := getMediaType(media_type_str)
+// 	media := MediaDB{}
+// 	err := tx.Where(&MediaDB{Name: name, Type: media_type.ID}).FirstOrCreate(&media).Error
+// 	return media, DBErrToHumaErr(err)
+// }
 
 func createMedia(tx *gorm.DB, name string, media_type MediaType, additional_names []string, media *MediaDB) error {
 	err := tx.Transaction(func(tx *gorm.DB) error {

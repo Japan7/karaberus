@@ -331,7 +331,7 @@ func RefreshMugen(ctx context.Context, input *struct{}) (*struct{}, error) {
 
 func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response, kara MugenImport, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
 	if resp.StatusCode != 200 {
-		return nil, errors.New(fmt.Sprintf("%d: failed to download, received code %d", kara.MugenKID, resp.StatusCode))
+		return nil, fmt.Errorf("%d: failed to download, received code %d", kara.MugenKID, resp.StatusCode)
 	}
 	content_length, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
 	if err != nil {

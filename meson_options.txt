@@ -4,4 +4,5 @@ option('sysroot', type: 'string', value: '', description: 'Cross builds sysroot'
 option('network_tests', type: 'boolean', value: true, description: 'Run tests that require an internet connection')
 option('test', type: 'boolean', value: true, description: 'Build tests')
 option('no_native_deps', type: 'boolean', value: false, description: 'Build without native deps')
+option('staticcheck', type: 'boolean', value: true, description: 'Run staticcheck test')
 option('errcheck', type: 'boolean', value: true, description: 'Run errcheck test')

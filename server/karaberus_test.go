@@ -126,7 +126,7 @@ func TestFindAuthorTag(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resp = assertRespCode(t, api.Get("/api/tags/author?name=author_name_find_test"), 200)
+	assertRespCode(t, api.Get("/api/tags/author?name=author_name_find_test"), 200)
 
 	path := fmt.Sprintf("/api/tags/author/%d", data.Body.Author.ID)
 	assertRespCode(t, api.Delete(path), 204)
@@ -176,7 +176,7 @@ func TestFindArtistTag(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resp = assertRespCode(t, api.Get("/api/tags/artist?name=artist_name_find_test"), 200)
+	assertRespCode(t, api.Get("/api/tags/artist?name=artist_name_find_test"), 200)
 
 	path := fmt.Sprintf("/api/tags/artist/%d", data.Body.Artist.ID)
 	assertRespCode(t, api.Delete(path), 204)
@@ -236,7 +236,7 @@ func TestFindMedia(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resp = assertRespCode(t, api.Get("/api/tags/media?name=media_name_find_test"), 200)
+	assertRespCode(t, api.Get("/api/tags/media?name=media_name_find_test"), 200)
 
 	path := fmt.Sprintf("/api/tags/media/%d", data.Body.Media.ID)
 	assertRespCode(t, api.Delete(path), 204)
@@ -667,7 +667,7 @@ func TestUploadKara(t *testing.T) {
 	}
 }
 
-func testUploadFont(t *testing.T) {
+func TestUploadFont(t *testing.T) {
 	skipCI(t)
 
 	api := getTestAPI(t)

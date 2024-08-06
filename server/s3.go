@@ -122,7 +122,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		defer Closer(obj)
 		video_check_res := CheckS3Video(ctx, obj)
 		if !video_check_res.Passed {
-			return nil, errors.New(fmt.Sprintf("Checks failed for kara %d", kara.ID))
+			return nil, fmt.Errorf("checks failed for kara %d", kara.ID)
 		}
 		out.Video = &video_check_res
 	}
@@ -146,7 +146,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		defer Closer(obj)
 		inst_check_res := CheckS3Inst(ctx, obj)
 		if !inst_check_res.Passed {
-			return nil, errors.New(fmt.Sprintf("Checks failed for kara %d", kara.ID))
+			return nil, fmt.Errorf("checks failed for kara %d", kara.ID)
 		}
 		out.Instrumental = &inst_check_res
 	}
