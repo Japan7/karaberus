@@ -14,6 +14,8 @@ import KaraCard from "../../../components/KaraCard";
 import { karaberus } from "../../../utils/karaberus-client";
 import { karaFuseSearch } from "../../../utils/karaoke";
 
+const PAGE_SIZE = 9;
+
 export default function KaraokeBrowse() {
   const [getAllKaras] = createResource(async () => {
     const resp = await karaberus.GET("/api/kara");
@@ -62,13 +64,11 @@ export default function KaraokeBrowse() {
     return results.map((result) => result.item);
   };
 
-  const pageSize = 9;
-
   const getPageKaras = () => {
     const karas = getFilteredKaras();
     const page = getPage();
-    const start = page * pageSize;
-    const end = start + pageSize;
+    const start = page * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
     return karas.slice(start, end);
   };
 
@@ -76,54 +76,59 @@ export default function KaraokeBrowse() {
     <>
       <h1 class="header">Browse Karaokes</h1>
 
-      <label class="input input-bordered flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="Search"
-          value={getSearch()}
-          oninput={(e) => setSearch(e.currentTarget.value)}
-          class="grow"
-        />
-        <HiOutlineMagnifyingGlass class="size-4 opacity-70" />
-      </label>
+      <Show
+        when={getAllKaras()}
+        fallback={<span class="loading loading-spinner loading-lg" />}
+      >
+        <label class="input input-bordered flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Search"
+            value={getSearch()}
+            oninput={(e) => setSearch(e.currentTarget.value)}
+            class="grow"
+          />
+          <HiOutlineMagnifyingGlass class="size-4 opacity-70" />
+        </label>
 
-      <div class="join mx-auto">
-        <button
-          disabled={getPage() === 0}
-          onclick={() => setPage((page) => page - 1)}
-          class="join-item btn"
-        >
-          <HiSolidChevronDoubleLeft class="size-5" />
-        </button>
-        <select
-          onchange={(e) => setPage(parseInt(e.currentTarget.value))}
-          class="join-item select bg-base-200"
-        >
-          <Index
-            each={[
-              ...Array(Math.ceil(getFilteredKaras().length / pageSize)).keys(),
-            ]}
+        <div class="join mx-auto">
+          <button
+            disabled={getPage() === 0}
+            onclick={() => setPage((page) => page - 1)}
+            class="join-item btn"
           >
-            {(getIndex) => (
-              <option value={getIndex()} selected={getIndex() === getPage()}>
-                Page {getIndex() + 1}
-              </option>
-            )}
-          </Index>
-        </select>
-        <button
-          disabled={
-            getPage() * pageSize + pageSize >= getFilteredKaras().length
-          }
-          onclick={() => setPage((page) => page + 1)}
-          class="join-item btn"
-        >
-          <HiSolidChevronDoubleRight class="size-5" />
-        </button>
-      </div>
+            <HiSolidChevronDoubleLeft class="size-5" />
+          </button>
+          <select
+            onchange={(e) => setPage(parseInt(e.currentTarget.value))}
+            class="join-item select bg-base-200"
+          >
+            <Index
+              each={[
+                ...Array(
+                  Math.ceil(getFilteredKaras().length / PAGE_SIZE),
+                ).keys(),
+              ]}
+            >
+              {(getIndex) => (
+                <option value={getIndex()} selected={getIndex() === getPage()}>
+                  Page {getIndex() + 1}
+                </option>
+              )}
+            </Index>
+          </select>
+          <button
+            disabled={
+              getPage() * PAGE_SIZE + PAGE_SIZE >= getFilteredKaras().length
+            }
+            onclick={() => setPage((page) => page + 1)}
+            class="join-item btn"
+          >
+            <HiSolidChevronDoubleRight class="size-5" />
+          </button>
+        </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Show when={getAllKaras()} fallback={<p>Loading karas...</p>}>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Index each={getPageKaras()} fallback={<p>No results</p>}>
             {(getKara) => (
               <KaraCard
@@ -133,8 +138,8 @@ export default function KaraokeBrowse() {
               />
             )}
           </Index>
-        </Show>
-      </div>
+        </div>
+      </Show>
     </>
   );
 }

@@ -201,7 +201,10 @@ export default function KaraEditor(props: {
           </a>
         </span>
       </div>
-      <Show when={getAllAuthors()} fallback={<p>Loading Authors...</p>}>
+      <Show
+        when={getAllAuthors()}
+        fallback={<span class="loading loading-spinner loading-lg" />}
+      >
         {(getAllAuthors) => (
           <AutocompleteMultiple
             items={getAllAuthors()}
@@ -223,7 +226,10 @@ export default function KaraEditor(props: {
           </a>
         </span>
       </div>
-      <Show when={getAllArtists()} fallback={<p>Loading artists...</p>}>
+      <Show
+        when={getAllArtists()}
+        fallback={<span class="loading loading-spinner loading-lg" />}
+      >
         {(getAllArtists) => (
           <AutocompleteMultiple
             items={getAllArtists()}
@@ -245,7 +251,10 @@ export default function KaraEditor(props: {
           </a>
         </span>
       </div>
-      <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
+      <Show
+        when={getAllMedias()}
+        fallback={<span class="loading loading-spinner loading-lg" />}
+      >
         {(getAllMedias) => (
           <Autocomplete
             items={getAllMedias()}
@@ -281,7 +290,10 @@ export default function KaraEditor(props: {
           </a>
         </span>
       </div>
-      <Show when={getAllMedias()} fallback={<p>Loading medias...</p>}>
+      <Show
+        when={getAllMedias()}
+        fallback={<span class="loading loading-spinner loading-lg" />}
+      >
         {(getAllMedias) => (
           <AutocompleteMultiple
             items={getAllMedias()}
@@ -299,7 +311,10 @@ export default function KaraEditor(props: {
         <span class="label-text">Song types</span>
       </div>
       <div class="grid md:grid-cols-2">
-        <Index each={getAllAudioTags()} fallback={<p>Loading audio tags...</p>}>
+        <Index
+          each={getAllAudioTags()}
+          fallback={<span class="loading loading-spinner loading-lg" />}
+        >
           {(getAudioTag) => (
             <label class="label cursor-pointer justify-start gap-x-2">
               <input
@@ -329,7 +344,10 @@ export default function KaraEditor(props: {
         <span class="label-text">Tags</span>
       </div>
       <div class="grid md:grid-cols-2">
-        <Index each={getAllVideoTags()} fallback={<p>Loading video tags...</p>}>
+        <Index
+          each={getAllVideoTags()}
+          fallback={<span class="loading loading-spinner loading-lg" />}
+        >
           {(getVideoTag) => (
             <label class="label cursor-pointer justify-start gap-x-2">
               <input

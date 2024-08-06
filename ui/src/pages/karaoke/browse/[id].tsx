@@ -137,7 +137,10 @@ export default function KaraokeBrowseId() {
 
       <h2 class="text-2xl font-semibold mt-4">Edit metadata</h2>
 
-      <Show when={getKara()?.kara} fallback={<p>loading karaoke...</p>}>
+      <Show
+        when={getKara()?.kara}
+        fallback={<span class="loading loading-spinner loading-lg" />}
+      >
         {(getKara) => <KaraEditor kara={getKara()} onSubmit={editKaraoke} />}
       </Show>
 
