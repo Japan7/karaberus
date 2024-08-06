@@ -288,6 +288,34 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 	}, err
 }
 
+type DownloadHeadOutput struct {
+	AcceptRange   string `header:"Accept-Range"`
+	ContentLength int64  `header:"Content-Length"`
+}
+
+func DownloadHead(ctx context.Context, input *DownloadInput) (*DownloadHeadOutput, error) {
+	db := GetDB(ctx)
+	kara, err := GetKaraByID(db, input.KID)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := GetKaraObject(ctx, kara, input.FileType)
+	if err != nil {
+		return nil, err
+	}
+
+	stat, err := obj.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	return &DownloadHeadOutput{
+		AcceptRange:   "bytes",
+		ContentLength: stat.Size,
+	}, nil
+}
+
 func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamResponse, error) {
 	db := GetDB(ctx)
 	kid := input.KID

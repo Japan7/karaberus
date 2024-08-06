@@ -41,6 +41,12 @@ func addRoutes(api huma.API) {
 	huma.Patch(api, "/api/kara/{id}", UpdateKara, setSecurity(kara_security))
 	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))
 	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara_security))
+	huma.Register(api, huma.Operation{
+		OperationID: "kara-download-head",
+		Method:      http.MethodHead,
+		Path:        "/api/kara/{id}/download/{filetype}",
+		Security:    kara_ro_security,
+	}, DownloadHead)
 	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_security))
 
 	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
