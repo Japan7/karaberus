@@ -250,6 +250,7 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 				ctx.SetStatus(206)
 			}
 			ctx.SetHeader("Range", fmt.Sprintf("bytes=%d-%d/%d", start, end, stat.Size))
+			ctx.SetHeader("Content-Type", "application/octet-stream")
 
 			_, err = obj.Seek(start, 0)
 			if err != nil {
@@ -291,6 +292,7 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 type DownloadHeadOutput struct {
 	AcceptRange   string `header:"Accept-Range"`
 	ContentLength int64  `header:"Content-Length"`
+	ContentType   string `header:"Content-Type"`
 }
 
 func DownloadHead(ctx context.Context, input *DownloadInput) (*DownloadHeadOutput, error) {
@@ -313,6 +315,7 @@ func DownloadHead(ctx context.Context, input *DownloadInput) (*DownloadHeadOutpu
 	return &DownloadHeadOutput{
 		AcceptRange:   "bytes",
 		ContentLength: stat.Size,
+		ContentType:   "application/octet-stream",
 	}, nil
 }
 
