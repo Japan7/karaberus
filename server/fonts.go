@@ -87,7 +87,8 @@ func UploadFont(ctx context.Context, input *UploadFontInput) (*UploadFontOutput,
 }
 
 type DownloadFontInput struct {
-	ID uint `path:"id" example:"1"`
+	ID    uint   `path:"id" example:"1"`
+	Range string `header:"Range"`
 }
 
 func DownloadFont(ctx context.Context, input *DownloadFontInput) (*huma.StreamResponse, error) {
@@ -105,5 +106,5 @@ func DownloadFont(ctx context.Context, input *DownloadFontInput) (*huma.StreamRe
 		return nil, err
 	}
 
-	return serveObject(obj)
+	return serveObject(obj, input.Range)
 }

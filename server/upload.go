@@ -11,6 +11,7 @@ import (
 	"mime"
 	"mime/multipart"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -189,9 +190,34 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 type DownloadInput struct {
 	KID      uint   `path:"id" example:"1"`
 	FileType string `path:"filetype" example:"video"`
+	Range    string `header:"Range"`
 }
 
-func serveObject(obj *minio.Object) (*huma.StreamResponse, error) {
+func parseRangeHeader(range_header string) (int64, int64, error) {
+	before, after, _ := strings.Cut(range_header, "=")
+	if before != "bytes" {
+		return 0, 0, huma.Error400BadRequest("could not parse Range header.")
+	}
+
+	before, after, _ = strings.Cut(after, "/")
+	// we could check the length
+
+	before, after, _ = strings.Cut(before, "-")
+
+	start, err := strconv.ParseInt(before, 10, 64)
+	if err != nil {
+		return 0, 0, huma.Error400BadRequest("could not parse Range start integer")
+	}
+
+	end, err := strconv.ParseInt(after, 10, 64)
+	if err != nil {
+		return 0, 0, huma.Error400BadRequest("could not parse Range end integer")
+	}
+
+	return start, end, nil
+}
+
+func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, error) {
 	stat, err := obj.Stat()
 
 	return &huma.StreamResponse{
@@ -210,28 +236,48 @@ func serveObject(obj *minio.Object) (*huma.StreamResponse, error) {
 			}
 
 			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", stat.Size))
+			ctx.SetHeader("Accept-Range", "bytes")
 
 			writer := ctx.BodyWriter()
 
-			buf := make([]byte, 1024*1024)
+			var start int64
+			var end int64
+			if range_header == "" {
+				start = 0
+				end = stat.Size
+			} else {
+				start, end, err = parseRangeHeader(range_header)
+				ctx.SetStatus(206)
+				ctx.SetHeader("Range", fmt.Sprintf("bytes %d-%d/%d", start, end, stat.Size))
+			}
+
+			obj.Seek(start, 0)
+
+			bytes_to_read := end - start
+			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", bytes_to_read))
+
 			var n int
+			var buf []byte
 			for {
-				n, err = obj.Read(buf)
-				if errors.Is(err, io.EOF) {
-					err = nil
-					if n == 0 {
-						break
-					}
+				if bytes_to_read < 1024*1024 {
+					buf = make([]byte, bytes_to_read)
+				} else {
+					buf = make([]byte, 1024*1024)
 				}
+				n, err = obj.Read(buf)
+				writer.Write(buf[:n])
+				bytes_to_read -= int64(n)
 				if err != nil {
+					if errors.Is(err, io.EOF) {
+						err = nil
+					}
 					break
 				}
-				_, err = writer.Write(buf[:n])
-				if err != nil {
-					err = nil
+				if bytes_to_read <= 0 {
 					break
 				}
 			}
+
 		},
 	}, err
 }
@@ -250,5 +296,5 @@ func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamRespon
 		return nil, err
 	}
 
-	return serveObject(obj)
+	return serveObject(obj, input.Range)
 }
