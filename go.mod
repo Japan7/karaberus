@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/MStoykov/jsonutils v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
@@ -57,6 +58,7 @@ require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/glebarez/sqlite v1.11.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/ironsmile/nedomi v0.1.15
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

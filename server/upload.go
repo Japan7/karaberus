@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/ironsmile/nedomi/utils/httputils"
 	"github.com/minio/minio-go/v7"
 	"gorm.io/gorm"
 )
@@ -193,30 +194,6 @@ type DownloadInput struct {
 	Range    string `header:"Range"`
 }
 
-func parseRangeHeader(range_header string) (int64, int64, error) {
-	before, after, _ := strings.Cut(range_header, "=")
-	if before != "bytes" {
-		return 0, 0, huma.Error400BadRequest("could not parse Range header.")
-	}
-
-	before, after, _ = strings.Cut(after, "/")
-	// we could check the length
-
-	before, after, _ = strings.Cut(before, "-")
-
-	start, err := strconv.ParseInt(before, 10, 64)
-	if err != nil {
-		return 0, 0, huma.Error400BadRequest("could not parse Range start integer")
-	}
-
-	end, err := strconv.ParseInt(after, 10, 64)
-	if err != nil {
-		return 0, 0, huma.Error400BadRequest("could not parse Range end integer")
-	}
-
-	return start, end, nil
-}
-
 func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, error) {
 	stat, err := obj.Stat()
 
@@ -235,35 +212,39 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 				return
 			}
 
-			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", stat.Size))
 			ctx.SetHeader("Accept-Range", "bytes")
 
 			writer := ctx.BodyWriter()
 
-			var start int64
-			var end int64
+			var reqRange httputils.Range
 			if range_header == "" {
-				start = 0
-				end = stat.Size
+				reqRange = httputils.Range{Start: 0, Length: uint64(stat.Size)}
 			} else {
-				start, end, err = parseRangeHeader(range_header)
+				ranges, err := httputils.ParseRequestRange(range_header, uint64(stat.Size))
+				if err != nil {
+					ctx.SetStatus(416)
+					ctx.SetHeader("Content-Range", fmt.Sprintf("bytes */%d", stat.Size))
+					return
+				}
+				reqRange = ranges[0]
 				ctx.SetStatus(206)
+				ctx.SetHeader("Content-Range", reqRange.ContentRange(uint64(stat.Size)))
 			}
-			ctx.SetHeader("Range", fmt.Sprintf("bytes=%d-%d/%d", start, end, stat.Size))
+
 			ctx.SetHeader("Content-Type", "application/octet-stream")
 
-			_, err = obj.Seek(start, 0)
+			_, err = obj.Seek(int64(reqRange.Start), 0)
 			if err != nil {
 				return
 			}
 
-			bytes_to_read := end - start
-			ctx.SetHeader("Content-Length", fmt.Sprintf("%d", bytes_to_read))
+			ctx.SetHeader("Content-Length", strconv.FormatUint(reqRange.Length, 10))
+			bytes_to_read := reqRange.Length
 
 			var n int
 			buf := make([]byte, 1024*64)
 			for {
-				if bytes_to_read < int64(len(buf)) {
+				if bytes_to_read < uint64(len(buf)) {
 					buf = buf[:bytes_to_read]
 				}
 				n, err = obj.Read(buf)
@@ -276,7 +257,7 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 					break
 				}
 				_, err = writer.Write(buf[:n])
-				bytes_to_read -= int64(n)
+				bytes_to_read -= uint64(n)
 				if err != nil {
 					break
 				}
