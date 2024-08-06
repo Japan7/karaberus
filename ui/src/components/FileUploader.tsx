@@ -9,7 +9,10 @@ export default function FileUploader(props: {
 }) {
   const [getProgress, setProgress] = createSignal(0);
 
-  const upload = async (file: File | undefined) => {
+  const upload: JSX.EventHandler<HTMLInputElement, Event> = (e) => {
+    const target = e.target as HTMLInputElement;
+
+    const file = target.files?.[0];
     if (!file) return;
 
     // xhr strikes again
@@ -21,6 +24,7 @@ export default function FileUploader(props: {
     });
 
     xhr.addEventListener("load", () => {
+      target.value = "";
       setProgress(0);
       if (xhr.status === 200) {
         props.onUpload();
@@ -35,25 +39,29 @@ export default function FileUploader(props: {
   };
 
   return (
-    <div class="flex flex-col gap-y-2">
-      <label class="form-control">
-        <div class="label">
-          <span class="label-text">{props.title}</span>
-          <span class="label-text-alt">{props.altChildren}</span>
-        </div>
-        <input
-          type="file"
-          onchange={(e) => upload(e.target.files?.[0])}
-          class="file-input file-input-bordered"
-        />
-      </label>
-
-      <Show when={getProgress()}>
-        <div class="flex items-center gap-x-1">
-          <progress value={getProgress()} class="progress" />
-          <pre>{(getProgress() * 100).toFixed(1).padStart(5)}%</pre>
-        </div>
-      </Show>
-    </div>
+    <label class="form-control">
+      <div class="label grid grid-cols-2">
+        <span class="label-text">{props.title}</span>
+        <span class="label-text-alt">
+          <Show when={getProgress()}>
+            <div class="flex items-center gap-x-1">
+              <progress
+                value={getProgress()}
+                class="progress progress-success"
+              />
+              <pre>{(getProgress() * 100).toFixed(1).padStart(5)}%</pre>
+            </div>
+          </Show>
+        </span>
+      </div>
+      <input
+        type="file"
+        onchange={upload}
+        class="file-input file-input-bordered"
+      />
+      <div class="label">
+        <span class="label-text-alt">{props.altChildren}</span>
+      </div>
+    </label>
   );
 }
