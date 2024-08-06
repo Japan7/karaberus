@@ -29,6 +29,12 @@ jobs:
         with:
           go-version: 'stable'
 
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        id: setup-ffmpeg
+        with:
+          ffmpeg-version: release
+
       - name: Install dependencies
         run: |
           pip install meson ninja
