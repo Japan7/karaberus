@@ -14,7 +14,7 @@ type GetAllTokensOutput struct {
 
 func GetAllUserTokens(ctx context.Context, input *struct{}) (*GetAllTokensOutput, error) {
 	db := GetDB(ctx)
-	user := getCurrentUser(ctx)
+	user := *getCurrentUser(ctx)
 	tokens := []Token{}
 	db.Where(&Token{User: user}).Find(&tokens)
 	out := &GetAllTokensOutput{}
@@ -33,7 +33,7 @@ type CreateTokenOutput struct {
 }
 
 func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
-	token, err := createTokenForUser(ctx, getCurrentUser(ctx), input.Body)
+	token, err := createTokenForUser(ctx, *getCurrentUser(ctx), input.Body)
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
@@ -82,7 +82,7 @@ type DeleteTokenOutput struct {
 
 func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutput, error) {
 	db := GetDB(ctx)
-	user := getCurrentUser(ctx)
+	user := *getCurrentUser(ctx)
 
 	var err error
 	if user.Admin {

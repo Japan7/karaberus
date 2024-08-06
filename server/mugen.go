@@ -320,7 +320,7 @@ func RefreshMugenImports(ctx context.Context) error {
 }
 
 func RefreshMugen(ctx context.Context, input *struct{}) (*struct{}, error) {
-	user := getCurrentUser(ctx)
+	user := *getCurrentUser(ctx)
 	if !user.Admin {
 		return nil, huma.Error403Forbidden("This endpoint is reserved to administrators")
 	}

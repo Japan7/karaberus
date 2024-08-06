@@ -188,6 +188,11 @@ type UploadInfo struct {
 	KaraokeCreationTime time.Time
 }
 
+type Editor struct {
+	EditorUserID *string
+	EditorUser   *User `gorm:"foreignKey:EditorUserID;references:ID"`
+}
+
 type KaraInfoDB struct {
 	gorm.Model
 	Authors       []TimingAuthor `gorm:"many2many:kara_authors_tags"`
@@ -204,6 +209,36 @@ type KaraInfoDB struct {
 	SongOrder     uint
 	Language      string
 	UploadInfo
+	// Can't be set by users
+	OriginalKaraInfoID *uint
+	OriginalKaraInfo   *KaraInfoDB
+	Editor
+}
+
+// Filter out historic entries
+func CurrentKaras(tx *gorm.DB) *gorm.DB {
+	return tx.Where(&KaraInfoDB{OriginalKaraInfoID: nil})
+}
+
+func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
+	orig_kara_info := &KaraInfoDB{}
+	err := tx.First(orig_kara_info, ki.ID).Error
+	if err != nil {
+		return err
+	}
+
+	// create historic entry with the current value
+	orig_kara_info.ID = 0
+	orig_kara_info.OriginalKaraInfo = ki
+	err = tx.Create(orig_kara_info).Error
+
+	return err
+}
+
+func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
+	// set editor for this new version
+	ki.EditorUser = getCurrentUser(tx.Statement.Context)
+	return nil
 }
 
 type MugenImport struct {

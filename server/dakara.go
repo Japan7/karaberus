@@ -520,7 +520,7 @@ func SyncDakara(ctx context.Context) {
 	}
 
 	all_karas := []KaraInfoDB{}
-	err = db.Scopes(UploadedKaras).Preload(clause.Associations).Find(&all_karas).Error
+	err = db.Preload(clause.Associations).Scopes(UploadedKaras, CurrentKaras).Find(&all_karas).Error
 	if err != nil {
 		getLogger().Println(err)
 		return
@@ -696,9 +696,12 @@ func dakaraUpdateSong(ctx context.Context, dakara_song *DakaraSong, song_body *D
 
 	path := dakaraSongEndpoint(dakara_song.ID)
 	resp, err := dakaraPut(ctx, path, song_body)
+	if err != nil {
+		return err
+	}
 	defer Closer(resp.Body)
 
-	return err
+	return nil
 }
 
 func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error {
@@ -784,12 +787,12 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 	}
 
 	n_works := 0
-	if kara.SourceMediaID != nil {
+	if kara.SourceMedia != nil {
 		n_works += 1
 	}
 	works := make([]DakaraSongWork, n_works)
 
-	if kara.SourceMediaID != nil {
+	if kara.SourceMedia != nil {
 		dakara_worktype := dakara_works[strings.ToLower(kara.SourceMedia.Type)]
 		dakara_work := dakara_worktype[kara.SourceMedia.Name]
 

@@ -132,7 +132,7 @@ func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *
 	kara_info.Version = info.Version
 	kara_info.SongOrder = info.SongOrder
 
-	user := getCurrentUser(ctx)
+	user := *getCurrentUser(ctx)
 	if user.Admin {
 		if info.IsHardsub != nil {
 			kara_info.Hardsubbed = *info.IsHardsub
@@ -197,7 +197,7 @@ type UpdateKaraInput struct {
 func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error) {
 	db := GetDB(ctx)
 	kara := KaraInfoDB{}
-	err := db.First(&kara, input.Id).Error
+	err := db.Scopes(CurrentKaras).First(&kara, input.Id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func GetKara(ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
 	db := GetDB(ctx)
 
 	kara_output := &KaraOutput{}
-	err := db.Preload(clause.Associations).First(&kara_output.Body.Kara, input.Id).Error
+	err := db.Scopes(CurrentKaras).Preload(clause.Associations).First(&kara_output.Body.Kara, input.Id).Error
 	return kara_output, DBErrToHumaErr(err)
 }
 
@@ -235,7 +235,7 @@ type DeleteKaraResponse struct {
 
 func DeleteKara(ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, error) {
 	db := GetDB(ctx)
-	err := db.Delete(&KaraInfoDB{}, input.Id).Error
+	err := db.Scopes(CurrentKaras).Delete(&KaraInfoDB{}, input.Id).Error
 	return &DeleteKaraResponse{204}, DBErrToHumaErr(err)
 }
 
@@ -254,6 +254,6 @@ type GetAllKarasOutput struct {
 func GetAllKaras(ctx context.Context, input *struct{}) (*GetAllKarasOutput, error) {
 	out := &GetAllKarasOutput{}
 	db := GetDB(ctx)
-	err := db.Preload(clause.Associations).Find(&out.Body.Karas).Error
+	err := db.Scopes(CurrentKaras).Preload(clause.Associations).Find(&out.Body.Karas).Error
 	return out, DBErrToHumaErr(err)
 }

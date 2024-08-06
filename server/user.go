@@ -8,8 +8,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func getCurrentUser(ctx context.Context) User {
-	return ctx.Value(currentUserCtxKey).(User)
+func getCurrentUser(ctx context.Context) *User {
+	val := ctx.Value(currentUserCtxKey)
+	if val == nil {
+		return nil
+	} else {
+		return val.(*User)
+	}
 }
 
 func getOrCreateUser(ctx context.Context, sub string, info *oidc.UserInfo) (*User, error) {
