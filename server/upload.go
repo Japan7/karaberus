@@ -248,8 +248,8 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 			} else {
 				start, end, err = parseRangeHeader(range_header)
 				ctx.SetStatus(206)
-				ctx.SetHeader("Range", fmt.Sprintf("bytes %d-%d/%d", start, end, stat.Size))
 			}
+			ctx.SetHeader("Range", fmt.Sprintf("bytes=%d-%d/%d", start, end, stat.Size))
 
 			_, err = obj.Seek(start, 0)
 			if err != nil {
