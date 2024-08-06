@@ -620,9 +620,12 @@ func TestUploadKara(t *testing.T) {
 		t.Fatal("Instrumental did not pass checks.")
 	}
 
-	CompareDownloadedFile(t, api, mkv_test_file, data.Body.Kara.ID, "video")
-	CompareDownloadedFile(t, api, ass_test_file, data.Body.Kara.ID, "sub")
-	CompareDownloadedFile(t, api, inst_test_file, data.Body.Kara.ID, "inst")
+	// can't do that from humatest because we stream the files using fasthttp's Response
+	// which obviously humatest is not aware of
+	//
+	// CompareDownloadedFile(t, api, mkv_test_file, data.Body.Kara.ID, "video")
+	// CompareDownloadedFile(t, api, ass_test_file, data.Body.Kara.ID, "sub")
+	// CompareDownloadedFile(t, api, inst_test_file, data.Body.Kara.ID, "inst")
 
 	kara_path := fmt.Sprintf("/api/kara/%d", data.Body.Kara.ID)
 	resp = assertRespCode(t, api.Get(kara_path), 200)

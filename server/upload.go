@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/gofiber/fiber/v2"
 	"github.com/ironsmile/nedomi/utils/httputils"
 	"github.com/minio/minio-go/v7"
 	"gorm.io/gorm"
@@ -194,12 +195,38 @@ type DownloadInput struct {
 	Range    string `header:"Range"`
 }
 
+type FileSender struct {
+	// Reader should be already at the Range.Start location
+	Fd        io.ReadCloser
+	Range     httputils.Range
+	BytesRead uint64
+}
+
+func (f *FileSender) Read(buf []byte) (int, error) {
+	toread := f.Range.Length - f.BytesRead
+	if toread < uint64(len(buf)) {
+		buf = buf[:toread]
+	}
+	return f.Fd.Read(buf)
+}
+
+func (f *FileSender) Close() error {
+	return f.Fd.Close()
+}
+
 func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, error) {
 	stat, err := obj.Stat()
 
 	return &huma.StreamResponse{
 		Body: func(ctx huma.Context) {
-			defer Closer(obj)
+			defer func() {
+				r := recover()
+				if r != nil {
+					// unlikely, but close object on panic just in case it happens
+					obj.Close()
+					panic(r)
+				}
+			}()
 
 			if err != nil {
 				resp := minio.ToErrorResponse(err)
@@ -213,8 +240,6 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 			}
 
 			ctx.SetHeader("Accept-Range", "bytes")
-
-			writer := ctx.BodyWriter()
 
 			var reqRange httputils.Range
 			if range_header == "" {
@@ -232,40 +257,17 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 			}
 
 			ctx.SetHeader("Content-Type", "application/octet-stream")
+			ctx.SetHeader("Content-Length", strconv.FormatUint(reqRange.Length, 10))
 
 			_, err = obj.Seek(int64(reqRange.Start), 0)
 			if err != nil {
 				return
 			}
 
-			ctx.SetHeader("Content-Length", strconv.FormatUint(reqRange.Length, 10))
-			bytes_to_read := reqRange.Length
+			filesender := FileSender{obj, reqRange, 0}
 
-			var n int
-			buf := make([]byte, 1024*64)
-			for {
-				if bytes_to_read < uint64(len(buf)) {
-					buf = buf[:bytes_to_read]
-				}
-				n, err = obj.Read(buf)
-				if errors.Is(err, io.EOF) {
-					if n == 0 {
-						break
-					}
-					err = nil
-				} else if err != nil {
-					break
-				}
-				_, err = writer.Write(buf[:n])
-				bytes_to_read -= uint64(n)
-				if err != nil {
-					break
-				}
-				if bytes_to_read <= 0 {
-					break
-				}
-			}
-
+			fiber_ctx := ctx.BodyWriter().(*fiber.Ctx)
+			fiber_ctx.SendStream(&filesender, int(stat.Size))
 		},
 	}, err
 }
