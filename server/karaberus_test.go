@@ -672,7 +672,7 @@ func TestUploadFont(t *testing.T) {
 
 	api := getTestAPI(t)
 
-	font_test_file := path.Join(TEST_CONFIG.Directory, "test.ass")
+	font_test_file := path.Join(TEST_CONFIG.Directory, "KaraberusTestFont.ttf")
 	resp := uploadFont(t, api, font_test_file)
 
 	CompareDownloadedFont(t, api, font_test_file, resp.Body.Font.ID)
