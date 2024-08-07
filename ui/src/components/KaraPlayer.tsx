@@ -48,7 +48,6 @@ export default function KaraPlayer(props: {
         // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
         controlslist="nofullscreen"
         playsinline
-        autoplay
         loop
         oncanplay={setupOctopus}
         ref={playerRef}
