@@ -201,7 +201,9 @@ func updateKara(tx *gorm.DB, kara *KaraInfoDB) error {
 	if err != nil {
 		return err
 	}
+	prev_context := tx.Statement.Context
 	tx = WithAssociationsUpdate(tx)
+	defer tx.WithContext(prev_context)
 	err = tx.Model(&kara).Association("AudioTags").Replace(&kara.AudioTags)
 	if err != nil {
 		return err
