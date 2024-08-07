@@ -69,7 +69,7 @@ export default function KaraokeBrowseId() {
     <>
       <Show when={getKara()}>
         {(getKara) =>
-          window.__TAURI__ ? (
+          "__TAURI__" in window ? (
             <TauriKaraPlayer kara={getKara().kara} />
           ) : (
             <KaraPlayer kara={getKara().kara} />
