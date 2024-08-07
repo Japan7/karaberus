@@ -9,6 +9,7 @@ import {
   createResource,
   createSignal,
   Index,
+  on,
   Show,
 } from "solid-js";
 import KaraCard from "../../../components/KaraCard";
@@ -39,10 +40,17 @@ export default function KaraokeBrowse() {
     components["schemas"]["KaraInfoDB"][]
   >([]);
 
-  createEffect(() => {
-    getQuery();
-    setPage(0);
-  });
+  createEffect(
+    on(getAllKaras, () => {
+      debouncedSearch(getQuery());
+    }),
+  );
+
+  createEffect(
+    on(getSearchResults, () => {
+      setPage(0);
+    }),
+  );
 
   const getAudioTagMap = () =>
     new Map(getAllAudioTags()?.map((audioTag) => [audioTag.ID, audioTag]));
