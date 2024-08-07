@@ -11,7 +11,7 @@ export function karaFuseSearch(
 ) {
   const fuse = new Fuse(karas, {
     keys: [
-      "Artists.Name",
+      { name: "Artists.Name", weight: 2 },
       "Artists.AdditionalNames.Name",
       {
         name: "audioTagsName",
@@ -19,14 +19,14 @@ export function karaFuseSearch(
           kara.AudioTags?.map((tag) => audioTagMap.get(tag.ID)?.Name ?? "") ??
           [],
       },
-      "Authors.Name",
+      { name: "Authors.Name", weight: 2 },
       "Comment",
       "ExtraTitles.Name",
       "Language",
-      "Medias.name",
+      { name: "Medias.name", weight: 2 },
       "Medias.additional_name.Name",
-      "SourceMedia.name",
-      "Title",
+      { name: "SourceMedia.name", weight: 2 },
+      { name: "Title", weight: 4 },
       "Version",
       {
         name: "videoTagsName",

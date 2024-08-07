@@ -66,7 +66,7 @@ export default function KaraokeBrowse() {
       query,
     );
 
-    return results.map((result) => result.item).sort((a, b) => b.ID - a.ID);
+    return results.map((result) => result.item);
   };
   const debouncedSearch = debounce((query: string) => {
     setSearchResults(search(query));
