@@ -1,4 +1,4 @@
-import { Command } from "@tauri-apps/plugin-shell";
+import { Command } from "@tauri-apps/api/shell";
 import { HiSolidPlayCircle } from "solid-icons/hi";
 import { createSignal, Show, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
@@ -33,7 +33,7 @@ export default function MpvKaraPlayer(props: {
     } else {
       return;
     }
-    const command = Command.create("mpv", args);
+    const command = new Command("mpv", args);
     command.on("close", (exit) => {
       console.debug(`mpv exited with code ${exit.code}`);
       if (exit.code !== 0) {
