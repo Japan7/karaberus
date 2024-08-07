@@ -215,6 +215,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 }
 
 func reimportMugenKara(ctx context.Context, mugen_import *MugenImport) error {
+	getLogger().Println("reimporting ", mugen_import.MugenKID)
 	client := mugen.GetClient()
 	kara, err := client.GetKara(ctx, mugen_import.MugenKID)
 	if err != nil {
@@ -228,7 +229,7 @@ func reimportMugenKara(ctx context.Context, mugen_import *MugenImport) error {
 			return err
 		}
 
-		return tx.Save(kara_info).Error
+		return updateKara(tx, kara_info)
 	})
 
 	return err
@@ -241,8 +242,10 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 		return err
 	}
 
+	db_ctx := context.Background()
+	db := GetDB(db_ctx)
 	getLogger().Printf("Importing kid %s for %s\n", kid, getCurrentUser(ctx).ID)
-	err = GetDB(context.Background()).Transaction(func(tx *gorm.DB) error {
+	err = db.Transaction(func(tx *gorm.DB) error {
 		kara_info := KaraInfoDB{}
 		err = mugenKaraToKaraInfoDB(tx, *kara, &kara_info)
 		if err != nil {
@@ -268,8 +271,7 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 		return err
 	}
 
-	dlDB := GetDB(ctx)
-	go MugenDownload(context.Background(), dlDB, *mugen_import)
+	go MugenDownload(db_ctx, db, *mugen_import)
 
 	return nil
 }
@@ -306,12 +308,28 @@ func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportM
 
 func RefreshMugenImports(ctx context.Context) error {
 	mugen_imports := make([]MugenImport, 0)
-	err := GetDB(ctx).Preload(clause.Associations).Find(&mugen_imports).Error
+	db := GetDB(ctx)
+	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
 	if err != nil {
 		return err
 	}
 
 	for _, mugen_import := range mugen_imports {
+		fmt.Println(mugen_import.MugenKID)
+		// karaoke was edited, don't refresh and we don't need to query
+		if mugen_import.Kara.EditorUserID != nil {
+			continue
+		}
+
+		kara := KaraInfoDB{}
+		err = db.Where("editor_user_id IS NOT NULL").Where(&KaraInfoDB{CurrentKaraInfoID: &mugen_import.KaraID}).First(&kara).Error
+		if err == nil {
+			continue
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
 		err = reimportMugenKara(ctx, &mugen_import)
 		if err != nil {
 			return err

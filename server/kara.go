@@ -196,7 +196,7 @@ type UpdateKaraInput struct {
 	Body KaraInfo
 }
 
-func updateKara(ctx context.Context, tx *gorm.DB, kara *KaraInfoDB) error {
+func updateKara(tx *gorm.DB, kara *KaraInfoDB) error {
 	err := tx.Model(&kara).Select("*").Updates(&kara).Error
 	if err != nil {
 		return err
@@ -237,7 +237,7 @@ func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error
 	}
 
 	err = db.Transaction(func(tx *gorm.DB) error {
-		return updateKara(ctx, tx, &kara)
+		return updateKara(tx, &kara)
 	})
 	if err != nil {
 		return nil, err
