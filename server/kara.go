@@ -254,6 +254,6 @@ type GetAllKarasOutput struct {
 func GetAllKaras(ctx context.Context, input *struct{}) (*GetAllKarasOutput, error) {
 	out := &GetAllKarasOutput{}
 	db := GetDB(ctx)
-	err := db.Debug().Scopes(CurrentKaras).Preload(clause.Associations).Find(&out.Body.Karas).Error
+	err := db.Preload(clause.Associations).Scopes(CurrentKaras).Find(&out.Body.Karas).Error
 	return out, DBErrToHumaErr(err)
 }

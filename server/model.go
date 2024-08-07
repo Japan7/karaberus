@@ -126,7 +126,7 @@ type Artist struct {
 }
 
 func CurrentArtists(tx *gorm.DB) *gorm.DB {
-	return tx.Where(&Artist{CurrentArtistID: nil})
+	return tx.Where("current_artist_id IS NULL")
 }
 
 func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
@@ -169,7 +169,7 @@ type MediaDB struct {
 }
 
 func CurrentMedias(tx *gorm.DB) *gorm.DB {
-	return tx.Where(&MediaDB{CurrentMediaID: nil})
+	return tx.Where("current_media_id IS NULL")
 }
 
 func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
@@ -273,7 +273,7 @@ type KaraInfoDB struct {
 
 // Filter out historic entries
 func CurrentKaras(tx *gorm.DB) *gorm.DB {
-	return tx.Where(&KaraInfoDB{CurrentKaraInfoID: nil})
+	return tx.Where("current_kara_info_id IS NULL")
 }
 
 func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
