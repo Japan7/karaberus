@@ -1,3 +1,4 @@
+import { debounce } from "@solid-primitives/scheduled";
 import {
   HiOutlineMagnifyingGlass,
   HiSolidChevronDoubleLeft,
@@ -11,6 +12,7 @@ import {
   Show,
 } from "solid-js";
 import KaraCard from "../../../components/KaraCard";
+import type { components } from "../../../utils/karaberus";
 import { karaberus } from "../../../utils/karaberus-client";
 import { karaFuseSearch } from "../../../utils/karaoke";
 
@@ -30,11 +32,15 @@ export default function KaraokeBrowse() {
     return resp.data;
   });
 
-  const [getSearch, setSearch] = createSignal("");
   const [getPage, setPage] = createSignal(0);
 
+  const [getQuery, setQuery] = createSignal("");
+  const [getSearchResults, setSearchResults] = createSignal<
+    components["schemas"]["KaraInfoDB"][]
+  >([]);
+
   createEffect(() => {
-    getSearch();
+    getQuery();
     setPage(0);
   });
 
@@ -43,14 +49,13 @@ export default function KaraokeBrowse() {
   const getVideoTagMap = () =>
     new Map(getAllVideoTags()?.map((videoTag) => [videoTag.ID, videoTag]));
 
-  const getFilteredKaras = () => {
+  const search = (query: string) => {
     const karas = getAllKaras();
     if (!karas) {
       return [];
     }
 
-    const search = getSearch();
-    if (!search) {
+    if (!query) {
       return karas;
     }
 
@@ -58,18 +63,25 @@ export default function KaraokeBrowse() {
       karas,
       getAudioTagMap(),
       getVideoTagMap(),
-      search,
+      query,
     );
 
-    return results.map((result) => result.item);
+    return results.map((result) => result.item).sort((a, b) => b.ID - a.ID);
   };
+  const debouncedSearch = debounce((query: string) => {
+    setSearchResults(search(query));
+  }, 250);
 
-  const getTotal = () => getFilteredKaras().length;
+  createEffect(() => {
+    debouncedSearch(getQuery());
+  });
+
+  const getTotal = () => getSearchResults().length;
 
   const getStart = () => getPage() * PAGE_SIZE;
   const getEnd = () => Math.min(getStart() + PAGE_SIZE, getTotal());
 
-  const getPageKaras = () => getFilteredKaras().slice(getStart(), getEnd());
+  const getPageKaras = () => getSearchResults().slice(getStart(), getEnd());
 
   return (
     <>
@@ -83,14 +95,14 @@ export default function KaraokeBrowse() {
           <input
             type="text"
             placeholder="Search"
-            value={getSearch()}
-            oninput={(e) => setSearch(e.currentTarget.value)}
+            value={getQuery()}
+            oninput={(e) => setQuery(e.currentTarget.value)}
             class="grow"
           />
           <HiOutlineMagnifyingGlass class="size-4 opacity-70" />
         </label>
 
-        <Show when={getFilteredKaras().length} fallback={<p>No results</p>}>
+        <Show when={getSearchResults().length} fallback={<p>No results</p>}>
           <div class="join mx-auto">
             <button
               disabled={getPage() === 0}
@@ -106,7 +118,7 @@ export default function KaraokeBrowse() {
               <Index
                 each={[
                   ...Array(
-                    Math.ceil(getFilteredKaras().length / PAGE_SIZE),
+                    Math.ceil(getSearchResults().length / PAGE_SIZE),
                   ).keys(),
                 ]}
               >
@@ -122,7 +134,7 @@ export default function KaraokeBrowse() {
             </select>
             <button
               disabled={
-                getPage() * PAGE_SIZE + PAGE_SIZE >= getFilteredKaras().length
+                getPage() * PAGE_SIZE + PAGE_SIZE >= getSearchResults().length
               }
               onclick={() => setPage((page) => page + 1)}
               class="join-item btn"

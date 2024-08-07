@@ -1,6 +1,8 @@
+import { debounce } from "@solid-primitives/scheduled";
 import Fuse from "fuse.js";
 import { HiSolidXMark } from "solid-icons/hi";
 import {
+  createEffect,
   createSignal,
   For,
   splitProps,
@@ -27,16 +29,16 @@ export default function AutocompleteMultiple<T>(
   ]);
 
   const [getInput, setInput] = createSignal("");
+  const [getFilteredItems, setFilteredItems] = createSignal(local.items);
 
   let inputRef!: HTMLInputElement;
   let dropdownRef!: HTMLDivElement;
 
-  const filteredItems = () => {
+  const filter = (query: string) => {
     const filtered = local.items.filter(
       (item) => local.allowDuplicates || !local.getState().includes(item),
     );
-    const input = getInput();
-    if (!input) {
+    if (!query) {
       return filtered;
     }
     const fuse = new Fuse(filtered, {
@@ -47,8 +49,15 @@ export default function AutocompleteMultiple<T>(
         },
       ],
     });
-    return fuse.search(input).map((result) => result.item);
+    return fuse.search(query).map((result) => result.item);
   };
+  const debouncedFilter = debounce((query: string) => {
+    setFilteredItems(filter(query));
+  }, 250);
+
+  createEffect(() => {
+    debouncedFilter(getInput());
+  });
 
   const handleKeyDownInput: JSX.EventHandler<
     HTMLInputElement,
@@ -127,7 +136,7 @@ export default function AutocompleteMultiple<T>(
         class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto"
       >
         <ul>
-          <For each={filteredItems()}>
+          <For each={getFilteredItems()}>
             {(item) => (
               <li>
                 <a

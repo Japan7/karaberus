@@ -54,7 +54,7 @@ export default function BrowserKaraPlayer(props: {
         ref={playerRef}
         class="rounded-2xl"
       />
-      <p class="text-right text-sm">
+      <p class="hidden sm:inline text-right text-sm">
         Not working? Download the{" "}
         <a
           href={RELEASE_URL}
