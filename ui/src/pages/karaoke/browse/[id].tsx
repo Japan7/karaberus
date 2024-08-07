@@ -4,10 +4,10 @@ import { createResource, Show } from "solid-js";
 import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
 import KaraPlayer from "../../../components/KaraPlayer";
+import TauriKaraPlayer from "../../../components/TauriKaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
-import TauriKaraPlayer from "../../../components/TauriKaraPlayer";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
