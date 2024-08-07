@@ -53,12 +53,14 @@ func CheckValidFiletype(type_directory string) bool {
 }
 
 func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, kara *KaraInfoDB, type_directory string, filesize int64, user_metadata map[string]string) (*CheckKaraOutput, error) {
-	kid := kara.ID
+	if kara.ID == 0 {
+		return nil, errors.New("trying to upload to a karaoke that doesn't exist")
+	}
 
 	if !CheckValidFiletype(type_directory) {
 		return nil, errors.New("Unknown file type " + type_directory)
 	}
-	filename := fmt.Sprintf("%s/%d", type_directory, kid)
+	filename := fmt.Sprintf("%s/%d", type_directory, kara.ID)
 	err := UploadToS3(ctx, fd, filename, filesize, user_metadata)
 	if err != nil {
 		return nil, err
@@ -84,7 +86,7 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		}
 	}
 
-	err = tx.Save(&kara).Error
+	err = tx.Model(&kara).Updates(&kara).Error
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
