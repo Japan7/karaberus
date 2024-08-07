@@ -201,6 +201,7 @@ func updateKara(tx *gorm.DB, kara *KaraInfoDB) error {
 	if err != nil {
 		return err
 	}
+	tx = WithAssociationsUpdate(tx)
 	err = tx.Model(&kara).Association("AudioTags").Replace(&kara.AudioTags)
 	if err != nil {
 		return err
@@ -288,4 +289,20 @@ func GetAllKaras(ctx context.Context, input *struct{}) (*GetAllKarasOutput, erro
 	db := GetDB(ctx)
 	err := db.Preload(clause.Associations).Scopes(CurrentKaras).Find(&out.Body.Karas).Error
 	return out, DBErrToHumaErr(err)
+}
+
+type GetKaraHistoryOutput struct {
+	Body struct {
+		History []KaraInfoDB `json:"history"`
+	}
+}
+
+func GetKaraHistory(ctx context.Context, input *GetKaraInput) (*GetKaraHistoryOutput, error) {
+	out := &GetKaraHistoryOutput{}
+	db := GetDB(ctx)
+	err := db.Preload(clause.Associations).Where(&KaraInfoDB{CurrentKaraInfoID: &input.Id}).Find(&out.Body.History).Error
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -282,7 +283,20 @@ func CurrentKaras(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_kara_info_id IS NULL")
 }
 
+type UpdateAssociations struct{}
+
+func WithAssociationsUpdate(tx *gorm.DB) *gorm.DB {
+	return tx.WithContext(context.WithValue(tx.Statement.Context, UpdateAssociations{}, true))
+}
+
+func isAssociationsUpdate(tx *gorm.DB) bool {
+	return tx.Statement.Context.Value(UpdateAssociations{}) != nil
+}
+
 func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
+	if isAssociationsUpdate(tx) {
+		return nil
+	}
 	orig_kara_info := &KaraInfoDB{}
 	err := tx.First(orig_kara_info, ki.ID).Error
 	if err != nil {

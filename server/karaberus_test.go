@@ -349,6 +349,20 @@ func TestUpdateKara(t *testing.T) {
 		t.Fatal("Failed to update karaoke")
 	}
 
+	history_path := fmt.Sprintf("/api/kara/%d/history", data.Body.Kara.ID)
+	resp = assertRespCode(t, api.Get(history_path), 200)
+
+	history_data := GetKaraHistoryOutput{}
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&history_data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(history_data.Body.History) != 1 {
+		t.Fatalf("wrong number of history entries: %d", len(history_data.Body.History))
+	}
+
 	assertRespCode(t, api.Delete(path), 204)
 }
 
