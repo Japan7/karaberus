@@ -71,7 +71,10 @@
       ]
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://github.com/Japan7/karaberus/releases/latest/download/latest.json"
+      ]
     },
     "windows": [
       {
