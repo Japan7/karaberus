@@ -323,7 +323,7 @@ func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
 type MugenImport struct {
 	MugenKID uuid.UUID `gorm:"primarykey"`
 	KaraID   uint
-	Kara     KaraInfoDB `gorm:"foreignKey:KaraID;references:ID"`
+	Kara     KaraInfoDB `gorm:"foreignKey:KaraID;references:ID;constraint:OnDelete:CASCADE"`
 }
 
 func (k KaraInfoDB) getAudioTags() ([]AudioTag, error) {
