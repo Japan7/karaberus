@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api";
+import { Command } from "@tauri-apps/api/shell";
 import { HiSolidPlayCircle } from "solid-icons/hi";
 import { Show, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
@@ -9,21 +9,35 @@ export default function TauriKaraPlayer(props: {
 }) {
   const downloadEndpoint = (type: string) =>
     `${location.origin}/api/kara/${props.kara.ID}/download/${type}`;
-  const getVideoSrc = () =>
-    props.kara.VideoUploaded ? downloadEndpoint("video") : undefined;
-  const getInstSrc = () =>
-    props.kara.InstrumentalUploaded ? downloadEndpoint("inst") : undefined;
-  const getSubSrc = () =>
-    props.kara.SubtitlesUploaded ? downloadEndpoint("sub") : undefined;
 
   const play: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (e) => {
     e.preventDefault();
-    await invoke("play", {
-      auth: getSessionToken(),
-      video: getVideoSrc(),
-      inst: getInstSrc(),
-      sub: getSubSrc(),
-    });
+    const args = [
+      `--http-header-fields=Authorization: Bearer ${getSessionToken()}`,
+    ];
+    if (props.kara.SubtitlesUploaded) {
+      args.push(`--sub-file=${downloadEndpoint("sub")}`);
+    }
+    if (props.kara.VideoUploaded) {
+      if (props.kara.InstrumentalUploaded) {
+        args.push(`--external-file=${downloadEndpoint("inst")}`);
+      }
+      args.push(downloadEndpoint("video"));
+    } else if (props.kara.InstrumentalUploaded) {
+      args.push(downloadEndpoint("inst"));
+    } else {
+      return;
+    }
+    const command = new Command("mpv", args);
+    command.on("error", (error) => console.error(`command error: "${error}"`));
+    command.stdout.on("data", (line) =>
+      console.log(`command stdout: "${line}"`),
+    );
+    command.stderr.on("data", (line) =>
+      console.log(`command stderr: "${line}"`),
+    );
+    const handle = await command.spawn();
+    console.log(`mpv started with pid ${handle.pid}`);
   };
 
   return (
