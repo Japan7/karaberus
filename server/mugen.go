@@ -364,6 +364,9 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 var MugenDownloadSemaphore = semaphore.NewWeighted(5)
 
 func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) error {
+	if mugen_import.Kara.ID == 0 {
+		return errors.New("trying to download a karaoke that has ID 0")
+	}
 	err := MugenDownloadSemaphore.Acquire(ctx, 1)
 	if err != nil {
 		return err
