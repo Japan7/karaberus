@@ -315,7 +315,10 @@ func RefreshMugenImports(ctx context.Context) error {
 	}
 
 	for _, mugen_import := range mugen_imports {
-		fmt.Println(mugen_import.MugenKID)
+		// kara was deleted ignore
+		if mugen_import.Kara.ID == 0 {
+			continue
+		}
 		// karaoke was edited, don't refresh and we don't need to query
 		if mugen_import.Kara.EditorUserID != nil {
 			continue
