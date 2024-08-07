@@ -506,3 +506,25 @@ func GetMugenImports(ctx context.Context, input *struct{}) (*GetMugenImportsOutp
 	err := GetDB(ctx).Preload(clause.Associations).Find(&out.Body.Imports).Error
 	return out, err
 }
+
+type DeleteMugenImportInput struct {
+	ID uuid.UUID `path:"id"`
+}
+
+type DeleteMugenImportOutput struct {
+	Status int
+}
+
+func DeleteMugenImport(ctx context.Context, input *DeleteMugenImportInput) (*DeleteMugenImportOutput, error) {
+	user := getCurrentUser(ctx)
+	if !user.Admin {
+		return nil, huma.Error403Forbidden("You must be an administrator to use this endpoint")
+	}
+
+	db := GetDB(ctx)
+	err := db.Delete(&MugenImport{}, input.ID).Error
+	if err != nil {
+		return nil, DBErrToHumaErr(err)
+	}
+	return &DeleteMugenImportOutput{Status: 204}, nil
+}
