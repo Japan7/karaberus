@@ -20,8 +20,12 @@ export interface KaraberusJwtPayload {
 
 export const SESSION_TOKEN_NAME = "karaberus_session";
 
+export function getSessionToken() {
+  return cookieStorage.getItem(SESSION_TOKEN_NAME);
+}
+
 export function getSessionInfos() {
-  const token = cookieStorage.getItem(SESSION_TOKEN_NAME);
+  const token = getSessionToken();
   if (!token) {
     return null;
   }

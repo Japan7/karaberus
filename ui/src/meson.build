@@ -9,6 +9,7 @@ ui_src += files(
     'components' / 'KaraPlayer.tsx',
     'components' / 'MediaEditor.tsx',
     'components' / 'MugenImport.tsx',
+    'components' / 'TauriKaraPlayer.tsx',
     'components' / 'TokenForm.tsx',
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',

@@ -7,6 +7,7 @@ import KaraPlayer from "../../../components/KaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
+import TauriKaraPlayer from "../../../components/TauriKaraPlayer";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -67,7 +68,13 @@ export default function KaraokeBrowseId() {
   return (
     <>
       <Show when={getKara()}>
-        {(getKara) => <KaraPlayer kara={getKara().kara} />}
+        {(getKara) =>
+          window.__TAURI__ ? (
+            <TauriKaraPlayer kara={getKara().kara} />
+          ) : (
+            <KaraPlayer kara={getKara().kara} />
+          )
+        }
       </Show>
 
       <h2 class="text-2xl font-semibold mt-4">Upload files</h2>
