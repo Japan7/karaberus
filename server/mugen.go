@@ -117,6 +117,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 		titles[i] = AdditionalName{Name: title}
 		i++
 	}
+	kara_info.ExtraTitles = titles
 
 	if k.SongOrder == nil {
 		kara_info.SongOrder = 0
