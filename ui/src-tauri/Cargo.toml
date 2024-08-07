@@ -2,7 +2,7 @@
 name = "app"
 version = "0.1.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["Japan7 <japan7@bde.enseeiht.fr>"]
 license = ""
 repository = ""
 default-run = "app"
