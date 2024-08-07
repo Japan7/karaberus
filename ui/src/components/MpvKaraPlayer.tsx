@@ -42,8 +42,14 @@ export default function MpvKaraPlayer(props: {
     });
     command.stdout.on("data", console.log);
     command.stderr.on("data", console.error);
-    const handle = await command.spawn();
-    console.debug(`mpv started with pid ${handle.pid}`);
+    try {
+      const handle = await command.spawn();
+      console.debug(`mpv started with pid ${handle.pid}`);
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred");
+      setLoading(false);
+    }
   };
 
   return (
