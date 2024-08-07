@@ -1,88 +1,42 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "karaberus",
+  "version": "0.2.0",
+  "identifier": "moe.japan7.karaberus",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:5173",
-    "distDir": "https://karaberus.japan7.bde.enseeiht.fr"
+    "frontendDist": "https://karaberus.japan7.bde.enseeiht.fr",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev"
   },
-  "package": {
-    "productName": "Karaberus",
-    "version": "0.1.2"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "dialog": {
-        "message": true
-      },
-      "shell": {
-        "execute": true,
-        "scope": [
-          {
-            "name": "mpv",
-            "cmd": "mpv",
-            "args": true
-          }
-        ]
+  "app": {
+    "windows": [
+      {
+        "title": "Karaberus",
+        "resizable": true,
+        "maximized": true
       }
-    },
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "moe.japan7.karaberus",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
+    ],
     "security": {
-      "csp": null,
-      "dangerousRemoteDomainIpcAccess": [
-        {
-          "domain": "karaberus.japan7.bde.enseeiht.fr",
-          "scheme": "https",
-          "windows": ["main"],
-          "enableTauriAPI": true
-        }
-      ]
-    },
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
     "updater": {
-      "active": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDczRTQ3RTk4RkRCNjgxMDYKUldRR2diYjltSDdrY3pZS1FpN2s5RFJOcUNVOUlCSE9nYTducDBRdHhhRVdNdGZCREVtUE5vVUsK",
       "endpoints": [
         "https://github.com/Japan7/karaberus/releases/latest/download/latest.json"
       ]
-    },
-    "windows": [
-      {
-        "label": "main",
-        "title": "Karaberus",
-        "maximized": true
-      }
-    ]
-  }
+    }
+  },
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json"
 }
