@@ -148,6 +148,8 @@ func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *
 			return err
 		}
 		kara_info.SourceMedia = &source_media
+	} else {
+		kara_info.SourceMediaID = nil
 	}
 
 	return err
@@ -206,7 +208,7 @@ func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error
 		return nil, err
 	}
 
-	err = db.Save(&kara).Error
+	err = db.Model(&kara).Select("*").Updates(&kara).Error
 	if err != nil {
 		return nil, err
 	}
