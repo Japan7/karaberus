@@ -196,6 +196,34 @@ type UpdateKaraInput struct {
 	Body KaraInfo
 }
 
+func updateKara(ctx context.Context, tx *gorm.DB, kara *KaraInfoDB) error {
+	err := tx.Model(&kara).Select("*").Updates(&kara).Error
+	if err != nil {
+		return err
+	}
+	err = tx.Model(&kara).Association("AudioTags").Replace(&kara.AudioTags)
+	if err != nil {
+		return err
+	}
+	err = tx.Model(&kara).Association("VideoTags").Replace(&kara.VideoTags)
+	if err != nil {
+		return err
+	}
+	err = tx.Model(&kara).Association("Medias").Replace(&kara.Medias)
+	if err != nil {
+		return err
+	}
+	err = tx.Model(&kara).Association("Authors").Replace(&kara.Authors)
+	if err != nil {
+		return err
+	}
+	err = tx.Model(&kara).Association("ExtraTitles").Replace(&kara.ExtraTitles)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error) {
 	db := GetDB(ctx)
 	kara := KaraInfoDB{}
@@ -208,7 +236,9 @@ func UpdateKara(ctx context.Context, input *UpdateKaraInput) (*KaraOutput, error
 		return nil, err
 	}
 
-	err = db.Model(&kara).Select("*").Updates(&kara).Error
+	err = db.Transaction(func(tx *gorm.DB) error {
+		return updateKara(ctx, tx, &kara)
+	})
 	if err != nil {
 		return nil, err
 	}
