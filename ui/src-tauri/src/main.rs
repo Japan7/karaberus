@@ -9,13 +9,28 @@ fn main() {
 }
 
 #[tauri::command]
-async fn play(video: String, sub: String, auth: String) {
-    std::process::Command::new("mpv")
-        .args(&[
-            &format!("--http-header-fields=Authorization: Bearer {auth}"),
-            &format!("--sub-file={sub}"),
-            &video,
-        ])
-        .spawn()
-        .unwrap();
+async fn play(auth: String, video: Option<String>, inst: Option<String>, sub: Option<String>) {
+    let mut mpv = std::process::Command::new("mpv");
+    mpv.arg(&format!(
+        "--http-header-fields=Authorization: Bearer {auth}"
+    ));
+    if let Some(sub) = sub {
+        mpv.arg(&format!("--sub-file={sub}"));
+    }
+    match (video, inst) {
+        (Some(video), Some(inst)) => {
+            mpv.arg(&format!("--external-file={inst}"));
+            mpv.arg(&video);
+        }
+        (Some(video), None) => {
+            mpv.arg(&video);
+        }
+        (None, Some(inst)) => {
+            mpv.arg(&inst);
+        }
+        _ => {
+            return;
+        }
+    }
+    mpv.spawn().expect("failed to spawn mpv");
 }
