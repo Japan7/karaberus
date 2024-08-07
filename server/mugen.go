@@ -497,6 +497,6 @@ type GetMugenImportsOutput struct {
 
 func GetMugenImports(ctx context.Context, input *struct{}) (*GetMugenImportsOutput, error) {
 	out := &GetMugenImportsOutput{}
-	err := GetDB(ctx).Find(&out.Body.Imports).Error
+	err := GetDB(ctx).Preload(clause.Associations).Find(&out.Body.Imports).Error
 	return out, err
 }
