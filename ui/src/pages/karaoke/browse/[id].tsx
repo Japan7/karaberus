@@ -1,13 +1,14 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { HiOutlineArrowTopRightOnSquare, HiSolidTrash } from "solid-icons/hi";
 import { createResource, Show } from "solid-js";
+import BrowserKaraPlayer from "../../../components/BrowserKaraPlayer";
 import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
-import KaraPlayer from "../../../components/KaraPlayer";
-import TauriKaraPlayer from "../../../components/TauriKaraPlayer";
+import MpvKaraPlayer from "../../../components/MpvKaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
+import { isTauri } from "../../../utils/tauri";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -69,10 +70,10 @@ export default function KaraokeBrowseId() {
     <>
       <Show when={getKara()}>
         {(getKara) =>
-          "__TAURI__" in window ? (
-            <TauriKaraPlayer kara={getKara().kara} />
+          isTauri() ? (
+            <MpvKaraPlayer kara={getKara().kara} />
           ) : (
-            <KaraPlayer kara={getKara().kara} />
+            <BrowserKaraPlayer kara={getKara().kara} />
           )
         }
       </Show>

@@ -2,7 +2,7 @@ import SubtitlesOctopus from "libass-wasm";
 import { createEffect, onCleanup, Show } from "solid-js";
 import type { components } from "../utils/karaberus";
 
-export default function KaraPlayer(props: {
+export default function BrowserKaraPlayer(props: {
   kara: components["schemas"]["KaraInfoDB"];
 }) {
   let playerRef!: HTMLVideoElement;
