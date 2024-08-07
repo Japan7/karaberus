@@ -1,6 +1,7 @@
 import SubtitlesOctopus from "libass-wasm";
 import { createEffect, onCleanup, Show } from "solid-js";
 import type { components } from "../utils/karaberus";
+import { RELEASE_URL } from "../utils/tauri";
 
 export default function BrowserKaraPlayer(props: {
   kara: components["schemas"]["KaraInfoDB"];
@@ -53,6 +54,18 @@ export default function BrowserKaraPlayer(props: {
         ref={playerRef}
         class="rounded-2xl"
       />
+      <p class="text-right text-sm">
+        Not working? Download the{" "}
+        <a
+          href={RELEASE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link"
+        >
+          desktop app
+        </a>
+        .
+      </p>
     </Show>
   );
 }
