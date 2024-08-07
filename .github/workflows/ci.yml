@@ -34,7 +34,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         id: setup-ffmpeg
         with:
-          ffmpeg-version: release
+          ffmpeg-version: 7.0.1
 
       - name: Install dependencies
         run: |
