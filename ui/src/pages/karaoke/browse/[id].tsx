@@ -1,5 +1,9 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { HiOutlineArrowTopRightOnSquare, HiSolidTrash } from "solid-icons/hi";
+import {
+  HiOutlineArrowLeft,
+  HiOutlineArrowTopRightOnSquare,
+  HiSolidTrash,
+} from "solid-icons/hi";
 import { createResource, Show } from "solid-js";
 import BrowserKaraPlayer from "../../../components/BrowserKaraPlayer";
 import FileUploader from "../../../components/FileUploader";
@@ -68,6 +72,11 @@ export default function KaraokeBrowseId() {
 
   return (
     <>
+      <button onclick={() => navigate(-1)} class="btn btn-sm w-fit btn-ghost">
+        <HiOutlineArrowLeft class="size-5" />
+        Back
+      </button>
+
       <Show when={getKara()}>
         {(getKara) =>
           isTauri() ? (
