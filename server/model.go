@@ -147,6 +147,9 @@ func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
 func (a *Artist) BeforeSave(tx *gorm.DB) error {
 	// set editor for this new update
 	a.EditorUser = getCurrentUser(tx.Statement.Context)
+	if a.EditorUser == nil {
+		a.EditorUserID = nil
+	}
 	return nil
 }
 
@@ -190,6 +193,9 @@ func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
 func (m *MediaDB) BeforeSave(tx *gorm.DB) error {
 	// set editor for this new update
 	m.EditorUser = getCurrentUser(tx.Statement.Context)
+	if m.EditorUser == nil {
+		m.EditorUserID = nil
+	}
 	return nil
 }
 
@@ -294,6 +300,9 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
 	// set editor for this new version
 	ki.EditorUser = getCurrentUser(tx.Statement.Context)
+	if ki.EditorUser == nil {
+		ki.EditorUserID = nil
+	}
 	return nil
 }
 
