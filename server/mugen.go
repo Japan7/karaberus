@@ -221,7 +221,7 @@ func reimportMugenKara(ctx context.Context, mugen_import *MugenImport) error {
 		return err
 	}
 
-	err = GetDB(ctx).Transaction(func(tx *gorm.DB) error {
+	err = GetDB(context.Background()).Transaction(func(tx *gorm.DB) error {
 		kara_info := &mugen_import.Kara
 		err = mugenKaraToKaraInfoDB(tx, *kara, kara_info)
 		if err != nil {
@@ -241,7 +241,8 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 		return err
 	}
 
-	err = GetDB(ctx).Transaction(func(tx *gorm.DB) error {
+	getLogger().Printf("Importing kid %s for %s\n", kid, getCurrentUser(ctx).ID)
+	err = GetDB(context.Background()).Transaction(func(tx *gorm.DB) error {
 		kara_info := KaraInfoDB{}
 		err = mugenKaraToKaraInfoDB(tx, *kara, &kara_info)
 		if err != nil {
