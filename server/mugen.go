@@ -317,16 +317,19 @@ func RefreshMugenImports(ctx context.Context) error {
 	for _, mugen_import := range mugen_imports {
 		// kara was deleted ignore
 		if mugen_import.Kara.ID == 0 {
+			getLogger().Printf("Not updating %s because the kara is not initialized", mugen_import.MugenKID)
 			continue
 		}
 		// karaoke was edited, don't refresh and we don't need to query
 		if mugen_import.Kara.EditorUserID != nil {
+			getLogger().Printf("Not updating %d because the editor is not NULL", mugen_import.Kara.ID)
 			continue
 		}
 
 		kara := KaraInfoDB{}
 		err = db.Where("editor_user_id IS NOT NULL").Where(&KaraInfoDB{CurrentKaraInfoID: &mugen_import.KaraID}).First(&kara).Error
 		if err == nil {
+			getLogger().Printf("Not updating %d because it was updated by %s", mugen_import.Kara.ID, *kara.EditorUserID)
 			continue
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
