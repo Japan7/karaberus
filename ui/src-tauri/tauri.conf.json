@@ -50,7 +50,15 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": null,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "domain": "karaberus.japan7.bde.enseeiht.fr",
+          "scheme": "https",
+          "windows": ["Karaberus"],
+          "enableTauriAPI": true
+        }
+      ]
     },
     "updater": {
       "active": false
