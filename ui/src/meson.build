@@ -25,6 +25,7 @@ ui_src += files(
     'pages' / 'tags' / 'artist.tsx',
     'pages' / 'tags' / 'author.tsx',
     'pages' / 'tags' / 'media.tsx',
+    'pages' / 'desktop.tsx',
     'pages' / 'index.tsx',
     'pages' / 'profile.tsx',
     'pages' / 'settings.tsx',
