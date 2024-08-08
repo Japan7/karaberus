@@ -10,7 +10,7 @@ import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
 import MpvKaraPlayer from "../../../components/MpvKaraPlayer";
 import type { components } from "../../../utils/karaberus";
-import { karaberus } from "../../../utils/karaberus-client";
+import { apiUrl, karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
 import { isTauri } from "../../../utils/tauri";
 
@@ -79,7 +79,7 @@ export default function KaraokeBrowseId() {
 
       <Show when={getKara()}>
         {(getKara) =>
-          isTauri() ? (
+          isTauri ? (
             <MpvKaraPlayer kara={getKara().kara} />
           ) : (
             <BrowserKaraPlayer kara={getKara().kara} />
@@ -93,12 +93,12 @@ export default function KaraokeBrowseId() {
         <FileUploader
           title="Video"
           method="PUT"
-          url={`/api/kara/${params.id}/upload/video`}
+          url={apiUrl(`api/kara/${params.id}/upload/video`)}
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.VideoUploaded ? (
               <a
-                href={`/api/kara/${params.id}/download/video`}
+                href={apiUrl(`api/kara/${params.id}/download/video`)}
                 download={`${params.id}.mkv`}
                 rel="noreferrer"
                 class="link flex gap-x-1"
@@ -114,12 +114,12 @@ export default function KaraokeBrowseId() {
         <FileUploader
           title="Instrumental"
           method="PUT"
-          url={`/api/kara/${params.id}/upload/inst`}
+          url={apiUrl(`api/kara/${params.id}/upload/inst`)}
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.InstrumentalUploaded ? (
               <a
-                href={`/api/kara/${params.id}/download/inst`}
+                href={apiUrl(`api/kara/${params.id}/download/inst`)}
                 download={`${params.id}.mka`}
                 rel="noreferrer"
                 class="link flex gap-x-1"
@@ -135,12 +135,12 @@ export default function KaraokeBrowseId() {
         <FileUploader
           title="Subtitles"
           method="PUT"
-          url={`/api/kara/${params.id}/upload/sub`}
+          url={apiUrl(`api/kara/${params.id}/upload/sub`)}
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.SubtitlesUploaded ? (
               <a
-                href={`/api/kara/${params.id}/download/sub`}
+                href={apiUrl(`api/kara/${params.id}/download/sub`)}
                 download={`${params.id}.ass`}
                 rel="noreferrer"
                 class="link flex gap-x-1"

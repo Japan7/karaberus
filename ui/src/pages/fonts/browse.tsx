@@ -1,7 +1,7 @@
 import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index } from "solid-js";
 import FileUploader from "../../components/FileUploader";
-import { karaberus } from "../../utils/karaberus-client";
+import { apiUrl, karaberus } from "../../utils/karaberus-client";
 
 export default function FontsBrowse() {
   const [getFonts, { refetch }] = createResource(async () => {
@@ -20,7 +20,11 @@ export default function FontsBrowse() {
 
       <h2 class="text-2xl font-semibold">Upload</h2>
 
-      <FileUploader method="POST" url="/api/font" onUpload={onUpload} />
+      <FileUploader
+        method="POST"
+        url={apiUrl("api/font")}
+        onUpload={onUpload}
+      />
 
       <h2 class="text-2xl font-semibold mt-8">Browse</h2>
 
@@ -40,7 +44,7 @@ export default function FontsBrowse() {
                 <th>{getFont().ID}</th>
                 <td>
                   <a
-                    href={`/api/font/${getFont().ID}/download`}
+                    href={apiUrl(`api/font/${getFont().ID}/download`)}
                     download={getFont().Name}
                     class="link"
                   >

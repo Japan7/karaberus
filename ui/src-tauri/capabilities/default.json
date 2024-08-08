@@ -7,6 +7,7 @@
     "core:default",
     "updater:default",
     "dialog:default",
+    "shell:default",
     {
       "identifier": "shell:allow-spawn",
       "allow": [
@@ -17,9 +18,7 @@
           "sidecar": false
         }
       ]
-    }
-  ],
-  "remote": {
-    "urls": ["https://*.japan7.bde.enseeiht.fr/*"]
-  }
+    },
+    "deep-link:default"
+  ]
 }
