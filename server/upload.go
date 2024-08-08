@@ -273,7 +273,7 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 			filesender := FileSender{obj, reqRange, 0}
 
 			fiber_ctx := ctx.BodyWriter().(*fiber.Ctx)
-			err = fiber_ctx.SendStream(&filesender, int(stat.Size))
+			err = fiber_ctx.SendStream(&filesender, int(reqRange.Length))
 		},
 	}, err
 }
