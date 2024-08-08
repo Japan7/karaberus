@@ -48,7 +48,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: ${{ startsWith(matrix.platform, 'windows') && '' || 'npm' }} # Set this to npm, yarn or pnpm.
+          cache: 'npm' # Set this to npm, yarn or pnpm.
           cache-dependency-path: ui/package-lock.json
 
       - name: install Rust stable
@@ -85,7 +85,6 @@ jobs:
 
       - name: build (push)
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        id: build
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -93,9 +92,9 @@ jobs:
           projectPath: ui
           args: ${{ matrix.args }}
 
-      - name: upload artifact
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: upload artifact (push)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}-app
-          path: ${{ steps.build.outputs.artifactPaths }}
+          path: ui/src-tauri/target/*/release/bundle
