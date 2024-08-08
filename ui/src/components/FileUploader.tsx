@@ -1,6 +1,6 @@
 import { createSignal, Show, type JSX } from "solid-js";
 import { getSessionToken } from "../utils/session";
-import { isTauriDistBuild } from "../utils/tauri";
+import { IS_TAURI_DIST_BUILD } from "../utils/tauri";
 
 export default function FileUploader(props: {
   title?: string;
@@ -20,7 +20,7 @@ export default function FileUploader(props: {
     // xhr strikes again
     const xhr = new XMLHttpRequest();
     xhr.open(props.method, props.url);
-    if (isTauriDistBuild) {
+    if (IS_TAURI_DIST_BUILD) {
       xhr.setRequestHeader("Authorization", `Bearer ${getSessionToken()}`);
     }
 

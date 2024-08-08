@@ -1,17 +1,19 @@
+import { platform } from "@tauri-apps/plugin-os";
 import { createEffect } from "solid-js";
 import { apiUrl } from "../utils/karaberus-client";
 import { setSessionToken } from "../utils/session";
-import { isTauriDistBuild, REMOTE_DESKTOP_URL } from "../utils/tauri";
+import { IS_TAURI_DIST_BUILD, REMOTE_DESKTOP_URL } from "../utils/tauri";
 
 export default function AuthHero() {
   createEffect(() => {
-    if (isTauriDistBuild) {
+    if (IS_TAURI_DIST_BUILD) {
       const token = new URLSearchParams(location.search).get("token");
       if (token) {
         setSessionToken(token);
         location.href = "/";
       } else {
-        location.href = REMOTE_DESKTOP_URL;
+        const platformName = platform();
+        location.href = REMOTE_DESKTOP_URL + "?platform=" + platformName;
       }
     }
   });

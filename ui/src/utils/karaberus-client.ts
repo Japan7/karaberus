@@ -1,12 +1,14 @@
 import createClient from "openapi-fetch";
 import type { paths } from "./karaberus";
 import { getSessionToken } from "./session";
-import { isTauriDistBuild } from "./tauri";
+import { IS_TAURI_DIST_BUILD } from "./tauri";
 
 export const karaberus = createClient<paths>({
   baseUrl: import.meta.env.VITE_KARABERUS_URL || import.meta.env.BASE_URL,
   headers: {
-    Authorization: isTauriDistBuild ? `Bearer ${getSessionToken()}` : undefined,
+    Authorization: IS_TAURI_DIST_BUILD
+      ? `Bearer ${getSessionToken()}`
+      : undefined,
   },
 });
 
