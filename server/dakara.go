@@ -470,8 +470,6 @@ func dakaraAddSong(ctx context.Context, song *DakaraSongBody) error {
 // 	return nil
 // }
 
-var DakaraSyncLock = sync.Mutex{}
-
 func dakaraFilterAudioTags(audio_tags []AudioTag) []AudioTag {
 	out := []AudioTag{}
 	for _, tag := range audio_tags {
@@ -490,15 +488,33 @@ func UploadedKaras(db *gorm.DB) *gorm.DB {
 	return db.Where("video_uploaded AND (subtitles_uploaded OR hardsubbed)")
 }
 
-func SyncDakara(ctx context.Context) {
-	DakaraSyncLock.Lock()
+var syncDakaraNotifyMutex = sync.Mutex{}
+var syncDakaraNotifyChannel = make(chan bool)
 
+// Notify the sync worker (non blocking)
+func SyncDakaraNotify() {
+	go func() {
+		if syncDakaraNotifyMutex.TryLock() {
+			defer syncDakaraNotifyMutex.Unlock()
+			getLogger().Println("notifying dakara worker")
+			syncDakaraNotifyChannel <- true
+		}
+	}()
+}
+
+func SyncDakaraLoop(ctx context.Context) {
+	for {
+		SyncDakara(ctx)
+		<-syncDakaraNotifyChannel
+	}
+}
+
+func SyncDakara(ctx context.Context) {
 	defer func() {
 		r := recover()
 		if r != nil {
 			getLogger().Printf("recovered from panic in SyncDakara %s\n%s\n", r, string(debug.Stack()))
 		}
-		DakaraSyncLock.Unlock()
 	}()
 
 	db := GetDB(ctx)
@@ -800,11 +816,13 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 			link_type_number = nil
 		}
 		linktype := getWorkLinkType(kara)
-		works = append(works, DakaraSongWork{
-			Work:           *dakara_work,
-			LinkType:       linktype,
-			LinkTypeNumber: link_type_number,
-		})
+		if linktype != "" {
+			works = append(works, DakaraSongWork{
+				Work:           *dakara_work,
+				LinkType:       linktype,
+				LinkTypeNumber: link_type_number,
+			})
+		}
 	}
 	// NOTE: kara.Media is not usable because we don't know what link_type should be
 

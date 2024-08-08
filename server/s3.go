@@ -80,10 +80,6 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		if res.Video.Duration != kara.Duration {
 			kara.Duration = res.Video.Duration
 		}
-
-		if CONFIG.Dakara.BaseURL != "" && kara.UploadInfo.VideoUploaded && kara.UploadInfo.SubtitlesUploaded {
-			go SyncDakara(context.Background())
-		}
 	}
 
 	err = tx.Model(&kara).Updates(&kara).Error

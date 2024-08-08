@@ -130,6 +130,11 @@ func CurrentArtists(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_artist_id IS NULL")
 }
 
+func (a *Artist) AfterUpdate(tx *gorm.DB) error {
+	SyncDakaraNotify()
+	return nil
+}
+
 func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
 	orig_artist := &Artist{}
 	err := tx.First(orig_artist, a.ID).Error
@@ -174,6 +179,11 @@ type MediaDB struct {
 
 func CurrentMedias(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_media_id IS NULL")
+}
+
+func (m *MediaDB) AfterUpdate(tx *gorm.DB) error {
+	SyncDakaraNotify()
+	return nil
 }
 
 func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
@@ -291,6 +301,19 @@ func WithAssociationsUpdate(tx *gorm.DB) *gorm.DB {
 
 func isAssociationsUpdate(tx *gorm.DB) bool {
 	return tx.Statement.Context.Value(UpdateAssociations{}) != nil
+}
+
+func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
+	// update kara just in case
+	err := tx.First(&ki).Error
+	if err != nil {
+		return err
+	}
+
+	if CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
+		SyncDakaraNotify()
+	}
+	return nil
 }
 
 func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
