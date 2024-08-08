@@ -647,6 +647,7 @@ func SyncDakara(ctx context.Context) {
 			}
 		}
 	}
+	logger.Println("Synced tags with dakara")
 
 	// sync karas / songs
 
@@ -674,6 +675,10 @@ func SyncDakara(ctx context.Context) {
 		return
 	}
 
+	logger.Println("syncing new songs")
+
+	new_songs := 0
+	updated_songs := 0
 	for _, kara := range all_karas {
 		song_body, err := createDakaraSongBody(ctx, kara, dakara_tags, dakara_artists, works)
 		if err != nil {
@@ -687,14 +692,17 @@ func SyncDakara(ctx context.Context) {
 				getLogger().Println(err)
 				return
 			}
+			new_songs++
 		} else {
 			err = dakaraUpdateSong(ctx, dakara_song, song_body)
 			if err != nil {
 				getLogger().Println(err)
 				return
 			}
+			updated_songs++
 		}
 	}
+	logger.Printf("Created %d songs, Updated %d songs\n", new_songs, updated_songs)
 
 	err = cleanUpDakaraSongs(ctx, songs)
 	if err != nil {
@@ -761,7 +769,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 			}
 		}
 	}
-	getLogger().Printf("deleted %d songs in dakara", deleted_songs)
+	getLogger().Printf("deleted %d songs in dakara\n", deleted_songs)
 
 	return nil
 }
