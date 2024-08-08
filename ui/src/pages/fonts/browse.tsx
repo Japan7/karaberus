@@ -1,5 +1,6 @@
 import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index } from "solid-js";
+import DownloadAnchor from "../../components/DownloadAnchor";
 import FileUploader from "../../components/FileUploader";
 import { apiUrl, karaberus } from "../../utils/karaberus-client";
 
@@ -43,13 +44,12 @@ export default function FontsBrowse() {
               <tr class="hover">
                 <th>{getFont().ID}</th>
                 <td>
-                  <a
+                  <DownloadAnchor
                     href={apiUrl(`api/font/${getFont().ID}/download`)}
                     download={getFont().Name}
-                    class="link"
                   >
                     {getFont().Name}
-                  </a>
+                  </DownloadAnchor>
                 </td>
                 <td>{new Date(getFont().UpdatedAt).toLocaleString()}</td>
                 <td>
