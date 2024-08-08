@@ -3,6 +3,7 @@ CHOST = 'riscv64-chimera-linux-musl'
 
 [binaries]
 c = CHOST + '-clang'
+cpp = CHOST + '-clang++'
 ld = 'ld.lld'
 objcopy = 'llvm-objcopy'
 strip = 'llvm-strip'
