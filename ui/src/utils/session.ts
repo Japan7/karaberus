@@ -1,6 +1,6 @@
 import { cookieStorage } from "@solid-primitives/storage";
-import { isTauri } from "@tauri-apps/api/core";
 import { decodeJwt } from "jose";
+import { isTauriDistBuild } from "./tauri";
 
 export interface KaraberusJwtPayload {
   sub: string;
@@ -22,15 +22,22 @@ export interface KaraberusJwtPayload {
 export const SESSION_TOKEN_NAME = "karaberus_session";
 
 export function getSessionToken() {
-  return (isTauri() ? localStorage : cookieStorage).getItem(SESSION_TOKEN_NAME);
+  return (isTauriDistBuild ? localStorage : cookieStorage).getItem(
+    SESSION_TOKEN_NAME,
+  );
 }
 
 export function setSessionToken(token: string) {
-  (isTauri() ? localStorage : cookieStorage).setItem(SESSION_TOKEN_NAME, token);
+  (isTauriDistBuild ? localStorage : cookieStorage).setItem(
+    SESSION_TOKEN_NAME,
+    token,
+  );
 }
 
 export function removeSessionToken() {
-  (isTauri() ? localStorage : cookieStorage).removeItem(SESSION_TOKEN_NAME);
+  (isTauriDistBuild ? localStorage : cookieStorage).removeItem(
+    SESSION_TOKEN_NAME,
+  );
 }
 
 export function getSessionInfos() {
