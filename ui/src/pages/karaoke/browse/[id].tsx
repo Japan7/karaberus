@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
+import { isTauri } from "@tauri-apps/api/core";
 import {
   HiOutlineArrowLeft,
   HiOutlineArrowTopRightOnSquare,
@@ -6,13 +7,13 @@ import {
 } from "solid-icons/hi";
 import { createResource, Show } from "solid-js";
 import BrowserKaraPlayer from "../../../components/BrowserKaraPlayer";
+import DownloadAnchor from "../../../components/DownloadAnchor";
 import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
 import MpvKaraPlayer from "../../../components/MpvKaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { apiUrl, karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
-import { isTauri } from "../../../utils/tauri";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -79,7 +80,7 @@ export default function KaraokeBrowseId() {
 
       <Show when={getKara()}>
         {(getKara) =>
-          isTauri ? (
+          isTauri() ? (
             <MpvKaraPlayer kara={getKara().kara} />
           ) : (
             <BrowserKaraPlayer kara={getKara().kara} />
@@ -97,15 +98,13 @@ export default function KaraokeBrowseId() {
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.VideoUploaded ? (
-              <a
+              <DownloadAnchor
                 href={apiUrl(`api/kara/${params.id}/download/video`)}
                 download={`${params.id}.mkv`}
-                rel="noreferrer"
-                class="link flex gap-x-1"
               >
                 {"Download current video "}
                 <HiOutlineArrowTopRightOnSquare class="size-4" />
-              </a>
+              </DownloadAnchor>
             ) : (
               "(No upload yet)"
             )
@@ -118,15 +117,13 @@ export default function KaraokeBrowseId() {
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.InstrumentalUploaded ? (
-              <a
+              <DownloadAnchor
                 href={apiUrl(`api/kara/${params.id}/download/inst`)}
                 download={`${params.id}.mka`}
-                rel="noreferrer"
-                class="link flex gap-x-1"
               >
                 {"Download current instrumental "}
                 <HiOutlineArrowTopRightOnSquare class="size-4" />
-              </a>
+              </DownloadAnchor>
             ) : (
               "(No upload yet)"
             )
@@ -139,15 +136,13 @@ export default function KaraokeBrowseId() {
           onUpload={onUpload}
           altChildren={
             getKara()?.kara.SubtitlesUploaded ? (
-              <a
+              <DownloadAnchor
                 href={apiUrl(`api/kara/${params.id}/download/sub`)}
                 download={`${params.id}.ass`}
-                rel="noreferrer"
-                class="link flex gap-x-1"
               >
                 {"Download current subtitles "}
                 <HiOutlineArrowTopRightOnSquare class="size-4" />
-              </a>
+              </DownloadAnchor>
             ) : (
               "(No upload yet)"
             )
