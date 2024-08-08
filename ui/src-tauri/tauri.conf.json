@@ -6,7 +6,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "npm run dev -- --mode tauri-dev",
-    "beforeBuildCommand": "npm run build -- --mode tauri-build"
+    "beforeBuildCommand": "npm run build -- --mode tauri-dist"
   },
   "app": {
     "windows": [
@@ -37,12 +37,6 @@
       "endpoints": [
         "https://github.com/Japan7/karaberus/releases/latest/download/latest.json"
       ]
-    },
-    "deep-link": {
-      "mobile": [],
-      "desktop": {
-        "schemes": ["karaberus"]
-      }
     }
   },
   "$schema": "../node_modules/@tauri-apps/cli/schema.json"
