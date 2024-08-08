@@ -1,11 +1,38 @@
 import { isTauri } from "@tauri-apps/api/core";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import { open } from "@tauri-apps/plugin-shell";
-import { createEffect } from "solid-js";
+import { createEffect, onCleanup } from "solid-js";
 import { apiUrl } from "../utils/karaberus-client";
 import { setSessionToken } from "../utils/session";
 
 export default function AuthHero() {
+  let openUrlListener: UnlistenFn | undefined;
+  let deepLinkListener: UnlistenFn | undefined;
+
+  createEffect(async () => {
+    if (isTauri()) {
+      // macOS/mobile
+      openUrlListener = await onOpenUrl((urls) => {
+        urls.forEach(readDeepLink);
+      });
+
+      // Linux/Windows
+      deepLinkListener = await listen<string>("deep-link", (e) => {
+        readDeepLink(e.payload);
+      });
+    }
+  });
+
+  const readDeepLink = (url: string) => {
+    const urlObj = new URL(url);
+    const token = urlObj.searchParams.get("token");
+    if (token) {
+      setSessionToken(token);
+      location.reload();
+    }
+  };
+
   const openBrowserConnect = () => {
     open(`${import.meta.env.VITE_KARABERUS_URL}/desktop`);
   };
@@ -15,21 +42,9 @@ export default function AuthHero() {
     location.href = apiUrl("api/oidc/login");
   };
 
-  createEffect(() => {
-    if (isTauri()) {
-      onOpenUrl((urls) => {
-        console.log("deep links", urls);
-        for (const url of urls) {
-          const urlObj = new URL(url);
-          const token = urlObj.searchParams.get("token");
-          if (token) {
-            setSessionToken(token);
-            location.reload();
-            return;
-          }
-        }
-      });
-    }
+  onCleanup(() => {
+    openUrlListener?.();
+    deepLinkListener?.();
   });
 
   return (
@@ -47,7 +62,9 @@ export default function AuthHero() {
                 onclick={isTauri() ? openBrowserConnect : redirectToLogin}
                 class="btn btn-primary"
               >
-                {isTauri() ? "Login in browser" : "Login with OpenID Connect"}
+                {isTauri()
+                  ? "Open browser for login"
+                  : "Login with OpenID Connect"}
               </button>
             </div>
           </div>
