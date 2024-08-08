@@ -412,6 +412,31 @@ func (k KaraInfoDB) SubsFilename() string {
 	return fmt.Sprintf("%d.ass", k.ID)
 }
 
+type KaraIssue struct {
+	gorm.Model
+	AuthorID *uint
+	Author   *User
+	KaraID   uint
+	Kara     KaraInfoDB
+	Tag      string
+	Content  string
+}
+
+func (issue *KaraIssue) BeforeSave(tx *gorm.DB) error {
+	issue.Tag = trimWhitespace(issue.Tag)
+	issue.Content = trimWhitespace(issue.Content)
+	return nil
+}
+
+type KaraIssueComment struct {
+	gorm.Model
+	KaraIssueID uint
+	KaraIssue   KaraIssue
+	AuthorID    *uint
+	Author      *User
+	Content     string
+}
+
 type Font struct {
 	gorm.Model
 	Name       string

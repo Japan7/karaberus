@@ -39,6 +39,8 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_ro_security))
 	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_ro_security))
 	huma.Get(api, "/api/kara/{id}/history", GetKaraHistory, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/kara/{id}/issues", GetKaraIssues, setSecurity(kara_ro_security))
+	huma.Post(api, "/api/kara/{id}/issues", CreateKaraIssue, setSecurity(kara_security))
 	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara_security))
 	huma.Patch(api, "/api/kara/{id}", UpdateKara, setSecurity(kara_security))
 	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))

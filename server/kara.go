@@ -309,3 +309,58 @@ func GetKaraHistory(ctx context.Context, input *GetKaraInput) (*GetKaraHistoryOu
 	}
 	return out, nil
 }
+
+type CreateIssueInput struct {
+	KaraID uint `path:"id"`
+	Body   struct {
+		Tag     string `json:"tag"`
+		Content string `json:"content"`
+	}
+}
+
+type CreateIssueOutput struct {
+	Body struct {
+		Issue KaraIssue `json:"issue"`
+	}
+}
+
+func CreateKaraIssue(ctx context.Context, input *CreateIssueInput) (*CreateIssueOutput, error) {
+	user := *getCurrentUser(ctx)
+	db := GetDB(ctx)
+	kara, err := GetKaraByID(db, input.KaraID)
+	if err != nil {
+		return nil, err
+	}
+
+	out := &CreateIssueOutput{}
+
+	out.Body.Issue = KaraIssue{
+		Kara:    kara,
+		Author:  &user,
+		Tag:     input.Body.Tag,
+		Content: input.Body.Content,
+	}
+	err = db.Create(&out.Body.Issue).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+type GetIssuesOutput struct {
+	Body struct {
+		Issues []KaraIssue `json:"issues"`
+	}
+}
+
+type GetKaraIssuesInput struct {
+	ID uint `path:"id"`
+}
+
+func GetKaraIssues(ctx context.Context, input *GetKaraIssuesInput) (*GetIssuesOutput, error) {
+	out := &GetIssuesOutput{}
+	db := GetDB(ctx)
+	err := db.Where(&KaraIssue{KaraID: input.ID}).Find(&out.Body.Issues).Error
+	return out, err
+}
