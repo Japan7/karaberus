@@ -1,5 +1,5 @@
 import SubtitlesOctopus from "libass-wasm";
-import { createEffect, onCleanup, Show } from "solid-js";
+import { onCleanup, Show } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { apiUrl } from "../utils/karaberus-client";
 import { RELEASE_URL } from "../utils/tauri";
@@ -14,11 +14,9 @@ export default function BrowserKaraPlayer(props: {
   const getVideoSrc = () => apiUrl(`api/kara/${props.kara.ID}/download/video`);
   const getSubSrc = () => apiUrl(`api/kara/${props.kara.ID}/download/sub`);
 
-  createEffect(() => {
-    onCleanup(() => {
-      octopus?.dispose();
-      octopus = undefined;
-    });
+  onCleanup(() => {
+    octopus?.dispose();
+    octopus = undefined;
   });
 
   const setupOctopus = () => {
