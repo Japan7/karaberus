@@ -1,10 +1,10 @@
-name: 'publish'
+name: 'tauri'
 
 on:
   push:
     branches:
-      - "master"
-      - "renovate/*"
+      - 'master'
+      - 'renovate/*'
     tags:
       - 'app-v*'
   workflow_dispatch:
@@ -45,6 +45,7 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm' # Set this to npm, yarn or pnpm.
+          cache-dependency-path: ui/package-lock.json
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
@@ -55,12 +56,12 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './ui/src-tauri -> target'
+          workspaces: 'ui/src-tauri -> target'
 
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: npm ci # change this to npm or pnpm depending on which one you use.
-        working-directory: ./ui
+        working-directory: ui
 
       - name: build and publish (tag)
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -70,7 +71,7 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          projectPath: ./ui
+          projectPath: ui
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'App v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
@@ -84,7 +85,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          projectPath: ./ui
+          projectPath: ui
           args: ${{ matrix.args }}
 
       - name: upload artifact
