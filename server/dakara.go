@@ -544,7 +544,7 @@ func SyncDakara(ctx context.Context) {
 		getLogger().Println(err)
 		return
 	}
-	getLogger().Printf("Syncing %d karas to Dakara", len(all_karas))
+	logger.Printf("Syncing %d karas to Dakara", len(all_karas))
 
 	// sync media / works
 	works, err := dakaraGetWorks(ctx)
@@ -568,6 +568,7 @@ func SyncDakara(ctx context.Context) {
 		}
 	}
 
+	new_works := 0
 	for _, media := range all_medias {
 		if works[strings.ToLower(media.Type)][media.Name] == nil {
 			media_type := getMediaType(media.Type)
@@ -579,8 +580,10 @@ func SyncDakara(ctx context.Context) {
 				getLogger().Println(err)
 				return
 			}
+			new_works++
 		}
 	}
+	logger.Printf("Added %d new works to dakara\n", new_works)
 
 	// sync artists
 	dakara_artists, err := dakaraGetArtists(ctx)
@@ -589,6 +592,7 @@ func SyncDakara(ctx context.Context) {
 		return
 	}
 
+	new_artists := 0
 	for _, artist := range all_artists {
 		if dakara_artists[artist.Name] == nil {
 			err = dakaraAddArtist(ctx, artist)
@@ -596,8 +600,10 @@ func SyncDakara(ctx context.Context) {
 				getLogger().Println(err)
 				return
 			}
+			new_artists++
 		}
 	}
+	logger.Printf("Added %d new artists to dakara\n", new_artists)
 
 	// sync tags
 	dakara_tags, err := dakaraGetTags(ctx)
@@ -726,6 +732,7 @@ func dakaraUpdateSong(ctx context.Context, dakara_song *DakaraSong, song_body *D
 func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error {
 	db := GetDB(ctx)
 
+	deleted_songs := 0
 	for _, song := range songs {
 		id_str, _, _ := strings.Cut(song.Filename, ".")
 		id, err := strconv.Atoi(id_str)
@@ -735,6 +742,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 			if err != nil {
 				return err
 			}
+			deleted_songs++
 			continue
 		}
 
@@ -747,11 +755,13 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 				if err != nil {
 					return err
 				}
+				deleted_songs++
 			} else {
 				return err
 			}
 		}
 	}
+	getLogger().Printf("deleted %d songs in dakara", deleted_songs)
 
 	return nil
 }
