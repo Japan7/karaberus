@@ -498,6 +498,7 @@ func SyncDakaraNotify() {
 			defer syncDakaraNotifyMutex.Unlock()
 			getLogger().Println("notifying dakara worker")
 			syncDakaraNotifyChannel <- true
+			getLogger().Println("notified dakara worker")
 		}
 	}()
 }
@@ -510,6 +511,8 @@ func SyncDakaraLoop(ctx context.Context) {
 }
 
 func SyncDakara(ctx context.Context) {
+	logger := getLogger()
+	defer logger.Println("Done syncing dakara")
 	defer func() {
 		r := recover()
 		if r != nil {
