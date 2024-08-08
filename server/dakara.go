@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"reflect"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -442,6 +441,14 @@ type DakaraSongBody struct {
 	HasInstrumental bool             `json:"has_instrumental"`
 }
 
+func getLinkTypeNumber(n *uint) uint {
+	if n == nil {
+		return 0
+	} else {
+		return *n
+	}
+}
+
 func (body DakaraSongBody) HasChanged(ref DakaraSong) bool {
 	// lyrics are truncated in the response from dakara
 	// so compare to our truncated text even if that means that we could miss an update
@@ -487,7 +494,7 @@ func (body DakaraSongBody) HasChanged(ref DakaraSong) bool {
 		for _, work := range body.Works {
 			found := false
 			for _, ref_work := range ref.Works {
-				if ref_work.Work.ID == work.Work.ID && ref_work.LinkType == work.LinkType && reflect.DeepEqual(ref_work.LinkTypeNumber, work.LinkTypeNumber) {
+				if ref_work.Work.ID == work.Work.ID && ref_work.LinkType == work.LinkType && getLinkTypeNumber(ref_work.LinkTypeNumber) == getLinkTypeNumber(work.LinkTypeNumber) {
 					found = true
 				}
 			}
