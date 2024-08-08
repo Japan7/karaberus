@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -153,6 +154,8 @@ func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (a *Artist) BeforeSave(tx *gorm.DB) error {
+	a.Name = trimWhitespace(a.Name)
+
 	// set editor for this new update
 	a.EditorUser = getCurrentUser(tx.Statement.Context)
 	if a.EditorUser == nil {
@@ -206,6 +209,8 @@ func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (m *MediaDB) BeforeSave(tx *gorm.DB) error {
+	m.Name = trimWhitespace(m.Name)
+
 	// set editor for this new update
 	m.EditorUser = getCurrentUser(tx.Statement.Context)
 	if m.EditorUser == nil {
@@ -242,6 +247,14 @@ var AudioTags = []AudioTag{
 type AdditionalName struct {
 	gorm.Model
 	Name string
+}
+
+func trimWhitespace(s string) string {
+	return strings.Trim(s, " \n")
+}
+
+func (name *AdditionalName) BeforeSave(tx *gorm.DB) {
+	name.Name = trimWhitespace(name.Name)
 }
 
 type VideoTagDB struct {
@@ -339,6 +352,11 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
+	ki.Version = trimWhitespace(ki.Version)
+	ki.Comment = trimWhitespace(ki.Comment)
+	ki.Title = trimWhitespace(ki.Title)
+	ki.Language = trimWhitespace(ki.Language)
+
 	// set editor for this new version
 	ki.EditorUser = getCurrentUser(tx.Statement.Context)
 	if ki.EditorUser == nil {
