@@ -1,8 +1,35 @@
+import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
+import { open } from "@tauri-apps/plugin-shell";
+import { createEffect } from "solid-js";
+import { apiUrl } from "../utils/karaberus-client";
+import { setSessionToken } from "../utils/session";
+import { isTauri } from "../utils/tauri";
+
 export default function AuthHero() {
+  const openBrowserConnect = () => {
+    open(`${import.meta.env.VITE_KARABERUS_URL}/desktop`);
+  };
+
   const redirectToLogin = () => {
     localStorage.setItem("prelogin_path", location.pathname);
-    location.href = "/api/oidc/login";
+    location.href = apiUrl("api/oidc/login");
   };
+
+  createEffect(() => {
+    if (isTauri) {
+      onOpenUrl((urls) => {
+        for (const url of urls) {
+          const urlObj = new URL(url);
+          const token = urlObj.searchParams.get("token");
+          if (token) {
+            console.log("Received token", token);
+            setSessionToken(token);
+            return;
+          }
+        }
+      });
+    }
+  });
 
   return (
     <div class="hero bg-base-200 min-h-screen [background-image:url(https://cdn.myanimelist.net/s/common/uploaded_files/1445139435-b6abfa181eae79d82e5eb41cf52bb72f.jpeg)]">
@@ -15,8 +42,11 @@ export default function AuthHero() {
         <div class="card bg-base-100 bg-opacity-60 w-full max-w-sm shrink-0 shadow-2xl">
           <div class="card-body">
             <div class="form-control">
-              <button onclick={() => redirectToLogin()} class="btn btn-primary">
-                Login with OpenID Connect
+              <button
+                onclick={isTauri ? openBrowserConnect : redirectToLogin}
+                class="btn btn-primary"
+              >
+                {isTauri ? "Login in browser" : "Login with OpenID Connect"}
               </button>
             </div>
           </div>

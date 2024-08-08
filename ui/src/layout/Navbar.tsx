@@ -18,7 +18,7 @@ export default function Navbar(props: { infos: KaraberusJwtPayload }) {
         </a>
       </div>
       <div class="flex-none gap-x-2">
-        <Show when={!isTauri()}>
+        <Show when={!isTauri}>
           <a
             href={RELEASE_URL}
             target="_blank"

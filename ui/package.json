@@ -17,6 +17,7 @@
     "@solid-primitives/storage": "3.8.0",
     "@solidjs/router": "0.14.1",
     "@tauri-apps/api": "2.0.0-rc.0",
+    "@tauri-apps/plugin-deep-link": "2.0.0-rc.0",
     "@tauri-apps/plugin-dialog": "2.0.0-rc.0",
     "@tauri-apps/plugin-shell": "2.0.0-rc.0",
     "@tauri-apps/plugin-updater": "2.0.0-rc.0",

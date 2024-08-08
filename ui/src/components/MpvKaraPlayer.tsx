@@ -2,6 +2,7 @@ import { Command } from "@tauri-apps/plugin-shell";
 import { HiSolidPlayCircle } from "solid-icons/hi";
 import { createSignal, Show, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
+import { apiUrl } from "../utils/karaberus-client";
 import { getSessionToken } from "../utils/session";
 
 export default function MpvKaraPlayer(props: {
@@ -11,7 +12,7 @@ export default function MpvKaraPlayer(props: {
   const [getStarted, setStarted] = createSignal(false);
 
   const downloadEndpoint = (type: string) =>
-    `${location.origin}/api/kara/${props.kara.ID}/download/${type}`;
+    apiUrl(`api/kara/${props.kara.ID}/download/${type}`);
 
   const play: JSX.EventHandler<HTMLButtonElement, MouseEvent> = async (e) => {
     e.preventDefault();

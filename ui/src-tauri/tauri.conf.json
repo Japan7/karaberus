@@ -3,9 +3,10 @@
   "version": "0.2.0",
   "identifier": "moe.japan7.karaberus",
   "build": {
-    "frontendDist": "https://karaberus.japan7.bde.enseeiht.fr",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "npm run dev"
+    "beforeDevCommand": "npm run dev -- --mode tauri-dev",
+    "beforeBuildCommand": "npm run build -- --mode tauri-build"
   },
   "app": {
     "windows": [
@@ -36,6 +37,12 @@
       "endpoints": [
         "https://github.com/Japan7/karaberus/releases/latest/download/latest.json"
       ]
+    },
+    "deep-link": {
+      "mobile": [],
+      "desktop": {
+        "schemes": ["karaberus"]
+      }
     }
   },
   "$schema": "../node_modules/@tauri-apps/cli/schema.json"

@@ -1,12 +1,12 @@
 import {
-  clearSession,
   isAdmin,
+  removeSessionToken,
   type KaraberusJwtPayload,
 } from "../utils/session";
 
 export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
   const logout = () => {
-    clearSession();
+    removeSessionToken();
     location.reload();
   };
 
