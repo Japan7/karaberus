@@ -786,11 +786,7 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		artists[i] = *dakara_artists[artist.Name]
 	}
 
-	n_works := 0
-	if kara.SourceMedia != nil {
-		n_works += 1
-	}
-	works := make([]DakaraSongWork, n_works)
+	works := make([]DakaraSongWork, 0)
 
 	if kara.SourceMedia != nil {
 		dakara_worktype := dakara_works[strings.ToLower(kara.SourceMedia.Type)]
@@ -803,11 +799,12 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		if kara.SongOrder == 0 {
 			link_type_number = nil
 		}
-		works[0] = DakaraSongWork{
+		linktype := getWorkLinkType(kara)
+		works = append(works, DakaraSongWork{
 			Work:           *dakara_work,
-			LinkType:       getWorkLinkType(kara),
+			LinkType:       linktype,
 			LinkTypeNumber: link_type_number,
-		}
+		})
 	}
 	// NOTE: kara.Media is not usable because we don't know what link_type should be
 
