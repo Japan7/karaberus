@@ -131,7 +131,9 @@ func CurrentArtists(tx *gorm.DB) *gorm.DB {
 }
 
 func (a *Artist) AfterUpdate(tx *gorm.DB) error {
-	SyncDakaraNotify()
+	if a.CurrentArtistID == nil {
+		SyncDakaraNotify()
+	}
 	return nil
 }
 
@@ -182,7 +184,9 @@ func CurrentMedias(tx *gorm.DB) *gorm.DB {
 }
 
 func (m *MediaDB) AfterUpdate(tx *gorm.DB) error {
-	SyncDakaraNotify()
+	if m.CurrentMediaID == nil {
+		SyncDakaraNotify()
+	}
 	return nil
 }
 
@@ -310,7 +314,7 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 		return err
 	}
 
-	if CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
+	if ki.CurrentKaraInfoID == nil && CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
 		SyncDakaraNotify()
 	}
 	return nil
