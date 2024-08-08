@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -277,7 +278,7 @@ type DakaraSong struct {
 	DetailVideo     string              `json:"detail_video"`
 	Tags            []DakaraTag         `json:"tags"`
 	Artists         []DakaraArtist      `json:"artists"`
-	Works           []DakaraWork        `json:"works"`
+	Works           []DakaraSongWork    `json:"works"`
 	LyricsPreview   DakaraLyricsPreview `json:"lyrics_preview"`
 	HasInstrumental bool                `json:"has_instrumental"`
 	DateCreated     time.Time           `json:"date_created"`
@@ -439,6 +440,74 @@ type DakaraSongBody struct {
 	Works           []DakaraSongWork `json:"works"`
 	Lyrics          string           `json:"lyrics"`
 	HasInstrumental bool             `json:"has_instrumental"`
+}
+
+func (body DakaraSongBody) HasChanged(ref DakaraSong) bool {
+	// lyrics are truncated in the response from dakara
+	// so compare to our truncated text even if that means that we could miss an update
+	possibly_truncated_lyrics := body.Lyrics
+	if ref.LyricsPreview.Truncated {
+		if len(body.Lyrics) > len(ref.LyricsPreview.Text) {
+			possibly_truncated_lyrics = body.Lyrics[:len(ref.LyricsPreview.Text)]
+		}
+	}
+
+	tags_equal := len(body.Tags) == len(ref.Tags)
+	if tags_equal {
+		for _, tag := range body.Tags {
+			found := false
+			for _, ref_tag := range ref.Tags {
+				if ref_tag.ID == tag.ID {
+					found = true
+				}
+			}
+			if !found {
+				tags_equal = false
+			}
+		}
+	}
+
+	artists_equal := len(body.Artists) == len(ref.Artists)
+	if artists_equal {
+		for _, artist := range body.Artists {
+			found := false
+			for _, ref_artist := range ref.Artists {
+				if ref_artist.ID == artist.ID {
+					found = true
+				}
+			}
+			if !found {
+				artists_equal = false
+			}
+		}
+	}
+
+	works_equal := len(body.Works) == len(ref.Works)
+	if works_equal {
+		for _, work := range body.Works {
+			found := false
+			for _, ref_work := range ref.Works {
+				if ref_work.Work.ID == work.Work.ID && ref_work.LinkType == work.LinkType && reflect.DeepEqual(ref_work.LinkTypeNumber, work.LinkTypeNumber) {
+					found = true
+				}
+			}
+			if !found {
+				works_equal = false
+			}
+		}
+	}
+
+	return body.Title != ref.Title ||
+		body.Filename != ref.Filename ||
+		body.Duration != ref.Duration ||
+		body.Directory != ref.Directory ||
+		body.Version != ref.Version ||
+		body.Detail != ref.Detail ||
+		body.DetailVideo != ref.DetailVideo ||
+		possibly_truncated_lyrics != ref.LyricsPreview.Text ||
+		!tags_equal ||
+		!artists_equal ||
+		!works_equal
 }
 
 func dakaraAddSong(ctx context.Context, song *DakaraSongBody) error {
@@ -693,7 +762,8 @@ func SyncDakara(ctx context.Context) {
 				return
 			}
 			new_songs++
-		} else {
+		} else if song_body.HasChanged(*dakara_song) {
+			logger.Printf("kara changed\n%+v\n%+v\n", dakara_song, song_body)
 			err = dakaraUpdateSong(ctx, dakara_song, song_body)
 			if err != nil {
 				getLogger().Println(err)
