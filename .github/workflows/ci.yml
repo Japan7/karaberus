@@ -2,9 +2,10 @@ name: Build and push image
 
 on:
   push:
-    branches-ignore: ["release"]
+    branches: ["master", "renovate/*"]
   pull_request:
     branches: ["master"]
+  workflow_dispatch:
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -19,7 +20,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-13 # x64
           - macos-latest # arm64
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: 'stable'
+          go-version: "stable"
 
       - uses: FedericoCarboni/setup-ffmpeg@v3
         if: startsWith(matrix.os, 'ubuntu')

@@ -2,8 +2,12 @@ name: 'publish'
 
 on:
   push:
+    branches:
+      - "master"
+      - "renovate/*"
     tags:
       - 'app-v*'
+  workflow_dispatch:
 
 jobs:
   publish-tauri:
@@ -15,12 +19,16 @@ jobs:
         include:
           - platform: 'macos-latest' # for Arm based macs (M1 and above).
             args: '--target aarch64-apple-darwin'
+            target: aarch64-apple-darwin
           - platform: 'macos-latest' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
+            target: x86_64-apple-darwin
           - platform: 'ubuntu-22.04'
             args: ''
+            target: x86_64-unknown-linux-gnu
           - platform: 'windows-latest'
             args: ''
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -54,7 +62,9 @@ jobs:
         run: npm ci # change this to npm or pnpm depending on which one you use.
         working-directory: ./ui
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: build and publish (tag)
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -67,3 +77,19 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+      - name: build (push)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: ./ui
+          args: ${{ matrix.args }}
+
+      - name: upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-app
+          path: target/${{ matrix.target }}/release/bundle
