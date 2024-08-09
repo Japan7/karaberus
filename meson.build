@@ -38,7 +38,12 @@ pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
 if not get_option('no_native_deps')
     karaberus_tools_deps = []
 
-    dakara_check = dependency('dakara_check', version: '>4.0.4', required: true)
+    dakara_check = dependency(
+        'dakara_check',
+        version: '>4.0.4',
+        required: true,
+        default_options: ['default_library=static', 'prefer_static=true'],
+    )
     karaberus_tools_deps += dakara_check
     karaberus_tools_deps += dependency('libavutil', required: true)
     karaberus_tools_deps += dependency('libavformat', required: true)
@@ -46,13 +51,29 @@ if not get_option('no_native_deps')
     karaberus_tools_c = files('karaberus_tools' / 'karaberus_tools.c')
     karaberus_tools_h = files('karaberus_tools' / 'karaberus_tools.h')
 
+        # force dakara_check deps to be linked whole too
+    if dakara_check.type_name() == 'internal'
+        dakara_check_sub = subproject('dakara_check')
+        karaberus_tools_deps += dakara_check_sub.get_variable('deps')
+    endif
+
+    karaberus_tools_deps_fr = []
+
+    foreach d : karaberus_tools_deps
+        if d.type_name() == 'internal'
+            karaberus_tools_deps_fr += d.as_link_whole()
+        else
+            karaberus_tools_deps_fr += d
+        endif
+    endforeach
+
     inc_karaberus_tools = include_directories('karaberus_tools')
 
-    libkaraberus_tools = library(
+    libkaraberus_tools = static_library(
         'karaberus_tools',
         karaberus_tools_c,
         karaberus_tools_h,
-        dependencies: karaberus_tools_deps,
+        dependencies: karaberus_tools_deps_fr,
         include_directories: inc_karaberus_tools,
         install: false,
     )
