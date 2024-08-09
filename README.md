@@ -69,7 +69,7 @@ meson setup build --reconfigure -Dstaticcheck=false -Derrcheck=false
 ```
 (These tests do run in the Github Actions so you should notice it at some point after pushing)
 
-# Development setup
+## Development setup
 
 Due to the current Meson setup, this project might not work well out of the box with regular go dev tools.
 
