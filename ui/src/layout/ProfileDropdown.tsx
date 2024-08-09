@@ -1,15 +1,6 @@
-import {
-  isAdmin,
-  removeSessionToken,
-  type KaraberusJwtPayload,
-} from "../utils/session";
+import { isAdmin, type KaraberusJwtPayload } from "../utils/session";
 
 export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
-  const logout = () => {
-    removeSessionToken();
-    location.reload();
-  };
-
   const closeDropdown = () => {
     const elem = document.activeElement;
     if (elem instanceof HTMLElement) {
@@ -51,7 +42,7 @@ export default function ProfileDropdown(props: { infos: KaraberusJwtPayload }) {
           <a href="/settings">Settings</a>
         </li>
         <li onclick={() => closeDropdown()}>
-          <a onclick={() => logout()}>Logout</a>
+          <a href="/logout">Logout</a>
         </li>
       </ul>
     </div>

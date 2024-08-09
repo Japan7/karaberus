@@ -28,6 +28,7 @@ ui_src += files(
     'pages' / 'tags' / 'media.tsx',
     'pages' / 'desktop.tsx',
     'pages' / 'index.tsx',
+    'pages' / 'logout.tsx',
     'pages' / 'profile.tsx',
     'pages' / 'settings.tsx',
     'utils' / 'karaberus-client.ts',

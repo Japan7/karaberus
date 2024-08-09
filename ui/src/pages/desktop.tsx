@@ -1,17 +1,15 @@
-import { useParams } from "@solidjs/router";
 import type { Platform } from "@tauri-apps/plugin-os";
 import { createEffect } from "solid-js";
 import { getSessionToken } from "../utils/session";
+import { getTauriUrl } from "../utils/tauri";
 
 export default function Desktop() {
-  const params = useParams();
-
   createEffect(() => {
-    const token = getSessionToken();
-    const platform = params.platform as Platform;
-    const tauriUrl =
-      platform === "windows" ? "https://tauri.localhost" : "tauri://localhost";
-    location.href = tauriUrl + "?token=" + token;
+    const params = new URLSearchParams(location.search);
+    const platform = params.get("platform") as Platform;
+    const url = new URL(getTauriUrl(platform));
+    url.searchParams.set("token", getSessionToken()!);
+    location.href = url.toString();
   });
 
   return null;

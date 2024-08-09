@@ -21,23 +21,18 @@ export interface KaraberusJwtPayload {
 
 export const SESSION_TOKEN_NAME = "karaberus_session";
 
+const storage = IS_TAURI_DIST_BUILD ? localStorage : cookieStorage;
+
 export function getSessionToken() {
-  return (IS_TAURI_DIST_BUILD ? localStorage : cookieStorage).getItem(
-    SESSION_TOKEN_NAME,
-  );
+  return storage.getItem(SESSION_TOKEN_NAME);
 }
 
 export function setSessionToken(token: string) {
-  (IS_TAURI_DIST_BUILD ? localStorage : cookieStorage).setItem(
-    SESSION_TOKEN_NAME,
-    token,
-  );
+  storage.setItem(SESSION_TOKEN_NAME, token);
 }
 
 export function removeSessionToken() {
-  (IS_TAURI_DIST_BUILD ? localStorage : cookieStorage).removeItem(
-    SESSION_TOKEN_NAME,
-  );
+  storage.removeItem(SESSION_TOKEN_NAME);
 }
 
 export function getSessionInfos() {
