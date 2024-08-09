@@ -1,5 +1,6 @@
 [constants]
 CHOST = 'aarch64-chimera-linux-musl'
+SYSROOT = '/usr/' + CHOST
 
 [binaries]
 c = CHOST + '-clang'
@@ -7,7 +8,7 @@ cpp = CHOST + '-clang++'
 ld = 'ld.lld'
 objcopy = 'llvm-objcopy'
 strip = 'llvm-strip'
-exe_wrapper = 'qemu-aarch64'
+exe_wrapper = ['qemu-aarch64', '-L', SYSROOT]
 
 [properties]
 # ffmpeg fails to build without this option
@@ -22,4 +23,4 @@ endian = 'little'
 [project options]
 go_os = 'linux'
 go_arch = 'arm64'
-sysroot = '/usr/' + CHOST
+sysroot = SYSROOT
