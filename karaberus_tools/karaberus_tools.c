@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 int karaberus_add_report(karaberus_reports *reports, karaberus_report report) {
-  if (report.error_level == ERROR)
+  if (report.error_level == K_ERROR)
     reports->failed = true;
 
   reports->reports =
@@ -36,19 +36,19 @@ karaberus_reports karaberus_dakara_check_avio(
   dakara_check_avio(KARABERUS_BUFSIZE, obj, read_packet, seek, &res);
   if (video_stream) {
     if (res.report.errors.no_duration) {
-      karaberus_report report = {NO_DURATION_FOUND, ERROR};
+      karaberus_report report = {NO_DURATION_FOUND, K_ERROR};
       karaberus_add_report(&reports, report);
       fprintf(stderr, "no video duration");
     } else {
       reports.duration = res.duration;
     }
     if (res.report.errors.no_video_stream) {
-      karaberus_report report = {NO_VIDEO_STREAM, ERROR};
+      karaberus_report report = {NO_VIDEO_STREAM, K_ERROR};
       karaberus_add_report(&reports, report);
       fprintf(stderr, "no video stream");
     }
     if (res.report.errors.io_error) {
-      karaberus_report report = {IO_ERROR, ERROR};
+      karaberus_report report = {IO_ERROR, K_ERROR};
       karaberus_add_report(&reports, report);
       fprintf(stderr, "could not read file");
     }

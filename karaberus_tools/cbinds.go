@@ -3,8 +3,8 @@
 package karaberus_tools
 
 /*
-#cgo pkg-config: karaberus_tools
-#include <karaberus_tools.h>
+#cgo pkg-config: dakara_check
+#include "karaberus_tools.h"
 #include <dakara_check.h>
 #include <unistd.h>
 #include <errno.h>

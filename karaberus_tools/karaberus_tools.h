@@ -18,9 +18,9 @@ enum KaraberusReports {
 };
 
 enum KaraberusErrorLevel {
-  INFO,
-  WARNING,
-  ERROR,
+  K_INFO,
+  K_WARNING,
+  K_ERROR,
 };
 
 typedef struct {
