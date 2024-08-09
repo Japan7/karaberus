@@ -3,7 +3,7 @@ import { platform } from "@tauri-apps/plugin-os";
 import { createEffect, Show } from "solid-js";
 import { apiUrl } from "../utils/karaberus-client";
 import { setSessionToken } from "../utils/session";
-import { IS_TAURI_DIST_BUILD } from "../utils/tauri";
+import { buildKaraberusUrl, IS_TAURI_DIST_BUILD } from "../utils/tauri";
 
 export default function AuthHero() {
   const [searchParams] = useSearchParams();
@@ -15,7 +15,7 @@ export default function AuthHero() {
         setSessionToken(token);
         location.href = "/";
       } else {
-        const url = new URL("/desktop", import.meta.env.VITE_KARABERUS_URL);
+        const url = buildKaraberusUrl("/desktop");
         url.searchParams.set("platform", platform());
         location.href = url.toString();
       }

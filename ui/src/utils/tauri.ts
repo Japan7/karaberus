@@ -12,3 +12,7 @@ export function getTauriUrl(platform: Platform) {
     ? "https://tauri.localhost"
     : "tauri://localhost";
 }
+
+export function buildKaraberusUrl(pathname: string) {
+  return new URL(pathname, import.meta.env.VITE_KARABERUS_URL);
+}

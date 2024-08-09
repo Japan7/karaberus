@@ -3,9 +3,11 @@ import { isTauri } from "@tauri-apps/api/core";
 import {
   HiOutlineArrowLeft,
   HiOutlineArrowTopRightOnSquare,
+  HiOutlineCheck,
+  HiOutlineLink,
   HiSolidTrash,
 } from "solid-icons/hi";
-import { createResource, Show } from "solid-js";
+import { createResource, createSignal, Show } from "solid-js";
 import BrowserKaraPlayer from "../../../components/BrowserKaraPlayer";
 import DownloadAnchor from "../../../components/DownloadAnchor";
 import FileUploader from "../../../components/FileUploader";
@@ -14,6 +16,7 @@ import MpvKaraPlayer from "../../../components/MpvKaraPlayer";
 import type { components } from "../../../utils/karaberus";
 import { apiUrl, karaberus } from "../../../utils/karaberus-client";
 import { isAdmin } from "../../../utils/session";
+import { buildKaraberusUrl, IS_TAURI_DIST_BUILD } from "../../../utils/tauri";
 
 export default function KaraokeBrowseId() {
   const params = useParams();
@@ -71,12 +74,38 @@ export default function KaraokeBrowseId() {
     navigate("/karaoke/browse");
   };
 
+  const [getCopySuccess, setCopySuccess] = createSignal(false);
+
+  const copyLink = () => {
+    const link = IS_TAURI_DIST_BUILD
+      ? buildKaraberusUrl(location.pathname).toString()
+      : location.href;
+    navigator.clipboard.writeText(link);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 1000);
+  };
+
   return (
     <>
-      <button onclick={() => navigate(-1)} class="btn btn-sm w-fit btn-ghost">
-        <HiOutlineArrowLeft class="size-5" />
-        Back
-      </button>
+      <div class="flex justify-between">
+        <button onclick={() => navigate(-1)} class="btn btn-sm w-fit btn-ghost">
+          <HiOutlineArrowLeft class="size-5" />
+          Back
+        </button>
+
+        <button
+          onclick={copyLink}
+          class="btn btn-sm w-fit"
+          classList={{ "btn-success": getCopySuccess() }}
+        >
+          {getCopySuccess() ? (
+            <HiOutlineCheck class="size-5" />
+          ) : (
+            <HiOutlineLink class="size-5" />
+          )}
+          Copy link
+        </button>
+      </div>
 
       <Show when={getKara()}>
         {(getKara) =>
