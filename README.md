@@ -2,7 +2,7 @@
 
 A karaoke database.
 
-## Getting started
+## Getting started
 
 ```
 meson setup build
@@ -43,7 +43,7 @@ cd ui
 npm run dev
 ```
 
-# Dakara
+## Dakara
 
 You can start a [Dakara server](https://github.com/DakaraProject/dakara-server/) and feed it from your instance:
 ```sh
@@ -51,7 +51,7 @@ export KARABERUS_DAKARA_BASE_URL="http://127.0.0.1:8000"
 export KARABERUS_DAKARA_TOKEN="YOUR_DAKARA_TOKEN"
 ```
 
-# Tests
+## Tests
 
 Tests can easily be run with:
 ```sh
