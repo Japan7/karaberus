@@ -13,11 +13,14 @@ export default function Layout(props: RouteSectionProps) {
   const infos = getSessionInfos();
 
   createEffect(() => {
-    const preloginPath = localStorage.getItem("prelogin_path");
-    if (preloginPath) {
-      localStorage.removeItem("prelogin_path");
-      if (location.pathname !== preloginPath) {
-        navigate(preloginPath);
+    const preloginHref = localStorage.getItem("prelogin_href");
+    if (preloginHref) {
+      localStorage.removeItem("prelogin_href");
+      const url = new URL(preloginHref);
+      if (url.search) {
+        location.href = preloginHref;
+      } else if (location.pathname !== url.pathname) {
+        navigate(url.pathname);
       }
     }
   });

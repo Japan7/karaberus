@@ -1,6 +1,7 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
 import type { JSX } from "solid-js";
+import { buildRedirectUrl } from "../utils/tauri";
 
 export default function DownloadAnchor(props: {
   href: string;
@@ -9,7 +10,7 @@ export default function DownloadAnchor(props: {
 }) {
   const onClick: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = (e) => {
     e.preventDefault();
-    open(props.href);
+    open(buildRedirectUrl(props.href).toString());
   };
 
   return (

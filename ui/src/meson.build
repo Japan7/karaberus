@@ -30,6 +30,7 @@ ui_src += files(
     'pages' / 'index.tsx',
     'pages' / 'logout.tsx',
     'pages' / 'profile.tsx',
+    'pages' / 'redirect.tsx',
     'pages' / 'settings.tsx',
     'utils' / 'karaberus-client.ts',
     'utils' / 'karaoke.ts',

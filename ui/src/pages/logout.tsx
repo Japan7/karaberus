@@ -17,7 +17,7 @@ export default function Logout() {
     } else {
       const params = new URLSearchParams(location.search);
       const platform = params.get("platform") as Platform | null;
-      location.href = platform ? getTauriUrl(platform) : "/";
+      location.href = platform ? getTauriUrl(platform).toString() : "/";
     }
   });
 

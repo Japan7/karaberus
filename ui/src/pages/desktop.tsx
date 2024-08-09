@@ -7,7 +7,7 @@ export default function Desktop() {
   createEffect(() => {
     const params = new URLSearchParams(location.search);
     const platform = params.get("platform") as Platform;
-    const url = new URL(getTauriUrl(platform));
+    const url = getTauriUrl(platform);
     url.searchParams.set("token", getSessionToken()!);
     location.href = url.toString();
   });

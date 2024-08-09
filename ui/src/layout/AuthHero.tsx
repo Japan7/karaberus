@@ -23,7 +23,7 @@ export default function AuthHero() {
   });
 
   const redirectToLogin = () => {
-    localStorage.setItem("prelogin_path", location.pathname);
+    localStorage.setItem("prelogin_href", location.href);
     location.href = apiUrl("api/oidc/login");
   };
 

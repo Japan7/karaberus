@@ -7,12 +7,19 @@ export const IS_TAURI_DIST_BUILD = import.meta.env.MODE === "tauri-dist";
 export const RELEASE_URL =
   "https://github.com/Japan7/karaberus/releases/latest";
 
-export function getTauriUrl(platform: Platform) {
-  return platform === "windows"
-    ? "https://tauri.localhost"
-    : "tauri://localhost";
+export function getTauriUrl(platform: Platform, pathname = "/") {
+  return new URL(
+    pathname,
+    platform === "windows" ? "https://tauri.localhost" : "tauri://localhost",
+  );
 }
 
 export function buildKaraberusUrl(pathname: string) {
   return new URL(pathname, import.meta.env.VITE_KARABERUS_URL);
+}
+
+export function buildRedirectUrl(href: string) {
+  const url = buildKaraberusUrl("/redirect");
+  url.searchParams.set("href", href);
+  return url;
 }
