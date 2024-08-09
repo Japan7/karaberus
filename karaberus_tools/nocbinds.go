@@ -8,3 +8,11 @@ func DakaraCheckResults(obj *minio.Object, ftype string) DakaraCheckResultsOutpu
 	out := DakaraCheckResultsOutput{Passed: true}
 	return out
 }
+
+func DakaraCheckSub(obj *minio.Object) (DakaraCheckSubResultsOutput, error) {
+	out := DakaraCheckSubResultsOutput{
+		Lyrics: "",
+		Passed: true,
+	}
+	return out, nil
+}

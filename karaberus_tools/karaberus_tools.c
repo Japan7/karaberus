@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int karaberus_add_report(karaberus_reports *reports, karaberus_report report) {
   if (report.error_level == K_ERROR)
@@ -58,3 +59,26 @@ karaberus_reports karaberus_dakara_check_avio(
 }
 
 void free_reports(karaberus_reports reports) { free(reports.reports); }
+
+karaberus_sub_reports *karaberus_check_sub(char *mem, size_t bufsize) {
+  dakara_check_sub_results *res = dakara_check_subtitle_memory(mem, bufsize);
+  if (res == NULL) {
+    return NULL;
+  }
+
+  karaberus_sub_reports *kres = malloc(sizeof(karaberus_sub_reports));
+
+  kres->io_error = res->report.errors.io_error;
+  if (!res->report.errors.io_error) {
+    kres->lyrics = strdup(res->lyrics);
+  }
+
+  dakara_check_sub_results_free(res);
+
+  return kres;
+}
+
+void karaberus_sub_reports_free(karaberus_sub_reports *res) {
+  free(res->lyrics);
+  free(res);
+}

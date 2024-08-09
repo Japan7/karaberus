@@ -96,3 +96,35 @@ func DakaraCheckResults(obj *minio.Object, ftype string) DakaraCheckResultsOutpu
 	}
 	return out
 }
+
+func DakaraCheckSub(obj *minio.Object) (DakaraCheckSubResultsOutput, error) {
+	out := DakaraCheckSubResultsOutput{
+		Lyrics: "",
+		Passed: false,
+	}
+
+	stat, err := obj.Stat()
+	if err != nil {
+		return out, err
+	}
+	buf := make([]byte, stat.Size)
+	_, err = obj.Seek(0, 0)
+	if err != nil {
+		return out, err
+	}
+	_, err = io.ReadFull(obj, buf)
+	if err != nil {
+		return out, err
+	}
+
+	cbuf := C.CString(string(buf))
+	defer C.free(unsafe.Pointer(cbuf))
+	res := C.karaberus_check_sub(cbuf, C.size_t(len(buf)))
+	defer C.karaberus_sub_reports_free(res)
+	if res.io_error {
+		return out, errors.New("IO error while reading sub file")
+	}
+	out.Lyrics = C.GoString(res.lyrics)
+	out.Passed = true
+	return out, nil
+}

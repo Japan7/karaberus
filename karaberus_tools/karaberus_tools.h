@@ -6,8 +6,10 @@
 #include <dakara_check.h>
 #include <libavformat/avio.h>
 #include <libavutil/error.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define KARABERUS_BUFSIZE 1024 * 8
 
@@ -40,5 +42,14 @@ karaberus_reports karaberus_dakara_check_avio(
     int64_t (*seek)(void *, int64_t, int), bool video_stream);
 
 void free_reports(karaberus_reports reports);
+
+typedef struct {
+  char *lyrics;
+  bool io_error;
+} karaberus_sub_reports;
+
+karaberus_sub_reports *karaberus_check_sub(char *mem, size_t bufsize);
+
+void karaberus_sub_reports_free(karaberus_sub_reports *res);
 
 #endif

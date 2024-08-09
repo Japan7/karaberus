@@ -930,6 +930,11 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		comment = kara.Comment[:255]
 	}
 
+	lyrics, err := GetKaraLyrics(ctx, kara)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DakaraSongBody{
 		Title:           kara.Title,
 		Filename:        kara.VideoFilename(),
@@ -941,7 +946,7 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		Tags:            tags,
 		Artists:         artists,
 		Works:           works,
-		Lyrics:          "",
+		Lyrics:          lyrics,
 		HasInstrumental: false,
 	}, nil
 }

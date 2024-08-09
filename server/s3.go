@@ -106,7 +106,7 @@ type CheckS3FileOutput struct {
 type CheckKaraOutput struct {
 	Video        *karaberus_tools.DakaraCheckResultsOutput
 	Instrumental *karaberus_tools.DakaraCheckResultsOutput
-	Subtitles    *karaberus_tools.DakaraCheckResultsOutput
+	Subtitles    *karaberus_tools.DakaraCheckSubResultsOutput
 }
 
 func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
@@ -182,6 +182,18 @@ func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*mini
 	return obj, err
 }
 
+func GetKaraLyrics(ctx context.Context, kara KaraInfoDB) (string, error) {
+	obj, err := GetKaraObject(ctx, kara, "sub")
+	if err != nil {
+		return "", err
+	}
+	res, err := CheckS3Ass(ctx, obj)
+	if err != nil {
+		return "", err
+	}
+	return res.Lyrics, nil
+}
+
 func CheckS3Video(ctx context.Context, obj *minio.Object) karaberus_tools.DakaraCheckResultsOutput {
 	res := karaberus_tools.DakaraCheckResults(obj, "video")
 	return res
@@ -192,6 +204,7 @@ func CheckS3Inst(ctx context.Context, obj *minio.Object) karaberus_tools.DakaraC
 	return res
 }
 
-func CheckS3Ass(ctx context.Context, obj *minio.Object) (karaberus_tools.DakaraCheckResultsOutput, error) {
-	return karaberus_tools.DakaraCheckResultsOutput{Passed: true}, nil
+func CheckS3Ass(ctx context.Context, obj *minio.Object) (karaberus_tools.DakaraCheckSubResultsOutput, error) {
+	out, err := karaberus_tools.DakaraCheckSub(obj)
+	return out, err
 }
