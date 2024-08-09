@@ -224,7 +224,7 @@ jobs:
 
           podman manifest create ${image_base}
 
-          archs=${{ env.ARCHS }}
+          archs="${{ env.ARCHS }}"
 
           for arch in ${archs}; do
             podman pull ${{ env.REGISTRY }}/${image_base_sha}-${arch}
