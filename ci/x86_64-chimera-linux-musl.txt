@@ -7,6 +7,7 @@ cpp = CHOST + '-clang++'
 ld = 'ld.lld'
 objcopy = 'llvm-objcopy'
 strip = 'llvm-strip'
+exe_wrapper = 'qemu-x86_64'
 
 [host_machine]
 system = 'linux'
