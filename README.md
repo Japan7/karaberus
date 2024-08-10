@@ -75,5 +75,5 @@ Due to the current Meson setup, this project might not work well out of the box 
 
 For the most part `gopls` should work without issues in the `server` module, if you need to work in the `karaberus_tools` (which interfaces with C libraries) you can set `PKG_CONFIG_PATH` to point to `build/meson-uninstalled` in the [settings of gopls](https://github.com/golang/tools/blob/master/gopls/doc/settings.md#env-mapstringstring).
 
-NOTE: You should not set PKG_CONFIG_PATH in your general environment as it might break meson when it needs to reconfigure itself (when meson.build files are modified most likely), because then it can find its own dependencies with pkg-config and get really confused when it won't find the libraries later in the build.
+NOTE: You should not set PKG_CONFIG_PATH in your general environment (or at least in the environment in which you run Meson) as it might break meson when it needs to reconfigure itself (when meson.build files are modified most likely), because then it can find its own dependencies with pkg-config and get really confused when it won't find the libraries later in the build.
 
