@@ -253,8 +253,9 @@ func trimWhitespace(s string) string {
 	return strings.Trim(s, " \n")
 }
 
-func (name *AdditionalName) BeforeSave(tx *gorm.DB) {
+func (name *AdditionalName) BeforeSave(tx *gorm.DB) error {
 	name.Name = trimWhitespace(name.Name)
+	return nil
 }
 
 type VideoTagDB struct {
