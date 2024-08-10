@@ -68,9 +68,8 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
 fn spawn_mpv_ipc_control(state: AppState) {
     thread::spawn(move || {
         let mut mpv = loop {
-            match Mpv::connect("/tmp/mpv.sock") {
-                Ok(mpv) => break mpv,
-                _ => {}
+            if let Ok(mpv) = Mpv::connect("/tmp/mpv.sock") {
+                break mpv;
             }
         };
         println!("Connected to mpv");
@@ -89,11 +88,8 @@ fn spawn_mpv_ipc_control(state: AppState) {
                     let mut state = block_on(state.lock());
                     let entry = state.playlist.remove(0);
                     println!("Adding additional tracks for: {:?}", entry);
-                    match (entry.video, entry.inst) {
-                        (Some(_), Some(inst)) => {
-                            mpv.run_command_raw("audio-add", &[&inst, "auto"]).unwrap();
-                        }
-                        _ => {}
+                    if let (Some(_), Some(inst)) = (entry.video, entry.inst) {
+                        mpv.run_command_raw("audio-add", &[&inst, "auto"]).unwrap();
                     }
                     if let Some(sub) = entry.sub {
                         mpv.run_command_raw("sub-add", &[&sub, "select"]).unwrap();
@@ -104,11 +100,8 @@ fn spawn_mpv_ipc_control(state: AppState) {
                     id: 1,
                     property: mpvipc::Property::Unknown { name: _, data },
                 } => {
-                    match data {
-                        MpvDataType::Bool(false) => {
-                            continue;
-                        }
-                        _ => {}
+                    if let MpvDataType::Bool(false) = data {
+                        continue;
                     }
 
                     let mut state = block_on(state.lock());
@@ -123,24 +116,15 @@ fn spawn_mpv_ipc_control(state: AppState) {
                     let entry = &state.playlist[0];
                     println!("Loading next entry media: {:?}", entry);
 
-                    match (&entry.video, &entry.inst) {
-                        (Some(video), None) => {
-                            mpv.run_command(MpvCommand::LoadFile {
-                                file: video.to_string(),
-                                option: PlaylistAddOptions::Replace,
-                            })
-                            .unwrap();
-                        }
-                        (None, Some(inst)) => {
-                            mpv.run_command(MpvCommand::LoadFile {
-                                file: inst.to_string(),
-                                option: PlaylistAddOptions::Replace,
-                            })
-                            .unwrap();
-                        }
-                        _ => {}
-                    };
+                    if let (Some(file), None) | (None, Some(file)) = (&entry.video, &entry.inst) {
+                        mpv.run_command(MpvCommand::LoadFile {
+                            file: file.to_string(),
+                            option: PlaylistAddOptions::Replace,
+                        })
+                        .unwrap();
+                    }
                 }
+
                 _ => {}
             }
         }
