@@ -197,7 +197,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Authors</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddAuthorModal}>
-            Add new
+            Not in the list?
           </a>
         </span>
       </div>
@@ -222,7 +222,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Artists</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddArtistModal}>
-            Add new
+            Not in the list?
           </a>
         </span>
       </div>
@@ -247,7 +247,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Source media</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddMediaModal}>
-            Add new
+            Not in the list?
           </a>
         </span>
       </div>
@@ -286,7 +286,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Other medias</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddMediaModal}>
-            Add new
+            Not in the list?
           </a>
         </span>
       </div>
