@@ -67,6 +67,7 @@ name = "app"
 version = "0.0.0"
 dependencies = [
  "fix-path-env",
+ "mpvipc",
  "serde",
  "serde_json",
  "tauri",
@@ -2123,6 +2124,16 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "mpvipc"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e12136938e5bb54f123a3b9118eabae5124499ff7029d581ef99231edd1e2bd"
+dependencies = [
+ "log",
+ "serde_json",
 ]
 
 [[package]]
