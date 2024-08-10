@@ -455,7 +455,7 @@ func (body DakaraSongBody) HasChanged(ref DakaraSong) bool {
 	possibly_truncated_lyrics := body.Lyrics
 	if ref.LyricsPreview.Truncated {
 		if len(body.Lyrics) > len(ref.LyricsPreview.Text) {
-			possibly_truncated_lyrics = body.Lyrics[:len(ref.LyricsPreview.Text)]
+			possibly_truncated_lyrics = trimWhitespace(body.Lyrics[:len(ref.LyricsPreview.Text)])
 		}
 	}
 
