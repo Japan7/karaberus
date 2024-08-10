@@ -183,6 +183,10 @@ func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*mini
 }
 
 func GetKaraLyrics(ctx context.Context, kara KaraInfoDB) (string, error) {
+	if !kara.SubtitlesUploaded {
+		return "", nil
+	}
+
 	obj, err := GetKaraObject(ctx, kara, "sub")
 	if err != nil {
 		return "", err
