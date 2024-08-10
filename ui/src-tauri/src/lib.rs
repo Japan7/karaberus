@@ -47,6 +47,9 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
 
         while let Some(event) = rx.recv().await {
             match event {
+                CommandEvent::Terminated(_) => {
+                    state.lock().await.mpv_started = false;
+                }
                 CommandEvent::Stdout(line) => {
                     print!("{}", String::from_utf8(line).unwrap());
                 }
@@ -89,7 +92,6 @@ fn spawn_mpv_ipc_control(state: AppState) {
                     } else if state.playback_started {
                         println!("Playlist empty, exiting");
                         mpv.kill().unwrap();
-                        state.mpv_started = false;
                         break;
                     }
                 }
