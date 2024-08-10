@@ -121,6 +121,9 @@ func DakaraCheckSub(obj *minio.Object) (DakaraCheckSubResultsOutput, error) {
 	defer C.free(unsafe.Pointer(cbuf))
 	res := C.karaberus_check_sub(cbuf, C.size_t(len(buf)))
 	defer C.karaberus_sub_reports_free(res)
+	if res == nil {
+		return out, errors.New("failed to parse subtitle file")
+	}
 	if res.io_error {
 		return out, errors.New("IO error while reading sub file")
 	}

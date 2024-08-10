@@ -79,6 +79,7 @@ karaberus_sub_reports *karaberus_check_sub(char *mem, size_t bufsize) {
 }
 
 void karaberus_sub_reports_free(karaberus_sub_reports *res) {
-  free(res->lyrics);
+  if (res != NULL)
+    free(res->lyrics);
   free(res);
 }
