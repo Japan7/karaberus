@@ -1,23 +1,16 @@
 use std::{sync::Arc, thread};
 
-use mpvipc::{Mpv, MpvCommand, MpvDataType, PlaylistAddOptions};
+use mpvipc::{Mpv, MpvDataType};
 use tauri::{
     async_runtime::{block_on, Mutex},
     AppHandle, State,
 };
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 
-#[derive(Debug)]
-struct PlaylistEntry {
-    video: Option<String>,
-    inst: Option<String>,
-    sub: Option<String>,
-}
-
 #[derive(Default)]
 struct AppStateInner {
     mpv_started: bool,
-    playlist: Vec<PlaylistEntry>,
+    playback_started: bool,
 }
 
 type AppState = Arc<Mutex<AppStateInner>>;
@@ -48,6 +41,7 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
 
         let (mut rx, mut _child) = mpv.spawn().unwrap();
         state.lock().await.mpv_started = true;
+        state.lock().await.playback_started = false;
 
         spawn_mpv_ipc_control(state.clone());
 
@@ -74,7 +68,7 @@ fn spawn_mpv_ipc_control(state: AppState) {
         };
         println!("Connected to mpv");
 
-        mpv.observe_property(1, "eof-reached").unwrap();
+        mpv.observe_property(1, "idle-active").unwrap();
 
         loop {
             let Ok(event) = mpv.event_listen() else {
@@ -84,44 +78,19 @@ fn spawn_mpv_ipc_control(state: AppState) {
             println!("{:?}", event);
 
             match event {
-                mpvipc::Event::StartFile => {
-                    let mut state = block_on(state.lock());
-                    let entry = state.playlist.remove(0);
-                    println!("Adding additional tracks for: {:?}", entry);
-                    if let (Some(_), Some(inst)) = (entry.video, entry.inst) {
-                        mpv.run_command_raw("audio-add", &[&inst, "auto"]).unwrap();
-                    }
-                    if let Some(sub) = entry.sub {
-                        mpv.run_command_raw("sub-add", &[&sub, "select"]).unwrap();
-                    }
-                }
-
                 mpvipc::Event::PropertyChange {
                     id: 1,
                     property: mpvipc::Property::Unknown { name: _, data },
                 } => {
-                    if let MpvDataType::Bool(false) = data {
-                        continue;
-                    }
-
                     let mut state = block_on(state.lock());
 
-                    if state.playlist.is_empty() {
+                    if let MpvDataType::Bool(false) = data {
+                        state.playback_started = true;
+                    } else if state.playback_started {
                         println!("Playlist empty, exiting");
                         mpv.kill().unwrap();
                         state.mpv_started = false;
                         break;
-                    }
-
-                    let entry = &state.playlist[0];
-                    println!("Loading next entry media: {:?}", entry);
-
-                    if let (Some(file), None) | (None, Some(file)) = (&entry.video, &entry.inst) {
-                        mpv.run_command(MpvCommand::LoadFile {
-                            file: file.to_string(),
-                            option: PlaylistAddOptions::Replace,
-                        })
-                        .unwrap();
                     }
                 }
 
@@ -140,10 +109,46 @@ async fn play_mpv(
     inst: Option<String>,
     sub: Option<String>,
 ) -> Result<(), ()> {
-    let mut app_state = state.lock().await;
-    app_state.playlist.push(PlaylistEntry { video, inst, sub });
+    let app_state = state.lock().await;
+
     if !app_state.mpv_started {
         start_mpv(app_handle, state.inner().clone(), auth);
     }
+
+    tauri::async_runtime::spawn(add_to_mpv_playlist(video, inst, sub));
+
     Ok(())
+}
+
+async fn add_to_mpv_playlist(
+    video: Option<String>,
+    inst: Option<String>,
+    sub: Option<String>,
+) {
+    let mpv = loop {
+        if let Ok(mpv) = Mpv::connect("/tmp/mpv.sock") {
+            break mpv;
+        }
+    };
+
+    let mut loadfile_params = Vec::new();
+
+    if let Some(video) = video.as_deref() {
+        loadfile_params.push(video);
+        loadfile_params.push("append-play");
+        loadfile_params.push("-1");
+    }
+
+    let mut options_params: String = "aid=1,".to_string();
+    if let Some(inst) = inst.as_deref() {
+        options_params = format!("{options_params}audio-file={inst},");
+    }
+
+    if let Some(sub) = sub.as_deref() {
+        options_params = format!("{options_params}sub-file={sub},");
+    }
+
+    loadfile_params.push(options_params.as_str());
+
+    mpv.run_command_raw("loadfile", &loadfile_params).unwrap();
 }
