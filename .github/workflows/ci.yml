@@ -49,7 +49,7 @@ jobs:
         run: meson setup build -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled -Derrcheck=false -Dstaticcheck=false
 
       - name: Run tests
-        run: meson compile -C build && meson test -C build --verbose
+        run: meson test -C build --verbose
         env:
           KARABERUS_S3_ENDPOINT: localhost:9000
           KARABERUS_S3_KEYID: minio
@@ -80,7 +80,7 @@ jobs:
         run: meson setup build -Dno_native_deps=true -Ds3_tests=disabled
 
       - name: Run tests
-        run: meson compile -C build && meson test -C build --verbose
+        run: meson test -C build --verbose
         env:
           KARABERUS_S3_ENDPOINT: localhost:9000
           KARABERUS_S3_KEYID: minio
