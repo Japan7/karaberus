@@ -100,15 +100,7 @@ if get_option('no_native_deps')
         env: go_env,
         input: karaberus_inputs,
         output: 'karaberus',
-        command: [
-            go,
-            'build',
-            '-C',
-            meson.current_source_dir(),
-            '-o',
-            '@OUTPUT@',
-            meson.current_source_dir(),
-        ],
+        command: [go, 'build', '-o', '@OUTPUT@', meson.current_source_dir()],
         install: true,
         install_dir: 'bin',
         install_mode: 'rwxr-xr-x',
@@ -120,8 +112,6 @@ else
         command: [
             go,
             'build',
-            '-C',
-            meson.current_source_dir(),
             '-buildmode=c-archive',
             '-o',
             '@OUTPUT@',
@@ -140,7 +130,6 @@ else
     )
 
     karaberus_main_c = files('karaberus' / 'karaberus.c')
-    karaberus_a = meson.current_build_dir() / 'karaberus.a'
 
     karaberus = executable(
         'karaberus',
@@ -152,7 +141,6 @@ else
     )
 endif
 
-karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_server_path = meson.current_source_dir() / 'server'
 
 karaberus_test = custom_target(
@@ -160,16 +148,7 @@ karaberus_test = custom_target(
     env: go_test_build_env,
     input: karaberus_test_inputs,
     output: 'karaberus_test',
-    command: [
-        go,
-        'test',
-        '-C',
-        meson.current_source_dir(),
-        '-o',
-        '@OUTPUT@',
-        '-c',
-        karaberus_server_path,
-    ],
+    command: [go, 'test', '-o', '@OUTPUT@', '-c', karaberus_server_path],
 )
 
 if not meson.is_cross_build()
@@ -192,14 +171,7 @@ else
     else
         openapi_spec = custom_target(
             'openapi_spec',
-            command: [
-                go,
-                'run',
-                '-C',
-                meson.current_source_dir(),
-                '.',
-                'openapi',
-            ],
+            command: [go, 'run', meson.current_source_dir(), 'openapi'],
             output: 'openapi.yaml',
             capture: true,
             depend_files: karaberus_inputs,
