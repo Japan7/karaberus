@@ -105,7 +105,6 @@ if get_option('no_native_deps')
             'build',
             '-C',
             meson.current_source_dir(),
-            go_build_flags,
             '-o',
             '@OUTPUT@',
             meson.current_source_dir(),

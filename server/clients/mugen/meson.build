@@ -16,7 +16,6 @@ if get_option('network_tests').enabled() and get_option('test')
             'test',
             '-C',
             meson.current_source_dir(),
-            go_build_flags,
             '-o',
             meson.current_build_dir() / mugen_test_output,
             '-c',
