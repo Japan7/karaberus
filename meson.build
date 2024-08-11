@@ -7,6 +7,7 @@ project(
         'default_library=shared',
         'ffmpeg:default_library=shared',
         'libass:default_library=shared',
+        'fribidi:bin=false',
         'c_std=gnu17',
         'warning_level=2',
     ],
@@ -77,7 +78,12 @@ go_files += files(
 karaberus_tools_deps = []
 
 if not get_option('no_native_deps')
-    dakara_check = dependency('dakara_check', version: '>4.0.4', required: true)
+    dakara_check = dependency(
+        'dakara_check',
+        version: '>4.0.4',
+        required: true,
+        default_options: ['programs=false'],
+    )
     karaberus_tools_deps += dakara_check
     karaberus_tools_deps += dependency('libavutil', required: true)
     karaberus_tools_deps += dependency('libavformat', required: true)
