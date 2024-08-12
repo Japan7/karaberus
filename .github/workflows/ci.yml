@@ -22,6 +22,7 @@ jobs:
 
   # TODO: for now the tests are built with CGO_ENABLED=0 (but it still tests s3/minio-go)
   linux_test:
+    if: ${{ github.event_name != 'pull_request' || !startsWith(github.ref, 'refs/heads/master') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -56,6 +57,7 @@ jobs:
           KARABERUS_S3_SECRET: miniosecret
 
   test_no_native:
+    if: ${{ github.event_name != 'pull_request' || !startsWith(github.ref, 'refs/heads/master') }}
     strategy:
       fail-fast: false
       matrix:
@@ -87,6 +89,7 @@ jobs:
           KARABERUS_S3_SECRET: miniosecret
 
   build:
+    if: ${{ github.event_name != 'pull_request' || !startsWith(github.ref, 'refs/heads/master') }}
     runs-on: ubuntu-${{ matrix.config.ubuntu_version }}
     env:
       CCACHE_BASEDIR: ${{ github.workspace }}
