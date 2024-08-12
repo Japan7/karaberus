@@ -10,7 +10,7 @@ export const RELEASE_URL =
 export function getTauriUrl(platform: Platform, pathname = "/") {
   return new URL(
     pathname,
-    platform === "windows" ? "https://tauri.localhost" : "tauri://localhost",
+    platform === "windows" ? "http://tauri.localhost" : "tauri://localhost",
   );
 }
 
