@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh -xe
 if [ -n "${TARGET}" ]; then
     crossarg="--cross-file ci/${TARGET}.ini"
 fi
