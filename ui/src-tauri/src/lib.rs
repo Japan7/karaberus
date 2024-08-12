@@ -1,8 +1,8 @@
 use std::{sync::Arc, thread};
 
-use mpvipc::{Mpv, MpvDataType};
+use mpvipc::{Mpv};
 use tauri::{
-    async_runtime::{block_on, Mutex},
+    async_runtime::{Mutex},
     AppHandle, State,
 };
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
@@ -10,7 +10,6 @@ use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 #[derive(Default)]
 struct AppStateInner {
     mpv_started: bool,
-    playback_started: bool,
 }
 
 type AppState = Arc<Mutex<AppStateInner>>;
@@ -32,7 +31,7 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
     tauri::async_runtime::spawn(async move {
         let mut mpv = app_handle.shell().command("mpv");
         mpv = mpv.args([
-            "--idle",
+            "--idle=once",
             "--quiet",
             "--save-position-on-quit=no",
             "--input-ipc-server=/tmp/mpv.sock",
@@ -41,9 +40,8 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
 
         let (mut rx, mut _child) = mpv.spawn().unwrap();
         state.lock().await.mpv_started = true;
-        state.lock().await.playback_started = false;
 
-        spawn_mpv_ipc_control(state.clone());
+        spawn_mpv_ipc_control();
 
         while let Some(event) = rx.recv().await {
             match event {
@@ -62,7 +60,7 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
     });
 }
 
-fn spawn_mpv_ipc_control(state: AppState) {
+fn spawn_mpv_ipc_control() {
     thread::spawn(move || {
         let mut mpv = loop {
             if let Ok(mpv) = Mpv::connect("/tmp/mpv.sock") {
@@ -71,33 +69,12 @@ fn spawn_mpv_ipc_control(state: AppState) {
         };
         println!("Connected to mpv");
 
-        mpv.observe_property(1, "idle-active").unwrap();
-
         loop {
             let Ok(event) = mpv.event_listen() else {
                 println!("Error listening to mpv event, exiting");
                 break;
             };
             println!("{:?}", event);
-
-            match event {
-                mpvipc::Event::PropertyChange {
-                    id: 1,
-                    property: mpvipc::Property::Unknown { name: _, data },
-                } => {
-                    let mut state = block_on(state.lock());
-
-                    if let MpvDataType::Bool(false) = data {
-                        state.playback_started = true;
-                    } else if state.playback_started {
-                        println!("Playlist empty, exiting");
-                        mpv.kill().unwrap();
-                        break;
-                    }
-                }
-
-                _ => {}
-            }
         }
     });
 }
