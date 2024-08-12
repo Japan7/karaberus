@@ -1,6 +1,8 @@
-use std::{sync::Arc, thread};
+pub mod mpv;
 
-use mpvipc::{Mpv};
+use mpv::*;
+use std::{sync::Arc};
+
 use tauri::{
     async_runtime::{Mutex},
     AppHandle, State,
@@ -27,6 +29,14 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
+fn get_socket() -> String {
+    if cfg!(windows) {
+        return "karaberus-mpv".to_string();
+    } else {
+        return "/tmp/karaberus-mpv.sock".to_string();
+    }
+}
+
 fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
     tauri::async_runtime::spawn(async move {
         let mut mpv = app_handle.shell().command("mpv");
@@ -34,14 +44,12 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
             "--idle=once",
             "--quiet",
             "--save-position-on-quit=no",
-            "--input-ipc-server=/tmp/mpv.sock",
+            &format!("--input-ipc-server={}", get_socket()),
             &format!("--http-header-fields=Authorization: Bearer {auth}"),
         ]);
 
         let (mut rx, mut _child) = mpv.spawn().unwrap();
         state.lock().await.mpv_started = true;
-
-        spawn_mpv_ipc_control();
 
         while let Some(event) = rx.recv().await {
             match event {
@@ -56,25 +64,6 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
                 }
                 _ => {}
             }
-        }
-    });
-}
-
-fn spawn_mpv_ipc_control() {
-    thread::spawn(move || {
-        let mut mpv = loop {
-            if let Ok(mpv) = Mpv::connect("/tmp/mpv.sock") {
-                break mpv;
-            }
-        };
-        println!("Connected to mpv");
-
-        loop {
-            let Ok(event) = mpv.event_listen() else {
-                println!("Error listening to mpv event, exiting");
-                break;
-            };
-            println!("{:?}", event);
         }
     });
 }
@@ -104,30 +93,26 @@ async fn add_to_mpv_playlist(
     inst: Option<String>,
     sub: Option<String>,
 ) {
-    let mpv = loop {
-        if let Ok(mpv) = Mpv::connect("/tmp/mpv.sock") {
-            break mpv;
-        }
+    let mpv = Mpv {
+        socket: get_socket(),
     };
 
-    let mut loadfile_params = Vec::new();
+    let mut loadfile = LoadFile::default();
 
     if let Some(video) = video.as_deref() {
-        loadfile_params.push(video);
-        loadfile_params.push("append-play");
-        loadfile_params.push("-1");
+        loadfile.url = video.to_string();
+        loadfile.flags = "append-play".to_string();
     }
 
-    let mut options_params: String = "aid=1,".to_string();
+    loadfile.options.insert("aid".to_string(), "1".to_string());
+
     if let Some(inst) = inst.as_deref() {
-        options_params = format!("{options_params}audio-file={inst},");
+        loadfile.options.insert("audio-file".to_string(), inst.to_string());
     }
 
     if let Some(sub) = sub.as_deref() {
-        options_params = format!("{options_params}sub-file={sub},");
+        loadfile.options.insert("sub-file".to_string(), sub.to_string());
     }
 
-    loadfile_params.push(options_params.as_str());
-
-    mpv.run_command_raw("loadfile", &loadfile_params).unwrap();
+    mpv.loadfile(loadfile).await;
 }
