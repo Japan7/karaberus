@@ -348,12 +348,6 @@ func CreateKaraIssue(ctx context.Context, input *CreateIssueInput) (*CreateIssue
 	return out, nil
 }
 
-type GetIssuesOutput struct {
-	Body struct {
-		Issues []KaraIssue `json:"issues"`
-	}
-}
-
 type GetKaraIssuesInput struct {
 	ID uint `path:"id"`
 }

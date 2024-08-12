@@ -7,6 +7,7 @@ karaberus_server_files = files(
     'dakara.go',
     'db.go',
     'fonts.go',
+    'issues.go',
     'kara.go',
     'karaberus.go',
     'karaenv.go',
