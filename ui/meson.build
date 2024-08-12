@@ -49,9 +49,10 @@ karaberus_ui = custom_target(
     depends: karaberus_ui_deps,
     install: true,
     install_dir: 'share' / 'karaberus',
+    install_tag: 'runtime',
 )
 
-karaberus_ui_run = run_target(
+run_target(
     'ui_run',
     env: npm_env,
     command: [python, npm_run, 'dev'],
