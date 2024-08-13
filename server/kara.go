@@ -131,6 +131,7 @@ func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *
 	kara_info.Comment = info.Comment
 	kara_info.Version = info.Version
 	kara_info.SongOrder = info.SongOrder
+	kara_info.Language = info.Language
 
 	user := *getCurrentUser(ctx)
 	if user.Admin {
