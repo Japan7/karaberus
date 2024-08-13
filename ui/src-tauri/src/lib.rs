@@ -1,7 +1,7 @@
 pub mod mpv;
 
 use mpv::*;
-use std::{sync::Arc};
+use std::{env, sync::Arc};
 
 use tauri::{
     async_runtime::{Mutex},
@@ -31,7 +31,10 @@ pub fn run() {
 }
 
 fn get_mpv_socket(app_handle: AppHandle) -> String {
-    if cfg!(windows) {
+    let env_var = env::var("KARABERUS_MPV_SOCKET");
+    if env_var.is_ok() {
+        return env_var.unwrap();
+    } else if cfg!(windows) {
         return "karaberus-mpv".to_string();
     } else if cfg!(target_os="linux") {
         return app_handle.path()
