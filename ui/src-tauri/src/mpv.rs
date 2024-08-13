@@ -22,7 +22,7 @@ impl Default for LoadFile {
     fn default() -> LoadFile {
         LoadFile {
             name: "loadfile".to_string(),
-            url: "".to_string(),
+            url: String::new(),
             flags: "replace".to_string(),
             index: None,
             options: HashMap::new(),
@@ -58,8 +58,17 @@ where
     return serializer.serialize_str(options_string.as_str());
 }
 
+#[derive(Clone)]
 pub struct Mpv {
     pub socket: String,
+}
+
+impl Default for Mpv {
+    fn default() -> Mpv {
+        Mpv {
+            socket: String::new(),
+        }
+    }
 }
 
 impl Mpv {

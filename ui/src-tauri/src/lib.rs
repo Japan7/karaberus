@@ -5,13 +5,14 @@ use std::{sync::Arc};
 
 use tauri::{
     async_runtime::{Mutex},
-    AppHandle, State,
+    AppHandle, State, Manager,
 };
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 
 #[derive(Default)]
 struct AppStateInner {
     mpv_started: bool,
+    mpv: Mpv,
 }
 
 type AppState = Arc<Mutex<AppStateInner>>;
@@ -29,11 +30,17 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn get_socket() -> String {
+fn get_mpv_socket(app_handle: AppHandle) -> String {
     if cfg!(windows) {
         return "karaberus-mpv".to_string();
+    } else if cfg!(target_os="linux") {
+        return app_handle.path()
+            .resolve("karaberus-mpv.sock", tauri::path::BaseDirectory::Runtime)
+            .unwrap().to_str().unwrap().to_string();
     } else {
-        return "/tmp/karaberus-mpv.sock".to_string();
+        return app_handle.path()
+            .resolve("karaberus-mpv.sock", tauri::path::BaseDirectory::LocalData)
+            .unwrap().to_str().unwrap().to_string();
     }
 }
 
@@ -44,7 +51,7 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
             "--idle=once",
             "--quiet",
             "--save-position-on-quit=no",
-            &format!("--input-ipc-server={}", get_socket()),
+            &format!("--input-ipc-server={}", get_mpv_socket(app_handle)),
             &format!("--http-header-fields=Authorization: Bearer {auth}"),
         ]);
 
@@ -77,26 +84,28 @@ async fn play_mpv(
     inst: Option<String>,
     sub: Option<String>,
 ) -> Result<(), ()> {
-    let app_state = state.lock().await;
+    let mut app_state = state.lock().await;
 
     if !app_state.mpv_started {
-        start_mpv(app_handle, state.inner().clone(), auth);
+        start_mpv(app_handle.clone(), state.inner().clone(), auth);
+        app_state.mpv = Mpv {
+            socket: get_mpv_socket(app_handle),
+        };
     }
 
-    tauri::async_runtime::spawn(add_to_mpv_playlist(video, inst, sub));
+    tauri::async_runtime::spawn(
+        add_to_mpv_playlist(app_state.mpv.clone(), video, inst, sub)
+    );
 
     Ok(())
 }
 
 async fn add_to_mpv_playlist(
+    mpv: Mpv,
     video: Option<String>,
     inst: Option<String>,
     sub: Option<String>,
 ) {
-    let mpv = Mpv {
-        socket: get_socket(),
-    };
-
     let mut loadfile = LoadFile::default();
 
     if let Some(video) = video.as_deref() {
