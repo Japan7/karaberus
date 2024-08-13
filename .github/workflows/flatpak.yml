@@ -8,14 +8,11 @@ jobs:
   update-flatpak:
     runs-on: ubuntu-latest
     steps:
-      - id: fetch-latest-release
-        uses: thebritican/fetch-latest-release@v1
-
       - uses: actions/checkout@v4
         repository: 'Japan7/karaberus-flatpak'
 
       - run: |
-          TAG="${{ steps.fetch-latest-release.tag_name }}"
+          TAG="${GITHUB_REF#refs/tags/}"
           VERSION="${TAG#app-v}"
           RELEASE_URL="${{ github.server_url }}/${{ github.repository }}/releases/tag/${TAG}"
           DEB_DOWNLOAD_URL="${{ github.server_url }}/${{ github.repository }}/releases/download/${TAG}/karaberus_${VERSION}_amd64.deb"
