@@ -82,6 +82,8 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/mugen", GetMugenImports, setSecurity(kara_ro_security))
 	huma.Delete(api, "/api/mugen/{id}", DeleteMugenImport, setSecurity(kara_security))
 
+	huma.Post(api, "/api/dakara/sync", StartDakaraSync, setSecurity(kara_security))
+
 	huma.Get(api, "/api/token", GetAllUserTokens, setSecurity(oidc_security))
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))

@@ -16,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -966,4 +967,13 @@ func getWorkLinkType(kara KaraInfoDB) string {
 	}
 
 	return ""
+}
+
+func StartDakaraSync(ctx context.Context, input *struct{}) (*struct{}, error) {
+	if !getCurrentUser(ctx).Admin {
+		return nil, huma.Error403Forbidden("endpoint reserved to adminitrators")
+	}
+
+	SyncDakaraNotify()
+	return &struct{}{}, nil
 }
