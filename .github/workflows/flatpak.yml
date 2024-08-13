@@ -1,0 +1,31 @@
+name: Update flatpak
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-flatpak:
+    runs-on: ubuntu-latest
+    steps:
+      - id: fetch-latest-release
+        uses: thebritican/fetch-latest-release@v1
+
+      - uses: actions/checkout@v4
+        repository: 'Japan7/karaberus-flatpak'
+
+      - run: |
+          TAG="${{ steps.fetch-latest-release.tag_name }}"
+          VERSION="${TAG#app-v}"
+          RELEASE_URL="${{ github.server_url }}/${{ github.repository }}/releases/tag/${TAG}"
+          DEB_DOWNLOAD_URL="${{ github.server_url }}/${{ github.repository }}/releases/download/${TAG}/karaberus_${VERSION}_amd64.deb"
+          DEB_CHECKSUM="$(curl -L $DEB_DOWNLOAD_URL | sha256sum | head -c 64)"
+
+          sed -i moe.japan7.karaberus.yml -e "s+url: .*$+url: ${DEB_DOWNLOAD_URL}+" -e "s+sha256: .*$+sha256: ${DEB_CHECKSUM}+"
+          sed -i moe.japan7.karaberus.metainfo.xml -e "s+<releases>+<releases>\n    <release version=\"${VERSION}\" date=\"$(date +'%Y-%m-%d')\">\n      <url type=\"details\">${RELEASE_URL}</url>\n    </release>+"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "japan7+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "[flatpak] Update karaberus to version ${VERSION}"
+          git push
