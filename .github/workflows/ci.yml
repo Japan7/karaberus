@@ -47,7 +47,7 @@ jobs:
         run: podman run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
 
       - name: Configure karaberus
-        run: meson setup build -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled -Derrcheck=false -Dstaticcheck=false
+        run: meson setup build -Dffmpeg:programs=disabled -Dffmpeg:tests=disabled -Dffmpeg:encoders=disabled -Dffmpeg:muxers=disabled -Dffmpeg:avfilter=disabled -Dffmpeg:avdevice=disabled -Dffmpeg:postproc=disabled -Dffmpeg:swresample=disabled -Dffmpeg:swscale=disabled -Dffmpeg:decoders=disabled -Dffmpeg:aac_decoder=enabled -Dffmpeg:aac_fixed_decoder=enabled -Dffmpeg:aac_latm_decoder=enabled -Derrcheck=false -Dstaticcheck=false -Dlibass:asm=disabled
 
       - name: Run tests
         run: meson test -C build --verbose
@@ -146,6 +146,10 @@ jobs:
         if: ${{ matrix.config.target != '' }}
         run: |
           sudo apt-get install g++-${{ matrix.config.target }} gcc-${{ matrix.config.target }} binutils-${{ matrix.config.target }} qemu-user-static
+
+      - name: Install nasm
+        if: ${{ matrix.config.arch == 'x86_64' }}
+        run: sudo apt-get install nasm
 
       - name: Build
         run: TARGET=${{ matrix.config.target }} ./ci/build.sh
