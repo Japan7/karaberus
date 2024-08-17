@@ -363,6 +363,10 @@ func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
 	if ki.EditorUser == nil {
 		ki.EditorUserID = nil
 	}
+
+	if ki.SubtitlesUploaded && ki.Hardsubbed {
+		ki.Hardsubbed = false
+	}
 	return nil
 }
 
