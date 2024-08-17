@@ -57,7 +57,7 @@ fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, auth: Strin
         &format!("--input-ipc-server={}", socket),
         &format!("--http-header-fields=Authorization: Bearer {auth}"),
     ]);
-    let (mut rx, mut _child) = mpv.spawn().unwrap();
+    let (mut rx, _) = mpv.spawn().unwrap();
 
     tauri::async_runtime::spawn(async move {
         while let Some(event) = rx.recv().await {
