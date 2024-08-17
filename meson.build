@@ -75,6 +75,9 @@ go_files += files(
     'karaberus_tools' / 'model.go',
 )
 
+go_tools_modfile = files('tools' / 'go.mod')
+go_tools_opts = ['-modfile', go_tools_modfile]
+
 karaberus_tools_deps = []
 
 if not get_option('no_native_deps')
@@ -263,7 +266,8 @@ if get_option('test')
             command: [
                 go,
                 'install',
-                'honnef.co/go/tools/cmd/staticcheck@latest',
+                go_tools_opts,
+                'honnef.co/go/tools/cmd/staticcheck',
             ],
             output: 'staticcheck',
             env: {'GOBIN': meson.current_build_dir()},
@@ -282,7 +286,12 @@ if get_option('test')
     if get_option('errcheck')
         errcheck = custom_target(
             'errcheck',
-            command: [go, 'install', 'github.com/kisielk/errcheck@latest'],
+            command: [
+                go,
+                'install',
+                go_tools_opts,
+                'github.com/kisielk/errcheck',
+            ],
             output: 'errcheck',
             env: {'GOBIN': meson.current_build_dir()},
         )
