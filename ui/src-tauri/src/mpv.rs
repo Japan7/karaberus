@@ -1,10 +1,9 @@
 use async_std::task;
 use interprocess::local_socket::{prelude::*, GenericFilePath, GenericNamespaced, Stream};
-use std::io::{prelude::*, BufReader};
-use std::collections::{HashMap};
-use std::time::Duration;
 use serde::{Serialize, Serializer};
-
+use std::collections::HashMap;
+use std::io::{prelude::*, BufReader};
+use std::time::Duration;
 
 #[derive(Serialize)]
 pub struct LoadFile {
@@ -38,7 +37,7 @@ enum MpvCommand {
 
 #[derive(Serialize)]
 struct MpvCommandWrapper {
-    command: MpvCommand
+    command: MpvCommand,
 }
 
 fn options_serializer<S>(map: &HashMap<String, String>, serializer: S) -> Result<S::Ok, S::Error>
@@ -54,32 +53,30 @@ where
         options_string.push_str(format!("{key}={value}").as_str());
         first = false;
     }
-
     return serializer.serialize_str(options_string.as_str());
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct Mpv {
     pub socket: String,
 }
 
-impl Default for Mpv {
-    fn default() -> Mpv {
-        Mpv {
-            socket: String::new(),
-        }
-    }
-}
-
 impl Mpv {
+    pub async fn loadfile(&self, command: LoadFile) {
+        self.run_command(MpvCommand::LoadFile(command)).await;
+    }
+
     async fn run_command(&self, command: MpvCommand) {
         let name = if cfg!(windows) {
-		    self.socket.clone().to_ns_name::<GenericNamespaced>().unwrap()
+            self.socket
+                .clone()
+                .to_ns_name::<GenericNamespaced>()
+                .unwrap()
         } else {
-		    self.socket.clone().to_fs_name::<GenericFilePath>().unwrap()
+            self.socket.clone().to_fs_name::<GenericFilePath>().unwrap()
         };
 
-        let command = MpvCommandWrapper {command: command};
+        let command = MpvCommandWrapper { command };
         let mpv_command = format!("{}\n", serde_json::to_string(&command).unwrap());
 
         //TODO: Handle possible failures and response received
@@ -100,9 +97,5 @@ impl Mpv {
 
         let _ = conn.get_mut().write_all(mpv_command.as_bytes());
         conn.read_line(&mut buffer).unwrap();
-    }
-
-    pub async fn loadfile(&self, command: LoadFile) {
-        self.run_command(MpvCommand::LoadFile(command)).await;
     }
 }

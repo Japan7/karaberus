@@ -1,18 +1,14 @@
-pub mod mpv;
+mod mpv;
 
-use mpv::*;
 use std::{env, sync::Arc};
 
-use tauri::{
-    async_runtime::{Mutex},
-    AppHandle, State, Manager,
-};
+use mpv::{LoadFile, Mpv};
+use tauri::{async_runtime::Mutex, AppHandle, Manager, State};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 
 #[derive(Default)]
 struct AppStateInner {
-    mpv_started: bool,
-    mpv: Mpv,
+    mpv: Option<Mpv>,
 }
 
 type AppState = Arc<Mutex<AppStateInner>>;
@@ -30,41 +26,44 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn get_mpv_socket(app_handle: AppHandle) -> String {
-    let env_var = env::var("KARABERUS_MPV_SOCKET");
-    if env_var.is_ok() {
-        return env_var.unwrap();
-    } else if cfg!(windows) {
-        return "karaberus-mpv".to_string();
-    } else if cfg!(target_os="linux") {
-        return app_handle.path()
-            .resolve("karaberus-mpv.sock", tauri::path::BaseDirectory::Runtime)
-            .unwrap().to_str().unwrap().to_string();
-    } else {
-        return app_handle.path()
-            .resolve("karaberus-mpv.sock", tauri::path::BaseDirectory::LocalData)
-            .unwrap().to_str().unwrap().to_string();
-    }
+#[tauri::command]
+async fn play_mpv(
+    app_handle: AppHandle,
+    state: State<'_, AppState>,
+    auth: String,
+    video: Option<String>,
+    inst: Option<String>,
+    sub: Option<String>,
+) -> Result<(), ()> {
+    let mut app_state = state.lock().await;
+    let mpv = app_state.mpv.get_or_insert_with(|| {
+        start_mpv(
+            app_handle.clone(),
+            state.inner().clone(),
+            get_mpv_socket(&app_handle),
+            auth,
+        )
+    });
+    tauri::async_runtime::spawn(add_to_mpv_playlist(mpv.clone(), video, inst, sub));
+    Ok(())
 }
 
-fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
+fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, auth: String) -> Mpv {
+    let mut mpv = app_handle.shell().command("mpv");
+    mpv = mpv.args([
+        "--idle=once",
+        "--quiet",
+        "--save-position-on-quit=no",
+        &format!("--input-ipc-server={}", socket),
+        &format!("--http-header-fields=Authorization: Bearer {auth}"),
+    ]);
+    let (mut rx, mut _child) = mpv.spawn().unwrap();
+
     tauri::async_runtime::spawn(async move {
-        let mut mpv = app_handle.shell().command("mpv");
-        mpv = mpv.args([
-            "--idle=once",
-            "--quiet",
-            "--save-position-on-quit=no",
-            &format!("--input-ipc-server={}", get_mpv_socket(app_handle)),
-            &format!("--http-header-fields=Authorization: Bearer {auth}"),
-        ]);
-
-        let (mut rx, mut _child) = mpv.spawn().unwrap();
-        state.lock().await.mpv_started = true;
-
         while let Some(event) = rx.recv().await {
             match event {
                 CommandEvent::Terminated(_) => {
-                    state.lock().await.mpv_started = false;
+                    state.lock().await.mpv = None;
                 }
                 CommandEvent::Stdout(line) => {
                     print!("{}", String::from_utf8(line).unwrap());
@@ -76,31 +75,32 @@ fn start_mpv(app_handle: AppHandle, state: AppState, auth: String) {
             }
         }
     });
+
+    mpv::Mpv { socket }
 }
 
-#[tauri::command]
-async fn play_mpv(
-    app_handle: AppHandle,
-    state: State<'_, AppState>,
-    auth: String,
-    video: Option<String>,
-    inst: Option<String>,
-    sub: Option<String>,
-) -> Result<(), ()> {
-    let mut app_state = state.lock().await;
-
-    if !app_state.mpv_started {
-        start_mpv(app_handle.clone(), state.inner().clone(), auth);
-        app_state.mpv = Mpv {
-            socket: get_mpv_socket(app_handle),
-        };
+fn get_mpv_socket(app_handle: &AppHandle) -> String {
+    let env_var = env::var("KARABERUS_MPV_SOCKET");
+    match (env_var, cfg!(windows)) {
+        (Ok(env_var), _) => env_var,
+        (_, true) => "karaberus-mpv".to_string(),
+        (_, false) => {
+            let base_directory = if cfg!(target_os = "linux") {
+                tauri::path::BaseDirectory::Runtime
+            } else if cfg!(target_os = "macos") {
+                tauri::path::BaseDirectory::Temp
+            } else {
+                tauri::path::BaseDirectory::LocalData
+            };
+            app_handle
+                .path()
+                .resolve("karaberus-mpv.sock", base_directory)
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string()
+        }
     }
-
-    tauri::async_runtime::spawn(
-        add_to_mpv_playlist(app_state.mpv.clone(), video, inst, sub)
-    );
-
-    Ok(())
 }
 
 async fn add_to_mpv_playlist(
@@ -119,11 +119,15 @@ async fn add_to_mpv_playlist(
     loadfile.options.insert("aid".to_string(), "1".to_string());
 
     if let Some(inst) = inst.as_deref() {
-        loadfile.options.insert("audio-file".to_string(), inst.to_string());
+        loadfile
+            .options
+            .insert("audio-file".to_string(), inst.to_string());
     }
 
     if let Some(sub) = sub.as_deref() {
-        loadfile.options.insert("sub-file".to_string(), sub.to_string());
+        loadfile
+            .options
+            .insert("sub-file".to_string(), sub.to_string());
     }
 
     mpv.loadfile(loadfile).await;
