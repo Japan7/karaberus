@@ -1,3 +1,4 @@
+import { listen } from "@tauri-apps/api/event";
 import type { Platform } from "@tauri-apps/plugin-os";
 
 export const IS_TAURI_BUILD = import.meta.env.MODE.startsWith("tauri");
@@ -22,4 +23,9 @@ export function buildRedirectUrl(href: string) {
   const url = buildKaraberusUrl("/redirect");
   url.searchParams.set("href", href);
   return url;
+}
+
+export function registerGlobalListeners() {
+  listen<string>("mpv-stdout", (e) => console.debug(e.payload));
+  listen<string>("mpv-stderr", (e) => console.warn(e.payload));
 }

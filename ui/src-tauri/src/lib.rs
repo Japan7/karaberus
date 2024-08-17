@@ -3,7 +3,7 @@ mod mpv;
 use std::{env, sync::Arc};
 
 use mpv::{LoadFile, Mpv};
-use tauri::{async_runtime::Mutex, AppHandle, Manager, State};
+use tauri::{async_runtime::Mutex, AppHandle, Emitter, Manager, State};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 
 #[derive(Default)]
@@ -66,10 +66,14 @@ fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, auth: Strin
                     state.lock().await.mpv = None;
                 }
                 CommandEvent::Stdout(line) => {
-                    print!("{}", String::from_utf8(line).unwrap());
+                    let line = String::from_utf8(line).unwrap();
+                    print!("{}", &line);
+                    let _ = app_handle.emit("mpv-stdout", &line);
                 }
                 CommandEvent::Stderr(line) => {
-                    eprint!("{}", String::from_utf8(line).unwrap());
+                    let line = String::from_utf8(line).unwrap();
+                    eprint!("{}", &line);
+                    let _ = app_handle.emit("mpv-stderr", &line);
                 }
                 _ => {}
             }
