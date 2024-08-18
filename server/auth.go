@@ -161,7 +161,7 @@ func getRequestToken(ctx huma.Context) (string, error) {
 
 func getUserScopesFromApiToken(ctx context.Context, token string) (*User, *Scopes, error) {
 	db := GetDB(ctx)
-	apiToken := Token{ID: token}
+	apiToken := TokenV2{Token: token}
 	if err := db.Preload(clause.Associations).First(&apiToken).Error; err != nil {
 		return nil, nil, err
 	}

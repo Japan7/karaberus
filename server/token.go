@@ -8,17 +8,25 @@ import (
 	"time"
 )
 
+type APIToken struct {
+	ID        uint      `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	Scopes    Scopes    `gorm:"embedded" json:"scopes"`
+}
+
 type GetAllTokensOutput struct {
-	Body []Token
+	Body []APIToken
 }
 
 func GetAllUserTokens(ctx context.Context, input *struct{}) (*GetAllTokensOutput, error) {
 	db := GetDB(ctx)
 	user := *getCurrentUser(ctx)
-	tokens := []Token{}
-	db.Where(&Token{User: user}).Find(&tokens)
 	out := &GetAllTokensOutput{}
-	out.Body = tokens
+	err := db.Model(&TokenV2{}).Where(&TokenV2{User: user}).Find(&out.Body).Error
+	if err != nil {
+		return nil, DBErrToHumaErr(err)
+	}
 	return out, nil
 }
 
@@ -41,22 +49,21 @@ func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutp
 		return nil, DBErrToHumaErr(err)
 	}
 	out := &CreateTokenOutput{}
-	out.Body.Token = token.ID
+	out.Body.Token = token.Token
 	return out, nil
 }
 
-func createTokenForUser(ctx context.Context, user User, name string, scopes Scopes) (*Token, error) {
-	token_id, err := generateToken()
+func createTokenForUser(ctx context.Context, user User, name string, scopes Scopes) (*TokenV2, error) {
+	token_str, err := generateToken()
 	if err != nil {
 		return nil, err
 	}
 	db := GetDB(ctx)
-	token := Token{
-		ID:        token_id,
-		User:      user,
-		CreatedAt: time.Now(),
-		Name:      name,
-		Scopes:    scopes,
+	token := TokenV2{
+		Token:  token_str,
+		User:   user,
+		Name:   name,
+		Scopes: scopes,
 	}
 	if err = db.Create(&token).Error; err != nil {
 		return nil, err
@@ -75,7 +82,7 @@ func generateToken() (string, error) {
 }
 
 type DeleteTokenInput struct {
-	TokenID string `path:"token"`
+	TokenID uint `path:"token"`
 }
 
 type DeleteTokenOutput struct {
@@ -90,16 +97,16 @@ func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutp
 
 	var err error
 	if user.Admin {
-		err = db.Where(&Token{ID: input.TokenID}).Delete(&Token{}).Error
+		err = db.Delete(&TokenV2{}, input.TokenID).Error
 	} else {
-		err = db.Where(&Token{ID: input.TokenID, User: user}).Delete(&Token{}).Error
+		err = db.Where(&TokenV2{User: user}).Delete(&TokenV2{}, input.TokenID).Error
 	}
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
 
 	out := &DeleteTokenOutput{}
-	out.Body.Message = fmt.Sprintf("Token %s deleted.", input.TokenID)
+	out.Body.Message = fmt.Sprintf("Token %d deleted.", input.TokenID)
 
 	return out, nil
 }

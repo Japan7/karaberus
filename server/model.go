@@ -108,12 +108,13 @@ func (scopes Scopes) HasScope(scope string) bool {
 	panic("unknown scope " + scope)
 }
 
-type Token struct {
-	ID        string    `gorm:"primarykey" json:"id"`
+type TokenV2 struct {
+	ID        uint      `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Token     string    `gorm:"uniqueIndex:idx_token" json:"token"`
 	UserID    string    `json:"user_id"`
 	User      User      `gorm:"foreignKey:UserID;references:ID" json:"user"`
 	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
 	Scopes    Scopes    `gorm:"embedded" json:"scopes"`
 }
 
@@ -425,7 +426,7 @@ type Font struct {
 }
 
 func init_model(db *gorm.DB) {
-	err := db.AutoMigrate(&KaraInfoDB{}, &User{}, &Token{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
+	err := db.AutoMigrate(&KaraInfoDB{}, &User{}, &TokenV2{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
 	if err != nil {
 		panic(err)
 	}
