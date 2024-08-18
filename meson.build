@@ -82,6 +82,8 @@ go_files += files(
 go_tools_modfile = files('tools' / 'go.mod')
 go_tools_opts = ['-modfile', go_tools_modfile]
 
+go_tools_files = files('tools' / 'go.sum') + go_tools_modfile
+
 karaberus_tools_deps = []
 
 if not get_option('no_native_deps')
@@ -273,6 +275,7 @@ if get_option('test')
                 go_tools_opts,
                 'honnef.co/go/tools/cmd/staticcheck',
             ],
+            depend_files: go_tools_files,
             output: 'staticcheck',
             env: gobin_env,
         )
@@ -296,6 +299,7 @@ if get_option('test')
                 go_tools_opts,
                 'github.com/kisielk/errcheck',
             ],
+            depend_files: go_tools_files,
             output: 'errcheck',
             env: gobin_env,
         )
