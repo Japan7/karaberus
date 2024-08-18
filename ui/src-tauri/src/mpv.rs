@@ -50,8 +50,7 @@ where
         if !first {
             options_string.push_str(",");
         }
-        let value = value.replace("=", " ").replace(",", "");
-        options_string.push_str(format!("{key}={value}").as_str());
+        options_string.push_str(format!("{key}=%{len}%{value}", len = value.len()).as_str());
         first = false;
     }
     return serializer.serialize_str(options_string.as_str());
