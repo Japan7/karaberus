@@ -38,5 +38,6 @@ ui_src += files(
     'utils' / 'tauri.ts',
     'App.tsx',
     'index.css',
+    'index.tauri.css',
     'index.tsx',
 )
