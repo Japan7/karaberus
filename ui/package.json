@@ -12,7 +12,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@fontsource/amaranth": "5.0.12",
+    "@fontsource/amaranth": "5.0.13",
     "@solid-primitives/scheduled": "1.4.3",
     "@solid-primitives/storage": "4.0.0",
     "@solidjs/router": "0.14.3",
