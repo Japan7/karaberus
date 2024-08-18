@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { HiSolidPlayCircle } from "solid-icons/hi";
+import { HiOutlineCheck, HiSolidPlayCircle } from "solid-icons/hi";
 import { createSignal, Show, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { apiUrl, karaberus } from "../utils/karaberus-client";
@@ -9,6 +9,7 @@ export default function MpvKaraPlayer(props: {
   kara: components["schemas"]["KaraInfoDB"];
 }) {
   const [getLoading, setLoading] = createSignal(false);
+  const [getSuccess, setSuccess] = createSignal(false);
 
   const downloadEndpoint = (type: string) =>
     apiUrl(`api/kara/${props.kara.ID}/download/${type}`);
@@ -26,6 +27,8 @@ export default function MpvKaraPlayer(props: {
       title: props.kara.Title,
     });
     setLoading(false);
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 1000);
   };
 
   const ensurePlayerToken = async () => {
@@ -50,12 +53,21 @@ export default function MpvKaraPlayer(props: {
 
   return (
     <Show when={props.kara.VideoUploaded || props.kara.InstrumentalUploaded}>
-      <button disabled={getLoading()} onclick={play} class="btn btn-primary">
+      <button
+        disabled={getLoading()}
+        onclick={play}
+        class="btn btn-primary"
+        classList={{ "btn-success": getSuccess() }}
+      >
         <Show
           when={!getLoading()}
           fallback={<span class="loading loading-spinner" />}
         >
-          <HiSolidPlayCircle class="size-5" />
+          {getSuccess() ? (
+            <HiOutlineCheck class="size-5" />
+          ) : (
+            <HiSolidPlayCircle class="size-5" />
+          )}
           Add to mpv queue
         </Show>
       </button>

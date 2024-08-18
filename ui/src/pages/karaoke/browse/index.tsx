@@ -91,6 +91,43 @@ export default function KaraokeBrowse() {
 
   const getPageKaras = () => getSearchResults().slice(getStart(), getEnd());
 
+  const nav = () => (
+    <div class="join mx-auto">
+      <button
+        disabled={getPage() === 0}
+        onclick={() => setPage((page) => page - 1)}
+        class="join-item btn"
+      >
+        <HiSolidChevronDoubleLeft class="size-5" />
+      </button>
+      <select
+        onchange={(e) => setPage(parseInt(e.currentTarget.value))}
+        class="join-item select bg-base-200"
+      >
+        <Index
+          each={[
+            ...Array(Math.ceil(getSearchResults().length / PAGE_SIZE)).keys(),
+          ]}
+        >
+          {(getIndex) => (
+            <option value={getIndex()} selected={getIndex() === getPage()}>
+              Page {getIndex() + 1}
+            </option>
+          )}
+        </Index>
+      </select>
+      <button
+        disabled={
+          getPage() * PAGE_SIZE + PAGE_SIZE >= getSearchResults().length
+        }
+        onclick={() => setPage((page) => page + 1)}
+        class="join-item btn"
+      >
+        <HiSolidChevronDoubleRight class="size-5" />
+      </button>
+    </div>
+  );
+
   return (
     <>
       <h1 class="header">Browse Karaokes</h1>
@@ -111,45 +148,7 @@ export default function KaraokeBrowse() {
         </label>
 
         <Show when={getSearchResults().length} fallback={<p>No results</p>}>
-          <div class="join mx-auto">
-            <button
-              disabled={getPage() === 0}
-              onclick={() => setPage((page) => page - 1)}
-              class="join-item btn"
-            >
-              <HiSolidChevronDoubleLeft class="size-5" />
-            </button>
-            <select
-              onchange={(e) => setPage(parseInt(e.currentTarget.value))}
-              class="join-item select bg-base-200"
-            >
-              <Index
-                each={[
-                  ...Array(
-                    Math.ceil(getSearchResults().length / PAGE_SIZE),
-                  ).keys(),
-                ]}
-              >
-                {(getIndex) => (
-                  <option
-                    value={getIndex()}
-                    selected={getIndex() === getPage()}
-                  >
-                    Page {getIndex() + 1}
-                  </option>
-                )}
-              </Index>
-            </select>
-            <button
-              disabled={
-                getPage() * PAGE_SIZE + PAGE_SIZE >= getSearchResults().length
-              }
-              onclick={() => setPage((page) => page + 1)}
-              class="join-item btn"
-            >
-              <HiSolidChevronDoubleRight class="size-5" />
-            </button>
-          </div>
+          {nav()}
 
           <p>
             Showing <b>{getStart() + 1}</b> to <b>{getEnd()}</b> of{" "}
@@ -167,6 +166,8 @@ export default function KaraokeBrowse() {
               )}
             </Index>
           </div>
+
+          {nav()}
         </Show>
       </Show>
     </>
