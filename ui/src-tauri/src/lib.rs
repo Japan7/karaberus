@@ -2,9 +2,11 @@ mod mpv;
 
 use std::{env, sync::Arc};
 
+use async_std::path::PathBuf;
 use mpv::{LoadFile, Mpv};
-use tauri::{async_runtime::Mutex, AppHandle, Emitter, Manager, State};
+use tauri::{async_runtime::Mutex, AppHandle, Emitter, Manager, State, Wry};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
+use tauri_plugin_store::{with_store, StoreCollection};
 
 #[derive(Default)]
 struct AppStateInner {
@@ -13,10 +15,15 @@ struct AppStateInner {
 
 type AppState = Arc<Mutex<AppStateInner>>;
 
+type AppStore = StoreCollection<Wry>;
+
+const STORE_BIN: &str = "store.bin";
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -33,22 +40,22 @@ async fn play_mpv(
     video: Option<String>,
     inst: Option<String>,
     sub: Option<String>,
-    token: String,
 ) -> Result<(), ()> {
-    let mut app_state = state.lock().await;
-    let mpv = app_state.mpv.get_or_insert_with(|| {
-        start_mpv(
-            app_handle.clone(),
-            state.inner().clone(),
-            get_mpv_socket(&app_handle),
-            token,
-        )
-    });
-    tauri::async_runtime::spawn(add_to_mpv_playlist(mpv.clone(), video, inst, sub));
+    let mpv = state
+        .lock()
+        .await
+        .mpv
+        .get_or_insert_with(|| {
+            let socket = get_mpv_socket(&app_handle);
+            let token = get_player_token(&app_handle);
+            start_mpv(&app_handle, socket, token)
+        })
+        .clone();
+    add_to_mpv_playlist(&mpv, video, inst, sub).await;
     Ok(())
 }
 
-fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, token: String) -> Mpv {
+fn start_mpv(app_handle: &AppHandle, socket: String, token: String) -> Mpv {
     let mut mpv = app_handle.shell().command("mpv");
     mpv = mpv.args([
         "--idle=once",
@@ -59,11 +66,13 @@ fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, token: Stri
     ]);
     let (mut rx, _) = mpv.spawn().unwrap();
 
+    let app_handle = app_handle.clone();
     tauri::async_runtime::spawn(async move {
+        let state = app_handle.state::<AppState>();
         while let Some(event) = rx.recv().await {
             match event {
                 CommandEvent::Terminated(_) => {
-                    state.lock().await.mpv = None;
+                    state.lock().await.mpv.take();
                 }
                 CommandEvent::Stdout(line) => {
                     let line = String::from_utf8(line).unwrap();
@@ -107,8 +116,21 @@ fn get_mpv_socket(app_handle: &AppHandle) -> String {
     }
 }
 
+fn get_player_token(app_handle: &AppHandle) -> String {
+    let stores = app_handle.state::<AppStore>();
+    let path = PathBuf::from(STORE_BIN);
+    with_store(app_handle.clone(), stores, path, |store| {
+        Ok(store.get("player_token").cloned())
+    })
+    .unwrap()
+    .unwrap()
+    .as_str()
+    .unwrap()
+    .to_string()
+}
+
 async fn add_to_mpv_playlist(
-    mpv: Mpv,
+    mpv: &Mpv,
     video: Option<String>,
     inst: Option<String>,
     sub: Option<String>,

@@ -67,14 +67,13 @@ impl Mpv {
     }
 
     async fn run_command(&self, command: MpvCommand) {
+        let socket = self.socket.clone();
         let name = if cfg!(windows) {
-            self.socket
-                .clone()
-                .to_ns_name::<GenericNamespaced>()
-                .unwrap()
+            socket.to_ns_name::<GenericNamespaced>()
         } else {
-            self.socket.clone().to_fs_name::<GenericFilePath>().unwrap()
-        };
+            socket.to_fs_name::<GenericFilePath>()
+        }
+        .unwrap();
 
         let command = MpvCommandWrapper { command };
         let mpv_command = format!("{}\n", serde_json::to_string(&command).unwrap());
@@ -82,14 +81,17 @@ impl Mpv {
         //TODO: Handle possible failures and response received
         let mut n_tries = 5;
         let conn = loop {
-            if let Ok(conn) = Stream::connect(name.clone()) {
-                break conn;
-            } else if n_tries == 1 {
-                eprintln!("Unable to connect to mpv socket");
-                return;
-            } else {
-                n_tries -= 1;
-                task::sleep(Duration::from_millis(200)).await;
+            match Stream::connect(name.clone()) {
+                Ok(conn) => break conn,
+                Err(err) => {
+                    if n_tries > 0 {
+                        n_tries -= 1;
+                        task::sleep(Duration::from_millis(200)).await;
+                    } else {
+                        eprintln!("Unable to connect to mpv socket: {}", err);
+                        return;
+                    }
+                }
             }
         };
         let mut conn = BufReader::new(conn);

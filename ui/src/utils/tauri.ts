@@ -1,5 +1,6 @@
 import { listen } from "@tauri-apps/api/event";
 import type { Platform } from "@tauri-apps/plugin-os";
+import { Store } from "@tauri-apps/plugin-store";
 
 export const IS_TAURI_BUILD = import.meta.env.MODE.startsWith("tauri");
 export const IS_TAURI_DEV_BUILD = import.meta.env.MODE === "tauri-dev";
@@ -28,4 +29,12 @@ export function buildRedirectUrl(href: string) {
 export function registerGlobalListeners() {
   listen<string>("mpv-stdout", (e) => console.debug(e.payload));
   listen<string>("mpv-stderr", (e) => console.warn(e.payload));
+}
+
+let store: Store;
+export function getStore() {
+  if (!store) {
+    store = new Store("store.bin");
+  }
+  return store;
 }

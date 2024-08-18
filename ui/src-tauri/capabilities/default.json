@@ -8,6 +8,7 @@
     "updater:default",
     "os:default",
     "dialog:default",
+    "store:default",
     "shell:default",
     {
       "identifier": "shell:allow-spawn",
