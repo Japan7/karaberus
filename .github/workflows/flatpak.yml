@@ -1,0 +1,33 @@
+name: Update flatpak
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-flatpak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Japan7/karaberus-flatpak
+          token: ${{ secrets.KARABERUS_FLATPAK_PAT }}
+
+      - run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#app-v}"
+          DATE="$(date +'%Y-%m-%d')"
+          RELEASE_URL="${{ github.server_url }}/${{ github.repository }}/releases/tag/${TAG}"
+
+          yq ".component.releases.release |= [{ \"+@version\": \"${VERSION}\", \"+@date\": \"${DATE}\", \"url\": { \"+@type\": \"details\", \"+content\": \"${RELEASE_URL}\" } }]+ ." -i moe.japan7.karaberus.metainfo.xml
+
+          DEB_DOWNLOAD_URL="${{ github.server_url }}/${{ github.repository }}/releases/download/${TAG}/karaberus_${VERSION}_amd64.deb"
+          DEB_CHECKSUM="$(curl -L $DEB_DOWNLOAD_URL | sha256sum | head -c 64)"
+
+          yq "with(.modules[0].sources[0]; .url = \"${DEB_DOWNLOAD_URL}\" | .sha256 = \"${DEB_CHECKSUM}\")" -i moe.japan7.karaberus.yml
+
+          git add moe.japan7.karaberus.{metainfo.xml,yml}
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "[flatpak] Update karaberus to version ${VERSION}"
+          git push
