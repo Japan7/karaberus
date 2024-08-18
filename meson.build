@@ -132,6 +132,7 @@ else
             '@OUTPUT@',
             meson.current_source_dir(),
         ],
+        input: karaberus_inputs,
         output: 'karaberus.a',
     )
 
