@@ -3,7 +3,7 @@ import { HiOutlineCheck, HiSolidPlayCircle } from "solid-icons/hi";
 import { createSignal, Show, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { apiUrl, karaberus } from "../utils/karaberus-client";
-import { logChannel, PLAYER_TOKEN_KEY, tauriStore } from "../utils/tauri";
+import { getLogChannel, getTauriStore, PLAYER_TOKEN_KEY } from "../utils/tauri";
 
 export default function MpvKaraPlayer(props: {
   kara: components["schemas"]["KaraInfoDB"];
@@ -25,7 +25,7 @@ export default function MpvKaraPlayer(props: {
         : undefined,
       sub: props.kara.SubtitlesUploaded ? downloadEndpoint("sub") : undefined,
       title: props.kara.Title,
-      onLog: logChannel,
+      onLog: getLogChannel(),
     });
     setLoading(false);
     setSuccess(true);
@@ -33,7 +33,7 @@ export default function MpvKaraPlayer(props: {
   };
 
   const ensurePlayerToken = async () => {
-    let token = await tauriStore.get<string>(PLAYER_TOKEN_KEY);
+    let token = await getTauriStore().get<string>(PLAYER_TOKEN_KEY);
     if (!token) {
       const resp = await karaberus.POST("/api/token", {
         body: {
@@ -45,8 +45,8 @@ export default function MpvKaraPlayer(props: {
         throw new Error(resp.error.title);
       }
       token = resp.data.token;
-      await tauriStore.set(PLAYER_TOKEN_KEY, token);
-      await tauriStore.save();
+      await getTauriStore().set(PLAYER_TOKEN_KEY, token);
+      await getTauriStore().save();
     }
     return token;
   };

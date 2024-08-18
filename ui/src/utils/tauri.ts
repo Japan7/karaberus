@@ -32,16 +32,26 @@ export function registerGlobalListeners() {
   listen<string>("mpv-stderr", (e) => console.warn(e.payload));
 }
 
-export const tauriStore = new Store(
-  IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin",
-);
+let store: Store;
+export function getTauriStore() {
+  if (!store) {
+    store = new Store(IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin");
+  }
+  return store;
+}
 
 export const PLAYER_TOKEN_KEY = "player_token";
 
-export const logChannel = new Channel<{
+let logChannel: Channel<{
   event: "stdout" | "stderr";
   data: string;
-}>();
-logChannel.onmessage = (msg) => {
-  console[msg.event === "stdout" ? "log" : "error"](msg.data);
-};
+}>;
+export function getLogChannel() {
+  if (!logChannel) {
+    logChannel = new Channel();
+    logChannel.onmessage = (msg) => {
+      console[msg.event === "stdout" ? "log" : "error"](msg.data);
+    };
+  }
+  return logChannel;
+}
