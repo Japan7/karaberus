@@ -1,6 +1,6 @@
 {
   "productName": "Karaberus",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "identifier": "moe.japan7.karaberus",
   "build": {
     "frontendDist": "../dist",
