@@ -1,3 +1,4 @@
+import { Channel } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { Platform } from "@tauri-apps/plugin-os";
 import { Store } from "@tauri-apps/plugin-store";
@@ -31,12 +32,16 @@ export function registerGlobalListeners() {
   listen<string>("mpv-stderr", (e) => console.warn(e.payload));
 }
 
-let store: Store;
-export function getStore() {
-  if (!store) {
-    store = new Store(IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin");
-  }
-  return store;
-}
+export const tauriStore = new Store(
+  IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin",
+);
 
 export const PLAYER_TOKEN_KEY = "player_token";
+
+export const logChannel = new Channel<{
+  event: "stdout" | "stderr";
+  data: string;
+}>();
+logChannel.onmessage = (msg) => {
+  console[msg.event === "stdout" ? "log" : "error"](msg.data);
+};

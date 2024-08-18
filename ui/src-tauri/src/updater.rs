@@ -42,12 +42,19 @@ Release Notes:
 }
 
 async fn install_update(app_handle: AppHandle, update: Update) {
-    let title = "Ready to Restart";
-    let message = "The installation was successful, do you want to restart the application now?";
+    let mut downloaded = 0;
+
     update
         .download_and_install(
-            |_, _| {},
+            |chunk_length, content_length| {
+                downloaded += chunk_length;
+                println!("updater: downloaded {downloaded} from {content_length:?}");
+            },
             || {
+                let title = "Ready to Restart";
+                let message =
+                    "The installation was successful, do you want to restart the application now?";
+
                 app_handle
                     .dialog()
                     .message(message)

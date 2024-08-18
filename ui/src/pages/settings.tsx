@@ -1,9 +1,9 @@
+import { isTauri } from "@tauri-apps/api/core";
 import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, createSignal, Index, Show } from "solid-js";
 import TokenForm from "../components/TokenForm";
 import { karaberus } from "../utils/karaberus-client";
-import { isTauri } from "@tauri-apps/api/core";
-import { getStore, PLAYER_TOKEN_KEY } from "../utils/tauri";
+import { PLAYER_TOKEN_KEY, tauriStore } from "../utils/tauri";
 
 export default function Settings() {
   const [getAllTokens, { refetch: refetchTokens }] = createResource(
@@ -28,9 +28,8 @@ export default function Settings() {
   };
 
   const resetPlayerToken = async () => {
-    const store = getStore();
-    await store.delete(PLAYER_TOKEN_KEY);
-    await store.save();
+    await tauriStore.delete(PLAYER_TOKEN_KEY);
+    await tauriStore.save();
     await Promise.all(getAllTokens()?.map((t) => deleteToken(t.id)) ?? []);
     refetchTokens();
   };

@@ -1,7 +1,8 @@
 use std::env;
 
 use async_std::path::PathBuf;
-use tauri::{AppHandle, Emitter, Manager, State};
+use serde::Serialize;
+use tauri::{ipc::Channel, AppHandle, Manager, State};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
 use tauri_plugin_store::with_store;
 
@@ -9,6 +10,15 @@ use crate::{
     mpv::{LoadFile, Mpv},
     AppState, AppStore, STORE_BIN,
 };
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase", tag = "event", content = "data")]
+pub enum LogEvent {
+    #[serde(rename_all = "camelCase")]
+    Stdout(String),
+    #[serde(rename_all = "camelCase")]
+    Stderr(String),
+}
 
 #[tauri::command]
 pub async fn play_mpv(
@@ -18,6 +28,7 @@ pub async fn play_mpv(
     inst: Option<String>,
     sub: Option<String>,
     title: String,
+    on_log: Channel<LogEvent>,
 ) -> tauri::Result<()> {
     let mpv = state
         .lock()
@@ -26,14 +37,19 @@ pub async fn play_mpv(
         .get_or_insert_with(|| {
             let socket = get_mpv_socket(&app_handle);
             let token = get_player_token(&app_handle);
-            start_mpv(&app_handle, socket, token)
+            start_mpv(&app_handle, socket, token, on_log)
         })
         .clone();
     add_to_mpv_playlist(&mpv, video, inst, sub, title).await;
     Ok(())
 }
 
-fn start_mpv(app_handle: &AppHandle, socket: String, token: String) -> Mpv {
+fn start_mpv(
+    app_handle: &AppHandle,
+    socket: String,
+    token: String,
+    on_log: Channel<LogEvent>,
+) -> Mpv {
     let mut mpv = app_handle.shell().command("mpv");
     mpv = mpv.args([
         "--idle=once",
@@ -55,12 +71,12 @@ fn start_mpv(app_handle: &AppHandle, socket: String, token: String) -> Mpv {
                 CommandEvent::Stdout(line) => {
                     let line = String::from_utf8(line).unwrap();
                     print!("{}", &line);
-                    let _ = app_handle.emit("mpv-stdout", &line);
+                    let _ = on_log.send(LogEvent::Stdout(line));
                 }
                 CommandEvent::Stderr(line) => {
                     let line = String::from_utf8(line).unwrap();
                     eprint!("{}", &line);
-                    let _ = app_handle.emit("mpv-stderr", &line);
+                    let _ = on_log.send(LogEvent::Stderr(line));
                 }
                 _ => {}
             }
