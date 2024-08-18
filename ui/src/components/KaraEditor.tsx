@@ -172,6 +172,7 @@ export default function KaraEditor(props: {
       <input
         type="text"
         required
+        placeholder="Zankoku na Tenshi no These"
         value={getTitle()}
         oninput={(e) => setTitle(e.currentTarget.value)}
         class="input input-bordered w-full"
@@ -185,6 +186,7 @@ export default function KaraEditor(props: {
         <span class="label-text-alt">1 per line</span>
       </div>
       <textarea
+        placeholder={"Zankoku na Tenshi no Thesis\nA Cruel Angel's Thesis"}
         value={getExtraTitles()}
         oninput={(e) => setExtraTitles(e.currentTarget.value)}
         class="textarea textarea-bordered w-full"
@@ -197,7 +199,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Authors</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddAuthorModal}>
-            Not in the list?
+            Can't find it?
           </a>
         </span>
       </div>
@@ -211,6 +213,7 @@ export default function KaraEditor(props: {
             getItemName={(author) => author.Name}
             getState={getAuthors}
             setState={setAuthors}
+            placeholder="bebou69"
           />
         )}
       </Show>
@@ -222,7 +225,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Artists</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddArtistModal}>
-            Not in the list?
+            Can't find it?
           </a>
         </span>
       </div>
@@ -236,6 +239,7 @@ export default function KaraEditor(props: {
             getItemName={(artist) => artist.Name}
             getState={getArtists}
             setState={setArtists}
+            placeholder="Yoko Takahashi"
           />
         )}
       </Show>
@@ -247,7 +251,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Source media</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddMediaModal}>
-            Not in the list?
+            Can't find it?
           </a>
         </span>
       </div>
@@ -261,6 +265,7 @@ export default function KaraEditor(props: {
             getItemName={(media) => `[${media.media_type}] ${media.name}`}
             getState={getSourceMedia}
             setState={setSourceMedia}
+            placeholder="Shin Seiki Evangelion"
           />
         )}
       </Show>
@@ -273,6 +278,7 @@ export default function KaraEditor(props: {
       </div>
       <input
         type="number"
+        placeholder="1"
         min={0}
         value={getSongOrder()}
         onchange={(e) => setSongOrder(e.target.valueAsNumber)}
@@ -286,7 +292,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Other medias</span>
         <span class="label-text-alt">
           <a class="link" onclick={openAddMediaModal}>
-            Not in the list?
+            Can't find it?
           </a>
         </span>
       </div>
@@ -300,6 +306,7 @@ export default function KaraEditor(props: {
             getItemName={(media) => `[${media.media_type}] ${media.name}`}
             getState={getMedias}
             setState={setMedias}
+            placeholder="Japan7"
           />
         )}
       </Show>
@@ -377,6 +384,7 @@ export default function KaraEditor(props: {
         <span class="label-text">Comment</span>
       </div>
       <textarea
+        placeholder="something something"
         value={getComment()}
         oninput={(e) => setComment(e.currentTarget.value)}
         class="textarea textarea-bordered w-full"
@@ -390,6 +398,7 @@ export default function KaraEditor(props: {
       </div>
       <input
         type="text"
+        placeholder="gael42"
         value={getVersion()}
         oninput={(e) => setVersion(e.currentTarget.value)}
         class="input input-bordered w-full"
@@ -403,6 +412,7 @@ export default function KaraEditor(props: {
       </div>
       <input
         type="text"
+        placeholder="jpn"
         value={getLanguage()}
         oninput={(e) => setLanguage(e.currentTarget.value)}
         class="input input-bordered w-full"

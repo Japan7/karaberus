@@ -32,7 +32,7 @@ export default function MediaEditor(props: {
   };
 
   return (
-    <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full max-w-xs">
+    <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
           <span class="label-text">Media type</span>
@@ -60,6 +60,7 @@ export default function MediaEditor(props: {
         <input
           type="text"
           required
+          placeholder="Shin Seiki Evangelion"
           value={getName()}
           onInput={(e) => setName(e.currentTarget.value)}
           class="input input-bordered w-full"
@@ -72,6 +73,7 @@ export default function MediaEditor(props: {
           <span class="label-text-alt">1 per line</span>
         </div>
         <textarea
+          placeholder={"Neon Genesis Evangelion\n新世紀エヴァンゲリオン"}
           value={getAdditionalNames()}
           onInput={(e) => setAdditionalNames(e.currentTarget.value)}
           class="textarea textarea-bordered w-full"

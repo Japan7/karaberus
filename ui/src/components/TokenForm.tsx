@@ -34,7 +34,7 @@ export default function TokenForm(props: { onToken: (token: string) => void }) {
   };
 
   return (
-    <form onSubmit={onsubmit} class="flex flex-col gap-y-1 max-w-xs">
+    <form onSubmit={onsubmit} class="flex flex-col gap-y-1 w-full">
       <input
         type="text"
         required

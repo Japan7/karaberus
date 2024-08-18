@@ -57,7 +57,7 @@ export default function Settings() {
           <Index each={getAllTokens()}>
             {(getToken) => (
               <tr class="hover">
-                <th class="font-mono break-all max-w-xs">{getToken().name}</th>
+                <th class="font-mono">{getToken().name}</th>
                 <td>
                   <ul class="w-full">
                     <li classList={{ hidden: !getToken().scopes.kara }}>

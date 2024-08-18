@@ -25,7 +25,7 @@ export default function ArtistEditor(props: {
   };
 
   return (
-    <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full max-w-xs">
+    <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
           <span class="label-text">Name</span>
@@ -34,6 +34,7 @@ export default function ArtistEditor(props: {
         <input
           type="text"
           required
+          placeholder="Yoko Takahashi"
           value={getName()}
           onInput={(e) => setName(e.currentTarget.value)}
           class="input input-bordered w-full"
@@ -46,6 +47,7 @@ export default function ArtistEditor(props: {
           <span class="label-text-alt">1 per line</span>
         </div>
         <textarea
+          placeholder={"YAWMIN\n高橋洋子"}
           value={getAdditionalNames()}
           onInput={(e) => setAdditionalNames(e.currentTarget.value)}
           class="textarea textarea-bordered w-full"
