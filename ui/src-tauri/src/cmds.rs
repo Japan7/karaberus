@@ -18,7 +18,7 @@ pub async fn play_mpv(
     inst: Option<String>,
     sub: Option<String>,
     title: String,
-) -> Result<(), ()> {
+) -> tauri::Result<()> {
     let mpv = state
         .lock()
         .await

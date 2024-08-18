@@ -1,5 +1,6 @@
 mod cmds;
 mod mpv;
+mod updater;
 
 use std::{env, sync::Arc};
 
@@ -32,6 +33,11 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Arc::new(Mutex::new(AppStateInner::default())))
         .invoke_handler(tauri::generate_handler![cmds::play_mpv])
+        .setup(|app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(updater::check_update_with_dialog(handle));
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
