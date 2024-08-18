@@ -17,6 +17,7 @@ pub async fn play_mpv(
     video: Option<String>,
     inst: Option<String>,
     sub: Option<String>,
+    title: String,
 ) -> Result<(), ()> {
     let mpv = state
         .lock()
@@ -28,7 +29,7 @@ pub async fn play_mpv(
             start_mpv(&app_handle, socket, token)
         })
         .clone();
-    add_to_mpv_playlist(&mpv, video, inst, sub).await;
+    add_to_mpv_playlist(&mpv, video, inst, sub, title).await;
     Ok(())
 }
 
@@ -111,6 +112,7 @@ async fn add_to_mpv_playlist(
     video: Option<String>,
     inst: Option<String>,
     sub: Option<String>,
+    title: String,
 ) {
     let mut loadfile = LoadFile::default();
 
@@ -132,6 +134,10 @@ async fn add_to_mpv_playlist(
             .options
             .insert("sub-file".to_string(), sub.to_string());
     }
+
+    loadfile
+        .options
+        .insert("force-media-title".to_string(), title);
 
     mpv.loadfile(loadfile).await;
 }

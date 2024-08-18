@@ -50,6 +50,7 @@ where
         if !first {
             options_string.push_str(",");
         }
+        let value = value.replace("=", " ").replace(",", "");
         options_string.push_str(format!("{key}={value}").as_str());
         first = false;
     }

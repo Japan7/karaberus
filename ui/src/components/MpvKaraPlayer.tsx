@@ -23,6 +23,7 @@ export default function MpvKaraPlayer(props: {
         ? downloadEndpoint("inst")
         : undefined,
       sub: props.kara.SubtitlesUploaded ? downloadEndpoint("sub") : undefined,
+      title: props.kara.Title,
     });
     setLoading(false);
   };
@@ -52,7 +53,7 @@ export default function MpvKaraPlayer(props: {
       <button disabled={getLoading()} onclick={play} class="btn btn-primary">
         <Show
           when={!getLoading()}
-          fallback={<span class="loading loading-spinner loading-lg" />}
+          fallback={<span class="loading loading-spinner" />}
         >
           <HiSolidPlayCircle class="size-5" />
           Add to mpv queue
