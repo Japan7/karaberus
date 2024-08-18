@@ -30,10 +30,10 @@ pub fn run() {
 async fn play_mpv(
     app_handle: AppHandle,
     state: State<'_, AppState>,
-    auth: String,
     video: Option<String>,
     inst: Option<String>,
     sub: Option<String>,
+    token: String,
 ) -> Result<(), ()> {
     let mut app_state = state.lock().await;
     let mpv = app_state.mpv.get_or_insert_with(|| {
@@ -41,21 +41,21 @@ async fn play_mpv(
             app_handle.clone(),
             state.inner().clone(),
             get_mpv_socket(&app_handle),
-            auth,
+            token,
         )
     });
     tauri::async_runtime::spawn(add_to_mpv_playlist(mpv.clone(), video, inst, sub));
     Ok(())
 }
 
-fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, auth: String) -> Mpv {
+fn start_mpv(app_handle: AppHandle, state: AppState, socket: String, token: String) -> Mpv {
     let mut mpv = app_handle.shell().command("mpv");
     mpv = mpv.args([
         "--idle=once",
         "--quiet",
         "--save-position-on-quit=no",
-        &format!("--input-ipc-server={}", socket),
-        &format!("--http-header-fields=Authorization: Bearer {auth}"),
+        &format!("--input-ipc-server={socket}"),
+        &format!("--http-header-fields=Authorization: Bearer {token}"),
     ]);
     let (mut rx, _) = mpv.spawn().unwrap();
 

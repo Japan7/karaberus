@@ -1,5 +1,6 @@
 import { cookieStorage } from "@solid-primitives/storage";
 import { decodeJwt } from "jose";
+import { karaberus } from "./karaberus-client";
 import { IS_TAURI_DIST_BUILD } from "./tauri";
 
 export interface KaraberusJwtPayload {
@@ -48,3 +49,25 @@ export function getSessionInfos() {
 }
 
 export const isAdmin = () => getSessionInfos()?.is_admin ?? false;
+
+export async function getPlayerToken() {
+  const resp = await karaberus.GET("/api/token");
+  const tokens = resp.data;
+  if (!Array.isArray(tokens)) {
+    throw new Error(resp.error?.title);
+  }
+  let token = tokens.find((t) => t.name === "karaberus_player")?.id;
+  if (!token) {
+    const resp = await karaberus.POST("/api/token", {
+      body: {
+        name: "karaberus_player",
+        scopes: { kara: false, kara_ro: true, user: false },
+      },
+    });
+    if (resp.error) {
+      throw new Error(resp.error.title);
+    }
+    token = resp.data.token;
+  }
+  return token;
+}

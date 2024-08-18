@@ -1,7 +1,7 @@
+import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, createSignal, Index, Show } from "solid-js";
 import TokenForm from "../components/TokenForm";
 import { karaberus } from "../utils/karaberus-client";
-import { HiSolidTrash } from "solid-icons/hi";
 
 export default function Settings() {
   const [getAllTokens, { refetch: refetchTokens }] = createResource(
@@ -57,7 +57,7 @@ export default function Settings() {
           <Index each={getAllTokens()}>
             {(getToken) => (
               <tr class="hover">
-                <th class="font-mono break-all max-w-xs">{getToken().ID}</th>
+                <th class="font-mono break-all max-w-xs">{getToken().name}</th>
                 <td>
                   <ul class="w-full">
                     <li classList={{ hidden: !getToken().scopes.kara }}>
@@ -71,10 +71,10 @@ export default function Settings() {
                     </li>
                   </ul>
                 </td>
-                <td>{new Date(getToken().CreatedAt).toLocaleString()}</td>
+                <td>{new Date(getToken().created_at).toLocaleString()}</td>
                 <td>
                   <button
-                    onclick={() => deleteToken(getToken().ID)}
+                    onclick={() => deleteToken(getToken().id)}
                     class="btn btn-sm"
                   >
                     <HiSolidTrash class="size-4" />
