@@ -34,7 +34,7 @@ export default function AuthHero() {
         <div class="hero-content text-neutral-content flex-col lg:flex-row-reverse lg:gap-x-12">
           <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Karaberus</h1>
-            <p class="py-6">wow such empty</p>
+            <p class="py-6">Karaoke Database</p>
           </div>
           <div class="card bg-base-100 bg-opacity-60 w-full max-w-sm shrink-0 shadow-2xl">
             <div class="card-body">

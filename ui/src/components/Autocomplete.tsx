@@ -100,6 +100,7 @@ export default function Autocomplete<T>(
               onkeydown={handleKeyDownInput}
               ref={inputRef}
               class="bg-transparent outline-none w-full"
+              tabindex="0"
               {...inputProps}
             />
           }
@@ -120,6 +121,7 @@ export default function Autocomplete<T>(
           onkeydown={handleKeyDownDropdown}
           ref={dropdownRef}
           class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto"
+          tabindex="0"
         >
           <ul>
             <For each={getFilteredItems()}>
