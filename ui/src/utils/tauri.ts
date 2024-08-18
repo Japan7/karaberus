@@ -38,3 +38,5 @@ export function getStore() {
   }
   return store;
 }
+
+export const PLAYER_TOKEN_KEY = "player_token";

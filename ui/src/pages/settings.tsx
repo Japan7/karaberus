@@ -2,6 +2,8 @@ import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, createSignal, Index, Show } from "solid-js";
 import TokenForm from "../components/TokenForm";
 import { karaberus } from "../utils/karaberus-client";
+import { isTauri } from "@tauri-apps/api/core";
+import { getStore, PLAYER_TOKEN_KEY } from "../utils/tauri";
 
 export default function Settings() {
   const [getAllTokens, { refetch: refetchTokens }] = createResource(
@@ -25,9 +27,24 @@ export default function Settings() {
     refetchTokens();
   };
 
+  const resetPlayerToken = async () => {
+    const store = getStore();
+    await store.delete(PLAYER_TOKEN_KEY);
+    await store.save();
+    await Promise.all(getAllTokens()?.map((t) => deleteToken(t.id)) ?? []);
+    refetchTokens();
+  };
+
   return (
     <>
       <h1 class="header">Settings</h1>
+
+      <Show when={isTauri()}>
+        <h2 class="text-2xl font-semibold">Reset Player Token</h2>
+        <button class="btn btn-error mb-8" onclick={resetPlayerToken}>
+          Reset
+        </button>
+      </Show>
 
       <h2 class="text-2xl font-semibold">Create Token</h2>
 
