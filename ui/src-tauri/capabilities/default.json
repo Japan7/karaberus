@@ -8,17 +8,7 @@
     "updater:default",
     "os:default",
     "dialog:default",
-    "shell:default",
-    {
-      "identifier": "shell:allow-spawn",
-      "allow": [
-        {
-          "name": "mpv",
-          "cmd": "mpv",
-          "args": true,
-          "sidecar": false
-        }
-      ]
-    }
+    "store:default",
+    "shell:default"
   ]
 }

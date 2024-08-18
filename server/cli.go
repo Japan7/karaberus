@@ -31,16 +31,16 @@ func MakeCli() {
 	})
 
 	rootCmd.AddCommand(&cobra.Command{
-		Use:   "create-token <user_id>",
+		Use:   "create-token <user_id> <name>",
 		Short: "Create a token for the given user",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			db := GetDB(context.TODO())
 			user := User{ID: args[0]}
 			if err := db.First(&user).Error; err != nil {
 				panic(err)
 			}
-			token, err := createTokenForUser(context.TODO(), user, AllScopes)
+			token, err := createTokenForUser(context.TODO(), user, args[1], AllScopes)
 			if err != nil {
 				panic(err)
 			}

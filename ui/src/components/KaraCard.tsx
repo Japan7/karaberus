@@ -1,3 +1,4 @@
+import { isTauri } from "@tauri-apps/api/core";
 import {
   FaSolidCalendarDays,
   FaSolidDiagramProject,
@@ -8,6 +9,7 @@ import {
 import { Index, Show } from "solid-js";
 import type { components } from "../utils/karaberus";
 import type { TagMap } from "../utils/karaoke";
+import MpvKaraPlayer from "./MpvKaraPlayer";
 
 const toTitleCase = (str: string) =>
   str[0].toUpperCase() + str.slice(1).toLowerCase();
@@ -66,6 +68,10 @@ export default function KaraCard(props: {
               )}
             </Show>
           </p>
+
+          <Show when={isTauri()}>
+            <MpvKaraPlayer kara={props.kara} />
+          </Show>
 
           <div class="flex justify-between">
             <label class="label gap-x-1">

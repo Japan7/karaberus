@@ -2,6 +2,7 @@ import { createSignal, type JSX } from "solid-js";
 import { karaberus } from "../utils/karaberus-client";
 
 export default function TokenForm(props: { onToken: (token: string) => void }) {
+  const [getName, setName] = createSignal("");
   const [getKaraChecked, setKaraChecked] = createSignal(false);
   const [getKaraROChecked, setKaraROChecked] = createSignal(false);
   const [getUserChecked, setUserChecked] = createSignal(false);
@@ -11,9 +12,12 @@ export default function TokenForm(props: { onToken: (token: string) => void }) {
 
     const resp = await karaberus.POST("/api/token", {
       body: {
-        kara: getKaraChecked(),
-        kara_ro: getKaraROChecked(),
-        user: getUserChecked(),
+        name: getName(),
+        scopes: {
+          kara: getKaraChecked(),
+          kara_ro: getKaraROChecked(),
+          user: getUserChecked(),
+        },
       },
     });
 
@@ -22,6 +26,7 @@ export default function TokenForm(props: { onToken: (token: string) => void }) {
       return;
     }
 
+    setName("");
     setKaraChecked(false);
     setKaraROChecked(false);
     setUserChecked(false);
@@ -30,6 +35,14 @@ export default function TokenForm(props: { onToken: (token: string) => void }) {
 
   return (
     <form onSubmit={onsubmit} class="flex flex-col gap-y-1 max-w-xs">
+      <input
+        type="text"
+        required
+        placeholder="Name"
+        value={getName()}
+        oninput={(e) => setName(e.currentTarget.value)}
+        class="input input-bordered"
+      />
       <div class="form-control">
         <label class="label cursor-pointer">
           <span class="label-text">Karaoke</span>

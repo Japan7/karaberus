@@ -109,11 +109,12 @@ func (scopes Scopes) HasScope(scope string) bool {
 }
 
 type Token struct {
-	ID        string `gorm:"primarykey"`
-	UserID    string
-	User      User `gorm:"foreignKey:UserID;references:ID"`
-	CreatedAt time.Time
-	Scopes    Scopes `gorm:"embedded" json:"scopes"`
+	ID        string    `gorm:"primarykey" json:"id"`
+	UserID    string    `json:"user_id"`
+	User      User      `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	Scopes    Scopes    `gorm:"embedded" json:"scopes"`
 }
 
 // Artists

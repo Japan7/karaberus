@@ -23,7 +23,10 @@ func GetAllUserTokens(ctx context.Context, input *struct{}) (*GetAllTokensOutput
 }
 
 type CreateTokenInput struct {
-	Body Scopes
+	Body struct {
+		Name   string `json:"name"`
+		Scopes Scopes `json:"scopes"`
+	}
 }
 
 type CreateTokenOutput struct {
@@ -33,7 +36,7 @@ type CreateTokenOutput struct {
 }
 
 func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
-	token, err := createTokenForUser(ctx, *getCurrentUser(ctx), input.Body)
+	token, err := createTokenForUser(ctx, *getCurrentUser(ctx), input.Body.Name, input.Body.Scopes)
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
@@ -42,7 +45,7 @@ func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutp
 	return out, nil
 }
 
-func createTokenForUser(ctx context.Context, user User, scopes Scopes) (*Token, error) {
+func createTokenForUser(ctx context.Context, user User, name string, scopes Scopes) (*Token, error) {
 	token_id, err := generateToken()
 	if err != nil {
 		return nil, err
@@ -52,6 +55,7 @@ func createTokenForUser(ctx context.Context, user User, scopes Scopes) (*Token, 
 		ID:        token_id,
 		User:      user,
 		CreatedAt: time.Now(),
+		Name:      name,
 		Scopes:    scopes,
 	}
 	if err = db.Create(&token).Error; err != nil {
