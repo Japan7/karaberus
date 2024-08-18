@@ -235,5 +235,5 @@ func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, isOIDC
 		}
 	}
 
-	return false
+	return true
 }
