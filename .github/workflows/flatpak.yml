@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Japan7/karaberus-flatpak
+          token: ${{ secrets.KARABERUS_FLATPAK_PAT }}
 
       - run: |
           TAG="${GITHUB_REF#refs/tags/}"
