@@ -60,6 +60,10 @@ go_test_env.set('KARABERUS_TEST_DIR_GENERATED', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
+# go test binaries env
+gobin_env = environment()
+gobin_env.set('GOBIN', meson.current_build_dir())
+
 ui_source = meson.current_source_dir() / 'ui'
 
 # npm wrapper env
@@ -270,7 +274,7 @@ if get_option('test')
                 'honnef.co/go/tools/cmd/staticcheck',
             ],
             output: 'staticcheck',
-            env: {'GOBIN': meson.current_build_dir()},
+            env: gobin_env,
         )
         test(
             'staticcheck',
@@ -293,7 +297,7 @@ if get_option('test')
                 'github.com/kisielk/errcheck',
             ],
             output: 'errcheck',
-            env: {'GOBIN': meson.current_build_dir()},
+            env: gobin_env,
         )
         test(
             'errcheck',
