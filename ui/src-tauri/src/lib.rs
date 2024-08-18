@@ -16,7 +16,11 @@ type AppState = Arc<Mutex<AppStateInner>>;
 
 type AppStore = StoreCollection<Wry>;
 
-const STORE_BIN: &str = "store.bin";
+const STORE_BIN: &str = if cfg!(dev) {
+    "store_dev.bin"
+} else {
+    "store.bin"
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

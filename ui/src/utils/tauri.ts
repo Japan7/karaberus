@@ -34,7 +34,7 @@ export function registerGlobalListeners() {
 let store: Store;
 export function getStore() {
   if (!store) {
-    store = new Store("store.bin");
+    store = new Store(IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin");
   }
   return store;
 }

@@ -79,7 +79,7 @@ impl Mpv {
         let mpv_command = format!("{}\n", serde_json::to_string(&command).unwrap());
 
         //TODO: Handle possible failures and response received
-        let mut n_tries = 5;
+        let mut n_tries = 10;
         let conn = loop {
             match Stream::connect(name.clone()) {
                 Ok(conn) => break conn,
