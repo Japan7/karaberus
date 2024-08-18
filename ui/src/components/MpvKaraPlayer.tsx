@@ -25,9 +25,9 @@ export default function MpvKaraPlayer(props: {
 
   return (
     <Show when={props.kara.VideoUploaded || props.kara.InstrumentalUploaded}>
-      <button onclick={play} class="btn btn-lg btn-primary">
+      <button onclick={play} class="btn btn-primary">
         <HiSolidPlayCircle class="size-5" />
-        Open in mpv
+        Add to mpv queue
       </button>
     </Show>
   );
