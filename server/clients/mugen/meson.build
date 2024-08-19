@@ -14,8 +14,10 @@ if get_option('network_tests').enabled() and get_option('test')
         command: [
             go,
             'test',
+            '-C',
+            meson.current_source_dir(),
             '-o',
-            '@OUTPUT@',
+            meson.current_build_dir() / mugen_test_output,
             '-c',
             meson.current_source_dir(),
         ],
