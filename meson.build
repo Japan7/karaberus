@@ -109,6 +109,7 @@ karaberus_inputs = go_files + karaberus_server_files
 karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 
 if get_option('no_native_deps')
+    karaberus_output = meson.current_build_dir() / 'karaberus'
     karaberus = custom_target(
         'karaberus',
         build_by_default: true,
@@ -121,7 +122,7 @@ if get_option('no_native_deps')
             '-C',
             meson.current_source_dir(),
             '-o',
-            '@OUTPUT@',
+            karaberus_output,
             meson.current_source_dir(),
         ],
         install: true,
@@ -129,6 +130,7 @@ if get_option('no_native_deps')
         install_mode: 'rwxr-xr-x',
     )
 else
+    karaberus_output = meson.current_build_dir() / 'karaberus.a'
     karaberus_archive = custom_target(
         'karaberus.a',
         env: go_env,
@@ -139,7 +141,7 @@ else
             meson.current_source_dir(),
             '-buildmode=c-archive',
             '-o',
-            '@OUTPUT@',
+            karaberus_output,
             meson.current_source_dir(),
         ],
         input: karaberus_inputs,
@@ -182,7 +184,7 @@ karaberus_test = custom_target(
         '-C',
         meson.current_source_dir(),
         '-o',
-        '@OUTPUT@',
+        karaberus_test_output,
         '-c',
         karaberus_server_path,
     ],
