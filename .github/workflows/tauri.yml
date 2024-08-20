@@ -73,7 +73,10 @@ jobs:
       - name: generate release notes (tag)
         id: release_notes
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: echo notes="$(gh api -X POST /repos/${{ github.repository }}/releases/generate-notes -f tag_name=${{ github.ref_name }} | yq .body)" >> "$GITHUB_OUTPUT"
+        run: |
+          notes="$(gh api -X POST /repos/${{ github.repository }}/releases/generate-notes -f tag_name=${{ github.ref_name }} | yq .body)"
+          notes="A Flatpak repository is also available, see https://github.com/Japan7/karaberus-flatpak\n\n$notes"
+          echo notes="$notes" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
