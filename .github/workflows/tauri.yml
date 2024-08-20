@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release_notes:
+  release-notes:
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
         id: release_notes
         run: |
           notes="$(gh api -X POST /repos/${{ github.repository }}/releases/generate-notes -f tag_name=${{ github.ref_name }} | yq .body)"
-          notes="A Flatpak repository is also available, see https://github.com/Japan7/karaberus-flatpak\n\n$notes"
+          notes="A Flatpak repository is also available, see https://github.com/Japan7/karaberus-flatpak\r\n\r\n$notes"
           echo notes="$notes" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,7 +33,7 @@ jobs:
       notes: ${{ steps.release_notes.outputs.notes }}
 
   build-tauri:
-    needs: release_notes
+    needs: release-notes
     if: ${{ !startsWith(github.ref, 'refs/tags/') || always() }}
 
     permissions:
@@ -99,7 +99,7 @@ jobs:
           projectPath: ui
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'App v__VERSION__'
-          releaseBody: ${{ needs.release_notes.outputs.notes }}
+          releaseBody: ${{ needs.release-notes.outputs.notes }}
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
