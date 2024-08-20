@@ -25,7 +25,7 @@ jobs:
         id: release_notes
         run: |
           notes="$(gh api -X POST /repos/${{ github.repository }}/releases/generate-notes -f tag_name=${{ github.ref_name }} | yq .body)"
-          notes="A Flatpak repository is also available, see https://github.com/Japan7/karaberus-flatpak\r\n\r\n$notes"
+          notes="A Flatpak repository is also available, see https://github.com/Japan7/karaberus-flatpak<br><br>$notes"
           echo notes="$notes" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
