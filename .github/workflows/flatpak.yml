@@ -3,6 +3,7 @@ name: Update flatpak
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   update-flatpak:

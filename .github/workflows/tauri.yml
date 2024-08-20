@@ -70,6 +70,13 @@ jobs:
         run: npm ci # change this to npm or pnpm depending on which one you use.
         working-directory: ui
 
+      - name: generate release notes (tag)
+        id: release_notes
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: echo notes="$(gh api -X POST /repos/${{ github.repository }}/releases/generate-notes -f tag_name=${{ github.ref_name }} | yq .body)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: build and publish (tag)
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: tauri-apps/tauri-action@v0
@@ -81,7 +88,7 @@ jobs:
           projectPath: ui
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'App v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
+          releaseBody: ${{ steps.release_notes.outputs.notes }}
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
