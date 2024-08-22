@@ -1,5 +1,5 @@
 import { HiSolidTrash } from "solid-icons/hi";
-import { createResource, Index } from "solid-js";
+import { createResource, createSignal, Index, Show } from "solid-js";
 import ArtistEditor from "../../components/ArtistEditor";
 import { karaberus } from "../../utils/karaberus-client";
 import { isAdmin } from "../../utils/session";
@@ -9,6 +9,8 @@ export default function TagsArtist() {
     const resp = await karaberus.GET("/api/tags/artist");
     return resp.data;
   });
+
+  const [getToast, setToast] = createSignal<string>();
 
   const deleteArtist = async (id: number) => {
     const resp = await karaberus.DELETE("/api/tags/artist/{id}", {
@@ -29,7 +31,8 @@ export default function TagsArtist() {
 
       <ArtistEditor
         onAdd={() => {
-          alert("Artist added!");
+          setToast("Artist added!");
+          setTimeout(() => setToast(), 3000);
           refetch();
         }}
       />
@@ -64,7 +67,7 @@ export default function TagsArtist() {
                   <button
                     disabled={!isAdmin()}
                     onclick={() => deleteArtist(getArtist().ID)}
-                    class="btn btn-sm"
+                    class="btn btn-sm btn-error"
                   >
                     <HiSolidTrash class="size-4" />
                   </button>
@@ -74,6 +77,16 @@ export default function TagsArtist() {
           </Index>
         </tbody>
       </table>
+
+      <Show when={getToast()}>
+        {(getToast) => (
+          <div class="toast">
+            <div class="alert alert-success">
+              <span>{getToast()}</span>
+            </div>
+          </div>
+        )}
+      </Show>
     </>
   );
 }

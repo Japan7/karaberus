@@ -1,5 +1,5 @@
 import { HiSolidTrash } from "solid-icons/hi";
-import { createResource, Index } from "solid-js";
+import { createResource, createSignal, Index, Show } from "solid-js";
 import DownloadAnchor from "../../components/DownloadAnchor";
 import FileUploader from "../../components/FileUploader";
 import { apiUrl, karaberus } from "../../utils/karaberus-client";
@@ -10,8 +10,11 @@ export default function FontsBrowse() {
     return resp.data?.Fonts;
   });
 
+  const [getToast, setToast] = createSignal<string>();
+
   const onUpload = () => {
-    alert("Font uploaded!");
+    setToast("Font uploaded!");
+    setTimeout(() => setToast(), 3000);
     refetch();
   };
 
@@ -53,7 +56,7 @@ export default function FontsBrowse() {
                 </td>
                 <td>{new Date(getFont().UpdatedAt).toLocaleString()}</td>
                 <td>
-                  <button disabled class="btn btn-sm">
+                  <button disabled class="btn btn-error btn-sm">
                     <HiSolidTrash class="size-4" />
                   </button>
                 </td>
@@ -62,6 +65,16 @@ export default function FontsBrowse() {
           </Index>
         </tbody>
       </table>
+
+      <Show when={getToast()}>
+        {(getToast) => (
+          <div class="toast">
+            <div class="alert alert-success">
+              <span>{getToast()}</span>
+            </div>
+          </div>
+        )}
+      </Show>
     </>
   );
 }

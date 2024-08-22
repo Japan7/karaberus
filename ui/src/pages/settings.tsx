@@ -40,7 +40,7 @@ export default function Settings() {
 
       <Show when={isTauri()}>
         <h2 class="text-2xl font-semibold">Reset Player Token</h2>
-        <button class="btn btn-error mb-8" onclick={resetPlayerToken}>
+        <button class="btn btn-warning mb-8" onclick={resetPlayerToken}>
           Reset
         </button>
       </Show>
@@ -91,7 +91,7 @@ export default function Settings() {
                 <td>
                   <button
                     onclick={() => deleteToken(getToken().id)}
-                    class="btn btn-sm"
+                    class="btn btn-error btn-sm"
                   >
                     <HiSolidTrash class="size-4" />
                   </button>

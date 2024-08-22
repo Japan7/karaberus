@@ -1,5 +1,5 @@
 import { HiSolidTrash } from "solid-icons/hi";
-import { createResource, Index } from "solid-js";
+import { createResource, createSignal, Index, Show } from "solid-js";
 import MediaEditor from "../../components/MediaEditor";
 import { karaberus } from "../../utils/karaberus-client";
 import { isAdmin } from "../../utils/session";
@@ -9,6 +9,8 @@ export default function TagsMedia() {
     const resp = await karaberus.GET("/api/tags/media");
     return resp.data;
   });
+
+  const [getToast, setToast] = createSignal<string>();
 
   const deleteArtist = async (id: number) => {
     const resp = await karaberus.DELETE("/api/tags/media/{id}", {
@@ -29,7 +31,8 @@ export default function TagsMedia() {
 
       <MediaEditor
         onAdd={() => {
-          alert("Media added!");
+          setToast("Media added!");
+          setTimeout(() => setToast(), 3000);
           refetch();
         }}
       />
@@ -66,7 +69,7 @@ export default function TagsMedia() {
                   <button
                     disabled={!isAdmin()}
                     onclick={() => deleteArtist(getMedia().ID)}
-                    class="btn btn-sm"
+                    class="btn btn-sm btn-error"
                   >
                     <HiSolidTrash class="size-4" />
                   </button>
@@ -76,6 +79,16 @@ export default function TagsMedia() {
           </Index>
         </tbody>
       </table>
+
+      <Show when={getToast()}>
+        {(getToast) => (
+          <div class="toast">
+            <div class="alert alert-success">
+              <span>{getToast()}</span>
+            </div>
+          </div>
+        )}
+      </Show>
     </>
   );
 }

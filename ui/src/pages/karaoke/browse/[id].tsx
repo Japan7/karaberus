@@ -33,8 +33,11 @@ export default function KaraokeBrowseId() {
     return resp.data;
   });
 
+  const [getToast, setToast] = createSignal<string>();
+
   const onUpload = () => {
-    alert("Upload complete!");
+    setToast("Upload complete!");
+    setTimeout(() => setToast(), 3000);
     refetch();
   };
 
@@ -53,7 +56,8 @@ export default function KaraokeBrowseId() {
       return;
     }
 
-    alert("Karaoke updated!");
+    setToast("Karaoke updated!");
+    setTimeout(() => setToast(), 3000);
     refetch();
   };
 
@@ -204,6 +208,16 @@ export default function KaraokeBrowseId() {
           </button>
         </div>
       </div>
+
+      <Show when={getToast()}>
+        {(getToast) => (
+          <div class="toast">
+            <div class="alert alert-success">
+              <span>{getToast()}</span>
+            </div>
+          </div>
+        )}
+      </Show>
     </>
   );
 }
