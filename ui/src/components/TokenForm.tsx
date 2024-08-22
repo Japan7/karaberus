@@ -76,7 +76,7 @@ export default function TokenForm(props: { onToken: (token: string) => void }) {
           />
         </label>
       </div>
-      <input type="submit" class="btn w-full" />
+      <input type="submit" class="btn btn-primary w-full" />
     </form>
   );
 }

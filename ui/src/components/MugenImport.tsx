@@ -58,7 +58,7 @@ export default function MugenImport(props: {
         </div>
       </label>
 
-      <input type="submit" class="btn" />
+      <input type="submit" class="btn btn-primary" />
     </form>
   );
 }

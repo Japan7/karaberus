@@ -37,7 +37,7 @@ export default function AuthorEditor(props: {
         />
       </label>
 
-      <input type="submit" class="btn" />
+      <input type="submit" class="btn btn-primary" />
     </form>
   );
 }

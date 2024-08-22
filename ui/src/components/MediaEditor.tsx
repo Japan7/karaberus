@@ -80,7 +80,7 @@ export default function MediaEditor(props: {
         />
       </label>
 
-      <input type="submit" class="btn" />
+      <input type="submit" class="btn btn-primary" />
     </form>
   );
 }
