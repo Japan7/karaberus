@@ -1,27 +1,25 @@
 import { createSignal, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
-import { karaberus } from "../utils/karaberus-client";
 
 export default function ArtistEditor(props: {
-  onAdd: (artist: components["schemas"]["Artist"]) => void;
+  artist?: components["schemas"]["Artist"];
+  onSubmit: (artist: components["schemas"]["ArtistInfo"]) => void;
+  reset?: boolean;
 }) {
-  const [getName, setName] = createSignal("");
-  const [getAdditionalNames, setAdditionalNames] = createSignal("");
+  const [getName, setName] = createSignal(props.artist?.Name ?? "");
+  const [getAdditionalNames, setAdditionalNames] = createSignal(
+    props.artist?.AdditionalNames?.join("\n") ?? "",
+  );
 
-  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
+  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
-    const resp = await karaberus.POST("/api/tags/artist", {
-      body: {
-        name: getName(),
-        additional_names: getAdditionalNames().trim().split("\n"),
-      },
+    props.onSubmit({
+      name: getName(),
+      additional_names: getAdditionalNames().trim().split("\n"),
     });
-    if (resp.error) {
-      alert(resp.error.title);
-      return;
+    if (props.reset) {
+      (e.target as HTMLFormElement).reset();
     }
-    (e.target as HTMLFormElement).reset();
-    props.onAdd(resp.data.artist);
   };
 
   return (

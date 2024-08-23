@@ -9,7 +9,8 @@ import MediaEditor from "./MediaEditor";
 
 export default function KaraEditor(props: {
   kara?: components["schemas"]["KaraInfoDB"];
-  onSubmit: (info: components["schemas"]["KaraInfo"]) => void;
+  onSubmit: (kara: components["schemas"]["KaraInfo"]) => void;
+  reset?: boolean;
 }) {
   //#region Resources
   const [getAllAuthors, { refetch: refetchAuthors }] = createResource(
@@ -37,72 +38,55 @@ export default function KaraEditor(props: {
     return resp.data;
   });
 
-  const getAudioTag = (tagId: string) =>
+  const getAudioTag = (tagId: components["schemas"]["AudioTag"]["ID"]) =>
     (getAllAudioTags() || []).find((t) => t.ID == tagId);
   //#endregion
 
   //#region Signals
-  const [getTitle, setTitle] = createSignal("");
-  const [getExtraTitles, setExtraTitles] = createSignal("");
+  const [getTitle, setTitle] = createSignal(props.kara?.Title ?? "");
+  const [getExtraTitles, setExtraTitles] = createSignal(
+    props.kara?.ExtraTitles?.map((v) => v.Name).join("\n") ?? "",
+  );
   const [getAuthors, setAuthors] = createSignal<
     components["schemas"]["TimingAuthor"][]
-  >([]);
+  >(props.kara?.Authors ?? []);
   const [getArtists, setArtists] = createSignal<
     components["schemas"]["Artist"][]
-  >([]);
-  const [getSourceMedia, setSourceMedia] =
-    createSignal<components["schemas"]["MediaDB"]>();
-  const [getSongOrder, setSongOrder] = createSignal<number>();
+  >(props.kara?.Artists ?? []);
+  const [getSourceMedia, setSourceMedia] = createSignal<
+    components["schemas"]["MediaDB"] | undefined
+  >(props.kara?.SourceMedia);
+  const [getSongOrder, setSongOrder] = createSignal<number | undefined>(
+    props.kara?.SongOrder,
+  );
   const [getMedias, setMedias] = createSignal<
     components["schemas"]["MediaDB"][]
-  >([]);
+  >(props.kara?.Medias ?? []);
   const [getAudioTags, setAudioTags] = createSignal<
     components["schemas"]["AudioTagDB"][]
-  >([]);
+  >(props.kara?.AudioTags ?? []);
   const [getVideoTags, setVideoTags] = createSignal<
     components["schemas"]["VideoTagDB"][]
-  >([]);
-  const [getComment, setComment] = createSignal("");
-  const [getVersion, setVersion] = createSignal("");
-  const [getLanguage, setLanguage] = createSignal("");
-
-  if (props.kara) {
-    setTitle(props.kara.Title);
-    if (props.kara.ExtraTitles) {
-      setExtraTitles(props.kara.ExtraTitles.map((v) => v.Name).join("\n"));
-    }
-    if (props.kara.Authors) {
-      setAuthors(props.kara.Authors);
-    }
-    if (props.kara.Artists) {
-      setArtists(props.kara.Artists);
-    }
-    if (props.kara.SourceMedia) {
-      setSourceMedia(props.kara.SourceMedia);
-    }
-    setSongOrder(props.kara.SongOrder);
-    if (props.kara.Medias) {
-      setMedias(props.kara.Medias);
-    }
-    if (props.kara.AudioTags) {
-      setAudioTags(props.kara.AudioTags);
-    }
-    if (props.kara.VideoTags) {
-      setVideoTags(props.kara.VideoTags);
-    }
-    setComment(props.kara.Comment);
-    setVersion(props.kara.Version);
-    setLanguage(props.kara.Language);
-  }
+  >(props.kara?.VideoTags ?? []);
+  const [getComment, setComment] = createSignal(props.kara?.Comment ?? "");
+  const [getVersion, setVersion] = createSignal(props.kara?.Version ?? "");
+  const [getLanguage, setLanguage] = createSignal(props.kara?.Language ?? "");
   //#endregion
 
   //#region Handlers
   let modalRef!: HTMLDialogElement;
+  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
 
-  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
+  const [getToast, setToast] = createSignal<string>();
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(), 3000);
+  };
+
+  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
-
-    const payload: components["schemas"]["KaraInfo"] = {
+    props.onSubmit({
       title: getTitle(),
       title_aliases: getExtraTitles().trim().split("\n") || null,
       authors: getAuthors().map((author) => author.ID) || null,
@@ -115,49 +99,60 @@ export default function KaraEditor(props: {
       comment: getComment(),
       version: getVersion(),
       language: getLanguage(),
-    };
-
-    props.onSubmit(payload);
+    });
+    if (props.reset) {
+      (e.target as HTMLFormElement).reset();
+    }
   };
 
-  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
+  const postAuthor = async (author: components["schemas"]["AuthorInfo"]) => {
+    const resp = await karaberus.POST("/api/tags/author", { body: author });
+    if (resp.error) {
+      alert(resp.error.title);
+      return;
+    }
+    showToast("Author added!");
+    refetchAuthors();
+    modalRef.close();
+  };
 
   const openAddAuthorModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setModalForm(
-      <AuthorEditor
-        onAdd={() => {
-          refetchAuthors();
-          modalRef.close();
-        }}
-      />,
-    );
+    setModalForm(<AuthorEditor onSubmit={postAuthor} />);
     modalRef.showModal();
+  };
+
+  const postArtist = async (artist: components["schemas"]["ArtistInfo"]) => {
+    const resp = await karaberus.POST("/api/tags/artist", { body: artist });
+    if (resp.error) {
+      alert(resp.error.title);
+      return;
+    }
+    showToast("Artist added!");
+    refetchArtists();
+    modalRef.close();
   };
 
   const openAddArtistModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setModalForm(
-      <ArtistEditor
-        onAdd={() => {
-          refetchArtists();
-          modalRef.close();
-        }}
-      />,
-    );
+    setModalForm(<ArtistEditor onSubmit={postArtist} />);
     modalRef.showModal();
+  };
+
+  const postMedia = async (media: components["schemas"]["MediaInfo"]) => {
+    const resp = await karaberus.POST("/api/tags/media", { body: media });
+    if (resp.error) {
+      alert(resp.error.title);
+      return;
+    }
+    showToast("Media added!");
+    refetchMedia();
+    modalRef.close();
   };
 
   const openAddMediaModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setModalForm(
-      <MediaEditor
-        onAdd={() => {
-          refetchMedia();
-          modalRef.close();
-        }}
-      />,
-    );
+    setModalForm(<MediaEditor onSubmit={postMedia} />);
     modalRef.showModal();
   };
   //#endregion
@@ -473,6 +468,16 @@ export default function KaraEditor(props: {
           <button>close</button>
         </form>
       </dialog>
+
+      <Show when={getToast()}>
+        {(getToast) => (
+          <div class="toast">
+            <div class="alert alert-success">
+              <span>{getToast()}</span>
+            </div>
+          </div>
+        )}
+      </Show>
     </>
   );
 }

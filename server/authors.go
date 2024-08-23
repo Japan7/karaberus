@@ -37,24 +37,74 @@ func GetAuthor(ctx context.Context, input *GetAuthorInput) (*AuthorOutput, error
 	return author_output, nil
 }
 
+type AuthorInfo struct {
+	Name string `json:"name"`
+}
+
 type CreateAuthorInput struct {
-	Body struct {
-		Name string `json:"name"`
-	}
+	Body AuthorInfo
 }
 
 func CreateAuthor(ctx context.Context, input *CreateAuthorInput) (*AuthorOutput, error) {
 	db := GetDB(ctx)
-	author_output := &AuthorOutput{}
+	output := AuthorOutput{}
 
-	err := db.Transaction(
-		func(tx *gorm.DB) error {
-			author_output.Body.Author = TimingAuthor{Name: input.Body.Name}
-			err := tx.Create(&author_output.Body.Author).Error
-			return DBErrToHumaErr(err)
-		})
+	err := db.Transaction(func(tx *gorm.DB) error {
+		author := TimingAuthor{}
+		err := input.Body.to_TimingAuthor(&author)
+		if err != nil {
+			return err
+		}
+		output.Body.Author = author
 
-	return author_output, err
+		err = tx.Create(&output.Body.Author).Error
+		return err
+	})
+
+	return &output, err
+}
+
+type UpdateAuthorInput struct {
+	Id   uint `path:"id"`
+	Body AuthorInfo
+}
+
+func updateAuthor(tx *gorm.DB, author *TimingAuthor) error {
+	err := tx.Model(&author).Select("*").Updates(&author).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*AuthorOutput, error) {
+	db := GetDB(ctx)
+	author := TimingAuthor{}
+	err := db.First(&author, input.Id).Error
+	if err != nil {
+		return nil, err
+	}
+	err = input.Body.to_TimingAuthor(&author)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Transaction(func(tx *gorm.DB) error {
+		return updateAuthor(tx, &author)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	out := &AuthorOutput{}
+	out.Body.Author = author
+
+	return out, nil
+}
+
+func (info AuthorInfo) to_TimingAuthor(author *TimingAuthor) error {
+	author.Name = info.Name
+	return nil
 }
 
 type DeleteAuthorResponse struct {

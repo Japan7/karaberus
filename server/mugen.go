@@ -66,7 +66,7 @@ func getMugenMedia(tx *gorm.DB, tag mugen.MugenTag, origins []mugen.MugenTag, co
 	additional_names := []string{}
 	err := findMedia(tx, []string{tag.Name}, media)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		err = createMedia(tx, tag.Name, *media_type, additional_names, media)
+		err = createMedia(tx, media, &MediaInfo{tag.Name, media_type.ID, additional_names})
 	}
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func getMugenArtist(tx *gorm.DB, mugen_artist mugen.MugenTag, karaberus_artist *
 
 	err := findArtist(tx, artistNames, karaberus_artist)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		err = createArtist(tx, mugen_artist.Name, mugen_artist.Aliases, karaberus_artist)
+		err = createArtist(tx, karaberus_artist, &ArtistInfo{mugen_artist.Name, mugen_artist.Aliases})
 	}
 	return err
 }

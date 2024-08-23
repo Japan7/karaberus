@@ -1,23 +1,19 @@
 import { createSignal, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
-import { karaberus } from "../utils/karaberus-client";
 
 export default function AuthorEditor(props: {
-  onAdd: (author: components["schemas"]["TimingAuthor"]) => void;
+  author?: components["schemas"]["TimingAuthor"];
+  onSubmit: (author: components["schemas"]["AuthorInfo"]) => void;
+  reset?: boolean;
 }) {
-  const [getName, setName] = createSignal("");
+  const [getName, setName] = createSignal(props.author?.Name ?? "");
 
-  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
+  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
-    const resp = await karaberus.POST("/api/tags/author", {
-      body: { name: getName() },
-    });
-    if (resp.error) {
-      alert(resp.error.title);
-      return;
+    props.onSubmit({ name: getName() });
+    if (props.reset) {
+      (e.target as HTMLFormElement).reset();
     }
-    (e.target as HTMLFormElement).reset();
-    props.onAdd(resp.data.author);
   };
 
   return (

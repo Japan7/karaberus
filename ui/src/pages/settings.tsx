@@ -2,6 +2,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import { HiSolidTrash } from "solid-icons/hi";
 import { createResource, createSignal, Index, Show } from "solid-js";
 import TokenForm from "../components/TokenForm";
+import type { paths } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 import { getTauriStore, PLAYER_TOKEN_KEY } from "../utils/tauri";
 
@@ -14,7 +15,9 @@ export default function Settings() {
   );
   const [getToken, setToken] = createSignal<string>();
 
-  const deleteToken = async (id: number) => {
+  const deleteToken = async (
+    id: paths["/api/token/{token}"]["delete"]["parameters"]["path"]["token"],
+  ) => {
     if (!confirm("Confirm deletion?")) {
       return;
     }
