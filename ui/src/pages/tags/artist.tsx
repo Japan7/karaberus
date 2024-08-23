@@ -13,6 +13,10 @@ export default function TagsArtist() {
   const [getToast, setToast] = createSignal<string>();
 
   const deleteArtist = async (id: number) => {
+    if (!confirm("Confirm deletion?")) {
+      return;
+    }
+
     const resp = await karaberus.DELETE("/api/tags/artist/{id}", {
       params: { path: { id } },
     });

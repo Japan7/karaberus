@@ -62,6 +62,10 @@ export default function KaraokeBrowseId() {
   };
 
   const deleteKaraoke = async () => {
+    if (!confirm("Confirm deletion?")) {
+      return;
+    }
+
     const resp = await karaberus.DELETE("/api/kara/{id}", {
       params: {
         path: {

@@ -15,6 +15,10 @@ export default function Settings() {
   const [getToken, setToken] = createSignal<string>();
 
   const deleteToken = async (id: number) => {
+    if (!confirm("Confirm deletion?")) {
+      return;
+    }
+
     const resp = await karaberus.DELETE("/api/token/{token}", {
       params: {
         path: { token: id },
