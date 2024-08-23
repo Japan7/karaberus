@@ -141,6 +141,9 @@ func (a *Artist) AfterUpdate(tx *gorm.DB) error {
 }
 
 func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
+	if isAssociationsUpdate(tx) {
+		return nil
+	}
 	orig_artist := &Artist{}
 	err := tx.First(orig_artist, a.ID).Error
 	if err != nil {
@@ -196,6 +199,9 @@ func (m *MediaDB) AfterUpdate(tx *gorm.DB) error {
 }
 
 func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
+	if isAssociationsUpdate(tx) {
+		return nil
+	}
 	orig_media := &MediaDB{}
 	err := tx.First(orig_media, m.ID).Error
 	if err != nil {
