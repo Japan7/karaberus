@@ -24,7 +24,7 @@ export default function TagsArtist() {
   const postArtist = async (artist: components["schemas"]["ArtistInfo"]) => {
     const resp = await karaberus.POST("/api/tags/artist", { body: artist });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Artist added!");
@@ -39,7 +39,7 @@ export default function TagsArtist() {
         body: artist,
       });
       if (resp.error) {
-        alert(resp.error.title);
+        alert(resp.error.detail);
         return;
       }
       modalRef.close();
@@ -55,7 +55,7 @@ export default function TagsArtist() {
       params: { path: { id } },
     });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Artist deleted!");

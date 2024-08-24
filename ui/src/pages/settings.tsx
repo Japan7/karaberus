@@ -28,7 +28,7 @@ export default function Settings() {
       },
     });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     refetchTokens();

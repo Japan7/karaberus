@@ -42,7 +42,7 @@ export default function MpvKaraPlayer(props: {
         },
       });
       if (resp.error) {
-        throw new Error(resp.error.title);
+        throw new Error(resp.error.detail);
       }
       token = resp.data.token;
       await getTauriStore().set(PLAYER_TOKEN_KEY, token);

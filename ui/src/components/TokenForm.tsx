@@ -27,7 +27,7 @@ export default function TokenForm(props: {
     });
 
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
 

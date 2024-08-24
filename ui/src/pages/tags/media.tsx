@@ -24,7 +24,7 @@ export default function TagsMedia() {
   const postMedia = async (media: components["schemas"]["MediaInfo"]) => {
     const resp = await karaberus.POST("/api/tags/media", { body: media });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Media added!");
@@ -39,7 +39,7 @@ export default function TagsMedia() {
         body: media,
       });
       if (resp.error) {
-        alert(resp.error.title);
+        alert(resp.error.detail);
         return;
       }
       modalRef.close();
@@ -55,7 +55,7 @@ export default function TagsMedia() {
       params: { path: { id } },
     });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Media deleted!");

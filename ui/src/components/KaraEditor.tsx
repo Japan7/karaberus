@@ -108,7 +108,7 @@ export default function KaraEditor(props: {
   const postAuthor = async (author: components["schemas"]["AuthorInfo"]) => {
     const resp = await karaberus.POST("/api/tags/author", { body: author });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Author added!");
@@ -125,7 +125,7 @@ export default function KaraEditor(props: {
   const postArtist = async (artist: components["schemas"]["ArtistInfo"]) => {
     const resp = await karaberus.POST("/api/tags/artist", { body: artist });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Artist added!");
@@ -142,7 +142,7 @@ export default function KaraEditor(props: {
   const postMedia = async (media: components["schemas"]["MediaInfo"]) => {
     const resp = await karaberus.POST("/api/tags/media", { body: media });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Media added!");

@@ -24,7 +24,7 @@ export default function TagsAuthor() {
   const postAuthor = async (author: components["schemas"]["AuthorInfo"]) => {
     const resp = await karaberus.POST("/api/tags/author", { body: author });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Author added!");
@@ -39,7 +39,7 @@ export default function TagsAuthor() {
         body: author,
       });
       if (resp.error) {
-        alert(resp.error.title);
+        alert(resp.error.detail);
         return;
       }
       modalRef.close();
@@ -57,7 +57,7 @@ export default function TagsAuthor() {
       params: { path: { id } },
     });
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
     showToast("Author deleted!");

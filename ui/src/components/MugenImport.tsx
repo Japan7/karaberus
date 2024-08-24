@@ -30,7 +30,7 @@ export default function MugenImport(props: {
     });
 
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
 
