@@ -132,7 +132,7 @@ func (name *TokenV2) BeforeSave(tx *gorm.DB) error {
 
 type Artist struct {
 	gorm.Model
-	Name            string           `gorm:"uniqueIndex:idx_artist_name,where:current_artist_id IS NULL"`
+	Name            string           `gorm:"uniqueIndex:idx_artist_name,where:current_artist_id IS NULL AND deleted_at IS NULL"`
 	AdditionalNames []AdditionalName `gorm:"many2many:artists_additional_name"`
 	CurrentArtistID *uint
 	CurrentArtist   *Artist
@@ -189,8 +189,8 @@ var MediaTypes []MediaType = []MediaType{
 
 type MediaDB struct {
 	gorm.Model
-	Name            string           `json:"name" example:"Shinseiki Evangelion" gorm:"uniqueIndex:idx_media_name_type,where:current_media_id IS NULL"`
-	Type            string           `json:"media_type" example:"ANIME" gorm:"uniqueIndex:idx_media_name_type,where:current_media_id IS NULL"`
+	Name            string           `json:"name" example:"Shinseiki Evangelion" gorm:"uniqueIndex:idx_media_name_type,where:current_media_id IS NULL AND deleted_at IS NULL"`
+	Type            string           `json:"media_type" example:"ANIME" gorm:"uniqueIndex:idx_media_name_type,where:current_media_id IS NULL AND deleted_at IS NULL"`
 	AdditionalNames []AdditionalName `json:"additional_name" gorm:"many2many:media_additional_name"`
 	CurrentMediaID  *uint
 	CurrentMedia    *MediaDB
