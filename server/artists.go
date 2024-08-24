@@ -85,7 +85,7 @@ func updateArtist(tx *gorm.DB, artist *Artist) error {
 	prev_context := tx.Statement.Context
 	tx = WithAssociationsUpdate(tx)
 	defer tx.WithContext(prev_context)
-	err = tx.Model(&artist).Association("AdditionalName").Replace(&artist.AdditionalNames)
+	err = tx.Model(&artist).Association("AdditionalNames").Replace(&artist.AdditionalNames)
 	if err != nil {
 		return err
 	}

@@ -85,7 +85,7 @@ func updateMedia(tx *gorm.DB, media *MediaDB) error {
 	prev_context := tx.Statement.Context
 	tx = WithAssociationsUpdate(tx)
 	defer tx.WithContext(prev_context)
-	err = tx.Model(&media).Association("AdditionalName").Replace(&media.AdditionalNames)
+	err = tx.Model(&media).Association("AdditionalNames").Replace(&media.AdditionalNames)
 	if err != nil {
 		return err
 	}
