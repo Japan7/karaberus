@@ -442,7 +442,19 @@ type Font struct {
 }
 
 func init_model(db *gorm.DB) {
-	err := db.AutoMigrate(&KaraInfoDB{}, &User{}, &TokenV2{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
+	err := db.AutoMigrate(
+		&User{},
+		&TimingAuthor{},
+		&TokenV2{},
+		&Artist{},
+		&MediaDB{},
+		&AdditionalName{},
+		&VideoTagDB{},
+		&AudioTagDB{},
+		&KaraInfoDB{},
+		&MugenImport{},
+		&Font{},
+	)
 	if err != nil {
 		panic(err)
 	}
