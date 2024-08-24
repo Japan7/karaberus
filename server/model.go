@@ -86,6 +86,11 @@ type TimingAuthor struct {
 	MugenID *uuid.UUID `gorm:"uniqueIndex:idx_timing_author_mugen_id"`
 }
 
+func (name *TimingAuthor) BeforeSave(tx *gorm.DB) error {
+	name.Name = trimWhitespace(name.Name)
+	return nil
+}
+
 type Scopes struct {
 	Kara   bool `json:"kara"`
 	KaraRO bool `json:"kara_ro"`
@@ -116,6 +121,11 @@ type TokenV2 struct {
 	User      User      `gorm:"foreignKey:UserID;references:ID" json:"user"`
 	Name      string    `json:"name"`
 	Scopes    Scopes    `gorm:"embedded" json:"scopes"`
+}
+
+func (name *TokenV2) BeforeSave(tx *gorm.DB) error {
+	name.Name = trimWhitespace(name.Name)
+	return nil
 }
 
 // Artists
@@ -258,7 +268,7 @@ type AdditionalName struct {
 }
 
 func trimWhitespace(s string) string {
-	return strings.Trim(s, " \n")
+	return strings.Trim(s, " \t\n")
 }
 
 func (name *AdditionalName) BeforeSave(tx *gorm.DB) error {

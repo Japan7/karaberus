@@ -10,7 +10,9 @@ export default function AuthorEditor(props: {
 
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
-    props.onSubmit({ name: getName() });
+    props.onSubmit({
+      name: getName(),
+    });
     if (props.reset) {
       (e.target as HTMLFormElement).reset();
     }

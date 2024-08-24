@@ -8,7 +8,10 @@ export default function MugenImport(props: {
   const [getInput, setInput] = createSignal("");
   const [getName, setName] = createSignal("");
 
-  const getKid = () => getInput().split("/").pop() ?? getInput();
+  const getKid = () => {
+    const input = getInput().trim();
+    return input.split("/").pop() ?? input;
+  };
 
   createEffect(async () => {
     if (getKid().length !== 36) {
