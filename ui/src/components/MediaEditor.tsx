@@ -17,15 +17,19 @@ export default function MediaEditor(props: {
   );
   const [getName, setName] = createSignal(props.media?.name ?? "");
   const [getAdditionalNames, setAdditionalNames] = createSignal(
-    props.media?.additional_name?.join("\n") ?? "",
+    props.media?.additional_name?.map((n) => n.Name).join("\n") ?? "",
   );
 
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
+    const additionalNamesStr = getAdditionalNames().trim();
+    const additionalNames = additionalNamesStr
+      ? additionalNamesStr.split("\n")
+      : null;
     props.onSubmit({
       media_type: getMediaType(),
       name: getName(),
-      additional_names: getAdditionalNames().trim().split("\n"),
+      additional_names: additionalNames,
     });
     if (props.reset) {
       (e.target as HTMLFormElement).reset();

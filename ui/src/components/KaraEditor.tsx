@@ -56,9 +56,9 @@ export default function KaraEditor(props: {
   const [getSourceMedia, setSourceMedia] = createSignal<
     components["schemas"]["MediaDB"] | undefined
   >(props.kara?.SourceMedia);
-  const [getSongOrder, setSongOrder] = createSignal<number | undefined>(
-    props.kara?.SongOrder,
-  );
+  const [getSongOrder, setSongOrder] = createSignal<
+    components["schemas"]["KaraInfo"]["song_order"] | undefined
+  >(props.kara?.SongOrder);
   const [getMedias, setMedias] = createSignal<
     components["schemas"]["MediaDB"][]
   >(props.kara?.Medias ?? []);
@@ -86,9 +86,11 @@ export default function KaraEditor(props: {
 
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
+    const extraTitlesStr = getExtraTitles().trim();
+    const extraTitles = extraTitlesStr ? extraTitlesStr.split("\n") : null;
     props.onSubmit({
       title: getTitle(),
-      title_aliases: getExtraTitles().trim().split("\n") || null,
+      title_aliases: extraTitles,
       authors: getAuthors().map((author) => author.ID) || null,
       artists: getArtists().map((artist) => artist.ID) || null,
       source_media: getSourceMedia()?.ID || 0,

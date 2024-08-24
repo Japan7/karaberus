@@ -8,14 +8,18 @@ export default function ArtistEditor(props: {
 }) {
   const [getName, setName] = createSignal(props.artist?.Name ?? "");
   const [getAdditionalNames, setAdditionalNames] = createSignal(
-    props.artist?.AdditionalNames?.join("\n") ?? "",
+    props.artist?.AdditionalNames?.map((n) => n.Name).join("\n") ?? "",
   );
 
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
+    const additionalNamesStr = getAdditionalNames().trim();
+    const additionalNames = additionalNamesStr
+      ? additionalNamesStr.split("\n")
+      : null;
     props.onSubmit({
       name: getName(),
-      additional_names: getAdditionalNames().trim().split("\n"),
+      additional_names: additionalNames,
     });
     if (props.reset) {
       (e.target as HTMLFormElement).reset();
