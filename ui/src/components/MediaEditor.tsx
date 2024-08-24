@@ -3,32 +3,37 @@ import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
 export default function MediaEditor(props: {
-  onAdd: (media: components["schemas"]["MediaDB"]) => void;
+  media?: components["schemas"]["MediaDB"];
+  onSubmit: (media: components["schemas"]["MediaInfo"]) => void;
+  reset?: boolean;
 }) {
   const [getAllMediaTypes] = createResource(async () => {
     const resp = await karaberus.GET("/api/tags/media/types");
     return resp.data;
   });
 
-  const [getMediaType, setMediaType] = createSignal("ANIME");
-  const [getName, setName] = createSignal("");
-  const [getAdditionalNames, setAdditionalNames] = createSignal("");
+  const [getMediaType, setMediaType] = createSignal(
+    props.media?.media_type ?? "ANIME",
+  );
+  const [getName, setName] = createSignal(props.media?.name ?? "");
+  const [getAdditionalNames, setAdditionalNames] = createSignal(
+    props.media?.additional_name?.map((n) => n.Name).join("\n") ?? "",
+  );
 
-  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
+  const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
-    const resp = await karaberus.POST("/api/tags/media", {
-      body: {
-        media_type: getMediaType(),
-        name: getName(),
-        additional_names: getAdditionalNames().trim().split("\n"),
-      },
+    const additionalNamesStr = getAdditionalNames().trim();
+    const additionalNames = additionalNamesStr
+      ? additionalNamesStr.split("\n")
+      : null;
+    props.onSubmit({
+      media_type: getMediaType(),
+      name: getName(),
+      additional_names: additionalNames,
     });
-    if (resp.error) {
-      alert(resp.error.title);
-      return;
+    if (props.reset) {
+      (e.target as HTMLFormElement).reset();
     }
-    (e.target as HTMLFormElement).reset();
-    props.onAdd(resp.data.media);
   };
 
   return (

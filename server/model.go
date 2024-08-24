@@ -86,6 +86,11 @@ type TimingAuthor struct {
 	MugenID *uuid.UUID `gorm:"uniqueIndex:idx_timing_author_mugen_id"`
 }
 
+func (name *TimingAuthor) BeforeSave(tx *gorm.DB) error {
+	name.Name = trimWhitespace(name.Name)
+	return nil
+}
+
 type Scopes struct {
 	Kara   bool `json:"kara"`
 	KaraRO bool `json:"kara_ro"`
@@ -118,11 +123,16 @@ type TokenV2 struct {
 	Scopes    Scopes    `gorm:"embedded" json:"scopes"`
 }
 
+func (name *TokenV2) BeforeSave(tx *gorm.DB) error {
+	name.Name = trimWhitespace(name.Name)
+	return nil
+}
+
 // Artists
 
 type Artist struct {
 	gorm.Model
-	Name            string           `gorm:"uniqueIndex:idx_artist_name"`
+	Name            string           `gorm:"uniqueIndex:idx_artist_name_v2,where:current_artist_id IS NULL AND deleted_at IS NULL"`
 	AdditionalNames []AdditionalName `gorm:"many2many:artists_additional_name"`
 	CurrentArtistID *uint
 	CurrentArtist   *Artist
@@ -141,6 +151,9 @@ func (a *Artist) AfterUpdate(tx *gorm.DB) error {
 }
 
 func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
+	if isAssociationsUpdate(tx) {
+		return nil
+	}
 	orig_artist := &Artist{}
 	err := tx.First(orig_artist, a.ID).Error
 	if err != nil {
@@ -176,8 +189,8 @@ var MediaTypes []MediaType = []MediaType{
 
 type MediaDB struct {
 	gorm.Model
-	Name            string           `json:"name" example:"Shinseiki Evangelion" gorm:"uniqueIndex:idx_media_name_type"`
-	Type            string           `json:"media_type" example:"ANIME" gorm:"uniqueIndex:idx_media_name_type"`
+	Name            string           `json:"name" example:"Shinseiki Evangelion" gorm:"uniqueIndex:idx_media_name_type_v2,where:current_media_id IS NULL AND deleted_at IS NULL"`
+	Type            string           `json:"media_type" example:"ANIME" gorm:"uniqueIndex:idx_media_name_type_v2,where:current_media_id IS NULL AND deleted_at IS NULL"`
 	AdditionalNames []AdditionalName `json:"additional_name" gorm:"many2many:media_additional_name"`
 	CurrentMediaID  *uint
 	CurrentMedia    *MediaDB
@@ -196,6 +209,9 @@ func (m *MediaDB) AfterUpdate(tx *gorm.DB) error {
 }
 
 func (m *MediaDB) BeforeUpdate(tx *gorm.DB) error {
+	if isAssociationsUpdate(tx) {
+		return nil
+	}
 	orig_media := &MediaDB{}
 	err := tx.First(orig_media, m.ID).Error
 	if err != nil {
@@ -252,7 +268,7 @@ type AdditionalName struct {
 }
 
 func trimWhitespace(s string) string {
-	return strings.Trim(s, " \n")
+	return strings.Trim(s, " \t\n")
 }
 
 func (name *AdditionalName) BeforeSave(tx *gorm.DB) error {
@@ -426,9 +442,35 @@ type Font struct {
 }
 
 func init_model(db *gorm.DB) {
-	err := db.AutoMigrate(&KaraInfoDB{}, &User{}, &TokenV2{}, &MediaDB{}, &Artist{}, &Font{}, &MugenImport{})
+	err := db.AutoMigrate(
+		&User{},
+		&TimingAuthor{},
+		&TokenV2{},
+		&Artist{},
+		&MediaDB{},
+		&AdditionalName{},
+		&VideoTagDB{},
+		&AudioTagDB{},
+		&KaraInfoDB{},
+		&MugenImport{},
+		&Font{},
+	)
 	if err != nil {
 		panic(err)
+	}
+
+	// PR #73
+	if db.Migrator().HasIndex(&Artist{}, "idx_artist_name") {
+		err = db.Migrator().DropIndex(&Artist{}, "idx_artist_name")
+		if err != nil {
+			panic(err)
+		}
+	}
+	if db.Migrator().HasIndex(&MediaDB{}, "idx_media_name_type") {
+		err = db.Migrator().DropIndex(&MediaDB{}, "idx_media_name_type")
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

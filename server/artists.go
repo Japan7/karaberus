@@ -37,34 +37,90 @@ func GetArtist(ctx context.Context, input *GetArtistInput) (*ArtistOutput, error
 	return artist_output, nil
 }
 
-type CreateArtistInput struct {
-	Body struct {
-		Name            string   `json:"name"`
-		AdditionalNames []string `json:"additional_names"`
-	}
+type ArtistInfo struct {
+	Name            string   `json:"name"`
+	AdditionalNames []string `json:"additional_names"`
 }
 
-func createArtist(tx *gorm.DB, name string, additional_names []string, artist *Artist) error {
-	return tx.Transaction(
-		func(tx *gorm.DB) error {
-			additional_names_db := createAdditionalNames(additional_names)
-			artist.Name = name
-			artist.AdditionalNames = additional_names_db
-			err := tx.Create(artist).Error
-			return DBErrToHumaErr(err)
-		})
+type CreateArtistInput struct {
+	Body ArtistInfo
+}
+
+func createArtist(db *gorm.DB, artist *Artist, info *ArtistInfo) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := info.to_Artist(artist); err != nil {
+			return err
+		}
+		err := tx.Create(artist).Error
+		return DBErrToHumaErr(err)
+	})
 }
 
 func CreateArtist(ctx context.Context, input *CreateArtistInput) (*ArtistOutput, error) {
-	artist_output := &ArtistOutput{}
-
 	db := GetDB(ctx)
-	err := createArtist(db, input.Body.Name, input.Body.AdditionalNames, &artist_output.Body.Artist)
+	output := ArtistOutput{}
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		artist := Artist{}
+		if err := createArtist(tx, &artist, &input.Body); err != nil {
+			return err
+		}
+		output.Body.Artist = artist
+		return nil
+	})
+
+	return &output, err
+}
+
+type UpdateArtistInput struct {
+	Id   uint `path:"id"`
+	Body ArtistInfo
+}
+
+func updateArtist(tx *gorm.DB, artist *Artist) error {
+	err := tx.Model(&artist).Select("*").Updates(&artist).Error
 	if err != nil {
-		return nil, DBErrToHumaErr(err)
+		return err
+	}
+	prev_context := tx.Statement.Context
+	tx = WithAssociationsUpdate(tx)
+	defer tx.WithContext(prev_context)
+	err = tx.Model(&artist).Association("AdditionalNames").Replace(&artist.AdditionalNames)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateArtist(ctx context.Context, input *UpdateArtistInput) (*ArtistOutput, error) {
+	db := GetDB(ctx)
+	artist := Artist{}
+	err := db.First(&artist, input.Id).Error
+	if err != nil {
+		return nil, err
+	}
+	err = input.Body.to_Artist(&artist)
+	if err != nil {
+		return nil, err
 	}
 
-	return artist_output, nil
+	err = db.Transaction(func(tx *gorm.DB) error {
+		return updateArtist(tx, &artist)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	out := &ArtistOutput{}
+	out.Body.Artist = artist
+
+	return out, nil
+}
+
+func (info ArtistInfo) to_Artist(artist *Artist) error {
+	artist.Name = info.Name
+	artist.AdditionalNames = createAdditionalNames(info.AdditionalNames)
+	return nil
 }
 
 type DeleteArtistResponse struct {

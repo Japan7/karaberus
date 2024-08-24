@@ -1,7 +1,12 @@
 import { createSignal, type JSX } from "solid-js";
+import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
-export default function TokenForm(props: { onToken: (token: string) => void }) {
+export default function TokenForm(props: {
+  onToken: (
+    token: components["schemas"]["CreateTokenOutputBody"]["token"],
+  ) => void;
+}) {
   const [getName, setName] = createSignal("");
   const [getKaraChecked, setKaraChecked] = createSignal(false);
   const [getKaraROChecked, setKaraROChecked] = createSignal(false);
@@ -22,7 +27,7 @@ export default function TokenForm(props: { onToken: (token: string) => void }) {
     });
 
     if (resp.error) {
-      alert(resp.error.title);
+      alert(resp.error.detail);
       return;
     }
 

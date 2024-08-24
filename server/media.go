@@ -6,12 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type MediaInfo struct {
+	Name            string   `json:"name" example:"Shinseiki Evangelion"`
+	MediaType       string   `json:"media_type" example:"ANIME"`
+	AdditionalNames []string `json:"additional_names" example:"[]"`
+}
+
 type CreateMediaInput struct {
-	Body struct {
-		Name            string   `json:"name" example:"Shinseiki Evangelion"`
-		MediaType       string   `json:"media_type" example:"ANIME"`
-		AdditionalNames []string `json:"additional_names" example:"[]"`
-	}
+	Body MediaInfo
 }
 
 type MediaOutput struct {
@@ -44,27 +46,82 @@ func getMediaByID(tx *gorm.DB, Id uint) (MediaDB, error) {
 // 	return media, DBErrToHumaErr(err)
 // }
 
-func createMedia(tx *gorm.DB, name string, media_type MediaType, additional_names []string, media *MediaDB) error {
-	err := tx.Transaction(func(tx *gorm.DB) error {
-		media.Name = name
-		media.Type = media_type.ID
-		media.AdditionalNames = createAdditionalNames(additional_names)
-
-		err := tx.Create(&media).Error
+func createMedia(db *gorm.DB, media *MediaDB, info *MediaInfo) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := info.to_MediaDB(media); err != nil {
+			return err
+		}
+		err := tx.Create(media).Error
 		return DBErrToHumaErr(err)
 	})
-
-	return err
 }
 
 func CreateMedia(ctx context.Context, input *CreateMediaInput) (*MediaOutput, error) {
-	media_output := &MediaOutput{}
-	media_type := getMediaType(input.Body.MediaType)
-
 	db := GetDB(ctx)
-	err := createMedia(db, input.Body.Name, media_type, input.Body.AdditionalNames, &media_output.Body.Media)
+	output := MediaOutput{}
 
-	return media_output, err
+	err := db.Transaction(func(tx *gorm.DB) error {
+		media := MediaDB{}
+		if err := createMedia(tx, &media, &input.Body); err != nil {
+			return err
+		}
+		output.Body.Media = media
+		return nil
+	})
+
+	return &output, err
+}
+
+type UpdateMediaInput struct {
+	Id   uint `path:"id"`
+	Body MediaInfo
+}
+
+func updateMedia(tx *gorm.DB, media *MediaDB) error {
+	err := tx.Model(&media).Select("*").Updates(&media).Error
+	if err != nil {
+		return err
+	}
+	prev_context := tx.Statement.Context
+	tx = WithAssociationsUpdate(tx)
+	defer tx.WithContext(prev_context)
+	err = tx.Model(&media).Association("AdditionalNames").Replace(&media.AdditionalNames)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateMedia(ctx context.Context, input *UpdateMediaInput) (*MediaOutput, error) {
+	db := GetDB(ctx)
+	media := MediaDB{}
+	err := db.First(&media, input.Id).Error
+	if err != nil {
+		return nil, err
+	}
+	err = input.Body.to_MediaDB(&media)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Transaction(func(tx *gorm.DB) error {
+		return updateMedia(tx, &media)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	out := &MediaOutput{}
+	out.Body.Media = media
+
+	return out, nil
+}
+
+func (info MediaInfo) to_MediaDB(media *MediaDB) error {
+	media.Name = info.Name
+	media.Type = getMediaType(info.MediaType).ID
+	media.AdditionalNames = createAdditionalNames(info.AdditionalNames)
+	return nil
 }
 
 type DeleteMediaResponse struct {
