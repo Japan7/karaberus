@@ -1,0 +1,61 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go
+{
+  "name": "Go",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "dockerComposeFile": "compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "mounts": [
+    {
+      "type": "volume",
+      "source": "builddir",
+      "target": "${containerWorkspaceFolder}/builddir"
+    },
+    {
+      "type": "volume",
+      "source": "node_modules",
+      "target": "${containerWorkspaceFolder}/ui/node_modules"
+    }
+  ],
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "toolsToInstall": "meson,ninja"
+    },
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "sudo chown -R vscode:vscode ${containerWorkspaceFolder}/builddir ${containerWorkspaceFolder}/ui/node_modules",
+
+  // Configure tool-specific properties.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "EditorConfig.EditorConfig",
+        "dbaeumer.vscode-eslint",
+        "golang.go",
+        "mesonbuild.mesonbuild",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "mesonbuild.configureOptions": ["-Dno_native_deps=true"],
+        "go.toolsEnvVars": {
+          "CGO_ENABLED": "0",
+          "KARABERUS_S3_ENDPOINT": "localhost:9000",
+          "KARABERUS_S3_KEYID": "minio",
+          "KARABERUS_S3_SECRET": "miniosecret"
+        }
+      }
+    }
+  }
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+}

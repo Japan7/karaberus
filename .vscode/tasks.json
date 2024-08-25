@@ -1,0 +1,40 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Server: debug",
+      "dependsOn": [
+        "Meson: Reconfigure",
+        "Meson: Build karaberus_debug:custom"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Server: test",
+      "dependsOn": ["Meson: Reconfigure", "Meson: Build test_deps"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Frontend: debug",
+      "dependsOn": ["Meson: Reconfigure", "Meson: Build karaberus_ui_deps"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Meson: Build test_deps",
+      "dependsOn": [
+        "Meson: Build karaberus_test:custom",
+        "Meson: Build karaberus_test.mkv:custom",
+        "Meson: Build karaberus_test.opus:custom"
+      ]
+    },
+    {
+      "label": "Meson: Build karaberus_ui_deps",
+      "dependsOn": [
+        "Meson: Build ui/karaberus_ui_deps:custom",
+        "Meson: Build ui/openapi_ts:custom"
+      ]
+    }
+  ]
+}

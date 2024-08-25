@@ -170,6 +170,22 @@ else
     )
 endif
 
+karaberus_debug_output = meson.current_build_dir() / 'karaberus__debug_bin'
+custom_target(
+    'karaberus_debug',
+    env: go_env,
+    input: karaberus_inputs,
+    output: 'karaberus__debug_bin',
+    command: [
+        go,
+        'build',
+        '-o',
+        karaberus_debug_output,
+        '-gcflags=all=-N -l',
+        meson.current_source_dir(),
+    ],
+)
+
 karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_server_path = meson.current_source_dir() / 'server'
 

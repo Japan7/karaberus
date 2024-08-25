@@ -1,0 +1,20 @@
+{
+  "mesonbuild.configureOptions": ["-Dno_native_deps=true"],
+  "go.toolsEnvVars": {
+    "CGO_ENABLED": "0",
+    "KARABERUS_LISTEN_BASE_URL": "http://localhost:5173",
+    "KARABERUS_OIDC_ISSUER": "https://auth.japan7.bde.enseeiht.fr",
+    "KARABERUS_OIDC_CLIENT_ID": "",
+    "KARABERUS_OIDC_CLIENT_SECRET": "",
+    "KARABERUS_OIDC_SCOPES": "openid profile email groups",
+    "KARABERUS_OIDC_ID_CLAIM": "discord_id",
+    "KARABERUS_OIDC_GROUPS_CLAIM": "groups",
+    "KARABERUS_OIDC_ADMIN_GROUP": "discord-superadmin",
+    "KARABERUS_OIDC_JWT_SIGN_KEY": "openssl rand -base64 32",
+    "KARABERUS_S3_ENDPOINT": "localhost:9000",
+    "KARABERUS_S3_KEYID": "minio",
+    "KARABERUS_S3_SECRET": "miniosecret"
+  },
+  "rust-analyzer.linkedProjects": ["ui/src-tauri/Cargo.toml"],
+  "rust-analyzer.cargo.buildScripts.enable": false
+}

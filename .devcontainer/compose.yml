@@ -1,0 +1,19 @@
+services:
+  devcontainer:
+    build:
+      dockerfile: Containerfile
+    command: sleep infinity
+    volumes:
+      - ../..:/workspaces:cached
+    network_mode: service:minio
+
+  minio:
+    image: bitnami/minio:latest
+    environment:
+      MINIO_DEFAULT_BUCKETS: karaberus
+    volumes:
+      - minio-data:/bitnami/minio/data
+    restart: unless-stopped
+
+volumes:
+  minio-data:
