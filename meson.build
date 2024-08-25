@@ -101,6 +101,11 @@ if not get_option('no_native_deps')
     karaberus_tools_deps += dakara_check
     karaberus_tools_deps += dependency('libavutil', required: true)
     karaberus_tools_deps += dependency('libavformat', required: true)
+    karaberus_tools_deps += dependency(
+        'appleframeworks',
+        modules: ['foundation', 'security'],
+        required: host_machine.system() == 'darwin',
+    )
 
     go_files += files(
         'karaberus_tools' / 'karaberus_tools.c',
