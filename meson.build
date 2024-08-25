@@ -4,6 +4,7 @@ project(
     license: 'AGPL-3.0-and-later',
     version: '0.1.0',
     default_options: [
+        'buildtype=debugoptimized',
         'default_library=shared',
         'ffmpeg:default_library=shared',
         'libass:default_library=shared',
