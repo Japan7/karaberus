@@ -77,3 +77,13 @@ For the most part `gopls` should work without issues in the `server` module, if 
 
 NOTE: You should not set PKG_CONFIG_PATH in your general environment (or at least in the environment in which you run Meson) as it might break meson when it needs to reconfigure itself (when meson.build files are modified most likely), because then it can find its own dependencies with pkg-config and get really confused when it won't find the libraries later in the build.
 
+### Dev Container / Codespaces
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Japan7/karaberus?quickstart=1)
+
+Once attached to the container, create and edit `.vscode/settings.json` as follows:
+
+1. Copy [`.vscode/settings.example.json`](.vscode/settings.example.json) to `.vscode/settings.json`.
+2. For `KARABERUS_LISTEN_BASE_URL`, `http://localhost:5173` is correct if you are running a local Dev Container. For Codespaces, set it to your Codespace URL, **but ending with `.app.github.dev` instead of `.github.dev`**.
+3. Fill `KARABERUS_OIDC_JWT_SIGN_KEY` with the output of `openssl rand -base64 32`.
+4. If you want to use `https://auth.japan7.bde.enseeiht.fr` as `KARABERUS_OIDC_ISSUER`, ask for the required `KARABERUS_OIDC_CLIENT_ID` and `KARABERUS_OIDC_CLIENT_SECRET` on Discord. Otherwise, bring your own secrets.
