@@ -50,8 +50,13 @@ export default function MediaEditor(props: {
           class="select select-bordered w-full"
         >
           <Index each={getAllMediaTypes()}>
-            {(getMediaType) => (
-              <option value={getMediaType().ID}>{getMediaType().Name}</option>
+            {(getOptionMediaType) => (
+              <option
+                value={getOptionMediaType().ID}
+                selected={getMediaType() === getOptionMediaType().ID}
+              >
+                {getOptionMediaType().Name}
+              </option>
             )}
           </Index>
         </select>
