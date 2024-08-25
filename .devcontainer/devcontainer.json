@@ -45,6 +45,7 @@
         "bradlc.vscode-tailwindcss"
       ],
       "settings": {
+        "mesonbuild.configureOnOpen": true,
         "mesonbuild.downloadLanguageServer": true
       }
     }

@@ -5,10 +5,7 @@
   "tasks": [
     {
       "label": "Server: debug",
-      "dependsOn": [
-        "Meson: Reconfigure",
-        "Meson: Build karaberus_debug:custom"
-      ],
+      "dependsOn": ["Meson: Reconfigure", "Meson: Build karaberus:custom"],
       "dependsOrder": "sequence"
     },
     {
