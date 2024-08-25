@@ -1,5 +1,5 @@
 {
-  "mesonbuild.configureOptions": ["-Dno_native_deps=true"],
+  "mesonbuild.configureOptions": ["-Dno_native_deps=true", "--buildtype=debugoptimized"],
   "go.toolsEnvVars": {
     "CGO_ENABLED": "0",
     "KARABERUS_LISTEN_BASE_URL": "http://localhost:5173",

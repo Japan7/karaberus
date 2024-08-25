@@ -108,6 +108,12 @@ subdir('server')
 karaberus_inputs = go_files + karaberus_server_files
 karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 
+if get_option('debug')
+    go_build_options = ['-gcflags=all=-N -l']
+else
+    go_build_options = []
+endif
+
 if get_option('no_native_deps')
     karaberus_output = meson.current_build_dir() / 'karaberus'
     karaberus = custom_target(
@@ -121,6 +127,7 @@ if get_option('no_native_deps')
             'build',
             '-C',
             meson.current_source_dir(),
+            go_build_options,
             '-o',
             karaberus_output,
             meson.current_source_dir(),
@@ -139,6 +146,7 @@ else
             'build',
             '-C',
             meson.current_source_dir(),
+            go_build_options,
             '-buildmode=c-archive',
             '-o',
             karaberus_output,
@@ -169,22 +177,6 @@ else
         install: true,
     )
 endif
-
-karaberus_debug_output = meson.current_build_dir() / 'karaberus__debug_bin'
-custom_target(
-    'karaberus_debug',
-    env: go_env,
-    input: karaberus_inputs,
-    output: 'karaberus__debug_bin',
-    command: [
-        go,
-        'build',
-        '-o',
-        karaberus_debug_output,
-        '-gcflags=all=-N -l',
-        meson.current_source_dir(),
-    ],
-)
 
 karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_server_path = meson.current_source_dir() / 'server'

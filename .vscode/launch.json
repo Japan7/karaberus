@@ -9,7 +9,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/builddir/karaberus__debug_bin",
+      "program": "${workspaceFolder}/builddir/karaberus",
       "env": {
         "KARABERUS_DB_FILE": "${workspaceFolder}/builddir/karaberus.db"
       },
