@@ -366,6 +366,195 @@ func TestUpdateKara(t *testing.T) {
 	assertRespCode(t, api.Delete(path), 204)
 }
 
+func TestUpdateAuthor(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/api/tags/author",
+			map[string]any{
+				"name": "author_name_update_test",
+			},
+		),
+		200,
+	)
+
+	data := AuthorOutput{}
+	dec := json.NewDecoder(resp.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	author_path := fmt.Sprintf("/api/tags/author/%d", data.Body.Author.ID)
+
+	resp = assertRespCode(t,
+		api.Patch(author_path,
+			map[string]any{
+				"name": "author_name_update_test2",
+			},
+		),
+		200,
+	)
+
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Body.Author.Name != "author_name_update_test2" {
+		t.Fatal("failed to update author name")
+	}
+
+	resp = assertRespCode(t,
+		api.Patch(author_path,
+			map[string]any{
+				"name": "author_name_update_test3",
+			},
+		),
+		200,
+	)
+
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Body.Author.Name != "author_name_update_test3" {
+		t.Fatal("failed to update author name a second time")
+	}
+}
+
+func TestUpdateMedia(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/api/tags/media",
+			map[string]any{
+				"name":             "media_name_update_test",
+				"media_type":       "ANIME",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	data := MediaOutput{}
+	dec := json.NewDecoder(resp.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	media_path := fmt.Sprintf("/api/tags/media/%d", data.Body.Media.ID)
+
+	resp = assertRespCode(t,
+		api.Patch(media_path,
+			map[string]any{
+				"name":             "media_name_update_test2",
+				"media_type":       "LIVE",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Body.Media.Name != "media_name_update_test2" {
+		t.Fatal("failed to update media name")
+	}
+	if data.Body.Media.Type != "LIVE" {
+		t.Fatal("failed to update media type")
+	}
+
+	resp = assertRespCode(t,
+		api.Patch(media_path,
+			map[string]any{
+				"name":             "media_name_update_test3",
+				"media_type":       "ANIME",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Body.Media.Name != "media_name_update_test3" {
+		t.Fatal("failed to update media name a second time")
+	}
+	if data.Body.Media.Type != "ANIME" {
+		t.Fatal("failed to update media type a second time")
+	}
+}
+
+func TestUpdateArtist(t *testing.T) {
+	api := getTestAPI(t)
+
+	resp := assertRespCode(t,
+		api.Post("/api/tags/artist",
+			map[string]any{
+				"name":             "artist_name_update_test",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	data := ArtistOutput{}
+	dec := json.NewDecoder(resp.Body)
+	err := dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	artist_path := fmt.Sprintf("/api/tags/artist/%d", data.Body.Artist.ID)
+
+	resp = assertRespCode(t,
+		api.Patch(artist_path,
+			map[string]any{
+				"name":             "artist_name_update_test2",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Body.Artist.Name != "artist_name_update_test2" {
+		t.Fatal("failed to update artist name")
+	}
+
+	resp = assertRespCode(t,
+		api.Patch(artist_path,
+			map[string]any{
+				"name":             "artist_name_update_test3",
+				"additional_names": []string{},
+			},
+		),
+		200,
+	)
+
+	dec = json.NewDecoder(resp.Body)
+	err = dec.Decode(&data.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data.Body.Artist.Name != "artist_name_update_test3" {
+		t.Fatal("failed to update artist name a second time")
+	}
+}
+
 func skipCI(t *testing.T) {
 	if os.Getenv("SKIP_S3_TESTS") != "" {
 		t.Skip("Skipping testing in CI environment")
