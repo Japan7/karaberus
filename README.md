@@ -84,6 +84,6 @@ NOTE: You should not set PKG_CONFIG_PATH in your general environment (or at leas
 Once attached to the container, create and edit `.vscode/settings.json` as follows:
 
 1. Copy [`.vscode/settings.example.json`](.vscode/settings.example.json) to `.vscode/settings.json`.
-2. For `KARABERUS_LISTEN_BASE_URL`, `http://localhost:5173` is correct if you are running a local Dev Container. For Codespaces, set it to your Codespace URL, **but ending with `.app.github.dev` instead of `.github.dev`**.
+2. For `KARABERUS_LISTEN_BASE_URL`, `http://localhost:5173` is correct if you are running a local Dev Container or a Codespace remotely [attached to your local VS Code](https://docs.github.com/en/codespaces/developing-in-a-codespace/using-github-codespaces-in-visual-studio-code). For Codespaces in browser, set it to your editor URL, **but ending with `.app.github.dev` instead of `.github.dev`**.
 3. Fill `KARABERUS_OIDC_JWT_SIGN_KEY` with the output of `openssl rand -base64 32`.
 4. If you want to use `https://auth.japan7.bde.enseeiht.fr` as `KARABERUS_OIDC_ISSUER`, ask for the required `KARABERUS_OIDC_CLIENT_ID` and `KARABERUS_OIDC_CLIENT_SECRET` on Discord. Otherwise, bring your own secrets.
