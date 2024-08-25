@@ -28,7 +28,11 @@ if get_option('no_native_deps')
     go_env.set('CGO_ENABLED', '0')
 else
     go_env.set('CGO_ENABLED', '1')
-    go_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
+    if get_option('debug')
+        go_env.set('CGO_CFLAGS', '-Wno-unused-parameter -Og')
+    else
+        go_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
+    endif
     go_env.set('CC', ' '.join(c_compiler.cmd_array()))
     pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
     go_env.set('PKG_CONFIG_PATH', pkg_config_path)
