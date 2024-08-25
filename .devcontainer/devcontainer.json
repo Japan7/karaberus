@@ -45,8 +45,16 @@
         "bradlc.vscode-tailwindcss"
       ],
       "settings": {
+        "eslint.workingDirectories": [{ "mode": "auto" }],
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
         "mesonbuild.configureOnOpen": true,
-        "mesonbuild.downloadLanguageServer": true
+        "mesonbuild.downloadLanguageServer": true,
+        "[css][dockercompose][javascript][javascriptreact][json][jsonc][markdown][typescript][typescriptreact][yaml]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.tabSize": 2
+        }
       }
     }
   }
