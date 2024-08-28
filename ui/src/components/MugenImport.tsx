@@ -32,6 +32,11 @@ export default function MugenImport(props: {
       },
     });
 
+    if (resp.response.status === 204) {
+      alert("karaoke already imported");
+      return;
+    }
+
     if (resp.error) {
       alert(resp.error.detail);
       return;
