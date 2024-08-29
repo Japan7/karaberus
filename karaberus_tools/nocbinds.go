@@ -2,14 +2,14 @@
 
 package karaberus_tools
 
-import "github.com/minio/minio-go/v7"
+import "io"
 
-func DakaraCheckResults(obj *minio.Object, ftype string) DakaraCheckResultsOutput {
+func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheckResultsOutput {
 	out := DakaraCheckResultsOutput{Passed: true}
 	return out
 }
 
-func DakaraCheckSub(obj *minio.Object) (DakaraCheckSubResultsOutput, error) {
+func DakaraCheckSub(obj io.ReadSeeker, size int64) (DakaraCheckSubResultsOutput, error) {
 	out := DakaraCheckSubResultsOutput{
 		Lyrics: "",
 		Passed: true,

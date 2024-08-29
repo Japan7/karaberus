@@ -26,7 +26,6 @@ import (
 	"unsafe"
 
 	"github.com/mattn/go-pointer"
-	"github.com/minio/minio-go/v7"
 )
 
 //export AVIORead
@@ -56,11 +55,7 @@ func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
 func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 	objbuf := pointer.Restore(opaque).(ObjectBuf)
 	if whence == C.AVSEEK_SIZE {
-		stat, err := objbuf.Object.Stat()
-		if err != nil {
-			panic(err)
-		}
-		return C.int64_t(stat.Size)
+		return C.int64_t(objbuf.Size)
 	}
 	pos, err := objbuf.Object.Seek(int64(offset), int(whence))
 	if err != nil {
@@ -70,20 +65,22 @@ func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
 }
 
 type ObjectBuf struct {
-	Object *minio.Object
+	Object io.ReadSeeker
 	Buffer []byte
+	Size   int64
 }
 
-func NewObjectBuf(obj *minio.Object) ObjectBuf {
+func NewObjectBuf(obj io.ReadSeeker, size int64) ObjectBuf {
 	return ObjectBuf{
 		Object: obj,
 		Buffer: make([]byte, C.KARABERUS_BUFSIZE),
+		Size:   size,
 	}
 }
 
-func DakaraCheckResults(obj *minio.Object, ftype string) DakaraCheckResultsOutput {
+func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheckResultsOutput {
 	video_stream := ftype == "video"
-	object_buf := NewObjectBuf(obj)
+	object_buf := NewObjectBuf(obj, size)
 	ptr := pointer.Save(object_buf)
 	defer pointer.Unref(ptr)
 	res := C.karaberus_dakara_check(ptr, C.bool(video_stream))
@@ -97,18 +94,14 @@ func DakaraCheckResults(obj *minio.Object, ftype string) DakaraCheckResultsOutpu
 	return out
 }
 
-func DakaraCheckSub(obj *minio.Object) (DakaraCheckSubResultsOutput, error) {
+func DakaraCheckSub(obj io.ReadSeeker, size int64) (DakaraCheckSubResultsOutput, error) {
 	out := DakaraCheckSubResultsOutput{
 		Lyrics: "",
 		Passed: false,
 	}
 
-	stat, err := obj.Stat()
-	if err != nil {
-		return out, err
-	}
-	buf := make([]byte, stat.Size)
-	_, err = obj.Seek(0, 0)
+	buf := make([]byte, size)
+	_, err := obj.Seek(0, 0)
 	if err != nil {
 		return out, err
 	}

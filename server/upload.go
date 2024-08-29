@@ -179,6 +179,32 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		return nil, err
 	}
 
+	switch input.FileType {
+	case "video":
+		res := CheckS3Video(ctx, input.File.Fd, input.File.Size)
+		if !res.Passed {
+			return nil, huma.Error422UnprocessableEntity("Uploaded video file cannot be read")
+		}
+	case "inst":
+		res := CheckS3Inst(ctx, input.File.Fd, input.File.Size)
+		if !res.Passed {
+			return nil, huma.Error422UnprocessableEntity("Uploaded instrumental file cannot be read")
+		}
+	case "sub":
+		res, err := CheckS3Ass(ctx, input.File.Fd, input.File.Size)
+		if err != nil {
+			return nil, err
+		}
+		if !res.Passed {
+			return nil, huma.Error422UnprocessableEntity("Uploaded subtitles file cannot be read")
+		}
+	}
+
+	_, err = input.File.Fd.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
+
 	resp := &UploadOutput{}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		res, err := SaveFileToS3(ctx, tx, input.File.Fd, &kara, input.FileType, input.File.Size)

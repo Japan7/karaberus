@@ -118,7 +118,11 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 			return nil, err
 		}
 		defer Closer(obj)
-		video_check_res := CheckS3Video(ctx, obj)
+		stat, err := obj.Stat()
+		if err != nil {
+			return nil, err
+		}
+		video_check_res := CheckS3Video(ctx, obj, stat.Size)
 		if !video_check_res.Passed {
 			return nil, fmt.Errorf("checks failed for kara %d", kara.ID)
 		}
@@ -130,7 +134,11 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 			return nil, err
 		}
 		defer Closer(obj)
-		sub_check_res, err := CheckS3Ass(ctx, obj)
+		stat, err := obj.Stat()
+		if err != nil {
+			return nil, err
+		}
+		sub_check_res, err := CheckS3Ass(ctx, obj, stat.Size)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +150,11 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 			return nil, err
 		}
 		defer Closer(obj)
-		inst_check_res := CheckS3Inst(ctx, obj)
+		stat, err := obj.Stat()
+		if err != nil {
+			return nil, err
+		}
+		inst_check_res := CheckS3Inst(ctx, obj, stat.Size)
 		if !inst_check_res.Passed {
 			return nil, fmt.Errorf("checks failed for kara %d", kara.ID)
 		}
@@ -191,24 +203,28 @@ func GetKaraLyrics(ctx context.Context, kara KaraInfoDB) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	res, err := CheckS3Ass(ctx, obj)
+	stat, err := obj.Stat()
+	if err != nil {
+		return "", err
+	}
+	res, err := CheckS3Ass(ctx, obj, stat.Size)
 	if err != nil {
 		return "", err
 	}
 	return res.Lyrics, nil
 }
 
-func CheckS3Video(ctx context.Context, obj *minio.Object) karaberus_tools.DakaraCheckResultsOutput {
-	res := karaberus_tools.DakaraCheckResults(obj, "video")
+func CheckS3Video(ctx context.Context, obj io.ReadSeeker, size int64) karaberus_tools.DakaraCheckResultsOutput {
+	res := karaberus_tools.DakaraCheckResults(obj, "video", size)
 	return res
 }
 
-func CheckS3Inst(ctx context.Context, obj *minio.Object) karaberus_tools.DakaraCheckResultsOutput {
-	res := karaberus_tools.DakaraCheckResults(obj, "inst")
+func CheckS3Inst(ctx context.Context, obj io.ReadSeeker, size int64) karaberus_tools.DakaraCheckResultsOutput {
+	res := karaberus_tools.DakaraCheckResults(obj, "inst", size)
 	return res
 }
 
-func CheckS3Ass(ctx context.Context, obj *minio.Object) (karaberus_tools.DakaraCheckSubResultsOutput, error) {
-	out, err := karaberus_tools.DakaraCheckSub(obj)
+func CheckS3Ass(ctx context.Context, obj io.ReadSeeker, size int64) (karaberus_tools.DakaraCheckSubResultsOutput, error) {
+	out, err := karaberus_tools.DakaraCheckSub(obj, size)
 	return out, err
 }
