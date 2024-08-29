@@ -234,9 +234,11 @@ class TestKaraberus(unittest.TestCase):
         resp = self.karaberus.upload_file("PUT", kara_upload_path, video_test_file)
         upload_data: UploadOutput = json.load(resp)
 
+        video_duration = 0 if os.environ.get("NO_NATIVE_DEPS") else 30
+
         video_check = upload_data["check_results"]["Video"]
         self.assertTrue(video_check["passed"])
-        self.assertEqual(video_check["duration"], 30)
+        self.assertEqual(video_check["duration"], video_duration)
 
         # upload instrumental file
         kara_upload_path = f"/api/kara/{kara_data['kara']['ID']}/upload/inst"
@@ -247,7 +249,7 @@ class TestKaraberus(unittest.TestCase):
         # shouldn't have changed
         video_check = upload_data["check_results"]["Video"]
         self.assertTrue(video_check["passed"])
-        self.assertEqual(video_check["duration"], 30)
+        self.assertEqual(video_check["duration"], video_duration)
 
         audio_check = upload_data["check_results"]["Instrumental"]
         self.assertTrue(audio_check["passed"])
@@ -262,15 +264,17 @@ class TestKaraberus(unittest.TestCase):
         # shouldn't have changed
         video_check = upload_data["check_results"]["Video"]
         self.assertTrue(video_check["passed"])
-        self.assertEqual(video_check["duration"], 30)
+        self.assertEqual(video_check["duration"], video_duration)
 
         audio_check = upload_data["check_results"]["Instrumental"]
         self.assertTrue(audio_check["passed"])
         # duration isn't really used
 
+        lyrics = "" if os.environ.get("NO_NATIVE_DEPS") else "It's a small ASS."
+
         sub_check = upload_data["check_results"]["Subtitles"]
         self.assertTrue(sub_check["passed"])
-        self.assertEqual(sub_check["lyrics"], "It's a small ASS.")
+        self.assertEqual(sub_check["lyrics"], lyrics)
 
         # compare local files with uploaded files
         video_download = f"/api/kara/{kara_data['kara']['ID']}/download/video"

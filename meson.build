@@ -24,8 +24,10 @@ c_compiler = meson.get_compiler('c')
 
 # go build env
 go_env = environment()
+go_test_env = environment()
 if get_option('no_native_deps')
     go_env.set('CGO_ENABLED', '0')
+    go_test_env.set('NO_NATIVE_DEPS', '1')
 else
     go_env.set('CGO_ENABLED', '1')
     if get_option('debug')
@@ -59,7 +61,6 @@ go_test_build_env = environment()
 go_test_build_env.set('CGO_ENABLED', '0')
 
 # go test env
-go_test_env = environment()
 go_test_env.set('KARABERUS_DB_FILE', 'file::memory:?cache=shared')
 go_test_env.set('KARABERUS_TEST_DIR_GENERATED', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
@@ -308,6 +309,12 @@ if get_option('s3_tests').enabled()
             '@OUTPUT@',
         ],
     )
+
+    if get_option('no_native_deps')
+        warning(
+            'S3 tests will run but checks won\'t be tested because of -Dno_native_deps=true.',
+        )
+    endif
 
     test(
         's3_tests',
