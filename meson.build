@@ -309,7 +309,12 @@ if get_option('s3_tests').enabled()
         ],
     )
 
-    test('s3_tests', files('tests' / 'tests.py'), env: go_test_env)
+    test(
+        's3_tests',
+        python,
+        args: [files('tests' / 'tests.py')],
+        env: go_test_env,
+    )
 endif
 
 if get_option('test')
