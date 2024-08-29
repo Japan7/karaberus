@@ -6,6 +6,6 @@ type DakaraCheckResultsOutput struct {
 }
 
 type DakaraCheckSubResultsOutput struct {
-	Lyrics string
-	Passed bool
+	Lyrics string `json:"lyrics" doc:"lyrics extracted from the subtitles"`
+	Passed bool   `json:"passed" example:"true" doc:"true if file passed all checks"`
 }

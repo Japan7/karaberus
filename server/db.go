@@ -58,6 +58,7 @@ func init_db() {
 func GetDB(ctx context.Context) *gorm.DB {
 	if db_instance == nil {
 		init_db()
+		init_model(db_instance)
 	}
 
 	return db_instance.WithContext(ctx)

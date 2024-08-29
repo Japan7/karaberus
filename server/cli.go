@@ -30,12 +30,35 @@ func MakeCli() {
 		},
 	})
 
+	create_user_admin_flag := false
+	create_user_cmd := &cobra.Command{
+		Use:   "create-user <user_id>",
+		Short: "Create an user",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			db := GetDB(cmd.Context())
+			user := User{ID: args[0], Admin: create_user_admin_flag}
+			err := db.Create(&user).Error
+			if err != nil {
+				panic(err)
+			}
+			if user.Admin {
+				fmt.Printf("created administrator %s.", user.ID)
+			} else {
+				fmt.Printf("created user %s.", user.ID)
+			}
+		},
+	}
+	create_user_cmd.Flags().BoolVar(&create_user_admin_flag, "admin", false, "create an administrator.")
+
+	rootCmd.AddCommand(create_user_cmd)
+
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "create-token <user_id> <name>",
 		Short: "Create a token for the given user",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			db := GetDB(context.TODO())
+			db := GetDB(cmd.Context())
 			user := User{ID: args[0]}
 			if err := db.First(&user).Error; err != nil {
 				panic(err)
@@ -44,7 +67,7 @@ func MakeCli() {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println(token.ID)
+			fmt.Println(token.Token)
 		},
 	})
 

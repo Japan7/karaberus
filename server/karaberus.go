@@ -147,9 +147,6 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 		panic(err)
 	}
 
-	db := GetDB(context.Background())
-	init_model(db)
-
 	if CONFIG.Dakara.BaseURL != "" {
 		go SyncDakaraLoop(context.Background())
 	}

@@ -64,6 +64,10 @@ go_test_env.set('KARABERUS_DB_FILE', 'file::memory:?cache=shared')
 go_test_env.set('KARABERUS_TEST_DIR_GENERATED', meson.current_build_dir())
 go_test_env.set('KARABERUS_TEST_DIR', meson.current_source_dir() / 'tests')
 go_test_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
+go_test_env.set(
+    'KARABERUS_S3_TEST_DB_FILE',
+    meson.current_build_dir() / 's3_tests.db',
+)
 
 # go test binaries env
 gobin_env = environment()
@@ -188,6 +192,8 @@ else
     )
 endif
 
+go_test_env.set('KARABERUS_BIN', karaberus.full_path())
+
 karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_server_path = meson.current_source_dir() / 'server'
 
@@ -302,8 +308,8 @@ if get_option('s3_tests').enabled()
             '@OUTPUT@',
         ],
     )
-else
-    go_test_env.set('SKIP_S3_TESTS', 'y')
+
+    test('s3_tests', files('tests' / 'tests.py'), env: go_test_env)
 endif
 
 if get_option('test')
