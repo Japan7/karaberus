@@ -78,6 +78,10 @@ func createTempFile(ctx huma.Context, tempfile *UploadTempFile) error {
 		tempfile.Name = ctx.Header("Filename")
 	}
 
+	if bodyReader == nil {
+		return huma.Error422UnprocessableEntity("content type: " + content_type)
+	}
+
 	fd, err := os.CreateTemp("", "karaberus-*")
 	if err != nil {
 		return err
