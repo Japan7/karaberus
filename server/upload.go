@@ -54,65 +54,64 @@ func createTempFile(ctx huma.Context, tempfile *UploadTempFile) error {
 	if err != nil {
 		return err
 	}
-	if !strings.HasPrefix(content_type, "multipart/") {
-		return errors.New("not a multipart request")
-	}
-	boundary := params["boundary"]
-
 	reader := ctx.BodyReader()
-	mr := multipart.NewReader(reader, boundary)
 
+	var bodyReader io.Reader = nil
+	if strings.HasPrefix(content_type, "multipart/") {
+		boundary := params["boundary"]
+		mr := multipart.NewReader(reader, boundary)
+		for {
+			part, err := mr.NextPart()
+			if err != nil {
+				return err
+			}
+			if part.FormName() == "file" {
+				bodyReader = part
+				tempfile.Name = part.FileName()
+				break
+			} else {
+				Closer(part)
+			}
+		}
+	} else if strings.HasPrefix(content_type, "application/octet-stream") {
+		bodyReader = reader
+		tempfile.Name = ctx.Header("Filename")
+	}
+
+	fd, err := os.CreateTemp("", "karaberus-*")
 	if err != nil {
 		return err
 	}
 
+	// roughly io.Copy but with a small buffer
+	// don't change mindlessly
+	buf := make([]byte, 1024*8)
 	for {
-		part, err := mr.NextPart()
+		n, err := bodyReader.Read(buf)
+		if errors.Is(err, io.EOF) {
+			if n == 0 {
+				break
+			}
+		} else if err != nil {
+			return err
+		}
+		_, err = fd.Write(buf[:n])
 		if err != nil {
 			return err
 		}
-		defer Closer(part)
+	}
 
-		if part.FormName() == "file" {
-			tempfile.Name = part.FileName()
+	tempfile.Fd = fd
 
-			fd, err := os.CreateTemp("", "karaberus-*")
-			if err != nil {
-				return err
-			}
+	stat, err := fd.Stat()
+	if err != nil {
+		return err
+	}
+	tempfile.Size = stat.Size()
 
-			// roughly io.Copy but with a small buffer
-			// don't change mindlessly
-			buf := make([]byte, 1024*8)
-			for {
-				n, err := part.Read(buf)
-				if errors.Is(err, io.EOF) {
-					if n == 0 {
-						break
-					}
-				} else if err != nil {
-					return err
-				}
-				_, err = fd.Write(buf[:n])
-				if err != nil {
-					return err
-				}
-			}
-
-			tempfile.Fd = fd
-
-			stat, err := fd.Stat()
-			if err != nil {
-				return err
-			}
-			tempfile.Size = stat.Size()
-
-			_, err = fd.Seek(0, 0)
-			if err != nil {
-				return err
-			}
-			break
-		}
+	_, err = fd.Seek(0, 0)
+	if err != nil {
+		return err
 	}
 
 	return nil
