@@ -269,7 +269,6 @@ class TestKaraberus(unittest.TestCase):
         # duration isn't really used
 
         sub_check = upload_data["check_results"]["Subtitles"]
-        print(sub_check)
         self.assertTrue(sub_check["passed"])
         self.assertEqual(sub_check["lyrics"], "It's a small ASS.")
 
