@@ -49,7 +49,7 @@
         "files.associations": {
           "*.css": "tailwindcss"
         },
-        "mesonbuild.configureOnOpen": true,
+        "mesonbuild.configureOnOpen": false,
         "mesonbuild.downloadLanguageServer": true,
         "[css][dockercompose][javascript][javascriptreact][json][jsonc][markdown][typescript][typescriptreact][yaml]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode",
