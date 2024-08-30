@@ -108,9 +108,9 @@ export default function Autocomplete<T>(
           {(getState) => (
             <div
               onclick={() => local.setState(undefined)}
-              class="btn w-full flex justify-evenly"
+              class="btn w-full flex"
             >
-              <span>{local.getItemName(getState())}</span>
+              <span class="flex-1">{local.getItemName(getState())}</span>
               <HiSolidXMark class="size-5" />
             </div>
           )}
