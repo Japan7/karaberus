@@ -86,6 +86,9 @@ jobs:
         with:
           workspaces: 'ui/src-tauri -> target'
 
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.5
+
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: npm ci # change this to npm or pnpm depending on which one you use.
@@ -98,6 +101,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         with:
           projectPath: ui
           tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
@@ -114,6 +119,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         with:
           projectPath: ui
           args: ${{ matrix.args }}
