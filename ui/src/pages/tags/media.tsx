@@ -1,25 +1,18 @@
 import { HiSolidPencil, HiSolidTrash } from "solid-icons/hi";
-import { createResource, createSignal, Index, Show, type JSX } from "solid-js";
+import { createResource, Index, useContext } from "solid-js";
+import { Context } from "../../components/context";
 import MediaEditor from "../../components/MediaEditor";
 import type { components } from "../../utils/karaberus";
 import { karaberus } from "../../utils/karaberus-client";
 import { isAdmin } from "../../utils/session";
 
 export default function TagsMedia() {
+  const { getModalRef, setModal, showToast } = useContext(Context)!;
+
   const [getMedias, { refetch }] = createResource(async () => {
     const resp = await karaberus.GET("/api/tags/media");
     return resp.data;
   });
-
-  let modalRef!: HTMLDialogElement;
-  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
-
-  const [getToast, setToast] = createSignal<string>();
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(), 3000);
-  };
 
   const postMedia = async (media: components["schemas"]["MediaInfo"]) => {
     const resp = await karaberus.POST("/api/tags/media", { body: media });
@@ -42,7 +35,7 @@ export default function TagsMedia() {
         alert(resp.error.detail);
         return;
       }
-      modalRef.close();
+      getModalRef().close();
       showToast("Media edited!");
       refetch();
     };
@@ -103,13 +96,13 @@ export default function TagsMedia() {
                     <button
                       class="btn btn-sm btn-warning"
                       onclick={() => {
-                        setModalForm(
+                        setModal(
                           <MediaEditor
                             media={getMedia()}
                             onSubmit={patchMedia(getMedia().ID)}
                           />,
                         );
-                        modalRef.showModal();
+                        getModalRef().showModal();
                       }}
                     >
                       <HiSolidPencil class="size-4" />
@@ -128,23 +121,6 @@ export default function TagsMedia() {
           </tbody>
         </table>
       </div>
-
-      <dialog ref={modalRef} class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box flex justify-center">{getModalForm()}</div>
-        <form method="dialog" class="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-
-      <Show when={getToast()}>
-        {(getToast) => (
-          <div class="toast">
-            <div class="alert alert-success">
-              <span>{getToast()}</span>
-            </div>
-          </div>
-        )}
-      </Show>
     </>
   );
 }

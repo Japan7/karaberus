@@ -7,8 +7,9 @@ import {
   HiOutlineLink,
   HiSolidTrash,
 } from "solid-icons/hi";
-import { createResource, createSignal, Show } from "solid-js";
+import { createResource, createSignal, Show, useContext } from "solid-js";
 import BrowserKaraPlayer from "../../../components/BrowserKaraPlayer";
+import { Context } from "../../../components/context";
 import DownloadAnchor from "../../../components/DownloadAnchor";
 import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";
@@ -19,6 +20,7 @@ import { isAdmin } from "../../../utils/session";
 import { buildKaraberusUrl, IS_TAURI_DIST_BUILD } from "../../../utils/tauri";
 
 export default function KaraokeBrowseId() {
+  const { showToast } = useContext(Context)!;
   const params = useParams();
   const navigate = useNavigate();
 
@@ -33,11 +35,8 @@ export default function KaraokeBrowseId() {
     return resp.data;
   });
 
-  const [getToast, setToast] = createSignal<string>();
-
   const onUpload = () => {
-    setToast("Upload complete!");
-    setTimeout(() => setToast(), 3000);
+    showToast("Upload complete!");
     refetch();
   };
 
@@ -56,8 +55,7 @@ export default function KaraokeBrowseId() {
       return;
     }
 
-    setToast("Karaoke updated!");
-    setTimeout(() => setToast(), 3000);
+    showToast("Karaoke updated!");
     refetch();
   };
 
@@ -212,16 +210,6 @@ export default function KaraokeBrowseId() {
           </button>
         </div>
       </div>
-
-      <Show when={getToast()}>
-        {(getToast) => (
-          <div class="toast">
-            <div class="alert alert-success">
-              <span>{getToast()}</span>
-            </div>
-          </div>
-        )}
-      </Show>
     </>
   );
 }

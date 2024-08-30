@@ -1,25 +1,18 @@
 import { HiSolidPencil, HiSolidTrash } from "solid-icons/hi";
-import { createResource, createSignal, Index, Show, type JSX } from "solid-js";
+import { createResource, Index, useContext } from "solid-js";
 import AuthorEditor from "../../components/AuthorEditor";
+import { Context } from "../../components/context";
 import type { components } from "../../utils/karaberus";
 import { karaberus } from "../../utils/karaberus-client";
 import { isAdmin } from "../../utils/session";
 
 export default function TagsAuthor() {
+  const { getModalRef, setModal, showToast } = useContext(Context)!;
+
   const [getAuthors, { refetch }] = createResource(async () => {
     const resp = await karaberus.GET("/api/tags/author");
     return resp.data;
   });
-
-  let modalRef!: HTMLDialogElement;
-  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
-
-  const [getToast, setToast] = createSignal<string>();
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(), 3000);
-  };
 
   const postAuthor = async (author: components["schemas"]["AuthorInfo"]) => {
     const resp = await karaberus.POST("/api/tags/author", { body: author });
@@ -42,7 +35,7 @@ export default function TagsAuthor() {
         alert(resp.error.detail);
         return;
       }
-      modalRef.close();
+      getModalRef().close();
       showToast("Author edited!");
       refetch();
     };
@@ -93,13 +86,13 @@ export default function TagsAuthor() {
                     <button
                       class="btn btn-sm btn-warning"
                       onclick={() => {
-                        setModalForm(
+                        setModal(
                           <AuthorEditor
                             author={getAuthor()}
                             onSubmit={patchAuthor(getAuthor().ID)}
                           />,
                         );
-                        modalRef.showModal();
+                        getModalRef().showModal();
                       }}
                     >
                       <HiSolidPencil class="size-4" />
@@ -118,23 +111,6 @@ export default function TagsAuthor() {
           </tbody>
         </table>
       </div>
-
-      <dialog ref={modalRef} class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box flex justify-center">{getModalForm()}</div>
-        <form method="dialog" class="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-
-      <Show when={getToast()}>
-        {(getToast) => (
-          <div class="toast">
-            <div class="alert alert-success">
-              <span>{getToast()}</span>
-            </div>
-          </div>
-        )}
-      </Show>
     </>
   );
 }

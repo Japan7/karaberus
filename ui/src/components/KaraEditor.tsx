@@ -1,4 +1,11 @@
-import { createResource, createSignal, Index, Show, type JSX } from "solid-js";
+import {
+  createResource,
+  createSignal,
+  Index,
+  Show,
+  useContext,
+  type JSX,
+} from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 import ArtistEditor from "./ArtistEditor";
@@ -6,12 +13,15 @@ import AuthorEditor from "./AuthorEditor";
 import Autocomplete from "./Autocomplete";
 import AutocompleteMultiple from "./AutocompleteMultiple";
 import MediaEditor from "./MediaEditor";
+import { Context } from "./context";
 
 export default function KaraEditor(props: {
   kara?: components["schemas"]["KaraInfoDB"];
   onSubmit: (kara: components["schemas"]["KaraInfo"]) => void;
   reset?: boolean;
 }) {
+  const { getModalRef, setModal, showToast } = useContext(Context)!;
+
   //#region Resources
   const [getAllAuthors, { refetch: refetchAuthors }] = createResource(
     async () => {
@@ -74,16 +84,6 @@ export default function KaraEditor(props: {
   //#endregion
 
   //#region Handlers
-  let modalRef!: HTMLDialogElement;
-  const [getModalForm, setModalForm] = createSignal<JSX.Element>();
-
-  const [getToast, setToast] = createSignal<string>();
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(), 3000);
-  };
-
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
     const extraTitlesStr = getExtraTitles().trim();
@@ -115,13 +115,13 @@ export default function KaraEditor(props: {
     }
     showToast("Author added!");
     refetchAuthors();
-    modalRef.close();
+    getModalRef().close();
   };
 
   const openAddAuthorModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setModalForm(<AuthorEditor onSubmit={postAuthor} />);
-    modalRef.showModal();
+    setModal(<AuthorEditor onSubmit={postAuthor} />);
+    getModalRef().showModal();
   };
 
   const postArtist = async (artist: components["schemas"]["ArtistInfo"]) => {
@@ -132,13 +132,13 @@ export default function KaraEditor(props: {
     }
     showToast("Artist added!");
     refetchArtists();
-    modalRef.close();
+    getModalRef().close();
   };
 
   const openAddArtistModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setModalForm(<ArtistEditor onSubmit={postArtist} />);
-    modalRef.showModal();
+    setModal(<ArtistEditor onSubmit={postArtist} />);
+    getModalRef().showModal();
   };
 
   const postMedia = async (media: components["schemas"]["MediaInfo"]) => {
@@ -149,13 +149,13 @@ export default function KaraEditor(props: {
     }
     showToast("Media added!");
     refetchMedia();
-    modalRef.close();
+    getModalRef().close();
   };
 
   const openAddMediaModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setModalForm(<MediaEditor onSubmit={postMedia} />);
-    modalRef.showModal();
+    setModal(<MediaEditor onSubmit={postMedia} />);
+    getModalRef().showModal();
   };
   //#endregion
 
@@ -419,67 +419,48 @@ export default function KaraEditor(props: {
   //#endregion
 
   return (
-    <>
-      <form onsubmit={onsubmit} class="flex flex-col gap-y-4">
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title">Titles</h2>
-              {titleInput()}
-              {extraTitlesInput()}
-            </div>
-          </div>
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title">Audio</h2>
-              {artistsInput()}
-              {audioTagsInput()}
-              <Show
-                when={getAudioTags().some(
-                  (tag) => getAudioTag(tag.ID)?.HasSongOrder,
-                )}
-              >
-                {sourceMediaInput()}
-                {songOrderInput()}
-              </Show>
-              {languageInput()}
-            </div>
-          </div>
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
-              <h2 class="card-title">Video</h2>
-              {videoTagsInput()}
-              {mediasInput()}
-            </div>
-          </div>
-          <div class="card bg-base-100 shadow-xl md:row-start-1 md:col-start-2">
-            <div class="card-body">
-              <h2 class="card-title">Additional informations</h2>
-              {authorsInput()}
-              {commentInput()}
-              {versionInput()}
-            </div>
+    <form onsubmit={onsubmit} class="flex flex-col gap-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Titles</h2>
+            {titleInput()}
+            {extraTitlesInput()}
           </div>
         </div>
-        <input type="submit" class="btn btn-primary" />
-      </form>
-
-      <dialog ref={modalRef} class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box flex justify-center">{getModalForm()}</div>
-        <form method="dialog" class="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-
-      <Show when={getToast()}>
-        {(getToast) => (
-          <div class="toast">
-            <div class="alert alert-success">
-              <span>{getToast()}</span>
-            </div>
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Audio</h2>
+            {artistsInput()}
+            {audioTagsInput()}
+            <Show
+              when={getAudioTags().some(
+                (tag) => getAudioTag(tag.ID)?.HasSongOrder,
+              )}
+            >
+              {sourceMediaInput()}
+              {songOrderInput()}
+            </Show>
+            {languageInput()}
           </div>
-        )}
-      </Show>
-    </>
+        </div>
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">Video</h2>
+            {videoTagsInput()}
+            {mediasInput()}
+          </div>
+        </div>
+        <div class="card bg-base-100 shadow-xl md:row-start-1 md:col-start-2">
+          <div class="card-body">
+            <h2 class="card-title">Additional informations</h2>
+            {authorsInput()}
+            {commentInput()}
+            {versionInput()}
+          </div>
+        </div>
+      </div>
+      <input type="submit" class="btn btn-primary" />
+    </form>
   );
 }
