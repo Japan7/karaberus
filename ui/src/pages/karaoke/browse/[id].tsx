@@ -9,7 +9,7 @@ import {
 } from "solid-icons/hi";
 import { createResource, createSignal, Show, useContext } from "solid-js";
 import BrowserKaraPlayer from "../../../components/BrowserKaraPlayer";
-import { Context } from "../../../components/context";
+import { Context } from "../../../components/Context";
 import DownloadAnchor from "../../../components/DownloadAnchor";
 import FileUploader from "../../../components/FileUploader";
 import KaraEditor from "../../../components/KaraEditor";

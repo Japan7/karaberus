@@ -12,8 +12,8 @@ import ArtistEditor from "./ArtistEditor";
 import AuthorEditor from "./AuthorEditor";
 import Autocomplete from "./Autocomplete";
 import AutocompleteMultiple from "./AutocompleteMultiple";
+import { Context } from "./Context";
 import MediaEditor from "./MediaEditor";
-import { Context } from "./context";
 
 export default function KaraEditor(props: {
   kara?: components["schemas"]["KaraInfoDB"];

@@ -1,6 +1,6 @@
 import { HiSolidPencil, HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index, useContext } from "solid-js";
-import { Context } from "../../components/context";
+import { Context } from "../../components/Context";
 import MediaEditor from "../../components/MediaEditor";
 import type { components } from "../../utils/karaberus";
 import { karaberus } from "../../utils/karaberus-client";

@@ -1,7 +1,7 @@
 import { HiSolidPencil, HiSolidTrash } from "solid-icons/hi";
 import { createResource, Index, useContext } from "solid-js";
 import ArtistEditor from "../../components/ArtistEditor";
-import { Context } from "../../components/context";
+import { Context } from "../../components/Context";
 import type { components } from "../../utils/karaberus";
 import { karaberus } from "../../utils/karaberus-client";
 import { isAdmin } from "../../utils/session";

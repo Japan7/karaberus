@@ -1,6 +1,6 @@
 import { useNavigate, type RouteSectionProps } from "@solidjs/router";
 import { createEffect, Show } from "solid-js";
-import { Provider } from "../components/context";
+import { Provider } from "../components/Context";
 import { getSessionInfos } from "../utils/session";
 import AuthHero from "./AuthHero";
 import Navbar from "./Navbar";
