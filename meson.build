@@ -89,8 +89,13 @@ go_files += files(
     'karaberus_tools' / 'model.go',
 )
 
-go_tools_modfile = files('tools' / 'go.mod')
-go_tools_opts = ['-modfile', go_tools_modfile]
+go_tools_modfile = meson.current_source_dir() / 'tools' / 'go.mod'
+go_tools_opts = [
+    '-C',
+    meson.current_source_dir() / 'tools',
+    '-modfile',
+    go_tools_modfile,
+]
 
 go_tools_files = files('tools' / 'go.sum') + go_tools_modfile
 
