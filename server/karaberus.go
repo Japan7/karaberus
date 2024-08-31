@@ -96,6 +96,9 @@ func addRoutes(api huma.API) {
 
 	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_admin_security))
 	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_admin_security))
+
+	huma.Get(api, "/api/me", GetMe, setSecurity(oidc_security))
+	huma.Put(api, "/api/me/author", UpdateMeAuthor, setSecurity(oidc_security))
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {
