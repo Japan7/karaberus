@@ -8,6 +8,7 @@ project(
         'default_library=shared',
         'ffmpeg:default_library=shared',
         'libass:default_library=shared',
+        'ffmpeg:zlib=enabled',
         'fribidi:bin=false',
         'c_std=gnu17',
         'warning_level=2',
