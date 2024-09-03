@@ -37,11 +37,11 @@ jobs:
       - name: setup go cache
         uses: actions/cache@v4
         with:
-          path: build_cache
+          path: go_cache
           key: go_linux_test
 
       - name: Run tests
-        run: buildah run -v "$PWD:/karaberus" --network=host -e GOCACHE=/karaberus/build_cache -e KARABERUS_S3_ENDPOINT=localhost:9000 -e KARABERUS_S3_KEYID=minio -e KARABERUS_S3_SECRET=miniosecret $(buildah from ghcr.io/odrling/build-images:karaberus-x86_64) /karaberus/ci/test.sh
+        run: buildah run -v "$PWD:/karaberus" --network=host -e GOCACHE=/karaberus/go_cache -e KARABERUS_S3_ENDPOINT=localhost:9000 -e KARABERUS_S3_KEYID=minio -e KARABERUS_S3_SECRET=miniosecret $(buildah from ghcr.io/odrling/build-images:karaberus-x86_64) /karaberus/ci/test.sh
 
   test_no_native:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
@@ -85,7 +85,7 @@ jobs:
 
   build:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
-    runs-on: ubuntu-${{ matrix.config.ubuntu_version }}
+    runs-on: ubuntu-24.04
     env:
       CCACHE_BASEDIR: ${{ github.workspace }}
       CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -105,49 +105,22 @@ jobs:
           - arch: x86_64
             platform: linux/amd64
             target: ""
-            ubuntu_version: "24.04"
           - arch: aarch64
             platform: linux/arm64
             target: "aarch64-linux-gnu"
-            ubuntu_version: "24.04"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get time
-        id: get_time
-        run: echo "timestamp=`date +%s%N`" >> $GITHUB_OUTPUT
-
-      - name: Restore cache
-        uses: actions/cache/restore@v4
+      - name: setup go cache
+        uses: actions/cache@v4
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ matrix.arch }}-${{ steps.get_time.outputs.timestamp }}
-          restore-keys: ${{ matrix.config.arch }}-
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "stable"
-
-      - name: Install dependencies
-        run: |
-          pipx install meson ninja
-          sudo apt-get update
-          sudo apt install ccache
-
-
-      - name: Install crossbuild toolchain
-        if: ${{ matrix.config.target != '' }}
-        run: |
-          sudo apt-get install g++-${{ matrix.config.target }} gcc-${{ matrix.config.target }} binutils-${{ matrix.config.target }} qemu-user-static
-
-      - name: Install nasm
-        if: ${{ matrix.config.arch == 'x86_64' }}
-        run: sudo apt-get install nasm
+          path: go_cache
+          key: go_build_${{ matrix.config.arch }}
 
       - name: Build
-        run: TARGET=${{ matrix.config.target }} ./ci/build.sh
+        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh
 
       - name: Docker Metadata
         id: meta
@@ -184,13 +157,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Save Cache
-        uses: actions/cache/save@v4
-        if: always()
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ matrix.config.arch }}-${{ steps.get_time.outputs.timestamp }}
 
   push_manifest:
     needs: 

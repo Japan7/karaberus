@@ -37,8 +37,13 @@ else
         go_env.set('CGO_CFLAGS', '-Wno-unused-parameter')
     endif
     go_env.set('CC', ' '.join(c_compiler.cmd_array()))
-    pkg_config_path = meson.current_build_dir() / 'meson-uninstalled'
-    go_env.set('PKG_CONFIG_PATH', pkg_config_path)
+
+    pkg_config = find_program('pkg-config')
+    go_env.set('PKG_CONFIG', pkg_config.full_path())
+
+    pkg_config_path = get_option('pkg_config_path')
+    pkg_config_path += meson.current_build_dir() / 'meson-uninstalled'
+    go_env.set('PKG_CONFIG_PATH', ':'.join(pkg_config_path))
 endif
 
 go_os = get_option('go_os')

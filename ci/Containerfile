@@ -1,14 +1,7 @@
-FROM alpine:3.20 AS certificates
+FROM scratch
 
-ARG UBUNTU_VERSION
-FROM docker.io/ubuntu:${UBUNTU_VERSION} AS builder
-
-ARG TARGET
-
-COPY build/image /
-COPY --from=certificates /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY image /
 ENV KARABERUS_LISTEN_HOST=0.0.0.0
-ENV KARABERUS_UI_DIST_DIR="/usr/local/share/karaberus/ui_dist"
-ENV LD_LIBRARY_PATH="/usr/local/lib/${TARGET}:/usr/local/lib:${LD_LIBRARY_PATH}"
+ENV KARABERUS_UI_DIST_DIR="/share/karaberus/ui_dist"
 EXPOSE 8888
-ENTRYPOINT ["karaberus"]
+ENTRYPOINT ["/bin/karaberus"]
