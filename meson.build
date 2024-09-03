@@ -157,6 +157,7 @@ if get_option('no_native_deps')
         install_dir: 'bin',
         install_mode: 'rwxr-xr-x',
     )
+    karaberus_go_build = karaberus
 else
     karaberus_output = meson.current_build_dir() / 'karaberus.a'
     karaberus_archive = custom_target(
@@ -176,6 +177,7 @@ else
         input: karaberus_inputs,
         output: 'karaberus.a',
     )
+    karaberus_go_build = karaberus_archive
 
     # no-op but helps define the header for the executable below
     karaberus_header = custom_target(
@@ -219,6 +221,8 @@ karaberus_test = custom_target(
         '-c',
         karaberus_server_path,
     ],
+    # so it can't build while karaberus is being built
+    depends: karaberus_go_build,
 )
 
 if not meson.is_cross_build()
