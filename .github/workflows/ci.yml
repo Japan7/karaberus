@@ -41,7 +41,7 @@ jobs:
           key: go_linux_test
 
       - name: Run tests
-        run: buildah run -v "$PWD:/karaberus" --network=host -e GOCACHE=/karaberus/build_cache -e KARABERUS_S3_ENDPOINT=localhost:9000 -e KARABERUS_S3_KEYID=minio -e KARABERUS_S3_SECRET=miniosecret $(buildah from ghcr.io/odrling/build-images:karaberus) /karaberus/ci/test.sh
+        run: buildah run -v "$PWD:/karaberus" --network=host -e GOCACHE=/karaberus/build_cache -e KARABERUS_S3_ENDPOINT=localhost:9000 -e KARABERUS_S3_KEYID=minio -e KARABERUS_S3_SECRET=miniosecret $(buildah from ghcr.io/odrling/build-images:karaberus-x86_64) /karaberus/ci/test.sh
 
   test_no_native:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
