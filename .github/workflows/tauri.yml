@@ -82,7 +82,7 @@ jobs:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: set cargo home (Windows)
-        if: ${{ startsWith(matrix.platform, 'windows') }}
+        if: ${{ startsWith(matrix.platform, 'windows') }}
         shell: bash
         run: |
           echo CARGO_HOME="D:\rust\cargo" >> $GITHUB_ENV
@@ -116,15 +116,13 @@ jobs:
           releaseBody: ${{ needs.release-notes.outputs.notes }}
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: --config ui/src-tauri/tauri.release.config.json ${{ matrix.args }}
 
       - name: build (push)
-        if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'pull_request' || !startsWith(github.head_ref, 'renovate/')) }}
+        if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'pull_request' || !startsWith(github.head_ref, 'renovate/')) }}
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           SCCACHE_GHA_ENABLED: "true"
           RUSTC_WRAPPER: "sccache"
         with:

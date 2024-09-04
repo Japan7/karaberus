@@ -1,12 +1,12 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Karaberus",
-  "version": "0.3.4",
   "identifier": "moe.japan7.karaberus",
   "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:5173",
     "beforeDevCommand": "npm run dev -- --mode tauri-dev",
-    "beforeBuildCommand": "npm run build -- --mode tauri-dist"
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build -- --mode tauri-dist",
+    "frontendDist": "../dist"
   },
   "app": {
     "windows": [
@@ -29,8 +29,7 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "createUpdaterArtifacts": "v1Compatible"
+    ]
   },
   "plugins": {
     "updater": {
@@ -39,6 +38,5 @@
         "https://github.com/Japan7/karaberus/releases/latest/download/latest.json"
       ]
     }
-  },
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json"
+  }
 }
