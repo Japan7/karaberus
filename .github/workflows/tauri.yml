@@ -116,7 +116,7 @@ jobs:
           releaseBody: ${{ needs.release-notes.outputs.notes }}
           releaseDraft: true
           prerelease: false
-          args: --config ui/src-tauri/tauri.release.config.json ${{ matrix.args }}
+          args: --config src-tauri/tauri.release.config.json ${{ matrix.args }}
 
       - name: build (push)
         if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'pull_request' || !startsWith(github.head_ref, 'renovate/')) }}
