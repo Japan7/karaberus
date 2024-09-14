@@ -6,7 +6,6 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.22.1
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.6.0
-	github.com/mattn/go-pointer v0.0.1
 	github.com/spf13/cobra v1.8.1
 	golang.org/x/sync v0.8.0
 )

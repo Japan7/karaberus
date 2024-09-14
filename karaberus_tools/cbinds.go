@@ -23,14 +23,15 @@ import "C"
 import (
 	"errors"
 	"io"
+	"runtime/cgo"
 	"unsafe"
-
-	"github.com/mattn/go-pointer"
 )
 
 //export AVIORead
 func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
-	objbuf := pointer.Restore(opaque).(ObjectBuf)
+	h := *(*cgo.Handle)(opaque)
+	objbuf := h.Value().(ObjectBuf)
+
 	var rbuf []byte
 	if int(n) < len(objbuf.Buffer) {
 		rbuf = objbuf.Buffer[:n]
@@ -53,7 +54,9 @@ func AVIORead(opaque unsafe.Pointer, buf *C.uint8_t, n C.int) C.int {
 
 //export AVIOSeek
 func AVIOSeek(opaque unsafe.Pointer, offset C.int64_t, whence C.int) C.int64_t {
-	objbuf := pointer.Restore(opaque).(ObjectBuf)
+	h := *(*cgo.Handle)(opaque)
+	objbuf := h.Value().(ObjectBuf)
+
 	if whence == C.AVSEEK_SIZE {
 		return C.int64_t(objbuf.Size)
 	}
@@ -81,9 +84,9 @@ func NewObjectBuf(obj io.ReadSeeker, size int64) ObjectBuf {
 func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheckResultsOutput {
 	video_stream := ftype == "video"
 	object_buf := NewObjectBuf(obj, size)
-	ptr := pointer.Save(object_buf)
-	defer pointer.Unref(ptr)
-	res := C.karaberus_dakara_check(ptr, C.bool(video_stream))
+	handle := cgo.NewHandle(object_buf)
+	defer handle.Delete()
+	res := C.karaberus_dakara_check(unsafe.Pointer(&handle), C.bool(video_stream))
 	defer C.free_reports(res)
 
 	passed := !bool(res.failed)
