@@ -10,7 +10,7 @@
     {
       "matchFileNames": ["ui/**"],
       "matchManagers": ["npm", "cargo"],
-      "matchDepTypes": ["dependencies", "devDependencies"],
+      "matchDepTypes": ["dependencies", "devDependencies", "buildDependencies"],
       "rangeStrategy": "pin"
     }
   ]
