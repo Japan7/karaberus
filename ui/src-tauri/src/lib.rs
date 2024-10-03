@@ -5,8 +5,7 @@ mod updater;
 use std::{env, sync::Arc};
 
 use mpv::Mpv;
-use tauri::{async_runtime::Mutex, Wry};
-use tauri_plugin_store::StoreCollection;
+use tauri::async_runtime::Mutex;
 
 #[derive(Default)]
 struct AppStateInner {
@@ -14,8 +13,6 @@ struct AppStateInner {
 }
 
 type AppState = Arc<Mutex<AppStateInner>>;
-
-type AppStore = StoreCollection<Wry>;
 
 const STORE_BIN: &str = if cfg!(dev) {
     "store_dev.bin"

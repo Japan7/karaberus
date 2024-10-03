@@ -35,8 +35,9 @@ export default function Settings() {
   };
 
   const resetPlayerToken = async () => {
-    await getTauriStore().delete(PLAYER_TOKEN_KEY);
-    await getTauriStore().save();
+    const store = await getTauriStore();
+    await store.delete(PLAYER_TOKEN_KEY);
+    await store.save();
     await Promise.all(getAllTokens()?.map((t) => deleteToken(t.id)) ?? []);
     refetchTokens();
   };

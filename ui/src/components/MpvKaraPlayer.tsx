@@ -33,7 +33,8 @@ export default function MpvKaraPlayer(props: {
   };
 
   const ensurePlayerToken = async () => {
-    let token = await getTauriStore().get<string>(PLAYER_TOKEN_KEY);
+    const store = await getTauriStore();
+    let token = await store.get<string>(PLAYER_TOKEN_KEY);
     if (!token) {
       const resp = await karaberus.POST("/api/token", {
         body: {
@@ -45,8 +46,8 @@ export default function MpvKaraPlayer(props: {
         throw new Error(resp.error.detail);
       }
       token = resp.data.token;
-      await getTauriStore().set(PLAYER_TOKEN_KEY, token);
-      await getTauriStore().save();
+      await store.set(PLAYER_TOKEN_KEY, token);
+      await store.save();
     }
     return token;
   };

@@ -1,14 +1,13 @@
 use std::env;
 
-use async_std::path::PathBuf;
 use serde::Serialize;
 use tauri::{ipc::Channel, AppHandle, Manager, State};
 use tauri_plugin_shell::{process::CommandEvent, ShellExt};
-use tauri_plugin_store::with_store;
+use tauri_plugin_store::StoreExt;
 
 use crate::{
     mpv::{LoadFile, Mpv},
-    AppState, AppStore, STORE_BIN,
+    AppState, STORE_BIN,
 };
 
 #[derive(Clone, Serialize)]
@@ -111,16 +110,13 @@ fn get_mpv_socket(app_handle: &AppHandle) -> String {
 }
 
 fn get_player_token(app_handle: &AppHandle) -> String {
-    let stores = app_handle.state::<AppStore>();
-    let path = PathBuf::from(STORE_BIN);
-    with_store(app_handle.clone(), stores, path, |store| {
-        Ok(store.get("player_token").cloned())
-    })
-    .unwrap()
-    .unwrap()
-    .as_str()
-    .unwrap()
-    .to_string()
+    let store = app_handle.store_builder(STORE_BIN).build();
+    store
+        .get("player_token")
+        .unwrap()
+        .as_str()
+        .unwrap()
+        .to_string()
 }
 
 async fn add_to_mpv_playlist(

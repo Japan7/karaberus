@@ -1,7 +1,7 @@
 import { Channel } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { Platform } from "@tauri-apps/plugin-os";
-import { Store } from "@tauri-apps/plugin-store";
+import { createStore, type Store } from "@tauri-apps/plugin-store";
 
 export const IS_TAURI_BUILD = import.meta.env.MODE.startsWith("tauri");
 export const IS_TAURI_DEV_BUILD = import.meta.env.MODE === "tauri-dev";
@@ -33,9 +33,11 @@ export function registerGlobalListeners() {
 }
 
 let store: Store;
-export function getTauriStore() {
+export async function getTauriStore() {
   if (!store) {
-    store = new Store(IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin");
+    store = await createStore(
+      IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin",
+    );
   }
   return store;
 }

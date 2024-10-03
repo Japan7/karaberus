@@ -1,7 +1,7 @@
 //! https://github.com/tauri-apps/tauri/blob/1.6/core/tauri/src/updater/mod.rs
 
 use tauri::AppHandle;
-use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_updater::{Update, UpdaterExt};
 
 pub async fn check_update_with_dialog(app_handle: AppHandle) {
@@ -32,8 +32,7 @@ Release Notes:
         .dialog()
         .message(message)
         .title(title)
-        .ok_button_label("Yes")
-        .cancel_button_label("No")
+        .buttons(MessageDialogButtons::OkCancel)
         .show(|should_update| {
             if should_update {
                 tauri::async_runtime::spawn(install_update(app_handle, update));
@@ -59,8 +58,7 @@ async fn install_update(app_handle: AppHandle, update: Update) {
                     .dialog()
                     .message(message)
                     .title(title)
-                    .ok_button_label("Yes")
-                    .cancel_button_label("No")
+                    .buttons(MessageDialogButtons::OkCancel)
                     .show(move |should_exit| {
                         if should_exit {
                             app_handle.restart();
