@@ -9,7 +9,7 @@
     },
     {
       "matchFileNames": ["ui/**"],
-      "matchManagers": ["npm"],
+      "matchManagers": ["npm", "cargo"],
       "matchDepTypes": ["dependencies", "devDependencies"],
       "rangeStrategy": "pin"
     }
