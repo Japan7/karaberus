@@ -22,7 +22,7 @@ tauri-build = { version = "=2.0.1", features = [] }
 serde_json = "=1.0.128"
 serde = { version = "=1.0.210", features = ["derive"] }
 tauri = { version = "=2.0.1", features = ["devtools"] }
-tauri-plugin-os = "=2.0.0"
+tauri-plugin-os = "=2.0.1"
 tauri-plugin-dialog = "=2.0.1"
 tauri-plugin-store = "=2.0.0"
 async-std = "=1.13.0"
