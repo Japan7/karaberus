@@ -936,12 +936,21 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		return nil, err
 	}
 
+	var version string
+	if kara.Version != "" && kara.Language != "" {
+		version = fmt.Sprintf("%s, %s", strings.Trim(kara.Version, " \n"), strings.Trim(kara.Language, " \n"))
+	} else if kara.Language != "" {
+		version = strings.Trim(kara.Language, " \n")
+	} else {
+		version = strings.Trim(kara.Version, " \n")
+	}
+
 	return &DakaraSongBody{
 		Title:           kara.Title,
 		Filename:        kara.VideoFilename(),
 		Duration:        kara.Duration,
 		Directory:       "",
-		Version:         strings.Trim(kara.Version, " \n"),
+		Version:         version,
 		Detail:          strings.Trim(comment, " \n"),
 		DetailVideo:     "",
 		Tags:            tags,
