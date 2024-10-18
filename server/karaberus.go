@@ -90,6 +90,9 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/token", GetAllUserTokens, setSecurity(oidc_security))
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
+
+	huma.Get(api, "/api/me", GetMe, setSecurity(oidc_security))
+	huma.Put(api, "/api/me/author", UpdateMeAuthor, setSecurity(oidc_security))
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {
