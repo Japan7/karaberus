@@ -10,7 +10,9 @@ export default function AuthHero() {
 
   createEffect(() => {
     if (IS_TAURI_DIST_BUILD) {
-      const token = searchParams.token;
+      const token = Array.isArray(searchParams.token)
+        ? searchParams.token[0]
+        : searchParams.token;
       if (token) {
         setSessionToken(token);
         location.href = "/";
