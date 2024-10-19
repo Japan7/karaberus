@@ -23,7 +23,7 @@ func GetAllUserTokens(ctx context.Context, input *struct{}) (*GetAllTokensOutput
 	db := GetDB(ctx)
 	user := *getCurrentUser(ctx)
 	out := &GetAllTokensOutput{}
-	err := db.Model(&TokenV2{}).Where(&TokenV2{User: user}).Find(&out.Body).Error
+	err := db.Model(&TokenV2{}).Where(&TokenV2{UserID: user.ID}).Find(&out.Body).Error
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
