@@ -99,7 +99,7 @@ func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutp
 	if user.Admin {
 		err = db.Delete(&TokenV2{}, input.TokenID).Error
 	} else {
-		err = db.Where(&TokenV2{User: user}).Delete(&TokenV2{}, input.TokenID).Error
+		err = db.Where(&TokenV2{UserID: user.ID}).Delete(&TokenV2{}, input.TokenID).Error
 	}
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
