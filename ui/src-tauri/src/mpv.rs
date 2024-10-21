@@ -53,7 +53,7 @@ where
         options_string.push_str(format!("{key}=%{len}%{value}", len = value.len()).as_str());
         first = false;
     }
-    return serializer.serialize_str(options_string.as_str());
+    serializer.serialize_str(options_string.as_str())
 }
 
 #[derive(Default, Clone)]

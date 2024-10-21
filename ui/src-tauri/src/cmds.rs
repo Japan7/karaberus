@@ -110,13 +110,15 @@ fn get_mpv_socket(app_handle: &AppHandle) -> String {
 }
 
 fn get_player_token(app_handle: &AppHandle) -> String {
-    let store = app_handle.store_builder(STORE_BIN).build();
-    store
+    let store = app_handle.store(STORE_BIN).unwrap();
+    let token = store
         .get("player_token")
         .unwrap()
         .as_str()
         .unwrap()
-        .to_string()
+        .to_string();
+    store.close_resource();
+    token
 }
 
 async fn add_to_mpv_playlist(
