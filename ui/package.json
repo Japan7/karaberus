@@ -20,7 +20,7 @@
     "@tauri-apps/plugin-dialog": "2.0.1",
     "@tauri-apps/plugin-os": "2.0.0",
     "@tauri-apps/plugin-shell": "2.0.1",
-    "@tauri-apps/plugin-store": "2.0.0",
+    "@tauri-apps/plugin-store": "2.1.0",
     "@tauri-apps/plugin-updater": "2.0.0",
     "fuse.js": "7.0.0",
     "jose": "5.9.6",
