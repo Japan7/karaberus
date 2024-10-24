@@ -16,7 +16,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 type KaraberusError struct {
@@ -107,7 +106,6 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	})
 
 	app.Use(logger.New())
-	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(healthcheck.New())
 	app.Use(compress.New())
 	if CONFIG.Listen.Profiling {
