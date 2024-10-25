@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash/crc32"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -37,12 +38,60 @@ type UploadTempFile struct {
 	Size int64
 	// original file name
 	Name string
+	CRC32 uint32
 }
 
 type UploadInput struct {
 	KID      uint   `path:"id" example:"1"`
 	FileType string `path:"filetype" example:"video"`
 	File     UploadTempFile
+}
+
+
+func CreateTempFile(ctx context.Context, tempfile *UploadTempFile, reader io.Reader) error{
+	fd, err := os.CreateTemp("", "karaberus-*")
+	if err != nil {
+		return err
+	}
+
+	hasher := crc32.NewIEEE()
+	// roughly io.Copy but with a small buffer
+	// don't change mindlessly
+	buf := make([]byte, 1024*8)
+	for {
+		n, err := reader.Read(buf)
+		if errors.Is(err, io.EOF) {
+			if n == 0 {
+				break
+			}
+		} else if err != nil {
+			return err
+		}
+		_, err = hasher.Write(buf[:n])
+		if err != nil {
+			return err
+		}
+		_, err = fd.Write(buf[:n])
+		if err != nil {
+			return err
+		}
+	}
+
+	tempfile.CRC32 = hasher.Sum32()
+	tempfile.Fd = fd
+
+	stat, err := fd.Stat()
+	if err != nil {
+		return err
+	}
+	tempfile.Size = stat.Size()
+
+	_, err = fd.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // write uploaded file to temporary file so fasthttp can't store it in memory
@@ -82,43 +131,7 @@ func createTempFile(ctx huma.Context, tempfile *UploadTempFile) error {
 		return huma.Error422UnprocessableEntity("content type: " + content_type)
 	}
 
-	fd, err := os.CreateTemp("", "karaberus-*")
-	if err != nil {
-		return err
-	}
-
-	// roughly io.Copy but with a small buffer
-	// don't change mindlessly
-	buf := make([]byte, 1024*8)
-	for {
-		n, err := bodyReader.Read(buf)
-		if errors.Is(err, io.EOF) {
-			if n == 0 {
-				break
-			}
-		} else if err != nil {
-			return err
-		}
-		_, err = fd.Write(buf[:n])
-		if err != nil {
-			return err
-		}
-	}
-
-	tempfile.Fd = fd
-
-	stat, err := fd.Stat()
-	if err != nil {
-		return err
-	}
-	tempfile.Size = stat.Size()
-
-	_, err = fd.Seek(0, 0)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return CreateTempFile(ctx.Context(), tempfile, bodyReader)
 }
 
 func (i *UploadInput) Resolve(ctx huma.Context) []error {
@@ -138,20 +151,26 @@ type UploadOutput struct {
 	}
 }
 
-func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string) error {
+func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string, filesize int64, crc32 uint32) error {
 	currentTime := time.Now().UTC()
 	switch filetype {
 	case "video":
 		kara.VideoUploaded = true
 		kara.VideoModTime = currentTime
+		kara.VideoSize = filesize
+		kara.VideoCRC32 = crc32
 		return nil
 	case "inst":
 		kara.InstrumentalUploaded = true
 		kara.InstrumentalModTime = currentTime
+		kara.InstrumentalSize = filesize
+		kara.InstrumentalCRC32 = crc32
 		return nil
 	case "sub":
 		kara.SubtitlesUploaded = true
 		kara.SubtitlesModTime = currentTime
+		kara.SubtitlesSize = filesize
+		kara.SubtitlesCRC32 = crc32
 		// check for unix time 0 is for older karaokes, because we also used
 		// that at some point
 		if kara.KaraokeCreationTime.IsZero() || kara.KaraokeCreationTime.Unix() == 0 {
@@ -207,7 +226,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 
 	resp := &UploadOutput{}
 	err = db.Transaction(func(tx *gorm.DB) error {
-		res, err := SaveFileToS3(ctx, tx, input.File.Fd, &kara, input.FileType, input.File.Size)
+		res, err := SaveTempFileToS3(ctx, tx, input.File, &kara, input.FileType)
 		if err != nil {
 			return err
 		}

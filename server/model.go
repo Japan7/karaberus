@@ -2,7 +2,10 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"hash/crc32"
+	"io"
 	"strings"
 	"time"
 
@@ -287,10 +290,16 @@ type AudioTagDB struct {
 type UploadInfo struct {
 	VideoUploaded        bool
 	VideoModTime         time.Time
+	VideoSize            int64
+	VideoCRC32           uint32
 	InstrumentalUploaded bool
 	InstrumentalModTime  time.Time
+	InstrumentalSize     int64
+	InstrumentalCRC32    uint32
 	SubtitlesUploaded    bool
 	SubtitlesModTime     time.Time
+	SubtitlesSize        int64
+	SubtitlesCRC32       uint32
 	Hardsubbed           bool
 	Duration             int32
 	// date of the first upload of the sub file
@@ -459,7 +468,8 @@ func init_model(db *gorm.DB) {
 		panic(err)
 	}
 
-	// PR #73
+	// https://github.com/Japan7/karaberus/pull/73
+	// drop previous indexes
 	if db.Migrator().HasIndex(&Artist{}, "idx_artist_name") {
 		err = db.Migrator().DropIndex(&Artist{}, "idx_artist_name")
 		if err != nil {
@@ -468,6 +478,68 @@ func init_model(db *gorm.DB) {
 	}
 	if db.Migrator().HasIndex(&MediaDB{}, "idx_media_name_type") {
 		err = db.Migrator().DropIndex(&MediaDB{}, "idx_media_name_type")
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// set size and crc32 for files uploaded before they were introduced
+	go initSizeCRC(db)
+}
+
+func initSizeCRC(db *gorm.DB) {
+	var karas []KaraInfoDB
+	err := db.Scopes(CurrentKaras).Find(&karas).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	// could be done concurrently but also probably doesn’t matter that much
+	for _, kara := range karas {
+		if kara.VideoUploaded && kara.VideoSize <= 0 {
+			getLogger().Printf("%d: calculating video crc/size\n", kara.ID)
+			obj, err := GetKaraObject(db.Statement.Context, kara, "video")
+			if err != nil {
+				panic(err)
+			}
+			hasher := crc32.NewIEEE()
+			kara.VideoSize, err = io.Copy(hasher, obj)
+			if err != nil {
+				panic(err)
+			}
+			kara.VideoCRC32 = hasher.Sum32()
+		}
+		if kara.InstrumentalUploaded && kara.InstrumentalSize <= 0 {
+			getLogger().Printf("%d: calculating inst crc/size\n", kara.ID)
+			obj, err := GetKaraObject(db.Statement.Context, kara, "inst")
+			if err != nil {
+				panic(err)
+			}
+			hasher := crc32.NewIEEE()
+			kara.InstrumentalSize, err = io.Copy(hasher, obj)
+			if err != nil {
+				panic(err)
+			}
+			kara.InstrumentalCRC32 = hasher.Sum32()
+		}
+		if kara.SubtitlesUploaded && kara.SubtitlesSize <= 0 {
+			getLogger().Printf("%d: calculating sub crc/size\n", kara.ID)
+			obj, err := GetKaraObject(db.Statement.Context, kara, "sub")
+			if err != nil {
+				panic(err)
+			}
+			hasher := crc32.NewIEEE()
+			kara.SubtitlesSize, err = io.Copy(hasher, obj)
+			if err != nil {
+				panic(err)
+			}
+			kara.SubtitlesCRC32 = hasher.Sum32()
+		}
+
+		err := db.Save(&kara).Error
 		if err != nil {
 			panic(err)
 		}

@@ -52,7 +52,7 @@ func CheckValidFiletype(type_directory string) bool {
 	}
 }
 
-func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, kara *KaraInfoDB, type_directory string, filesize int64, user_metadata map[string]string) (*CheckKaraOutput, error) {
+func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, kara *KaraInfoDB, type_directory string, filesize int64, crc32 uint32, user_metadata map[string]string) (*CheckKaraOutput, error) {
 	if kara.ID == 0 {
 		return nil, errors.New("trying to upload to a karaoke that doesn't exist")
 	}
@@ -66,7 +66,7 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		return nil, err
 	}
 
-	err = updateKaraokeAfterUpload(tx, kara, type_directory)
+	err = updateKaraokeAfterUpload(tx, kara, type_directory, filesize, crc32)
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +90,12 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 	return res, nil
 }
 
-func SaveFileToS3(ctx context.Context, tx *gorm.DB, fd io.Reader, kara *KaraInfoDB, type_directory string, filesize int64) (*CheckKaraOutput, error) {
-	return SaveFileToS3WithMetadata(ctx, tx, fd, kara, type_directory, filesize, nil)
+func SaveTempFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, tempfile UploadTempFile, kara *KaraInfoDB, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
+	return SaveFileToS3WithMetadata(ctx, tx, tempfile.Fd, kara, type_directory, tempfile.Size, tempfile.CRC32, user_metadata)
+}
+
+func SaveTempFileToS3(ctx context.Context, tx *gorm.DB, tempfile UploadTempFile, kara *KaraInfoDB, type_directory string) (*CheckKaraOutput, error) {
+	return SaveTempFileToS3WithMetadata(ctx, tx, tempfile, kara, type_directory, nil)
 }
 
 func SaveFontToS3(ctx context.Context, fd io.Reader, id uint, filesize int64) error {

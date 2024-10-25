@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
-	"strconv"
 	"strings"
 
 	"github.com/Japan7/karaberus/server/clients/mugen"
@@ -359,12 +358,13 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("%d: failed to download, received code %d", kara.MugenKID, resp.StatusCode)
 	}
-	content_length, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
+	tempfile := UploadTempFile{}
+	err := CreateTempFile(ctx, &tempfile, resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	return SaveFileToS3WithMetadata(ctx, tx, resp.Body, &kara.Kara, type_directory, content_length, user_metadata)
+	return SaveTempFileToS3WithMetadata(ctx, tx, tempfile, &kara.Kara, type_directory, user_metadata)
 }
 
 var MugenDownloadSemaphore = semaphore.NewWeighted(5)
@@ -424,6 +424,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 			return err
 		}
 		defer Closer(resp.Body)
+
 		_, err = SaveMugenResponseToS3(ctx, tx, resp, mugen_import, "video", nil)
 		if err != nil {
 			return err

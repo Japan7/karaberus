@@ -14,6 +14,7 @@ import subprocess
 import time
 import unittest
 import urllib.request as request
+import zlib
 from typing import IO, ClassVar, TypedDict
 from urllib.error import URLError
 
@@ -37,6 +38,15 @@ class KaraberusKara(TypedDict):
 
 
 KaraberusInputTypes = KaraberusKara
+
+
+def calculate_crc32(file: pathlib.Path) -> int:
+    with file.open("rb") as fd:
+        sum = 0
+        while buf := fd.read(1024 * 8):
+            sum = zlib.crc32(buf, sum)
+
+        return sum
 
 
 def json_body(data: KaraberusInputTypes) -> bytes:
@@ -163,6 +173,12 @@ class KaraberusInstance:
 
 class KaraberusKaraDB(TypedDict):
     ID: int
+    VideoSize: int
+    VideoCRC32: int
+    InstrumentalSize: int
+    InstrumentalCRC32: int
+    SubtitlesSize: int
+    SubtitlesCRC32: int
 
 
 class KaraberusKaraResponse(TypedDict):
@@ -172,11 +188,15 @@ class KaraberusKaraResponse(TypedDict):
 class DakaraCheckResults(TypedDict):
     passed: bool
     duration: int
+    size: int
+    crc32: int
 
 
 class DakaraCheckSubResults(TypedDict):
     passed: bool
     lyrics: str
+    size: int
+    crc32: int
 
 
 class CheckKaraResults(TypedDict):
@@ -248,6 +268,9 @@ class TestKaraberus(unittest.TestCase):
         # upload video file
         kara_upload_path = f"/api/kara/{kara_data['kara']['ID']}/upload/video"
         video_test_file = generated_tests / "karaberus_test.mkv"
+        video_crc32 = calculate_crc32(video_test_file)
+        video_size = video_test_file.stat().st_size
+
         resp = self.karaberus.upload_file("PUT", kara_upload_path, video_test_file)
         upload_data: UploadOutput = json.load(resp)
 
@@ -260,6 +283,9 @@ class TestKaraberus(unittest.TestCase):
         # upload instrumental file
         kara_upload_path = f"/api/kara/{kara_data['kara']['ID']}/upload/inst"
         inst_test_file = generated_tests / "karaberus_test.opus"
+        inst_crc32 = calculate_crc32(inst_test_file)
+        inst_size = inst_test_file.stat().st_size
+
         resp = self.karaberus.upload_file("PUT", kara_upload_path, inst_test_file)
         upload_data = json.load(resp)
 
@@ -275,6 +301,9 @@ class TestKaraberus(unittest.TestCase):
         # upload subtitles file
         kara_upload_path = f"/api/kara/{kara_data['kara']['ID']}/upload/sub"
         sub_test_file = tests_dir / "test.ass"
+        sub_crc32 = calculate_crc32(sub_test_file)
+        sub_size = sub_test_file.stat().st_size
+
         resp = self.karaberus.upload_file("PUT", kara_upload_path, sub_test_file)
         upload_data = json.load(resp)
 
@@ -293,6 +322,17 @@ class TestKaraberus(unittest.TestCase):
         self.assertTrue(sub_check["passed"])
         self.assertEqual(sub_check["lyrics"], lyrics)
 
+        kara_info = f"/api/kara/{kara_data['kara']['ID']}"
+        resp = self.karaberus.get(kara_info)
+        kara_data = json.load(resp)
+
+        self.assertEqual(kara_data["kara"]["VideoSize"], video_size)
+        self.assertEqual(kara_data["kara"]["VideoCRC32"], video_crc32)
+        self.assertEqual(kara_data["kara"]["InstrumentalSize"], inst_size)
+        self.assertEqual(kara_data["kara"]["InstrumentalCRC32"], inst_crc32)
+        self.assertEqual(kara_data["kara"]["SubtitlesSize"], sub_size)
+        self.assertEqual(kara_data["kara"]["SubtitlesCRC32"], sub_crc32)
+
         # compare local files with uploaded files
         video_download = f"/api/kara/{kara_data['kara']['ID']}/download/video"
         resp = self.karaberus.get(video_download)
@@ -309,7 +349,7 @@ class TestKaraberus(unittest.TestCase):
         with sub_test_file.open("rb") as fd:
             self.compare_files(fd, resp)
 
-    def test_sub_upload(self) -> None:
+    def test_font_upload(self) -> None:
         tests_dir = pathlib.Path(__file__).parent
         font_file = tests_dir / "KaraberusTestFont.ttf"
         resp = self.karaberus.upload_file("POST", "/api/font", font_file)

@@ -15,6 +15,10 @@ import (
 var db_instance *gorm.DB = nil
 
 func init_db() {
+	if db_instance != nil {
+		return
+	}
+
 	gorm_logger := logger.New(
 		getLogger(),
 		logger.Config{
@@ -53,12 +57,13 @@ func init_db() {
 	} else {
 		panic("unknown db driver " + CONFIG.DB.Driver)
 	}
+
+	init_model(db_instance)
 }
 
 func GetDB(ctx context.Context) *gorm.DB {
 	if db_instance == nil {
-		init_db()
-		init_model(db_instance)
+		panic("db instance not initialised")
 	}
 
 	return db_instance.WithContext(ctx)

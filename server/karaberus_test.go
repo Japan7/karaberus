@@ -43,6 +43,7 @@ func testUserMiddleware(ctx huma.Context, next func(huma.Context)) {
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
 
+	init_db()
 	api.UseMiddleware(testUserMiddleware)
 	addRoutes(api)
 	return api
