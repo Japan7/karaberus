@@ -38,6 +38,9 @@ func addOidcRoutes(app *fiber.App) {
 		CONFIG.OIDC.ClientSecret,
 		fmt.Sprintf("%v/api/oidc/callback", CONFIG.Listen.BaseURL),
 		strings.Split(CONFIG.OIDC.Scopes, " "))
+	if errors.Is(err, oidc.ErrDiscoveryFailed) {
+		panic(err)
+	}
 	if err != nil {
 		getLogger().Print(err)
 	}
