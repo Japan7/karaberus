@@ -99,14 +99,25 @@ class KaraberusInstance:
         create_token.check_returncode()
         self.token = create_token.stdout.decode().strip()
 
+        self.wait_oidc_ready()
+
         self.proc = subprocess.Popen([karaberus_bin], env=env)
 
         self.wait_ready()
 
+    def wait_oidc_ready(self):
+        while True:
+            try:
+                request.urlopen("http://localhost:9998/.well-known/openid-configuration")
+                break
+            except URLError:
+                time.sleep(0.1)
+
     def wait_ready(self):
         while True:
             try:
-                return request.urlopen(f"{self.base_url}/readyz")
+                request.urlopen(f"{self.base_url}/readyz")
+                break
             except URLError:
                 time.sleep(0.1)
 
