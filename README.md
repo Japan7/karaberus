@@ -14,7 +14,7 @@ On Windows this might not build out of the box, for now you can disable the nati
 meson setup build --reconfigure -Dno_native_deps=true
 ```
 
-To run the app you need an oidc server, for development [zitadel-karaberus](https://github.com/odrling/zitadel-karaberus) can be used.
+To run the app you need an oidc server, for development you can run `meson compile -C build oidc` to get a simple server.
 
 If you want to upload files (or run the S3 tests) you will also need an S3 server, probably the easiest way to have a local server is to use the Minio Docker image:
 

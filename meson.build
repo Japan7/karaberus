@@ -284,6 +284,7 @@ endif
 subdir('ui')
 
 run_target('run', command: [karaberus], depends: [karaberus_ui], env: go_env)
+run_target('oidc', command: [zitadel_karaberus])
 
 test_deps = [zitadel_karaberus]
 
