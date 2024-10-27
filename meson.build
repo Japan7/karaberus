@@ -87,7 +87,6 @@ npm_env = environment()
 npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', ui_source)
 
-
 go_files = files('go.mod', 'go.sum', 'main.go', 'main_cgo.go')
 go_files += files(
     'karaberus_tools' / 'cbinds.go',
@@ -208,6 +207,22 @@ endif
 
 go_test_env.set('KARABERUS_BIN', karaberus.full_path())
 
+zitadel_karaberus = custom_target(
+    'zitadel_karaberus',
+    command: [
+        go,
+        'build',
+        go_tools_opts,
+        '-o',
+        meson.current_build_dir() / 'zitadel-karaberus',
+        'github.com/odrling/zitadel-karaberus',
+    ],
+    depend_files: go_tools_files,
+    output: 'zitadel-karaberus',
+    env: gobin_env,
+)
+go_test_env.set('OIDC_SERVER_EXE', zitadel_karaberus.full_path())
+
 karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_server_path = meson.current_source_dir() / 'server'
 
@@ -270,7 +285,7 @@ subdir('ui')
 
 run_target('run', command: [karaberus], depends: [karaberus_ui], env: go_env)
 
-test_deps = []
+test_deps = [zitadel_karaberus]
 
 if get_option('s3_tests').enabled()
     test_deps += custom_target(

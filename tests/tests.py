@@ -47,10 +47,14 @@ class KaraberusInstance:
     def __init__(self) -> None:
         self.port = 8889
         self.proc: None | subprocess.Popen[bytes] = None
+        self.oidc_server_proc: None | subprocess.Popen[bytes] = None
         self.token: None | str = None
         self.base_url = f"http://127.0.0.1:{self.port}"
 
     def launch_karaberus(self) -> None:
+        if oidc_server_exe := os.environ.get("OIDC_SERVER_EXE"):
+            self.oidc_server_proc = subprocess.Popen([oidc_server_exe])
+
         karaberus_bin = os.environ["KARABERUS_BIN"]
         db = pathlib.Path(os.environ["KARABERUS_S3_TEST_DB_FILE"])
         db.unlink(missing_ok=True)
@@ -109,6 +113,8 @@ class KaraberusInstance:
     def stop_karaberus(self) -> None:
         if self.proc is not None:
             self.proc.kill()
+        if self.oidc_server_proc is not None:
+            self.oidc_server_proc.kill()
 
     def get(self, path: str) -> http.client.HTTPResponse:
         url = f"{self.base_url}{path}"
