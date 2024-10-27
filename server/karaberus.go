@@ -122,8 +122,6 @@ func setupKaraberus() (*fiber.App, huma.API) {
 		},
 	}))
 
-	addOidcRoutes(app)
-
 	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
 	addMiddlewares(api)
@@ -144,6 +142,7 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 	if err != nil {
 		panic(err)
 	}
+	addOidcRoutes(app)
 
 	if CONFIG.Dakara.BaseURL != "" {
 		go SyncDakaraLoop(context.Background())
