@@ -29,6 +29,8 @@ github.com/odrling/zitadel-karaberus v0.0.0-20241004163134-d5f2536597bc h1:wO1pM
 github.com/odrling/zitadel-karaberus v0.0.0-20241004163134-d5f2536597bc/go.mod h1:BXe8d3EynyEjpfhs2N3OFNLOV3ecsKwkRlTu3KlSIOo=
 github.com/odrling/zitadel-karaberus v0.0.0-20241027150343-c2be64a2393d h1:v7Ba5qi0PwT6H04nLhbbr6218YUKCUV/MJoGqkocjTc=
 github.com/odrling/zitadel-karaberus v0.0.0-20241027150343-c2be64a2393d/go.mod h1:BXe8d3EynyEjpfhs2N3OFNLOV3ecsKwkRlTu3KlSIOo=
+github.com/odrling/zitadel-karaberus v0.0.0-20241027155910-557bf911aec9 h1:QY3wgBSe+XqH4XhIG0FD/aYHVswbsoqVMGyDdGCZgfM=
+github.com/odrling/zitadel-karaberus v0.0.0-20241027155910-557bf911aec9/go.mod h1:BXe8d3EynyEjpfhs2N3OFNLOV3ecsKwkRlTu3KlSIOo=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
 github.com/rs/cors v1.11.1/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
