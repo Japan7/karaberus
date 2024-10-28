@@ -150,6 +150,8 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 		go SyncDakaraLoop(context.Background())
 	}
 
+	initS3Clients(context.Background())
+
 	go SyncMugen(context.Background())
 
 	listen_addr := CONFIG.Listen.Addr()
