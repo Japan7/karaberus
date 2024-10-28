@@ -98,8 +98,6 @@ func setSecurity(security []map[string][]string) func(o *huma.Operation) {
 }
 
 func setupKaraberus() (*fiber.App, huma.API) {
-	init_db()
-
 	// Create a new router & API
 	app := fiber.New(fiber.Config{
 		BodyLimit:                    1024 * 1024 * 1024, // 1GiB
@@ -139,18 +137,26 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	return app, api
 }
 
+type KaraberusInit struct{}
+
+func isKaraberusInit(ctx context.Context) bool {
+	return ctx.Value(KaraberusInit{}) != nil
+}
+
 func RunKaraberus(app *fiber.App, api huma.API) {
 	err := CONFIG.OIDC.Validate()
 	if err != nil {
 		panic(err)
 	}
+
 	addOidcRoutes(app)
+	ctx := context.WithValue(context.Background(), KaraberusInit{}, true)
+	initS3Clients(ctx)
+	init_db(ctx)
 
 	if CONFIG.Dakara.BaseURL != "" {
 		go SyncDakaraLoop(context.Background())
 	}
-
-	initS3Clients(context.Background())
 
 	go SyncMugen(context.Background())
 

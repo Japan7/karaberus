@@ -4,6 +4,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
@@ -43,7 +44,7 @@ func testUserMiddleware(ctx huma.Context, next func(huma.Context)) {
 func getTestAPI(t *testing.T) humatest.TestAPI {
 	_, api := humatest.New(t)
 
-	init_db()
+	init_db(context.Background())
 	api.UseMiddleware(testUserMiddleware)
 	addRoutes(api)
 	return api

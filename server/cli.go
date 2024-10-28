@@ -36,6 +36,7 @@ func MakeCli() {
 		Short: "Create an user",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			init_db(cmd.Context())
 			db := GetDB(cmd.Context())
 			user := User{ID: args[0], Admin: create_user_admin_flag}
 			err := db.Create(&user).Error
@@ -58,6 +59,7 @@ func MakeCli() {
 		Short: "Create a token for the given user",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
+			init_db(cmd.Context())
 			db := GetDB(cmd.Context())
 			user := User{ID: args[0]}
 			if err := db.First(&user).Error; err != nil {

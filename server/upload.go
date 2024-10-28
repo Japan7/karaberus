@@ -37,7 +37,7 @@ type UploadTempFile struct {
 	Fd   *os.File
 	Size int64
 	// original file name
-	Name string
+	Name  string
 	CRC32 uint32
 }
 
@@ -47,8 +47,7 @@ type UploadInput struct {
 	File     UploadTempFile
 }
 
-
-func CreateTempFile(ctx context.Context, tempfile *UploadTempFile, reader io.Reader) error{
+func CreateTempFile(ctx context.Context, tempfile *UploadTempFile, reader io.Reader) error {
 	fd, err := os.CreateTemp("", "karaberus-*")
 	if err != nil {
 		return err

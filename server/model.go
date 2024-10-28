@@ -484,7 +484,9 @@ func init_model(db *gorm.DB) {
 	}
 
 	// set size and crc32 for files uploaded before they were introduced
-	go initSizeCRC(db)
+	if isKaraberusInit(db.Statement.Context) {
+		go initSizeCRC(db)
+	}
 }
 
 func initSizeCRC(db *gorm.DB) {
