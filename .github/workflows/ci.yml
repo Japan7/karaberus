@@ -39,6 +39,44 @@ jobs:
       - name: Run tests
         run: buildah run -v "$PWD:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-x86_64) /karaberus/ci/test.sh
 
+  native_test:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # - ubuntu-latest
+          # already tested above
+          - macos-latest # arm64
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: set go env (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        shell: bash
+        run: |
+          echo GOCACHE="D:\golang\cache" >> $GITHUB_ENV
+          echo GOPATH="D:\golang\go" >> $GITHUB_ENV
+          echo GOMODCACHE="D:\golang\modcache" >> $GITHUB_ENV
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+
+      - name: Install dependencies
+        run: |
+          pip install meson ninja
+
+      - name: Configure karaberus
+        run: meson setup build -Derrcheck=false -Dstaticcheck=false
+
+      - name: Run tests
+        run: meson test -C build --verbose
+
   test_no_native:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
     strategy:
