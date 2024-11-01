@@ -219,9 +219,24 @@ zitadel_karaberus = custom_target(
     ],
     depend_files: go_tools_files,
     output: 'zitadel-karaberus',
-    env: gobin_env,
 )
 go_test_env.set('OIDC_SERVER_EXE', zitadel_karaberus.full_path())
+
+gofakes3 = custom_target(
+    'gofakes3',
+    command: [
+        go,
+        'build',
+        go_tools_opts,
+        '-o',
+        meson.current_build_dir() / 'gofakes3',
+        'github.com/johannesboyne/gofakes3/cmd/gofakes3',
+    ],
+    depend_files: go_tools_files,
+    output: 'gofakes3',
+)
+
+go_test_env.set('GOFAKES3_EXE', gofakes3.full_path())
 
 karaberus_test_output = meson.current_build_dir() / 'karaberus_test'
 karaberus_server_path = meson.current_source_dir() / 'server'
@@ -285,8 +300,21 @@ subdir('ui')
 
 run_target('run', command: [karaberus], depends: [karaberus_ui], env: go_env)
 run_target('oidc', command: [zitadel_karaberus])
+run_target(
+    's3',
+    command: [
+        gofakes3,
+        '-backend',
+        'fs',
+        '-initialbucket',
+        'karaberus',
+        '-fs.path',
+        meson.current_build_dir() / 's3',
+        '-fs.create',
+    ],
+)
 
-test_deps = [zitadel_karaberus]
+test_deps = [zitadel_karaberus, gofakes3]
 
 if get_option('s3_tests').enabled()
     test_deps += custom_target(

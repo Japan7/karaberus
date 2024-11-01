@@ -8,6 +8,15 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go v1.44.256 // indirect
+	github.com/ryszard/goskiplist v0.0.0-20150312221310-2dfbae5fcf46 // indirect
+	github.com/spf13/afero v1.2.1 // indirect
+	go.etcd.io/bbolt v1.3.5 // indirect
+	go.shabbyrobe.org/gocovmerge v0.0.0-20230507111327-fa4f82cfbf4d // indirect
+	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
+)
+
+require (
 	github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c // indirect
 	github.com/bmatcuk/doublestar/v4 v4.7.1 // indirect
 	github.com/go-chi/chi/v5 v5.1.0 // indirect
@@ -16,6 +25,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/johannesboyne/gofakes3 v0.0.0-20241026070602-0da3aa9c32ca
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/muhlemmer/httpforwarded v0.1.0 // indirect
 	github.com/odrling/zitadel-karaberus v0.0.0-20241027155910-557bf911aec9 // indirect

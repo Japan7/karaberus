@@ -58,10 +58,24 @@ class KaraberusInstance:
         self.port = 8889
         self.proc: None | subprocess.Popen[bytes] = None
         self.oidc_server_proc: None | subprocess.Popen[bytes] = None
+        self.gofakes3_proc: None | subprocess.Popen[bytes] = None
         self.token: None | str = None
         self.base_url = f"http://127.0.0.1:{self.port}"
 
     def launch_karaberus(self) -> None:
+        if gofakes3_exe := os.environ.get("GOFAKES3_EXE"):
+            self.gofakes3_proc = subprocess.Popen(
+                [
+                    gofakes3_exe,
+                    "-backend",
+                    "mem",
+                    "-initialbucket",
+                    "karaberus",
+                    "-host",
+                    ":10203",
+                ]
+            )
+
         if oidc_server_exe := os.environ.get("OIDC_SERVER_EXE"):
             self.oidc_server_proc = subprocess.Popen([oidc_server_exe])
 
@@ -73,9 +87,9 @@ class KaraberusInstance:
         os.environ["KARABERUS_LISTEN_PORT"] = str(self.port)
         env = {
             "KARABERUS_DB_FILE": str(db),
-            "KARABERUS_S3_ENDPOINT": os.environ["KARABERUS_S3_ENDPOINT"],
-            "KARABERUS_S3_KEYID": os.environ["KARABERUS_S3_KEYID"],
-            "KARABERUS_S3_SECRET": os.environ["KARABERUS_S3_SECRET"],
+            "KARABERUS_S3_ENDPOINT": "127.0.0.1:10203",
+            "KARABERUS_S3_KEYID": "keyid",
+            "KARABERUS_S3_SECRET": "secret",
             "KARABERUS_S3_SECURE": os.environ.get("KARABERUS_S3_SECURE", ""),
             "KARABERUS_S3_BUCKET_NAME": os.environ.get("KARABERUS_S3_BUCKET_NAME", ""),
             "KARABERUS_LISTEN_PORT": str(self.port),
@@ -118,7 +132,9 @@ class KaraberusInstance:
     def wait_oidc_ready(self):
         while True:
             try:
-                request.urlopen("http://localhost:9998/.well-known/openid-configuration")
+                request.urlopen(
+                    "http://localhost:9998/.well-known/openid-configuration"
+                )
                 break
             except URLError:
                 time.sleep(0.1)
@@ -136,6 +152,8 @@ class KaraberusInstance:
             self.proc.kill()
         if self.oidc_server_proc is not None:
             self.oidc_server_proc.kill()
+        if self.gofakes3_proc is not None:
+            self.gofakes3_proc.kill()
 
     def get(self, path: str) -> http.client.HTTPResponse:
         url = f"{self.base_url}{path}"

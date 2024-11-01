@@ -31,9 +31,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup S3 bucket
-        run: podman run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
-
       - name: setup go cache
         uses: actions/cache@v4
         with:
