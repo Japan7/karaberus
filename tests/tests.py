@@ -5,6 +5,8 @@ We can't test it in the go test module because the mocked server panics on downl
 Otherwise no reason to use this script rather than the go tests to test the API.
 """
 
+from __future__ import annotations
+
 import http.client
 import json
 import os
@@ -55,7 +57,9 @@ def json_body(data: KaraberusInputTypes) -> bytes:
 
 class KaraberusInstance:
     def __init__(self) -> None:
-        self.port = 8889
+        self.port = 10201
+        self.s3_port = 10202
+        self.oidc_port = 10203
         self.proc: None | subprocess.Popen[bytes] = None
         self.oidc_server_proc: None | subprocess.Popen[bytes] = None
         self.gofakes3_proc: None | subprocess.Popen[bytes] = None
@@ -72,29 +76,32 @@ class KaraberusInstance:
                     "-initialbucket",
                     "karaberus",
                     "-host",
-                    ":10203",
+                    f":{self.s3_port}",
                 ]
             )
 
         if oidc_server_exe := os.environ.get("OIDC_SERVER_EXE"):
-            self.oidc_server_proc = subprocess.Popen([oidc_server_exe])
+            # original env is needed on windows (possibly only SYSTEMROOT)
+            # https://github.com/golang/go/issues/25513
+            env = {**os.environ, "LISTEN_ADDR": "127.0.0.1", "LISTEN_PORT": str(self.oidc_port)}
+            self.oidc_server_proc = subprocess.Popen([oidc_server_exe], env=env)
 
         karaberus_bin = os.environ["KARABERUS_BIN"]
         db = pathlib.Path(os.environ["KARABERUS_S3_TEST_DB_FILE"])
         db.unlink(missing_ok=True)
-        os.environ["KARABERUS_DB_FILE"] = str(db)
-        os.environ["KARABERUS_LISTEN_HOST"] = "127.0.0.1"
-        os.environ["KARABERUS_LISTEN_PORT"] = str(self.port)
+
+        # original env is needed on windows (possibly only SYSTEMROOT)
+        # https://github.com/golang/go/issues/25513
         env = {
+            **os.environ,
             "KARABERUS_DB_FILE": str(db),
-            "KARABERUS_S3_ENDPOINT": "127.0.0.1:10203",
+            "KARABERUS_S3_ENDPOINT": f"127.0.0.1:{self.s3_port}",
             "KARABERUS_S3_KEYID": "keyid",
             "KARABERUS_S3_SECRET": "secret",
             "KARABERUS_S3_SECURE": os.environ.get("KARABERUS_S3_SECURE", ""),
             "KARABERUS_S3_BUCKET_NAME": os.environ.get("KARABERUS_S3_BUCKET_NAME", ""),
             "KARABERUS_LISTEN_PORT": str(self.port),
-            # dummy oidc issuer, shouldn't matter
-            "KARABERUS_OIDC_ISSUER": "http://localhost:9998",
+            "KARABERUS_OIDC_ISSUER": f"http://127.0.0.1:{self.oidc_port}",
             "KARABERUS_OIDC_CLIENT_ID": "web",
             "KARABERUS_OIDC_CLIENT_SECRET": "secret",
             "KARABERUS_OIDC_GROUPS_CLAIM": "groups",
@@ -124,6 +131,7 @@ class KaraberusInstance:
         self.token = create_token.stdout.decode().strip()
 
         self.wait_oidc_ready()
+        self.wait_s3_ready()
 
         self.proc = subprocess.Popen([karaberus_bin], env=env)
 
@@ -133,7 +141,18 @@ class KaraberusInstance:
         while True:
             try:
                 request.urlopen(
-                    "http://localhost:9998/.well-known/openid-configuration"
+                    f"http://127.0.0.1:{self.oidc_port}/.well-known/openid-configuration"
+                )
+                break
+            except URLError:
+                time.sleep(0.1)
+
+    def wait_s3_ready(self):
+        while True:
+            try:
+                request.urlopen(
+                    f"http://127.0.0.1:{self.s3_port}",
+                    timeout=2,
                 )
                 break
             except URLError:
@@ -161,7 +180,7 @@ class KaraberusInstance:
             "Authorization": f"Bearer {self.token}",
         }
         req = request.Request(url, headers=headers, method="GET")
-        return request.urlopen(req)
+        return request.urlopen(req, timeout=5)
 
     def json_request(
         self, method: str, path: str, data: KaraberusInputTypes
@@ -172,7 +191,7 @@ class KaraberusInstance:
             "Content-Type": "application/json",
         }
         req = request.Request(url, data=json_body(data), headers=headers, method=method)
-        return request.urlopen(req)
+        return request.urlopen(req, timeout=5)
 
     def upload_file(
         self, method: str, path: str, file: pathlib.Path
@@ -186,7 +205,7 @@ class KaraberusInstance:
 
         with file.open("rb") as fd:
             req = request.Request(url, data=fd, headers=headers, method=method)
-            return request.urlopen(req)
+            return request.urlopen(req, timeout=5)
 
 
 class KaraberusKaraDB(TypedDict):

@@ -38,6 +38,8 @@ github.com/odrling/zitadel-karaberus v0.0.0-20241027150343-c2be64a2393d h1:v7Ba5
 github.com/odrling/zitadel-karaberus v0.0.0-20241027150343-c2be64a2393d/go.mod h1:BXe8d3EynyEjpfhs2N3OFNLOV3ecsKwkRlTu3KlSIOo=
 github.com/odrling/zitadel-karaberus v0.0.0-20241027155910-557bf911aec9 h1:QY3wgBSe+XqH4XhIG0FD/aYHVswbsoqVMGyDdGCZgfM=
 github.com/odrling/zitadel-karaberus v0.0.0-20241027155910-557bf911aec9/go.mod h1:BXe8d3EynyEjpfhs2N3OFNLOV3ecsKwkRlTu3KlSIOo=
+github.com/odrling/zitadel-karaberus v0.0.0-20241102195953-8f932ecc0611 h1:NEFzDYgdPZ1+MpOKJavKqbwyVeQpMMz4MCsArOYUy9A=
+github.com/odrling/zitadel-karaberus v0.0.0-20241102195953-8f932ecc0611/go.mod h1:N4HSAB2vqbf1lcEscHHsyOk0JivhBj3MfBaGf757J6I=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
@@ -58,6 +60,8 @@ github.com/zitadel/oidc/v3 v3.30.1 h1:CCi9qDjleuRYbECfUoVKrrN97KdheNCHAs33X8XnIR
 github.com/zitadel/oidc/v3 v3.30.1/go.mod h1:N5p02vx+mLUwf+WFNpDsNp+8DS8+jlgFBwpz7NIQjrg=
 github.com/zitadel/oidc/v3 v3.31.0 h1:XQcTVHTYpSkNxjGccEb6pRfrGJdUhkTgXOIzSqRXdo0=
 github.com/zitadel/oidc/v3 v3.31.0/go.mod h1:DyE/XClysRK/ozFaZSqlYamKVnTh4l6Ln25ihSNI03w=
+github.com/zitadel/oidc/v3 v3.32.1 h1:uE7IgQq4yJfQPXaIbvkOjOaIyb10OF1QtG1COUB/efE=
+github.com/zitadel/oidc/v3 v3.32.1/go.mod h1:DyE/XClysRK/ozFaZSqlYamKVnTh4l6Ln25ihSNI03w=
 github.com/zitadel/schema v1.3.0 h1:kQ9W9tvIwZICCKWcMvCEweXET1OcOyGEuFbHs4o5kg0=
 github.com/zitadel/schema v1.3.0/go.mod h1:NptN6mkBDFvERUCvZHlvWmmME+gmZ44xzwRXwhzsbtc=
 go.etcd.io/bbolt v1.3.5 h1:XAzx9gjCb0Rxj7EoqcClPD1d5ZBxZJk0jbuoPHenBt0=

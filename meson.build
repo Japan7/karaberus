@@ -16,10 +16,12 @@ project(
 )
 
 go = find_program('go', required: true)
-ffmpeg = find_program('ffmpeg', required: get_option('s3_tests').enabled())
 python = find_program('python3', required: true)
 npm = find_program('npm', required: true)
 meson_cmd = find_program('meson', required: true)
+if not get_option('no_native_deps')
+    ffmpeg = find_program('ffmpeg', required: get_option('s3_tests').enabled())
+endif
 
 c_compiler = meson.get_compiler('c')
 
@@ -332,61 +334,77 @@ run_target(
 test_deps = [zitadel_karaberus, gofakes3]
 
 if get_option('s3_tests').enabled()
-    test_deps += custom_target(
-        'karaberus_test.mkv',
-        output: 'karaberus_test.mkv',
-        build_by_default: false,
-        command: [
-            ffmpeg,
-            '-f',
-            'lavfi',
-            '-i',
-            'testsrc=d=30',
-            '-f',
-            'lavfi',
-            '-i',
-            'sine',
-            '-map',
-            '0',
-            '-map',
-            '1',
-            '-t',
-            '30',
-            '-c:v',
-            'libx264',
-            '-preset',
-            'ultrafast',
-            '-c:a',
-            'libopus',
-            '-y',
-            '@OUTPUT@',
-        ],
-    )
-
-    test_deps += custom_target(
-        'karaberus_test.opus',
-        output: 'karaberus_test.opus',
-        build_by_default: false,
-        command: [
-            ffmpeg,
-            '-f',
-            'lavfi',
-            '-i',
-            'sine',
-            '-map',
-            '0',
-            '-t',
-            '30',
-            '-c:a',
-            'libopus',
-            '-y',
-            '@OUTPUT@',
-        ],
-    )
 
     if get_option('no_native_deps')
         warning(
             'S3 tests will run but checks won\'t be tested because of -Dno_native_deps=true.',
+        )
+        test_deps += custom_target(
+            'karaberus_test.mkv',
+            output: 'karaberus_test.mkv',
+            build_by_default: false,
+            command: [python, files('tests' / 'make_dummy_file.py')],
+            capture: true,
+        )
+
+        test_deps += custom_target(
+            'karaberus_test.opus',
+            output: 'karaberus_test.opus',
+            build_by_default: false,
+            command: [python, files('tests' / 'make_dummy_file.py')],
+            capture: true,
+        )
+    else
+        test_deps += custom_target(
+            'karaberus_test.mkv',
+            output: 'karaberus_test.mkv',
+            build_by_default: false,
+            command: [
+                ffmpeg,
+                '-f',
+                'lavfi',
+                '-i',
+                'testsrc=d=30',
+                '-f',
+                'lavfi',
+                '-i',
+                'sine',
+                '-map',
+                '0',
+                '-map',
+                '1',
+                '-t',
+                '30',
+                '-c:v',
+                'libx264',
+                '-preset',
+                'ultrafast',
+                '-c:a',
+                'libopus',
+                '-y',
+                '@OUTPUT@',
+            ],
+        )
+
+        test_deps += custom_target(
+            'karaberus_test.opus',
+            output: 'karaberus_test.opus',
+            build_by_default: false,
+            command: [
+                ffmpeg,
+                '-f',
+                'lavfi',
+                '-i',
+                'sine',
+                '-map',
+                '0',
+                '-t',
+                '30',
+                '-c:a',
+                'libopus',
+                '-y',
+                '@OUTPUT@',
+            ],
         )
     endif
 

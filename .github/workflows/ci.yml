@@ -70,7 +70,7 @@ jobs:
           pip install meson ninja
 
       - name: Configure karaberus
-        run: meson setup build -Dno_native_deps=true -Ds3_tests=disabled
+        run: meson setup build -Dno_native_deps=true
 
       - name: Run tests
         run: meson test -C build --verbose
