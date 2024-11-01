@@ -7,6 +7,10 @@ option('sysroot', type: 'string', value: '', description: 'Cross builds sysroot'
 option('s3_tests', type: 'feature', value: 'enabled', description: 'Run S3 tests')
 option('network_tests', type: 'feature', value: 'enabled', description: 'Run tests that require an internet connection')
 
+# karaberus options
+option('builtin_oidc_env', type: 'boolean', value: false, description: 'Set up a default OIDC configuration for zitadel-karaberus')
+option('builtin_s3_env', type: 'boolean', value: false, description: 'Set up a default S3 configuration for gofakes3')
+
 # build helpers
 option('test', type: 'boolean', value: true, description: 'Build tests')
 option('no_native_deps', type: 'boolean', value: false, description: 'Build without native deps')

@@ -23,10 +23,10 @@ type KaraberusOIDCConfig struct {
 	Issuer       string `envkey:"ISSUER"`
 	ClientID     string `envkey:"CLIENT_ID"`
 	ClientSecret string `envkey:"CLIENT_SECRET"`
-	Scopes       string `envkey:"SCOPES" default:"openid profile email"`
+	Scopes       string `envkey:"SCOPES" default:"openid profile email groups"`
 	IDClaim      string `envkey:"ID_CLAIM"`
-	GroupsClaim  string `envkey:"GROUPS_CLAIM"`
-	AdminGroup   string `envkey:"ADMIN_GROUP"`
+	GroupsClaim  string `envkey:"GROUPS_CLAIM" default:"groups"`
+	AdminGroup   string `envkey:"ADMIN_GROUP" default:"admin"`
 	JwtSignKey   string `envkey:"JWT_SIGN_KEY"`
 }
 

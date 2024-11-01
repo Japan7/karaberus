@@ -5,7 +5,7 @@ A karaoke database.
 ## Getting started
 
 ```
-meson setup build
+meson setup build -Dbuiltin_oidc_env=true -Dbuiltin_s3_env=true
 meson compile -C build
 ```
 
@@ -14,20 +14,7 @@ On Windows this might not build out of the box, for now you can disable the nati
 meson setup build --reconfigure -Dno_native_deps=true
 ```
 
-To run the app you need an oidc server, for development you can run `meson compile -C build oidc` to get a simple server.
-
-If you want to upload files (or run the S3 tests) you will also need an S3 server, probably the easiest way to have a local server is to use the Minio Docker image:
-
-```sh
-podman run -d -e MINIO_DEFAULT_BUCKETS=karaberus -p 9000:9000 bitnami/minio:latest
-```
-
-Then for the environment variables you have to set:
-```sh
-export KARABERUS_S3_ENDPOINT=localhost:9000
-export KARABERUS_S3_KEYID=minio
-export KARABERUS_S3_SECRET=miniosecret
-```
+To run the app you need an oidc server and a s3, for development you can run `meson compile -C build oidc` to have a simple oidc server (`-Dbuiltin_oidc_env=true` has to be set during setup for this to work) and `meson compile -C build s3` to have a S3 server (`-Dbuiltin_s3_env=true` has to be set during setup for this to work).
 
 Then you can start the server with:
 ```sh
@@ -41,6 +28,29 @@ To ease development on the web frontend it might be more convenient to run the d
 # from the root of the repo
 cd ui
 npm run dev
+```
+
+# Custom S3 server
+
+If you want to upload files (or run the S3 tests) to your own S3 server you have to set the following environment variables appropriately:
+
+```sh
+export KARABERUS_S3_ENDPOINT=localhost:9000
+export KARABERUS_S3_KEYID=your_keyid
+export KARABERUS_S3_SECRET=your_secret
+```
+
+# Custom OIDC server
+
+```sh
+export KARABERUS_OIDC_ISSUER=http://localhost:9998/
+export KARABERUS_OIDC_KEY_ID=karaberus
+export KARABERUS_OIDC_CLIENT_ID=your_client_id
+export KARABERUS_OIDC_CLIENT_SECRET=your_client_secret
+export KARABERUS_OIDC_GROUPS_CLAIM=groups
+export KARABERUS_OIDC_ADMIN_GROUP=admin
+export KARABERUS_OIDC_SCOPES="openid profile email groups"
+export KARABERUS_OIDC_JWT_SIGN_KEY="" # openssl rand -hex 32
 ```
 
 ## Dakara
