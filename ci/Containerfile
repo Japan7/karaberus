@@ -4,4 +4,5 @@ COPY image /
 ENV KARABERUS_LISTEN_HOST=0.0.0.0
 ENV KARABERUS_UI_DIST_DIR="/share/karaberus/ui_dist"
 EXPOSE 8888
+USER 1000:1000
 ENTRYPOINT ["/bin/karaberus"]
