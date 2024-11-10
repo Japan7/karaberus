@@ -62,7 +62,7 @@ func pickBestClient(ctx context.Context) {
 
 	var best_client *TestedClient = nil
 
-	c := make(chan TestedClient, 1)
+	c := make(chan TestedClient, len(S3_CLIENTS))
 
 	var err error
 	for _, client := range S3_CLIENTS {
