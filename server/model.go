@@ -503,6 +503,7 @@ func initSizeCRC(db *gorm.DB) {
 
 	// could be done concurrently but also probably doesn’t matter that much
 	for _, kara := range karas {
+		changed := false
 		if kara.VideoUploaded && kara.VideoSize <= 0 {
 			getLogger().Printf("%d: calculating video crc/size\n", kara.ID)
 			obj, err := GetKaraObject(db.Statement.Context, kara, "video")
@@ -515,6 +516,7 @@ func initSizeCRC(db *gorm.DB) {
 				panic(err)
 			}
 			kara.VideoCRC32 = hasher.Sum32()
+			changed = true
 		}
 		if kara.InstrumentalUploaded && kara.InstrumentalSize <= 0 {
 			getLogger().Printf("%d: calculating inst crc/size\n", kara.ID)
@@ -528,6 +530,7 @@ func initSizeCRC(db *gorm.DB) {
 				panic(err)
 			}
 			kara.InstrumentalCRC32 = hasher.Sum32()
+			changed = true
 		}
 		if kara.SubtitlesUploaded && kara.SubtitlesSize <= 0 {
 			getLogger().Printf("%d: calculating sub crc/size\n", kara.ID)
@@ -541,11 +544,14 @@ func initSizeCRC(db *gorm.DB) {
 				panic(err)
 			}
 			kara.SubtitlesCRC32 = hasher.Sum32()
+			changed = true
 		}
 
-		err := db.Save(&kara).Error
-		if err != nil {
-			panic(err)
+		if changed {
+			err := db.Save(&kara).Error
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
