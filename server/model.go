@@ -376,6 +376,7 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	orig_kara_info.CurrentKaraInfo = ki
 	err = tx.Create(orig_kara_info).Error
 
+	getLogger().Printf("Updating kara %d", ki.ID)
 	return err
 }
 
@@ -395,7 +396,6 @@ func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
 		ki.Hardsubbed = false
 	}
 
-	getLogger().Printf("Saving kara %d", ki.ID)
 	return nil
 }
 
