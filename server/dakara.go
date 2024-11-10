@@ -771,7 +771,8 @@ func SyncDakara(ctx context.Context) {
 			}
 			new_songs++
 		} else if song_body.HasChanged(*dakara_song) {
-			logger.Printf("kara changed\n%+v\n%+v\n", dakara_song, song_body)
+			// overly spammy in practice
+			// logger.Printf("kara changed\n%+v\n%+v\n", dakara_song, song_body)
 			err = dakaraUpdateSong(ctx, dakara_song, song_body)
 			if err != nil {
 				getLogger().Println(err)
