@@ -3,6 +3,7 @@ project(
     'c',
     license: 'AGPL-3.0-and-later',
     version: '0.1.0',
+    meson_version: '>=1.4.0',
     default_options: [
         'buildtype=debugoptimized',
         'default_library=shared',
