@@ -62,22 +62,35 @@ func pickBestClient(ctx context.Context) {
 
 	var best_client *TestedClient = nil
 
+	c := make(chan TestedClient, 1)
+
 	var err error
 	for _, client := range S3_CLIENTS {
-		begin_time := time.Now()
-		_, err = client.ListBuckets(ctx)
-		if err != nil {
-			continue
-		}
-		tested := TestedClient{client, time.Since(begin_time).Nanoseconds()}
+		go func(client *minio.Client) {
+			begin_time := time.Now()
+			_, err = client.ListBuckets(ctx)
+			if err == nil {
+				tested := TestedClient{client, time.Since(begin_time).Nanoseconds()}
+				c <- tested
+			}
+		}(client)
+	}
+	timeout := 5 * time.Second
 
+	select {
+	case tested := <-c:
 		if best_client == nil || tested.ListLatency < best_client.ListLatency {
 			best_client = &tested
+			timeout = 500 * time.Millisecond
 		}
-	}
-
-	if best_client == nil {
-		panic(err)
+	case <-time.After(timeout):
+		if best_client == nil {
+			if err == nil {
+				panic("timeout")
+			} else {
+				panic(err)
+			}
+		}
 	}
 
 	S3_BEST_CLIENT = best_client.Client
