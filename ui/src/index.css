@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html:not([data-theme="light"]) ::placeholder {
+    @apply dark:text-neutral-500;
+  }
+}
+
 @layer components {
   .header {
     @apply text-6xl font-bold mt-16 mb-8;
