@@ -394,6 +394,8 @@ func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
 	if ki.SubtitlesUploaded && ki.Hardsubbed {
 		ki.Hardsubbed = false
 	}
+
+	getLogger().Printf("Saving kara %d", ki.ID)
 	return nil
 }
 
