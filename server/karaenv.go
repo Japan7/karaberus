@@ -20,14 +20,28 @@ func (c KaraberusListenConfig) Addr() string {
 }
 
 type KaraberusOIDCConfig struct {
-	Issuer       string `envkey:"ISSUER"`
-	ClientID     string `envkey:"CLIENT_ID"`
-	ClientSecret string `envkey:"CLIENT_SECRET"`
-	Scopes       string `envkey:"SCOPES" default:"openid profile email groups"`
-	IDClaim      string `envkey:"ID_CLAIM"`
-	GroupsClaim  string `envkey:"GROUPS_CLAIM" default:"groups"`
-	AdminGroup   string `envkey:"ADMIN_GROUP" default:"admin"`
-	JwtSignKey   string `envkey:"JWT_SIGN_KEY"`
+	Issuer       string   `envkey:"ISSUER"`
+	ClientID     string   `envkey:"CLIENT_ID"`
+	ClientSecret string   `envkey:"CLIENT_SECRET"`
+	Scopes       []string `envkey:"SCOPES" separator:" " default:"openid profile email groups"`
+	IDClaim      string   `envkey:"ID_CLAIM"`
+	GroupsClaim  string   `envkey:"GROUPS_CLAIM" default:"groups"`
+	AdminGroup   string   `envkey:"ADMIN_GROUP" default:"admin"`
+	JwtSignKey   string   `envkey:"JWT_SIGN_KEY"`
+}
+
+type KaraberusMugenGitlabConfig struct {
+	Server       string   `envkey:"SERVER" default:"https://gitlab.com"`
+	ProjectID    string   `envkey:"PROJECT_ID"`
+	ClientID     string   `envkey:"CLIENT_ID"`
+	ClientSecret string   `envkey:"CLIENT_SECRET"`
+	Scopes       []string `envkey:"SCOPES" separator:" " default:"api"`
+	ImportTag    string   `envkey:"IMPORT_TAG" default:"Import Japan7"`
+	IssueLabels  []string `envkey:"LABELS" separator:"," default:"To Add"`
+}
+
+type KaraberusMugenConfig struct {
+	Gitlab KaraberusMugenGitlabConfig `env_prefix:"GITLAB"`
 }
 
 func (c KaraberusOIDCConfig) Validate() error {
@@ -78,6 +92,7 @@ type KaraberusConfig struct {
 	Listen    KaraberusListenConfig `env_prefix:"LISTEN"`
 	DB        KaraberusDBConfig     `env_prefix:"DB"`
 	Dakara    KaraberusDakaraConfig `env_prefix:"DAKARA"`
+	Mugen     KaraberusMugenConfig  `env_prefix:"MUGEN"`
 	UIDistDir string                `envkey:"UI_DIST_DIR" default:"/usr/share/karaberus/ui_dist"`
 }
 

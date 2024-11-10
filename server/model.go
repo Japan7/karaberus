@@ -19,6 +19,10 @@ type MediaType struct {
 	IconName string // font-awesome icon name
 }
 
+type HasName interface {
+	getName() string // user visible name
+}
+
 type TagInterface interface {
 	getID() string   // used in the database/API
 	getName() string // user visible name
@@ -333,6 +337,10 @@ type KaraInfoDB struct {
 	Editor
 }
 
+func (k KaraInfoDB) FriendlyName() string {
+	return k.Title
+}
+
 // Filter out historic entries
 func CurrentKaras(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_kara_info_id IS NULL")
@@ -452,6 +460,14 @@ type Font struct {
 	// TODO: font properties (family name, weight, ...)
 }
 
+type OAuthToken struct {
+	Server       string `gorm:"primarykey"`
+	ClientID     string
+	AccessToken  string
+	RefreshToken string
+	ExpiresAt    time.Time
+}
+
 func init_model(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&User{},
@@ -465,6 +481,7 @@ func init_model(db *gorm.DB) {
 		&KaraInfoDB{},
 		&MugenImport{},
 		&Font{},
+		&OAuthToken{},
 	)
 	if err != nil {
 		panic(err)

@@ -1,10 +1,13 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 	"strings"
 
@@ -531,4 +534,191 @@ func DeleteMugenImport(ctx context.Context, input *DeleteMugenImportInput) (*Del
 		return nil, DBErrToHumaErr(err)
 	}
 	return &DeleteMugenImportOutput{Status: 204}, nil
+}
+
+type GitlabIssuesInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Labels      string `json:"labels"`
+}
+
+type GitlabIssuesResponse struct {
+	ID int `json:"id"`
+}
+
+func karaDescriptionPart(name string, value string) string {
+	return fmt.Sprintf("**%s**: %s", name, value)
+}
+
+func karaDescriptionPartList(name string, value []string) string {
+	return fmt.Sprintf("**%s**: %s", name, strings.Join(value, ", "))
+}
+
+func karaDescription(k KaraInfoDB) (string, error) {
+	authors := make([]string, len(k.Authors))
+	for i, author := range k.Authors {
+		authors[i] = author.Name
+	}
+	authors_part := karaDescriptionPartList("Author", authors)
+
+	parts := []string{authors_part}
+
+	medias := make([]string, 0)
+
+	if k.SourceMedia != nil {
+		medias = append(medias, k.SourceMedia.Name)
+	}
+
+	if len(k.Medias) > 0 {
+		for _, media := range k.Medias {
+			medias = append(medias, media.Name)
+		}
+	}
+
+	if len(medias) > 0 {
+		medias_part := karaDescriptionPartList("Medias", medias)
+		parts = append(parts, medias_part)
+	}
+
+	if len(k.Artists) > 0 {
+		artists := make([]string, len(k.Artists))
+		for i, artist := range k.Artists {
+			artists[i] = artist.Name
+		}
+		artists_part := karaDescriptionPartList("Artists", artists)
+		parts = append(parts, artists_part)
+	}
+
+	if len(k.AudioTags) > 0 {
+		audio_tags, err := k.getAudioTags()
+		if err != nil {
+			return "", err
+		}
+		audio_tag_names := make([]string, len(audio_tags))
+		for i, atag := range audio_tags {
+			audio_tag_names[i] = atag.Name
+		}
+		audio_tags_part := karaDescriptionPartList("Audio tags", audio_tag_names)
+		parts = append(parts, audio_tags_part)
+	}
+
+	if len(k.VideoTags) > 0 {
+		video_tags, err := k.getVideoTags()
+		if err != nil {
+			return "", err
+		}
+		video_tag_names := make([]string, len(video_tags))
+		for i, vtag := range video_tags {
+			video_tag_names[i] = vtag.Name
+		}
+		video_tags_part := karaDescriptionPartList("Video tags", video_tag_names)
+		parts = append(parts, video_tags_part)
+	}
+
+	if k.Comment != "" {
+		parts = append(parts, karaDescriptionPart("Comment", k.Comment))
+	}
+
+	video_url_part := karaDescriptionPart(
+		"Video file",
+		fmt.Sprintf("%s/api/kara/%d/download/video", CONFIG.Listen.BaseURL, k.ID),
+	)
+	sub_url_part := karaDescriptionPart(
+		"Subtitles file",
+		fmt.Sprintf("%s/api/kara/%d/download/sub", CONFIG.Listen.BaseURL, k.ID),
+	)
+
+	url_parts := []string{video_url_part, sub_url_part}
+	if k.InstrumentalUploaded {
+		inst_url_part := karaDescriptionPart(
+			"Instrumental file",
+			fmt.Sprintf("%s/api/kara/%d/download/inst", CONFIG.Listen.BaseURL, k.ID),
+		)
+		url_parts = append(url_parts, inst_url_part)
+	}
+
+	urls := strings.Join(url_parts, "  \n")
+	parts = append(parts, urls)
+
+	return strings.Join(parts, "\n\n"), nil
+}
+
+func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, issue_resp *GitlabIssuesResponse) error {
+	token := &OAuthToken{}
+	err := getGitlabToken(db, token)
+	if err != nil {
+		return err
+	}
+
+	project := url.QueryEscape(CONFIG.Mugen.Gitlab.ProjectID)
+	issues_url := fmt.Sprintf("%s/api/v4/projects/%s/issues", CONFIG.Mugen.Gitlab.Server, project)
+
+	description, err := karaDescription(kara)
+	if err != nil {
+		return err
+	}
+	issue := GitlabIssuesInput{
+		Title:       fmt.Sprintf("[%s] %s", CONFIG.Mugen.Gitlab.ImportTag, kara.FriendlyName()),
+		Description: description,
+		Labels:      strings.Join(CONFIG.Mugen.Gitlab.IssueLabels, ","),
+	}
+
+	body, err := json.Marshal(issue)
+	if err != nil {
+		return err
+	}
+	method := http.MethodPost
+	req, err := http.NewRequestWithContext(ctx, method, issues_url, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer Closer(resp.Body)
+
+	if resp.StatusCode/100 != 2 {
+		buf := make([]byte, 4096)
+		n, err := resp.Body.Read(buf)
+		if err != nil {
+			getLogger().Printf("Failed to read body of gitlab response: %s\n%s %s", buf[:n], method, issues_url)
+			return err
+		}
+		getLogger().Printf("gitlab response: %+v\n%s", resp, buf[:n])
+		return fmt.Errorf("gitlab responded with status code %d", resp.StatusCode)
+	}
+
+	dec := json.NewDecoder(resp.Body)
+	err = dec.Decode(issue_resp)
+	return err
+}
+
+type MugenExportInput struct {
+	ID uint `path:"id"`
+}
+
+type MugenExportOutput struct {
+	Body struct {
+		Issue GitlabIssuesResponse `json:"issue"`
+	}
+}
+
+func MugenExport(ctx context.Context, input *MugenExportInput) (*MugenExportOutput, error) {
+	db := GetDB(ctx)
+	kara, err := GetKaraByID(db, input.ID)
+	if err != nil {
+		return nil, DBErrToHumaErr(err)
+	}
+	// check if kara is an import
+	// check if kara is already exported
+	out := &MugenExportOutput{}
+	err = createGitlabIssue(ctx, db, kara, &out.Body.Issue)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }

@@ -49,6 +49,7 @@ func addRoutes(api huma.API) {
 		Security:    kara_ro_security,
 	}, DownloadHead)
 	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExport, setSecurity(oidc_security))
 
 	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
 	huma.Post(api, "/api/font", UploadFont, setSecurity(kara_security))
@@ -89,6 +90,9 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/token", GetAllUserTokens, setSecurity(oidc_security))
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
+
+	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_security))
+	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_security))
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {
@@ -149,8 +153,8 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 		panic(err)
 	}
 
-	addOidcRoutes(app)
 	ctx := context.WithValue(context.Background(), KaraberusInit{}, true)
+	addOidcRoutes(ctx, app)
 	initS3Clients(ctx)
 	init_db(ctx)
 
