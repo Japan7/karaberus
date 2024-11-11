@@ -1,8 +1,8 @@
 import { debounce } from "@solid-primitives/scheduled";
 import {
   HiOutlineMagnifyingGlass,
-  HiSolidChevronDoubleLeft,
-  HiSolidChevronDoubleRight,
+  HiSolidChevronLeft,
+  HiSolidChevronRight,
 } from "solid-icons/hi";
 import {
   createEffect,
@@ -98,7 +98,7 @@ export default function KaraokeBrowse() {
         onclick={() => setPage((page) => page - 1)}
         class="join-item btn"
       >
-        <HiSolidChevronDoubleLeft class="size-5" />
+        <HiSolidChevronLeft class="size-5" />
       </button>
       <select
         onchange={(e) => setPage(parseInt(e.currentTarget.value))}
@@ -123,7 +123,7 @@ export default function KaraokeBrowse() {
         onclick={() => setPage((page) => page + 1)}
         class="join-item btn"
       >
-        <HiSolidChevronDoubleRight class="size-5" />
+        <HiSolidChevronRight class="size-5" />
       </button>
     </div>
   );
