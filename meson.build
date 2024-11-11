@@ -64,7 +64,7 @@ go_env.set('KARABERUS_DB_FILE', db_file)
 go_env.set('KARABERUS_UI_DIST_DIR', karaberus_ui_dist_dir)
 
 if get_option('builtin_oidc_env')
-    go_env.set('KARABERUS_OIDC_ISSUER', 'http://localhost:9998')
+    go_env.set('KARABERUS_OIDC_ISSUER', 'http://127.0.0.1:9998')
     go_env.set('KARABERUS_OIDC_KEY_ID', 'karaberus')
     go_env.set('KARABERUS_OIDC_CLIENT_ID', 'web')
     go_env.set('KARABERUS_OIDC_CLIENT_SECRET', 'secret')

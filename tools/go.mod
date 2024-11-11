@@ -28,21 +28,21 @@ require (
 	github.com/johannesboyne/gofakes3 v0.0.0-20241026070602-0da3aa9c32ca
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/muhlemmer/httpforwarded v0.1.0 // indirect
-	github.com/odrling/zitadel-karaberus v0.0.0-20241102195953-8f932ecc0611 // indirect
+	github.com/odrling/zitadel-karaberus v0.0.0-20241111153924-f1210776ab4a // indirect
 	github.com/rs/cors v1.11.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/zitadel/logging v0.6.1 // indirect
 	github.com/zitadel/oidc/v3 v3.32.1 // indirect
 	github.com/zitadel/schema v1.3.0 // indirect
-	go.opentelemetry.io/otel v1.31.0 // indirect
-	go.opentelemetry.io/otel/metric v1.31.0 // indirect
-	go.opentelemetry.io/otel/trace v1.31.0 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
+	go.opentelemetry.io/otel v1.32.0 // indirect
+	go.opentelemetry.io/otel/metric v1.32.0 // indirect
+	go.opentelemetry.io/otel/trace v1.32.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678 // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/oauth2 v0.23.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/oauth2 v0.24.0 // indirect
+	golang.org/x/sync v0.9.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+	golang.org/x/text v0.20.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240531212143-b6235391adb3 // indirect
 )
