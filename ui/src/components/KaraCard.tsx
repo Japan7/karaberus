@@ -19,22 +19,24 @@ export default function KaraCard(props: {
   audioTagMap: TagMap<components["schemas"]["AudioTag"]>;
   videoTagMap: TagMap<components["schemas"]["VideoTag"]>;
 }) {
-  const getAudioTags = () =>
-    props.kara.AudioTags?.map(
-      (tag) => props.audioTagMap.get(tag.ID)?.Name,
-    ).join(", ");
-  const getVideoTags = () =>
+  const getAudioTags = (): string | undefined =>
+    props.kara.AudioTags?.map((tag) => {
+      const tagInstance = props.audioTagMap.get(tag.ID);
+      if (tagInstance?.HasSongOrder && props.kara.SongOrder) {
+        return `${tagInstance?.Name} ${props.kara.SongOrder}`;
+      } else {
+        return tagInstance?.Name;
+      }
+    }).join(", ");
+  const getVideoTags = (): string | undefined =>
     props.kara.VideoTags?.map(
       (tag) => props.videoTagMap.get(tag.ID)?.Name,
     ).join(", ");
 
-  const getPrimary = () => {
+  const getPrimary = (): string | undefined => {
     let primary = getAudioTags();
     const mainVideoTag = getVideoTags();
     if (primary) {
-      if (props.kara.SongOrder) {
-        primary += " " + props.kara.SongOrder;
-      }
       if (mainVideoTag) {
         primary += " (" + mainVideoTag + ")";
       }
