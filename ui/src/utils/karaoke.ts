@@ -37,7 +37,7 @@ export function karaFuseSearch(
 
   const fuse = new Fuse(karas, {
     keys: fuseKeys,
-    threshold: 0.2, // The default threshold is way too high.
+    threshold: 0.3, // The default threshold is way too high.
   });
 
   // Fuse.js cannot match multiple keys on its own, so we need to iterate on
