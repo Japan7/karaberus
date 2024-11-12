@@ -1,4 +1,5 @@
 import { debounce } from "@solid-primitives/scheduled";
+import { useSearchParams } from "@solidjs/router";
 import {
   HiOutlineMagnifyingGlass,
   HiSolidChevronLeft,
@@ -33,22 +34,23 @@ export default function KaraokeBrowse() {
     return resp.data;
   });
 
-  const [getPage, setPage] = createSignal(0);
-
-  const [getQuery, setQuery] = createSignal("");
   const [getSearchResults, setSearchResults] = createSignal<
     components["schemas"]["KaraInfoDB"][]
   >([]);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  function getQuery(): string {
+    return (searchParams.q || "") as string;
+  }
+
+  function getPage(): number {
+    return parseInt((searchParams.p || "0") as string);
+  }
+
   createEffect(
     on(getAllKaras, () => {
       debouncedSearch(getQuery());
-    }),
-  );
-
-  createEffect(
-    on(getSearchResults, () => {
-      setPage(0);
     }),
   );
 
@@ -95,13 +97,15 @@ export default function KaraokeBrowse() {
     <div class="join mx-auto">
       <button
         disabled={getPage() === 0}
-        onclick={() => setPage((page) => page - 1)}
+        onclick={() => setSearchParams({ p: getPage() - 1 })}
         class="join-item btn"
       >
         <HiSolidChevronLeft class="size-5" />
       </button>
       <select
-        onchange={(e) => setPage(parseInt(e.currentTarget.value))}
+        onchange={(e) =>
+          setSearchParams({ p: parseInt(e.currentTarget.value) })
+        }
         class="join-item select bg-base-200"
       >
         <Index
@@ -120,7 +124,7 @@ export default function KaraokeBrowse() {
         disabled={
           getPage() * PAGE_SIZE + PAGE_SIZE >= getSearchResults().length
         }
-        onclick={() => setPage((page) => page + 1)}
+        onclick={() => setSearchParams({ p: getPage() + 1 })}
         class="join-item btn"
       >
         <HiSolidChevronRight class="size-5" />
@@ -141,7 +145,7 @@ export default function KaraokeBrowse() {
             type="text"
             placeholder="Search"
             value={getQuery()}
-            oninput={(e) => setQuery(e.currentTarget.value)}
+            oninput={(e) => setSearchParams({ q: e.currentTarget.value, p: 0 })}
             class="grow"
           />
           <HiOutlineMagnifyingGlass class="size-4 opacity-70" />
