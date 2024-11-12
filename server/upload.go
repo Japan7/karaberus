@@ -43,7 +43,7 @@ type UploadTempFile struct {
 
 type UploadInput struct {
 	KID      uint   `path:"id" example:"1"`
-	FileType string `path:"filetype" example:"video"`
+	FileType string `path:"filetype" enum:"video,sub,inst" example:"video"`
 	File     UploadTempFile
 }
 
@@ -243,7 +243,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 
 type DownloadInput struct {
 	KID      uint   `path:"id" example:"1"`
-	FileType string `path:"filetype" example:"video"`
+	FileType string `path:"filetype" enum:"video,sub,inst" example:"video"`
 	Range    string `header:"Range"`
 }
 
