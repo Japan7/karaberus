@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"reflect"
@@ -40,8 +41,20 @@ type KaraberusMugenGitlabConfig struct {
 	IssueLabels  []string `envkey:"LABELS" separator:"," default:"To Add"`
 }
 
+type BasicAuthConfig struct {
+	Username string `envkey:"USERNAME"`
+	Password string `envkey:"PASSWORD"`
+}
+
+func (basic BasicAuthConfig) Token() string {
+	return base64.RawStdEncoding.EncodeToString(
+		[]byte(fmt.Sprintf("%s:%s", basic.Username, basic.Password)),
+	)
+}
+
 type KaraberusMugenConfig struct {
-	Gitlab KaraberusMugenGitlabConfig `env_prefix:"GITLAB"`
+	Gitlab    KaraberusMugenGitlabConfig `env_prefix:"GITLAB"`
+	BasicAuth BasicAuthConfig            `env_prefix:"BASIC"`
 }
 
 func (c KaraberusOIDCConfig) Validate() error {

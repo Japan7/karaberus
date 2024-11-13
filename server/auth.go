@@ -295,7 +295,7 @@ func CreateJwtForUser(
 	claims.Subject = user.ID
 	claims.IssuedAt = oidc.Time(time.Now().Unix())
 	if expiresAt != nil {
-		claims.IDTokenClaims.TokenClaims.Expiration = oidc.Time(expiresAt.Unix())
+		claims.Expiration = oidc.Time(expiresAt.Unix())
 	}
 	claims.Scopes = AllScopes
 	claims.IsAdmin = user.Admin
@@ -308,53 +308,97 @@ func createJwt(claims KaraberusClaims) (*jwt.Token, string, error) {
 	return token, signed, err
 }
 
+func checkBasicAuth(token string) bool {
+	return token != CONFIG.Mugen.BasicAuth.Token()
+}
+
+func authError(ctx huma.Context, err error) {
+	getLogger().Println(err)
+	ctx.SetStatus(http.StatusUnauthorized)
+}
+
 func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 	var user *User = nil
 	var scopes *Scopes = nil
 
-	isOIDC := false
 	// Check for a token in the request.
 	token, err := getRequestToken(ctx)
-	// If we have a token, try to get the user.
-	if err == nil {
-		user, scopes, err = getUserScopesFromApiToken(ctx.Context(), token)
-		if err != nil {
-			user, scopes, err = getUserScopesFromJwt(ctx.Context(), token)
-			isOIDC = true
-		}
+	if err != nil {
+		authError(ctx, err)
+		return
 	}
 
-	// If we have a user, add it to the context.
-	if err == nil {
-		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+	switch token.Type {
+	// Bearer token
+	case KaraberusBearerAuth:
+		user, scopes, err = getUserScopesFromApiToken(ctx.Context(), token.Value)
 
-		if checkOperationSecurity(ctx, user, scopes, isOIDC) {
-			next(ctx)
+		if err != nil {
+			authError(ctx, err)
 			return
 		}
+
+		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+
+	// Cookie/OIDC
+	case KaraberusCookieAuth:
+		user, scopes, err = getUserScopesFromJwt(ctx.Context(), token.Value)
+
+		if err != nil {
+			authError(ctx, err)
+			return
+		}
+
+		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+
+	// Basic auth
+	case KaraberusBasicAuth:
+		if !checkBasicAuth(token.Value) {
+			ctx.SetStatus(http.StatusForbidden)
+			return
+		}
+
+		// no user
 	}
 
-	if err != nil {
-		getLogger().Println(err)
-		ctx.SetStatus(http.StatusUnauthorized)
+	if checkOperationSecurity(ctx, user, scopes, token) {
+		next(ctx)
 	} else {
 		ctx.SetStatus(http.StatusForbidden)
 	}
 }
 
-func getRequestToken(ctx huma.Context) (string, error) {
+type KaraberusAuthType string
+
+var KaraberusBasicAuth KaraberusAuthType = "Basic"
+var KaraberusBearerAuth KaraberusAuthType = "Bearer"
+var KaraberusCookieAuth KaraberusAuthType = "Cookie"
+
+type KaraberusAuthorization struct {
+	Type  KaraberusAuthType
+	Value string
+}
+
+var BASIC_AUTH_PREFIX string = "Basic "
+
+func getRequestToken(ctx huma.Context) (KaraberusAuthorization, error) {
 	authHeader := ctx.Header("authorization")
 	if authHeader != "" {
 		if strings.HasPrefix(authHeader, oidc.BearerToken) {
-			return strings.TrimPrefix(authHeader, oidc.PrefixBearer), nil
+			token := strings.TrimPrefix(authHeader, oidc.PrefixBearer)
+			return KaraberusAuthorization{KaraberusBearerAuth, token}, nil
 		}
-		return "", errors.New("invalid authorization header")
+		if strings.HasPrefix(authHeader, BASIC_AUTH_PREFIX) {
+			token := strings.TrimPrefix(authHeader, oidc.PrefixBearer)
+			return KaraberusAuthorization{KaraberusBasicAuth, token}, nil
+		}
+		return KaraberusAuthorization{}, errors.New("invalid authorization header")
 	} else {
 		cookie, err := huma.ReadCookie(ctx, sessionCookieName)
 		if err != nil {
-			return "", err
+			return KaraberusAuthorization{}, err
 		}
-		return cookie.Value, nil
+		return KaraberusAuthorization{KaraberusCookieAuth, cookie.Value}, nil
 	}
 }
 
@@ -408,32 +452,45 @@ func getUserScopesFromJwt(ctx context.Context, token string) (*User, *Scopes, er
 	return &user, &scopes, nil
 }
 
-func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, isOIDC bool) bool {
+func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, token KaraberusAuthorization) bool {
 	oidcSecurity := false
+	basicSecurity := false
 	opScopes := []string{}
+
 	for _, opScheme := range ctx.Operation().Security {
 		_, oidcSecurityFound := opScheme["oidc"]
 		oidcSecurity = oidcSecurity || oidcSecurityFound
+
+		_, basicSecurityFound := opScheme["basic"]
+		basicSecurity = basicSecurity || basicSecurityFound
+
 		opScopes = append(opScopes, opScheme["scopes"]...)
 	}
 
-	if !oidcSecurity && opScopes == nil {
+	// public endpoints
+	if !oidcSecurity && !basicSecurity && opScopes == nil {
 		return true
 	}
 
-	if user == nil {
-		return false
-	}
-
-	if oidcSecurity && isOIDC {
-		return true
-	}
-
-	for _, v := range opScopes {
-		if !scopes.HasScope(v) {
-			return false
+	switch token.Type {
+	case KaraberusBasicAuth:
+		if basicSecurity {
+			return true
 		}
+	case KaraberusCookieAuth:
+		if oidcSecurity {
+			return true
+		}
+	case KaraberusBearerAuth:
+		for _, v := range opScopes {
+			if !scopes.HasScope(v) {
+				return false
+			}
+		}
+
+		// we have all the scopes to proceed
+		return true
 	}
 
-	return true
+	return false
 }

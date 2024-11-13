@@ -34,6 +34,7 @@ func addRoutes(api huma.API) {
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
 	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
 	kara_ro_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}}}
+	kara_ro_basic_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}, "basic": []string{}}}
 
 	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_ro_security))
 	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_ro_security))
@@ -48,7 +49,7 @@ func addRoutes(api huma.API) {
 		Path:        "/api/kara/{id}/download/{filetype}",
 		Security:    kara_ro_security,
 	}, DownloadHead)
-	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_basic_security))
 	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExport, setSecurity(oidc_security))
 
 	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
