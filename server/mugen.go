@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/Japan7/karaberus/server/clients/mugen"
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"golang.org/x/sync/semaphore"
@@ -348,11 +347,6 @@ func RefreshMugenImports(ctx context.Context) error {
 }
 
 func RefreshMugen(ctx context.Context, input *struct{}) (*struct{}, error) {
-	user := *getCurrentUser(ctx)
-	if !user.Admin {
-		return nil, huma.Error403Forbidden("This endpoint is reserved to administrators")
-	}
-
 	err := RefreshMugenImports(ctx)
 	return &struct{}{}, err
 }
@@ -523,11 +517,6 @@ type DeleteMugenImportOutput struct {
 }
 
 func DeleteMugenImport(ctx context.Context, input *DeleteMugenImportInput) (*DeleteMugenImportOutput, error) {
-	user := getCurrentUser(ctx)
-	if !user.Admin {
-		return nil, huma.Error403Forbidden("You must be an administrator to use this endpoint")
-	}
-
 	db := GetDB(ctx)
 	err := db.Delete(&MugenImport{}, input.ID).Error
 	if err != nil {

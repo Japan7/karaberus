@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -83,12 +84,8 @@ func gitlabRedirectURI() string {
 }
 
 func GitlabAuth(ctx context.Context, _ *struct{}) (*GitlabAuthOutput, error) {
-	user := getCurrentUser(ctx)
-	if !user.Admin {
-		return nil, huma.Error403Forbidden("Only admins can use this endpoint.")
-	}
-
 	redirect_uri := gitlabRedirectURI()
+	user := getCurrentUser(ctx)
 
 	state := authState()
 
@@ -455,6 +452,7 @@ func getUserScopesFromJwt(ctx context.Context, token string) (*User, *Scopes, er
 func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, token KaraberusAuthorization) bool {
 	oidcSecurity := false
 	basicSecurity := false
+	roles := []string{}
 	opScopes := []string{}
 
 	for _, opScheme := range ctx.Operation().Security {
@@ -465,6 +463,13 @@ func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, token 
 		basicSecurity = basicSecurity || basicSecurityFound
 
 		opScopes = append(opScopes, opScheme["scopes"]...)
+		roles = append(roles, opScheme["roles"]...)
+	}
+
+	adminRoute := slices.Contains(roles, "admin")
+
+	if adminRoute && (user == nil || !user.Admin) {
+		return false
 	}
 
 	// public endpoints

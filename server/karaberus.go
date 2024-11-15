@@ -32,7 +32,9 @@ func addMiddlewares(api huma.API) {
 
 func addRoutes(api huma.API) {
 	oidc_security := []map[string][]string{{"oidc": []string{""}}}
+	oidc_admin_security := []map[string][]string{{"oidc": []string{""}, "roles": []string{"admin"}}}
 	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
+	kara_admin_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}, "roles": []string{"admin"}}}
 	kara_ro_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}}}
 	kara_ro_basic_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}, "basic": []string{}}}
 
@@ -50,7 +52,7 @@ func addRoutes(api huma.API) {
 		Security:    kara_ro_security,
 	}, DownloadHead)
 	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_basic_security))
-	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExport, setSecurity(oidc_security))
+	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExport, setSecurity(kara_admin_security))
 
 	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
 	huma.Post(api, "/api/font", UploadFont, setSecurity(kara_security))
@@ -82,9 +84,9 @@ func addRoutes(api huma.API) {
 	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara_security))
 
 	huma.Post(api, "/api/mugen", ImportMugenKara, setSecurity(kara_security))
-	huma.Post(api, "/api/mugen/refresh", RefreshMugen, setSecurity(kara_security))
+	huma.Post(api, "/api/mugen/refresh", RefreshMugen, setSecurity(kara_admin_security))
 	huma.Get(api, "/api/mugen", GetMugenImports, setSecurity(kara_ro_security))
-	huma.Delete(api, "/api/mugen/{id}", DeleteMugenImport, setSecurity(kara_security))
+	huma.Delete(api, "/api/mugen/{id}", DeleteMugenImport, setSecurity(kara_admin_security))
 
 	huma.Post(api, "/api/dakara/sync", StartDakaraSync, setSecurity(kara_security))
 
@@ -92,8 +94,8 @@ func addRoutes(api huma.API) {
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
 
-	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_security))
-	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_security))
+	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_admin_security))
+	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_admin_security))
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {
