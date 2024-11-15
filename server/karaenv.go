@@ -41,6 +41,10 @@ type KaraberusMugenGitlabConfig struct {
 	IssueLabels  []string `envkey:"LABELS" separator:"," default:"To Add"`
 }
 
+func (conf KaraberusMugenGitlabConfig) IsSetup() bool {
+	return conf.ProjectID != "" && conf.ClientID != "" && conf.ClientSecret != ""
+}
+
 type BasicAuthConfig struct {
 	Username string `envkey:"USERNAME"`
 	Password string `envkey:"PASSWORD"`

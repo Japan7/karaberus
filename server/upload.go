@@ -170,11 +170,6 @@ func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string, fi
 		kara.SubtitlesModTime = currentTime
 		kara.SubtitlesSize = filesize
 		kara.SubtitlesCRC32 = crc32
-		// check for unix time 0 is for older karaokes, because we also used
-		// that at some point
-		if kara.KaraokeCreationTime.IsZero() || kara.KaraokeCreationTime.Unix() == 0 {
-			kara.KaraokeCreationTime = currentTime
-		}
 		return nil
 	}
 	return errors.New("Unknown file type " + filetype)

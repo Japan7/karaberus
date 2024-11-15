@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/Japan7/karaberus/server/clients/mugen"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"golang.org/x/sync/semaphore"
@@ -532,7 +533,7 @@ type GitlabIssuesInput struct {
 }
 
 type GitlabIssuesResponse struct {
-	ID int `json:"id"`
+	ID uint `json:"id"`
 }
 
 func karaDescriptionPart(name string, value string) string {
@@ -632,7 +633,7 @@ func karaDescription(k KaraInfoDB) (string, error) {
 	return strings.Join(parts, "\n\n"), nil
 }
 
-func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, issue_resp *GitlabIssuesResponse) error {
+func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_export *MugenExport) error {
 	token := &OAuthToken{}
 	err := getGitlabToken(db, token)
 	if err != nil {
@@ -681,8 +682,17 @@ func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, issue_
 		return fmt.Errorf("gitlab responded with status code %d", resp.StatusCode)
 	}
 
+	issue_resp := &GitlabIssuesResponse{}
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(issue_resp)
+	if err != nil {
+		return err
+	}
+
+	mugen_export.KaraID = kara.ID
+	mugen_export.GitlabIssue = issue_resp.ID
+
+	err = db.Create(mugen_export).Error
 	return err
 }
 
@@ -691,21 +701,37 @@ type MugenExportInput struct {
 }
 
 type MugenExportOutput struct {
-	Body struct {
-		Issue GitlabIssuesResponse `json:"issue"`
-	}
+	Body MugenExport
 }
 
-func MugenExport(ctx context.Context, input *MugenExportInput) (*MugenExportOutput, error) {
+func MugenExportKara(ctx context.Context, input *MugenExportInput) (*MugenExportOutput, error) {
 	db := GetDB(ctx)
 	kara, err := GetKaraByID(db, input.ID)
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
+
 	// check if kara is an import
+	mugen_import := &MugenImport{}
+	err = db.Where(&MugenImport{KaraID: kara.ID}).First(mugen_import).Error
+	if err == nil {
+		return nil, huma.Error409Conflict(fmt.Sprintf("kara %d is an import", kara.ID))
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	// check if kara is already exported
 	out := &MugenExportOutput{}
-	err = createGitlabIssue(ctx, db, kara, &out.Body.Issue)
+	err = db.Where(&MugenExport{KaraID: kara.ID}).First(&out.Body).Error
+	if err == nil {
+		return nil, huma.Error409Conflict(fmt.Sprintf("kara %d is already exported", kara.ID))
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	err = createGitlabIssue(ctx, db, kara, &out.Body)
 	if err != nil {
 		return nil, err
 	}

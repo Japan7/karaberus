@@ -52,7 +52,7 @@ func addRoutes(api huma.API) {
 		Security:    kara_ro_security,
 	}, DownloadHead)
 	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_basic_security))
-	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExport, setSecurity(kara_admin_security))
+	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExportKara, setSecurity(kara_admin_security))
 
 	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
 	huma.Post(api, "/api/font", UploadFont, setSecurity(kara_security))
