@@ -98,13 +98,6 @@ go_test_env.set(
 gobin_env = environment()
 gobin_env.set('GOBIN', meson.current_build_dir())
 
-ui_source = meson.current_source_dir() / 'ui'
-
-# npm wrapper env
-npm_env = environment()
-npm_env.set('NPM', npm.full_path())
-npm_env.set('SOURCE', ui_source)
-
 go_files = files('go.mod', 'go.sum', 'main.go', 'main_cgo.go')
 go_files += files(
     'karaberus_tools' / 'cbinds.go',

@@ -1,3 +1,8 @@
+# npm wrapper env
+npm_env = environment()
+npm_env.set('NPM', npm.full_path())
+npm_env.set('SOURCE', meson.current_source_dir())
+
 ui_pkg = files('package-lock.json')
 
 ui_src = files(
