@@ -425,10 +425,6 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 		if err != nil {
 			return err
 		}
-		err = PostWebhooks(ki)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
@@ -448,6 +444,10 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	if ki.VideoUploaded && ki.SubtitlesUploaded &&
 		ki.KaraokeCreationTime.IsZero() || ki.KaraokeCreationTime.Unix() == 0 {
 		ki.KaraokeCreationTime = time.Now().UTC()
+		err = PostWebhooks(ki)
+		if err != nil {
+			return err
+		}
 	}
 
 	// create historic entry with the current value
