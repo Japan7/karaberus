@@ -115,7 +115,7 @@ type KaraberusConfig struct {
 	Dakara    KaraberusDakaraConfig `env_prefix:"DAKARA"`
 	Mugen     KaraberusMugenConfig  `env_prefix:"MUGEN"`
 	UIDistDir string                `envkey:"UI_DIST_DIR" default:"/usr/share/karaberus/ui_dist"`
-	Webhooks  string                `envkey:"WEBHOOKS" example:"discord=<url1> discord=<url2> json=<url3>"`
+	Webhooks  []string              `envkey:"WEBHOOKS" separator:" " example:"discord=<url1> discord=<url2> json=<url3>"`
 }
 
 func getEnvDefault(name string, defaultValue string) string {
