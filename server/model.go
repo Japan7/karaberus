@@ -444,10 +444,7 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	if ki.VideoUploaded && ki.SubtitlesUploaded &&
 		ki.KaraokeCreationTime.IsZero() || ki.KaraokeCreationTime.Unix() == 0 {
 		ki.KaraokeCreationTime = time.Now().UTC()
-		err = PostWebhooks(ki)
-		if err != nil {
-			getLogger().Printf("error while posting webhooks: %s", err)
-		}
+		go PostWebhooks(*ki)
 	}
 
 	// create historic entry with the current value

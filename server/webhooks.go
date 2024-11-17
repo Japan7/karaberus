@@ -15,8 +15,8 @@ type Webhook struct {
 }
 
 type WebhookTemplateContext struct {
-	Config      *KaraberusConfig
-	Kara        *KaraInfoDB
+	Config      KaraberusConfig
+	Kara        KaraInfoDB
 	Title       string
 	Description string
 }
@@ -34,16 +34,14 @@ func parseWebhooksConfig() []Webhook {
 	return webhooks
 }
 
-func PostWebhooks(kara *KaraInfoDB) error {
-	if kara == nil {
-		return nil
-	}
+func PostWebhooks(kara KaraInfoDB) {
 	title := kara.FriendlyName()
-	desc, err := karaDescription(*kara)
+	desc, err := karaDescription(kara)
 	if err != nil {
-		return err
+		getLogger().Printf("error generating description for webhooks: %s")
+		return
 	}
-	tmplCtx := &WebhookTemplateContext{&CONFIG, kara, title, desc}
+	tmplCtx := &WebhookTemplateContext{CONFIG, kara, title, desc}
 	for _, webhook := range parseWebhooksConfig() {
 		var err error
 		switch webhook.Type {
@@ -52,13 +50,12 @@ func PostWebhooks(kara *KaraInfoDB) error {
 		case "discord":
 			err = postDiscordWebhook(webhook.URL, tmplCtx)
 		default:
-			err = fmt.Errorf("unknown webhook type: %s", webhook.Type)
+			err = fmt.Errorf("unknown webhook type %s", webhook.Type)
 		}
 		if err != nil {
-			return err
+			getLogger().Printf("error during %s webhook: %s", webhook, err)
 		}
 	}
-	return nil
 }
 
 func postJsonWebhook(url string, tmplCtx *WebhookTemplateContext) error {
