@@ -144,9 +144,13 @@ func setConfigValue(config_value reflect.Value, config_type reflect.Type, prefix
 		switch field_type.Type {
 		case reflect.TypeOf([]string{}):
 			value := getFieldValue(field_type, prefix)
-			sep := field_type.Tag.Get("separator")
-			arrval := strings.Split(value, sep)
-			field.Set(reflect.ValueOf(arrval))
+			if value == "" {
+				field.Set(reflect.ValueOf([]string{}))
+			} else {
+				sep := field_type.Tag.Get("separator")
+				arrval := strings.Split(value, sep)
+				field.Set(reflect.ValueOf(arrval))
+			}
 		case reflect.TypeOf(""):
 			field.SetString(getFieldValue(field_type, prefix))
 		case reflect.TypeOf(0):
