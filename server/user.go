@@ -58,11 +58,13 @@ func GetMe(ctx context.Context, input *struct{}) (*GetUserOutput, error) {
 func getUser(ctx context.Context, sub *string) (*GetUserOutput, error) {
 	out := &GetUserOutput{}
 	if sub != nil {
-		user, err := getOrCreateUser(ctx, *sub, nil)
+		db := GetDB(ctx)
+		user := User{ID: *sub}
+		err := db.First(&user).Error
 		if err != nil {
-			return nil, err
+			return nil, DBErrToHumaErr(err)
 		}
-		out.Body = *user
+		out.Body = user
 	} else {
 		user := getCurrentUser(ctx)
 		out.Body = *user
@@ -99,11 +101,12 @@ func updateUserAuthor(ctx context.Context, sub *string, authorId *uint) (*Update
 		if !user.Admin {
 			return nil, huma.Error403Forbidden("Only admins can update other users")
 		}
-		maybeUser, err := getOrCreateUser(ctx, *sub, nil)
+		db := GetDB(ctx)
+		user = &User{ID: *sub}
+		err := db.First(user).Error
 		if err != nil {
-			return nil, err
+			return nil, DBErrToHumaErr(err)
 		}
-		user = maybeUser
 	}
 	tx := GetDB(ctx)
 	if authorId != nil {
