@@ -281,7 +281,7 @@ func CreateJwtForUser(
 	expiresAt *time.Time,
 	info *oidc.UserInfo,
 ) (*jwt.Token, string, error) {
-	user, err := getOrCreateUser(ctx, sub, info)
+	user, err := getOrUpsertUser(ctx, sub, info)
 	if err != nil {
 		return nil, "", err
 	}

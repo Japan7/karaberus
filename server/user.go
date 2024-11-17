@@ -16,13 +16,21 @@ func getCurrentUser(ctx context.Context) *User {
 	}
 }
 
-func getOrCreateUser(ctx context.Context, sub string, info *oidc.UserInfo) (*User, error) {
+// pass *info to upsert an user
+func getOrUpsertUser(ctx context.Context, sub string, info *oidc.UserInfo) (*User, error) {
 	db := GetDB(ctx)
 	user := User{ID: sub}
-	err := db.FirstOrCreate(&user).Error
+
+	var err error
+	if info != nil {
+		err = db.FirstOrCreate(&user).Error
+	} else {
+		err = db.First(&user).Error
+	}
 	if err != nil {
 		return nil, err
 	}
+
 	if info != nil {
 		user.Admin = false
 		var groups = info.Claims[CONFIG.OIDC.GroupsClaim].([]any)
@@ -36,6 +44,7 @@ func getOrCreateUser(ctx context.Context, sub string, info *oidc.UserInfo) (*Use
 			return nil, err
 		}
 	}
+
 	return &user, nil
 }
 
@@ -47,20 +56,20 @@ type GetUserOutput struct {
 	Body User
 }
 
-func GetUser(ctx context.Context, input *GetUserInput) (*GetUserOutput, error) {
-	return getUser(ctx, &input.ID)
+func GetUserEndpoint(ctx context.Context, input *GetUserInput) (*GetUserOutput, error) {
+	return getUserEndpoint(ctx, &input.ID)
 }
 
-func GetMe(ctx context.Context, input *struct{}) (*GetUserOutput, error) {
-	return getUser(ctx, nil)
+func GetMeEndpoint(ctx context.Context, input *struct{}) (*GetUserOutput, error) {
+	return getUserEndpoint(ctx, nil)
 }
 
-func getUser(ctx context.Context, sub *string) (*GetUserOutput, error) {
+func getUserEndpoint(ctx context.Context, sub *string) (*GetUserOutput, error) {
 	out := &GetUserOutput{}
 	if sub != nil {
-		user, err := getOrCreateUser(ctx, *sub, nil)
+		user, err := getOrUpsertUser(ctx, *sub, nil)
 		if err != nil {
-			return nil, err
+			return nil, DBErrToHumaErr(err)
 		}
 		out.Body = *user
 	} else {
@@ -85,23 +94,23 @@ type UpdateMeAuthorOutput struct {
 	Status int
 }
 
-func UpdateUserAuthor(ctx context.Context, input *UpdateUserAuthorInput) (*UpdateMeAuthorOutput, error) {
-	return updateUserAuthor(ctx, &input.ID, input.Body.Id)
+func UpdateUserAuthorEndpoint(ctx context.Context, input *UpdateUserAuthorInput) (*UpdateMeAuthorOutput, error) {
+	return updateUserAuthorEndpoint(ctx, &input.ID, input.Body.Id)
 }
 
-func UpdateMeAuthor(ctx context.Context, input *UpdateMeAuthorInput) (*UpdateMeAuthorOutput, error) {
-	return updateUserAuthor(ctx, nil, input.Body.Id)
+func UpdateMeAuthorEndpoint(ctx context.Context, input *UpdateMeAuthorInput) (*UpdateMeAuthorOutput, error) {
+	return updateUserAuthorEndpoint(ctx, nil, input.Body.Id)
 }
 
-func updateUserAuthor(ctx context.Context, sub *string, authorId *uint) (*UpdateMeAuthorOutput, error) {
+func updateUserAuthorEndpoint(ctx context.Context, sub *string, authorId *uint) (*UpdateMeAuthorOutput, error) {
 	user := getCurrentUser(ctx)
 	if sub != nil {
 		if !user.Admin {
 			return nil, huma.Error403Forbidden("Only admins can update other users")
 		}
-		maybeUser, err := getOrCreateUser(ctx, *sub, nil)
+		maybeUser, err := getOrUpsertUser(ctx, *sub, nil)
 		if err != nil {
-			return nil, err
+			return nil, DBErrToHumaErr(err)
 		}
 		user = maybeUser
 	}
