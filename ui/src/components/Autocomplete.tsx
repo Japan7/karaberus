@@ -116,7 +116,7 @@ export default function Autocomplete<T>(
           )}
         </Show>
       </div>
-      <Show when={local.getState() === undefined}>
+      <Show when={!local.getState()}>
         <div
           onkeydown={handleKeyDownDropdown}
           ref={dropdownRef}
