@@ -95,7 +95,22 @@ export default function KaraCard(props: {
               {(getSourceMedia) => (
                 <>
                   {" from "}
-                  <a class="link-secondary">{getSourceMedia().name}</a>
+                  <a
+                    href="#"
+                    class="link-secondary"
+                    classList={{
+                      "tag-filter-enabled":
+                        tagFilterIndexOf(
+                          "SourceMedia.name",
+                          getSourceMedia().name,
+                        ) >= 0,
+                    }}
+                    onclick={() =>
+                      toggleTagFilter("SourceMedia.name", getSourceMedia().name)
+                    }
+                  >
+                    {getSourceMedia().name}
+                  </a>
                 </>
               )}
             </Show>
