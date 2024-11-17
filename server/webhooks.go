@@ -38,7 +38,7 @@ func PostWebhooks(kara KaraInfoDB) {
 	title := kara.FriendlyName()
 	desc, err := karaDescription(kara)
 	if err != nil {
-		getLogger().Printf("error generating description for webhooks: %s")
+		getLogger().Printf("error generating description for webhooks: %s", err)
 		return
 	}
 	tmplCtx := &WebhookTemplateContext{CONFIG, kara, title, desc}
