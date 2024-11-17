@@ -66,7 +66,7 @@ func postJsonWebhook(url string, tmplCtx *WebhookTemplateContext) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 	return nil
 }
 
@@ -83,7 +83,7 @@ func postDiscordWebhook(url string, tmplCtx *WebhookTemplateContext) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer Closer(resp.Body)
 	return nil
 }
 
