@@ -367,6 +367,16 @@ func CurrentKaras(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_kara_info_id IS NULL")
 }
 
+type NewKaraUpdate struct{}
+
+func WithNewKaraUpdate(tx *gorm.DB) *gorm.DB {
+	return tx.WithContext(context.WithValue(tx.Statement.Context, NewKaraUpdate{}, true))
+}
+
+func isNewKaraUpdate(tx *gorm.DB) bool {
+	return tx.Statement.Context.Value(NewKaraUpdate{}) != nil
+}
+
 type UpdateAssociations struct{}
 
 func WithAssociationsUpdate(tx *gorm.DB) *gorm.DB {
@@ -420,11 +430,17 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 	if ki.CurrentKaraInfoID == nil && CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
 		SyncDakaraNotify()
 	}
-	if !ki.KaraokeCreationTime.IsZero() {
+	if isNewKaraUpdate(tx) {
+		// NewKaraUpdate is set on the history instead of the actual value
+		// so we reconstruct the current value from the data
+		ki.ID = *ki.CurrentKaraInfoID
+		ki.CurrentKaraInfo = nil
+
 		err = UploadHookGitlab(tx, ki)
 		if err != nil {
 			return err
 		}
+		go PostWebhooks(*ki)
 	}
 	return nil
 }
@@ -444,7 +460,7 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	if ki.VideoUploaded && ki.SubtitlesUploaded &&
 		ki.KaraokeCreationTime.IsZero() || ki.KaraokeCreationTime.Unix() == 0 {
 		ki.KaraokeCreationTime = time.Now().UTC()
-		go PostWebhooks(*ki)
+		tx = WithNewKaraUpdate(tx)
 	}
 
 	// create historic entry with the current value
