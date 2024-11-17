@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -31,76 +32,125 @@ func addMiddlewares(api huma.API) {
 }
 
 func addRoutes(api huma.API) {
-	oidc_security := []map[string][]string{{"oidc": []string{""}}}
-	oidc_admin_security := []map[string][]string{{"oidc": []string{""}, "roles": []string{"admin"}}}
-	kara_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}}}
-	kara_admin_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara"}, "roles": []string{"admin"}}}
-	kara_ro_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}}}
-	kara_ro_basic_security := []map[string][]string{{"oidc": []string{""}, "scopes": []string{"kara_ro"}, "basic": []string{}}}
+	oidc := RouteSecurity{OIDC: true}.toSecurity()
+	oidc_admin := RouteSecurity{OIDC: true, Admin: true}.toSecurity()
+	kara := RouteSecurity{OIDC: true, Scopes: Scopes{Kara: true}}.toSecurity()
+	kara_admin := RouteSecurity{OIDC: true, Admin: true, Scopes: Scopes{Kara: true}}.toSecurity()
+	kara_ro := RouteSecurity{OIDC: true, Scopes: Scopes{KaraRO: true}}.toSecurity()
+	kara_ro_basic := RouteSecurity{OIDC: true, Basic: true, Scopes: Scopes{KaraRO: true}}.toSecurity()
+	user := RouteSecurity{OIDC: true, Scopes: Scopes{User: true}}.toSecurity()
+	user_admin := RouteSecurity{OIDC: true, Admin: true, Scopes: Scopes{User: true}}.toSecurity()
 
-	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/kara/{id}/history", GetKaraHistory, setSecurity(kara_ro_security))
-	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara_security))
-	huma.Patch(api, "/api/kara/{id}", UpdateKara, setSecurity(kara_security))
-	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara_security))
-	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara_security))
+	huma.Get(api, "/api/kara", GetAllKaras, setSecurity(kara_ro))
+	huma.Get(api, "/api/kara/{id}", GetKara, setSecurity(kara_ro))
+	huma.Get(api, "/api/kara/{id}/history", GetKaraHistory, setSecurity(kara_ro))
+	huma.Delete(api, "/api/kara/{id}", DeleteKara, setSecurity(kara))
+	huma.Patch(api, "/api/kara/{id}", UpdateKara, setSecurity(kara))
+	huma.Post(api, "/api/kara", CreateKara, setSecurity(kara))
+	huma.Put(api, "/api/kara/{id}/upload/{filetype}", UploadKaraFile, setSecurity(kara))
 	huma.Register(api, huma.Operation{
 		OperationID: "kara-download-head",
 		Method:      http.MethodHead,
 		Path:        "/api/kara/{id}/download/{filetype}",
-		Security:    kara_ro_security,
+		Security:    kara_ro,
 	}, DownloadHead)
-	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_basic_security))
-	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExportKara, setSecurity(kara_admin_security))
+	huma.Get(api, "/api/kara/{id}/download/{filetype}", DownloadFile, setSecurity(kara_ro_basic))
+	huma.Get(api, "/api/kara/{id}/mugen/export", MugenExportKara, setSecurity(kara_admin))
 
-	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro_security))
-	huma.Post(api, "/api/font", UploadFont, setSecurity(kara_security))
-	huma.Get(api, "/api/font/{id}/download", DownloadFont, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/font", GetAllFonts, setSecurity(kara_ro))
+	huma.Post(api, "/api/font", UploadFont, setSecurity(kara))
+	huma.Get(api, "/api/font/{id}/download", DownloadFont, setSecurity(kara_ro))
 
-	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(kara_ro_security))
+	huma.Get(api, "/api/tags/audio", GetAudioTags, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/video", GetVideoTags, setSecurity(kara_ro))
 
-	huma.Get(api, "/api/tags/author", GetAllAuthors, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/author/search", FindAuthor, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/author/{id}", GetAuthor, setSecurity(kara_ro_security))
-	huma.Delete(api, "/api/tags/author/{id}", DeleteAuthor, setSecurity(kara_security))
-	huma.Patch(api, "/api/tags/author/{id}", UpdateAuthor, setSecurity(kara_security))
-	huma.Post(api, "/api/tags/author", CreateAuthor, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/author", GetAllAuthors, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/author/search", FindAuthor, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/author/{id}", GetAuthor, setSecurity(kara_ro))
+	huma.Delete(api, "/api/tags/author/{id}", DeleteAuthor, setSecurity(kara))
+	huma.Patch(api, "/api/tags/author/{id}", UpdateAuthor, setSecurity(kara))
+	huma.Post(api, "/api/tags/author", CreateAuthor, setSecurity(kara))
 
-	huma.Get(api, "/api/tags/artist", GetAllArtists, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/artist/search", FindArtist, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/artist/{id}", GetArtist, setSecurity(kara_ro_security))
-	huma.Delete(api, "/api/tags/artist/{id}", DeleteArtist, setSecurity(kara_security))
-	huma.Patch(api, "/api/tags/artist/{id}", UpdateArtist, setSecurity(kara_security))
-	huma.Post(api, "/api/tags/artist", CreateArtist, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/artist", GetAllArtists, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/artist/search", FindArtist, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/artist/{id}", GetArtist, setSecurity(kara_ro))
+	huma.Delete(api, "/api/tags/artist/{id}", DeleteArtist, setSecurity(kara))
+	huma.Patch(api, "/api/tags/artist/{id}", UpdateArtist, setSecurity(kara))
+	huma.Post(api, "/api/tags/artist", CreateArtist, setSecurity(kara))
 
-	huma.Get(api, "/api/tags/media", GetAllMedias, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/media/types", GetAllMediaTypes, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/media/search", FindMedia, setSecurity(kara_ro_security))
-	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_ro_security))
-	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara_security))
-	huma.Patch(api, "/api/tags/media/{id}", UpdateMedia, setSecurity(kara_security))
-	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara_security))
+	huma.Get(api, "/api/tags/media", GetAllMedias, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/media/types", GetAllMediaTypes, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/media/search", FindMedia, setSecurity(kara_ro))
+	huma.Get(api, "/api/tags/media/{id}", GetMedia, setSecurity(kara_ro))
+	huma.Delete(api, "/api/tags/media/{id}", DeleteMedia, setSecurity(kara))
+	huma.Patch(api, "/api/tags/media/{id}", UpdateMedia, setSecurity(kara))
+	huma.Post(api, "/api/tags/media", CreateMedia, setSecurity(kara))
 
-	huma.Post(api, "/api/mugen", ImportMugenKara, setSecurity(kara_security))
-	huma.Post(api, "/api/mugen/refresh", RefreshMugen, setSecurity(kara_admin_security))
-	huma.Get(api, "/api/mugen", GetMugenImports, setSecurity(kara_ro_security))
-	huma.Delete(api, "/api/mugen/{id}", DeleteMugenImport, setSecurity(kara_admin_security))
+	huma.Post(api, "/api/mugen", ImportMugenKara, setSecurity(kara))
+	huma.Post(api, "/api/mugen/refresh", RefreshMugen, setSecurity(kara_admin))
+	huma.Get(api, "/api/mugen", GetMugenImports, setSecurity(kara_ro))
+	huma.Delete(api, "/api/mugen/{id}", DeleteMugenImport, setSecurity(kara_admin))
 
-	huma.Post(api, "/api/dakara/sync", StartDakaraSync, setSecurity(kara_security))
+	huma.Post(api, "/api/dakara/sync", StartDakaraSync, setSecurity(kara))
 
-	huma.Get(api, "/api/token", GetAllUserTokens, setSecurity(oidc_security))
-	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc_security))
-	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc_security))
+	huma.Get(api, "/api/token", GetAllUserTokens, setSecurity(oidc))
+	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc))
+	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc))
 
-	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_admin_security))
-	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_admin_security))
+	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_admin))
+	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_admin))
 
-	huma.Get(api, "/api/user/{id}", GetUser, setSecurity(oidc_security))
-	huma.Get(api, "/api/me", GetMe, setSecurity(oidc_security))
-	huma.Put(api, "/api/user/{id}/author", UpdateUserAuthor, setSecurity(oidc_admin_security))
-	huma.Put(api, "/api/me/author", UpdateMeAuthor, setSecurity(oidc_security))
+	huma.Get(api, "/api/user/{id}", GetUser, setSecurity(user))
+	huma.Get(api, "/api/me", GetMe, setSecurity(user))
+	huma.Put(api, "/api/user/{id}/author", UpdateUserAuthor, setSecurity(user_admin))
+	huma.Put(api, "/api/me/author", UpdateMeAuthor, setSecurity(user))
+}
+
+type RouteSecurity struct {
+	OIDC  bool
+	Admin bool
+	Basic bool
+	Scopes
+}
+
+func (security RouteSecurity) toSecurity() []map[string][]string {
+	security_mapping := map[string][]string{}
+
+	if security.OIDC {
+		security_mapping["oidc"] = []string{""}
+	}
+
+	if security.Admin {
+		security_mapping["admin"] = []string{""}
+	}
+
+	if security.Basic {
+		security_mapping["basic"] = []string{""}
+	}
+
+	// use the json names of the scopes, could be done through reflection instead
+	json_scopes, err := json.Marshal(security.Scopes)
+	if err != nil {
+		panic(err)
+	}
+	scopes_map := map[string]bool{}
+	err = json.Unmarshal(json_scopes, &scopes_map)
+	if err != nil {
+		panic(err)
+	}
+
+	scopes_list := []string{}
+	for k, v := range scopes_map {
+		if v {
+			scopes_list = append(scopes_list, k)
+		}
+	}
+
+	if len(scopes_list) > 0 {
+		security_mapping["scopes"] = scopes_list
+	}
+
+	return []map[string][]string{security_mapping}
 }
 
 func setSecurity(security []map[string][]string) func(o *huma.Operation) {
