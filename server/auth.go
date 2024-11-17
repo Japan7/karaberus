@@ -306,6 +306,9 @@ func createJwt(claims KaraberusClaims) (*jwt.Token, string, error) {
 }
 
 func checkBasicAuth(token string) bool {
+	if !CONFIG.Mugen.BasicAuth.isSetup() {
+		return false
+	}
 	return token != CONFIG.Mugen.BasicAuth.Token()
 }
 

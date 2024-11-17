@@ -50,6 +50,10 @@ type BasicAuthConfig struct {
 	Password string `envkey:"PASSWORD"`
 }
 
+func (basic BasicAuthConfig) isSetup() bool {
+	return basic.Username != "" && basic.Password != ""
+}
+
 func (basic BasicAuthConfig) Token() string {
 	return base64.RawStdEncoding.EncodeToString(
 		[]byte(fmt.Sprintf("%s:%s", basic.Username, basic.Password)),
