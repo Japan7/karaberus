@@ -154,11 +154,11 @@ export default function KaraCard(props: {
             <Show when={props.kara.Language}>
               {(getLanguage) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-green-700 text-base-100 hover:bg-green-800"
-                  classList={{
-                    "tag-filter-enabled":
-                      tagFilterIndexOf("Language", getLanguage()) >= 0,
-                  }}
+                  class={`btn btn-sm btn-ghost text-base-100 ${
+                    tagFilterIndexOf("Language", getLanguage()) >= 0
+                      ? "bg-green-800 hover:bg-green-700 tag-filter-enabled"
+                      : "bg-green-700 hover:bg-green-800"
+                  }`}
                   onclick={() => toggleTagFilter("Language", getLanguage())}
                 >
                   <FaSolidGlobe class="size-4" />
@@ -169,11 +169,11 @@ export default function KaraCard(props: {
             <Index each={props.kara.Artists}>
               {(getArtist) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-amber-600 text-base-100 hover:bg-amber-700"
-                  classList={{
-                    "tag-filter-enabled":
-                      tagFilterIndexOf("Artists.Name", getArtist().Name) >= 0,
-                  }}
+                  class={`btn btn-sm btn-ghost text-base-100 ${
+                    tagFilterIndexOf("Artists.Name", getArtist().Name) >= 0
+                      ? "bg-amber-700 hover:bg-amber-600 tag-filter-enabled"
+                      : "bg-amber-600 hover:bg-amber-700"
+                  }`}
                   onclick={() =>
                     toggleTagFilter("Artists.Name", getArtist().Name)
                   }
@@ -186,14 +186,14 @@ export default function KaraCard(props: {
             <Show when={props.kara.SourceMedia}>
               {(getSourceMedia) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-blue-500 text-base-100 hover:bg-blue-600"
-                  classList={{
-                    "tag-filter-enabled":
-                      tagFilterIndexOf(
-                        "SourceMedia.media_type",
-                        getSourceMedia().media_type,
-                      ) >= 0,
-                  }}
+                  class={`btn btn-sm btn-ghost text-base-100 ${
+                    tagFilterIndexOf(
+                      "SourceMedia.media_type",
+                      getSourceMedia().media_type,
+                    ) >= 0
+                      ? "bg-blue-600 hover:bg-blue-500 tag-filter-enabled"
+                      : "bg-blue-500 hover:bg-blue-600"
+                  }`}
                   onclick={() =>
                     toggleTagFilter(
                       "SourceMedia.media_type",
@@ -209,11 +209,11 @@ export default function KaraCard(props: {
             <Index each={props.kara.Authors}>
               {(getAuthor) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-purple-600 text-base-100 hover:bg-purple-700"
-                  classList={{
-                    "tag-filter-enabled":
-                      tagFilterIndexOf("Authors.Name", getAuthor().Name) >= 0,
-                  }}
+                  class={`btn btn-sm btn-ghost text-base-100 ${
+                    tagFilterIndexOf("Authors.Name", getAuthor().Name) >= 0
+                      ? "bg-purple-700 hover:bg-purple-600 tag-filter-enabled"
+                      : "bg-purple-600 hover:bg-purple-700"
+                  }`}
                   onclick={() =>
                     toggleTagFilter("Authors.Name", getAuthor().Name)
                   }
@@ -225,16 +225,16 @@ export default function KaraCard(props: {
             </Index>
             <Show when={props.kara.SubtitlesUploaded}>
               <div
-                class="btn btn-sm btn-ghost bg-neutral-400 text-base-100 hover:bg-neutral-500"
-                classList={{
-                  "tag-filter-enabled":
-                    tagFilterIndexOf(
-                      "creationTimeYear",
-                      new Date(props.kara.KaraokeCreationTime)
-                        .getFullYear()
-                        .toString(),
-                    ) >= 0,
-                }}
+                class={`btn btn-sm btn-ghost text-base-100 ${
+                  tagFilterIndexOf(
+                    "creationTimeYear",
+                    new Date(props.kara.KaraokeCreationTime)
+                      .getFullYear()
+                      .toString(),
+                  ) >= 0
+                    ? "bg-neutral-500 hover:bg-neutral-400 tag-filter-enabled"
+                    : "bg-neutral-400 hover:bg-neutral-500"
+                }`}
                 onclick={() =>
                   toggleTagFilter(
                     "creationTimeYear",
