@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
@@ -48,27 +47,23 @@ type GetUserOutput struct {
 }
 
 func GetUser(ctx context.Context, input *GetUserInput) (*GetUserOutput, error) {
-	return getUser(ctx, &input.ID)
+	return getUser(ctx, input.ID)
 }
 
 func GetMe(ctx context.Context, input *struct{}) (*GetUserOutput, error) {
-	return getUser(ctx, nil)
+	user := getCurrentUser(ctx)
+	return &GetUserOutput{Body: *user}, nil
 }
 
-func getUser(ctx context.Context, sub *string) (*GetUserOutput, error) {
+func getUser(ctx context.Context, sub string) (*GetUserOutput, error) {
 	out := &GetUserOutput{}
-	if sub != nil {
-		db := GetDB(ctx)
-		user := User{ID: *sub}
-		err := db.First(&user).Error
-		if err != nil {
-			return nil, DBErrToHumaErr(err)
-		}
-		out.Body = user
-	} else {
-		user := getCurrentUser(ctx)
-		out.Body = *user
+	db := GetDB(ctx)
+	user := User{}
+	err := db.Where(&User{ID: sub}).First(&user).Error
+	if err != nil {
+		return nil, DBErrToHumaErr(err)
 	}
+	out.Body = user
 	return out, nil
 }
 
@@ -88,26 +83,20 @@ type UpdateMeAuthorOutput struct {
 }
 
 func UpdateUserAuthor(ctx context.Context, input *UpdateUserAuthorInput) (*UpdateMeAuthorOutput, error) {
-	return updateUserAuthor(ctx, &input.ID, input.Body.Id)
+	user := &User{}
+	err := GetDB(ctx).Where(&User{ID: input.ID}).First(user).Error
+	if err != nil {
+		return nil, DBErrToHumaErr(err)
+	}
+	return updateUserAuthor(ctx, user, input.Body.Id)
 }
 
 func UpdateMeAuthor(ctx context.Context, input *UpdateMeAuthorInput) (*UpdateMeAuthorOutput, error) {
-	return updateUserAuthor(ctx, nil, input.Body.Id)
+	user := getCurrentUser(ctx)
+	return updateUserAuthor(ctx, user, input.Body.Id)
 }
 
-func updateUserAuthor(ctx context.Context, sub *string, authorId *uint) (*UpdateMeAuthorOutput, error) {
-	user := getCurrentUser(ctx)
-	if sub != nil {
-		if !user.Admin {
-			return nil, huma.Error403Forbidden("Only admins can update other users")
-		}
-		db := GetDB(ctx)
-		user = &User{ID: *sub}
-		err := db.First(user).Error
-		if err != nil {
-			return nil, DBErrToHumaErr(err)
-		}
-	}
+func updateUserAuthor(ctx context.Context, user *User, authorId *uint) (*UpdateMeAuthorOutput, error) {
 	tx := GetDB(ctx)
 	if authorId != nil {
 		if _, err := GetAuthorById(tx, *authorId); err != nil {
