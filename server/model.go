@@ -446,7 +446,7 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 		ki.KaraokeCreationTime = time.Now().UTC()
 		err = PostWebhooks(ki)
 		if err != nil {
-			return err
+			getLogger().Printf("error while posting webhooks: %s", err)
 		}
 	}
 
