@@ -24,8 +24,10 @@ type WebhookTemplateContext struct {
 func parseWebhooksConfig() []Webhook {
 	var webhooks []Webhook
 	for _, kv := range CONFIG.Webhooks {
-		typ, url, _ := strings.Cut(kv, "=")
-		webhooks = append(webhooks, Webhook{typ, url})
+		typ, url, found := strings.Cut(kv, "=")
+		if found {
+			webhooks = append(webhooks, Webhook{typ, url})
+		}
 	}
 	return webhooks
 }
