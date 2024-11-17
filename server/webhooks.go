@@ -104,10 +104,10 @@ const discordTemplate = `{
 				"url": "{{ .Config.Listen.BaseURL }}",
 				"icon_url": "{{ .Config.Listen.BaseURL }}/vite.svg"
 			},
-      		"title": "{{ .Title | jsstr }}",
+			"title": "{{ .Title | jsstr }}",
 			"url": "{{ .Config.Listen.BaseURL }}/karaoke/browse/{{ .Kara.ID }}",
 			"description":  "{{ .Description | jsstr }}",
 			"color": 10053324
-    	}
-  	]
+		}
+	]
 }`
