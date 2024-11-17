@@ -154,7 +154,7 @@ export default function KaraCard(props: {
             <Show when={props.kara.Language}>
               {(getLanguage) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-green-700 text-base-100"
+                  class="btn btn-sm btn-ghost bg-green-700 text-base-100 hover:bg-green-800"
                   classList={{
                     "tag-filter-enabled":
                       tagFilterIndexOf("Language", getLanguage()) >= 0,
@@ -169,7 +169,7 @@ export default function KaraCard(props: {
             <Index each={props.kara.Artists}>
               {(getArtist) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-amber-600 text-base-100"
+                  class="btn btn-sm btn-ghost bg-amber-600 text-base-100 hover:bg-amber-700"
                   classList={{
                     "tag-filter-enabled":
                       tagFilterIndexOf("Artists.Name", getArtist().Name) >= 0,
@@ -186,7 +186,7 @@ export default function KaraCard(props: {
             <Show when={props.kara.SourceMedia}>
               {(getSourceMedia) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-blue-500 text-base-100"
+                  class="btn btn-sm btn-ghost bg-blue-500 text-base-100 hover:bg-blue-600"
                   classList={{
                     "tag-filter-enabled":
                       tagFilterIndexOf(
@@ -209,7 +209,7 @@ export default function KaraCard(props: {
             <Index each={props.kara.Authors}>
               {(getAuthor) => (
                 <div
-                  class="btn btn-sm btn-ghost bg-purple-600 text-base-100"
+                  class="btn btn-sm btn-ghost bg-purple-600 text-base-100 hover:bg-purple-700"
                   classList={{
                     "tag-filter-enabled":
                       tagFilterIndexOf("Authors.Name", getAuthor().Name) >= 0,
@@ -225,7 +225,7 @@ export default function KaraCard(props: {
             </Index>
             <Show when={props.kara.SubtitlesUploaded}>
               <div
-                class="btn btn-sm btn-ghost bg-neutral-400 text-base-100"
+                class="btn btn-sm btn-ghost bg-neutral-400 text-base-100 hover:bg-neutral-500"
                 classList={{
                   "tag-filter-enabled":
                     tagFilterIndexOf(
