@@ -12,4 +12,8 @@
   .header {
     @apply text-6xl font-bold mt-16 mb-8;
   }
+  .tag-filter-enabled {
+    font-weight: 900;
+    text-decoration: underline;
+  }
 }

@@ -1,3 +1,4 @@
+import { useSearchParams } from "@solidjs/router";
 import { isTauri } from "@tauri-apps/api/core";
 import {
   FaSolidCalendarDays,
@@ -18,6 +19,7 @@ export default function KaraCard(props: {
   kara: components["schemas"]["KaraInfoDB"];
   audioTagMap: TagMap<components["schemas"]["AudioTag"]>;
   videoTagMap: TagMap<components["schemas"]["VideoTag"]>;
+  enabledTagFilters: { name: string; value: string }[];
 }) {
   const getAudioTags = (): string | undefined =>
     props.kara.AudioTags?.map((tag) => {
@@ -48,6 +50,34 @@ export default function KaraCard(props: {
     }
     return primary;
   };
+
+  const [_, setSearchParams] = useSearchParams();
+
+  function tagFilterIndexOf(name: string, value: string) {
+    for (const i of props.enabledTagFilters.keys()) {
+      const t = props.enabledTagFilters[i];
+      if (t.name == name && t.value == value) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function toggleTagFilter(name: string, value: string) {
+    const i = tagFilterIndexOf(name, value);
+    const enabledTagFilters = props.enabledTagFilters.map((t) => t);
+    if (i >= 0) {
+      enabledTagFilters.splice(i, 1);
+    } else {
+      enabledTagFilters.push({ name: name, value: value });
+    }
+    setSearchParams({
+      tags: enabledTagFilters
+        .map((t) => `${t.name}~${encodeURIComponent(t.value)}`)
+        .join(","),
+      p: 0,
+    });
+  }
 
   return (
     <div class="card bg-base-100 shadow-xl">
@@ -108,7 +138,14 @@ export default function KaraCard(props: {
           <div class="flex flex-wrap gap-1">
             <Show when={props.kara.Language}>
               {(getLanguage) => (
-                <div class="btn btn-sm btn-ghost bg-green-700 text-base-100">
+                <div
+                  class="btn btn-sm btn-ghost bg-green-700 text-base-100"
+                  classList={{
+                    "tag-filter-enabled":
+                      tagFilterIndexOf("Language", getLanguage()) >= 0,
+                  }}
+                  onclick={() => toggleTagFilter("Language", getLanguage())}
+                >
                   <FaSolidGlobe class="size-4" />
                   {getLanguage()}
                 </div>
@@ -116,7 +153,16 @@ export default function KaraCard(props: {
             </Show>
             <Index each={props.kara.Artists}>
               {(getArtist) => (
-                <div class="btn btn-sm btn-ghost bg-amber-600 text-base-100">
+                <div
+                  class="btn btn-sm btn-ghost bg-amber-600 text-base-100"
+                  classList={{
+                    "tag-filter-enabled":
+                      tagFilterIndexOf("Artists.Name", getArtist().Name) >= 0,
+                  }}
+                  onclick={() =>
+                    toggleTagFilter("Artists.Name", getArtist().Name)
+                  }
+                >
                   <FaSolidMicrophoneLines class="size-4" />
                   {getArtist().Name}
                 </div>
@@ -124,7 +170,22 @@ export default function KaraCard(props: {
             </Index>
             <Show when={props.kara.SourceMedia}>
               {(getSourceMedia) => (
-                <div class="btn btn-sm btn-ghost bg-blue-500 text-base-100">
+                <div
+                  class="btn btn-sm btn-ghost bg-blue-500 text-base-100"
+                  classList={{
+                    "tag-filter-enabled":
+                      tagFilterIndexOf(
+                        "SourceMedia.media_type",
+                        getSourceMedia().media_type,
+                      ) >= 0,
+                  }}
+                  onclick={() =>
+                    toggleTagFilter(
+                      "SourceMedia.media_type",
+                      getSourceMedia().media_type,
+                    )
+                  }
+                >
                   <FaSolidDiagramProject class="size-4" />
                   {toTitleCase(getSourceMedia().media_type)}
                 </div>
@@ -132,14 +193,42 @@ export default function KaraCard(props: {
             </Show>
             <Index each={props.kara.Authors}>
               {(getAuthor) => (
-                <div class="btn btn-sm btn-ghost bg-purple-600 text-base-100">
+                <div
+                  class="btn btn-sm btn-ghost bg-purple-600 text-base-100"
+                  classList={{
+                    "tag-filter-enabled":
+                      tagFilterIndexOf("Authors.Name", getAuthor().Name) >= 0,
+                  }}
+                  onclick={() =>
+                    toggleTagFilter("Authors.Name", getAuthor().Name)
+                  }
+                >
                   <FaSolidUserSecret class="size-4" />
                   {getAuthor().Name}
                 </div>
               )}
             </Index>
             <Show when={props.kara.SubtitlesUploaded}>
-              <div class="btn btn-sm btn-ghost bg-neutral-400 text-base-100">
+              <div
+                class="btn btn-sm btn-ghost bg-neutral-400 text-base-100"
+                classList={{
+                  "tag-filter-enabled":
+                    tagFilterIndexOf(
+                      "creationTimeYear",
+                      new Date(props.kara.KaraokeCreationTime)
+                        .getFullYear()
+                        .toString(),
+                    ) >= 0,
+                }}
+                onclick={() =>
+                  toggleTagFilter(
+                    "creationTimeYear",
+                    new Date(props.kara.KaraokeCreationTime)
+                      .getFullYear()
+                      .toString(),
+                  )
+                }
+              >
                 <FaSolidCalendarDays class="size-4" />
                 {new Date(props.kara.KaraokeCreationTime).getFullYear()}
               </div>

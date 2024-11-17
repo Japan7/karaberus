@@ -48,9 +48,22 @@ export default function KaraokeBrowse() {
     return parseInt((searchParams.p || "0") as string);
   }
 
+  function getTags(): { name: string; value: string }[] {
+    if (searchParams.tags) {
+      return (searchParams.tags as string).split(",").map((tag: string) => {
+        const splittedTag = tag.split("~");
+        return {
+          name: splittedTag[0],
+          value: decodeURIComponent(splittedTag[1]),
+        };
+      });
+    }
+    return [];
+  }
+
   createEffect(
     on(getAllKaras, () => {
-      debouncedSearch(getQuery());
+      debouncedSearch(getQuery(), getTags());
     }),
   );
 
@@ -59,13 +72,13 @@ export default function KaraokeBrowse() {
   const getVideoTagMap = () =>
     new Map(getAllVideoTags()?.map((videoTag) => [videoTag.ID, videoTag]));
 
-  const search = (query: string) => {
+  const search = (query: string, tags: { name: string; value: string }[]) => {
     const karas = getAllKaras();
     if (!karas) {
       return [];
     }
 
-    if (!query) {
+    if (!query && tags.length == 0) {
       return karas;
     }
 
@@ -74,16 +87,20 @@ export default function KaraokeBrowse() {
       getAudioTagMap(),
       getVideoTagMap(),
       query,
+      tags,
     );
 
     return results.map((result) => result.item);
   };
-  const debouncedSearch = debounce((query: string) => {
-    setSearchResults(search(query));
-  }, 250);
+  const debouncedSearch = debounce(
+    (query: string, tags: { name: string; value: string }[]) => {
+      setSearchResults(search(query, tags));
+    },
+    250,
+  );
 
   createEffect(() => {
-    debouncedSearch(getQuery());
+    debouncedSearch(getQuery(), getTags());
   });
 
   const getTotal = () => getSearchResults().length;
@@ -166,6 +183,7 @@ export default function KaraokeBrowse() {
                   kara={getKara()}
                   audioTagMap={getAudioTagMap()}
                   videoTagMap={getVideoTagMap()}
+                  enabledTagFilters={getTags()}
                 />
               )}
             </Index>
