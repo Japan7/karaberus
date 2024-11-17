@@ -27,7 +27,7 @@ export default function ProfileEditor(props: {
 
   const [getAuthor, setAuthor] = createSignal<
     components["schemas"]["TimingAuthor"] | undefined
-  >(props.user.TimingProfile);
+  >(props.user.timing_profile);
 
   const openAddAuthorModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
     e.preventDefault();
