@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
@@ -93,15 +94,16 @@ func UpdateMeAuthor(ctx context.Context, input *UpdateMeAuthorInput) (*UpdateMeA
 }
 
 func updateUserAuthor(ctx context.Context, sub *string, authorId *uint) (*UpdateMeAuthorOutput, error) {
-	var user *User
+	user := getCurrentUser(ctx)
 	if sub != nil {
+		if !user.Admin {
+			return nil, huma.Error403Forbidden("Only admins can update other users")
+		}
 		maybeUser, err := getOrCreateUser(ctx, *sub, nil)
 		if err != nil {
 			return nil, err
 		}
 		user = maybeUser
-	} else {
-		user = getCurrentUser(ctx)
 	}
 	tx := GetDB(ctx)
 	if authorId != nil {
