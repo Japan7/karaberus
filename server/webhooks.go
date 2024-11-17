@@ -25,9 +25,11 @@ func parseWebhooksConfig() []Webhook {
 	var webhooks []Webhook
 	for _, kv := range CONFIG.Webhooks {
 		typ, url, found := strings.Cut(kv, "=")
-		if found {
-			webhooks = append(webhooks, Webhook{typ, url})
+		if !found {
+			getLogger().Printf("invalid webhook value: %s", kv)
+			continue
 		}
+		webhooks = append(webhooks, Webhook{typ, url})
 	}
 	return webhooks
 }
