@@ -104,8 +104,7 @@ const discordTemplate = `{
 	"embeds": [
 		{
 			"author": {
-				"name": "Karaberus – New Karaoke!",
-				"url": "{{ .Config.Listen.BaseURL }}",
+				"name": "New Karaoke!",
 				"icon_url": "{{ .Config.Listen.BaseURL }}/vite.svg"
 			},
 			"title": "{{ .Title | jsstr }}",
