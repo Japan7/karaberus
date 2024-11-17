@@ -425,6 +425,10 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 		if err != nil {
 			return err
 		}
+		err = PostWebhooks(ki)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
