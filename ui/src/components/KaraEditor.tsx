@@ -54,7 +54,7 @@ export default function KaraEditor(props: {
   //#endregion
 
   //#region Signals
-  const meTimingProfile = props.me?.TimingProfile;
+  const meTimingProfile = props.me?.timing_profile;
 
   const [getTitle, setTitle] = createSignal(props.kara?.Title ?? "");
   const [getExtraTitles, setExtraTitles] = createSignal(

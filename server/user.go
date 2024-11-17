@@ -38,13 +38,40 @@ func getOrCreateUser(ctx context.Context, sub string, info *oidc.UserInfo) (*Use
 	return &user, nil
 }
 
-type GetMeOutput struct {
+type GetUserInput struct {
+	ID string `path:"id"`
+}
+
+type GetUserOutput struct {
 	Body User
 }
 
-func GetMe(ctx context.Context, input *struct{}) (*GetMeOutput, error) {
-	user := getCurrentUser(ctx)
-	return &GetMeOutput{Body: *user}, nil
+func GetUser(ctx context.Context, input *GetUserInput) (*GetUserOutput, error) {
+	return getUser(ctx, &input.ID)
+}
+
+func GetMe(ctx context.Context, input *struct{}) (*GetUserOutput, error) {
+	return getUser(ctx, nil)
+}
+
+func getUser(ctx context.Context, sub *string) (*GetUserOutput, error) {
+	out := &GetUserOutput{}
+	if sub != nil {
+		user, err := getOrCreateUser(ctx, *sub, nil)
+		if err != nil {
+			return nil, err
+		}
+		out.Body = *user
+	} else {
+		user := getCurrentUser(ctx)
+		out.Body = *user
+	}
+	return out, nil
+}
+
+type UpdateUserAuthorInput struct {
+	ID string `path:"id"`
+	UpdateMeAuthorInput
 }
 
 type UpdateMeAuthorInput struct {
@@ -57,15 +84,32 @@ type UpdateMeAuthorOutput struct {
 	Status int
 }
 
+func UpdateUserAuthor(ctx context.Context, input *UpdateUserAuthorInput) (*UpdateMeAuthorOutput, error) {
+	return updateUserAuthor(ctx, &input.ID, input.Body.Id)
+}
+
 func UpdateMeAuthor(ctx context.Context, input *UpdateMeAuthorInput) (*UpdateMeAuthorOutput, error) {
+	return updateUserAuthor(ctx, nil, input.Body.Id)
+}
+
+func updateUserAuthor(ctx context.Context, sub *string, authorId *uint) (*UpdateMeAuthorOutput, error) {
+	var user *User
+	if sub != nil {
+		maybeUser, err := getOrCreateUser(ctx, *sub, nil)
+		if err != nil {
+			return nil, err
+		}
+		user = maybeUser
+	} else {
+		user = getCurrentUser(ctx)
+	}
 	tx := GetDB(ctx)
-	user := getCurrentUser(ctx)
-	if input.Body.Id != nil {
-		if _, err := GetAuthorById(tx, *input.Body.Id); err != nil {
+	if authorId != nil {
+		if _, err := GetAuthorById(tx, *authorId); err != nil {
 			return nil, DBErrToHumaErr(err)
 		}
 	}
-	user.TimingProfileID = input.Body.Id
+	user.TimingProfileID = authorId
 	err := tx.Model(&user).Select("timing_profile_id").Updates(&user).Error
 	return &UpdateMeAuthorOutput{Status: 204}, DBErrToHumaErr(err)
 }
