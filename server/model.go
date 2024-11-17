@@ -78,13 +78,13 @@ func (t VideoTag) getHue() uint {
 
 // Users
 type User struct {
-	ID              string `gorm:"primarykey"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	DeletedAt       gorm.DeletedAt `gorm:"index"`
-	Admin           bool
-	TimingProfileID *uint
-	TimingProfile   *TimingAuthor `gorm:"foreignKey:TimingProfileID;references:ID"`
+	ID              string         `gorm:"primarykey" json:"id"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	DeletedAt       gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	Admin           bool           `json:"admin"`
+	TimingProfileID *uint          `json:"timing_profile_id"`
+	TimingProfile   *TimingAuthor  `gorm:"foreignKey:TimingProfileID;references:ID" json:"timing_profile"`
 }
 
 type TimingAuthor struct {

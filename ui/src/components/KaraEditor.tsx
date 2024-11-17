@@ -19,6 +19,7 @@ export default function KaraEditor(props: {
   kara?: components["schemas"]["KaraInfoDB"];
   onSubmit: (kara: components["schemas"]["KaraInfo"]) => void;
   reset?: boolean;
+  me?: components["schemas"]["User"];
 }) {
   const { getModalRef, setModal, showToast } = useContext(Context)!;
 
@@ -53,13 +54,15 @@ export default function KaraEditor(props: {
   //#endregion
 
   //#region Signals
+  const meTimingProfile = props.me?.timing_profile;
+
   const [getTitle, setTitle] = createSignal(props.kara?.Title ?? "");
   const [getExtraTitles, setExtraTitles] = createSignal(
     props.kara?.ExtraTitles?.map((v) => v.Name).join("\n") ?? "",
   );
   const [getAuthors, setAuthors] = createSignal<
     components["schemas"]["TimingAuthor"][]
-  >(props.kara?.Authors ?? []);
+  >(props.kara?.Authors ?? (meTimingProfile ? [meTimingProfile] : []));
   const [getArtists, setArtists] = createSignal<
     components["schemas"]["Artist"][]
   >(props.kara?.Artists ?? []);

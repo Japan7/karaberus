@@ -428,7 +428,7 @@ func getUserScopesFromJwt(ctx context.Context, token string) (*User, *Scopes, er
 
 	db := GetDB(ctx)
 	user := User{ID: sub}
-	if err := db.First(&user).Error; err != nil {
+	if err := db.Preload(clause.Associations).First(&user).Error; err != nil {
 		return nil, nil, err
 	}
 
