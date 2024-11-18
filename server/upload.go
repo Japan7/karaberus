@@ -15,7 +15,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gofiber/fiber/v2"
@@ -149,31 +148,6 @@ type UploadOutput struct {
 		KID          uint            `json:"file_id" example:"1" doc:"karaoke ID"`
 		CheckResults CheckKaraOutput `json:"check_results"`
 	}
-}
-
-func updateKaraokeAfterUpload(tx *gorm.DB, kara *KaraInfoDB, filetype string, filesize int64, crc32 uint32) error {
-	currentTime := time.Now().UTC()
-	switch filetype {
-	case "video":
-		kara.VideoUploaded = true
-		kara.VideoModTime = currentTime
-		kara.VideoSize = filesize
-		kara.VideoCRC32 = crc32
-		return nil
-	case "inst":
-		kara.InstrumentalUploaded = true
-		kara.InstrumentalModTime = currentTime
-		kara.InstrumentalSize = filesize
-		kara.InstrumentalCRC32 = crc32
-		return nil
-	case "sub":
-		kara.SubtitlesUploaded = true
-		kara.SubtitlesModTime = currentTime
-		kara.SubtitlesSize = filesize
-		kara.SubtitlesCRC32 = crc32
-		return nil
-	}
-	return errors.New("Unknown file type " + filetype)
 }
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {

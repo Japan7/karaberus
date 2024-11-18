@@ -427,20 +427,18 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 		return err
 	}
 
-	if ki.CurrentKaraInfoID == nil && CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
-		SyncDakaraNotify()
-	}
-	if isNewKaraUpdate(tx) {
-		// NewKaraUpdate is set on the history instead of the actual value
-		// so we reconstruct the current value from the data
-		ki.ID = *ki.CurrentKaraInfoID
-		ki.CurrentKaraInfo = nil
-
-		err = UploadHookGitlab(tx, ki)
-		if err != nil {
-			return err
+	if ki.CurrentKaraInfoID == nil {
+		if CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
+			SyncDakaraNotify()
 		}
-		go PostWebhooks(*ki)
+
+		if isNewKaraUpdate(tx) {
+			err = UploadHookGitlab(tx, ki)
+			if err != nil {
+				return err
+			}
+			go PostWebhooks(*ki)
+		}
 	}
 	return nil
 }
@@ -453,14 +451,6 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	err := tx.First(orig_kara_info, ki.ID).Error
 	if err != nil {
 		return err
-	}
-
-	// check for unix time 0 is for older karaokes, because we also used
-	// that at some point
-	if ki.VideoUploaded && ki.SubtitlesUploaded &&
-		ki.KaraokeCreationTime.IsZero() || ki.KaraokeCreationTime.Unix() == 0 {
-		ki.KaraokeCreationTime = time.Now().UTC()
-		tx = WithNewKaraUpdate(tx)
 	}
 
 	// create historic entry with the current value
