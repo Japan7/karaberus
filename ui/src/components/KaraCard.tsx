@@ -231,7 +231,7 @@ export default function KaraCard(props: {
                     new Date(props.kara.KaraokeCreationTime)
                       .getFullYear()
                       .toString(),
-                  ) >= 0
+                  ) >= 1
                     ? "bg-neutral-500 hover:bg-neutral-400 tag-filter-enabled"
                     : "bg-neutral-400 hover:bg-neutral-500"
                 }`}
