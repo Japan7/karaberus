@@ -554,9 +554,35 @@ func init_model(db *gorm.DB) {
 		}
 	}
 
+	// some karas might not have the right creation date at some point...
+	fixCreationTime(db)
+
 	// set size and crc32 for files uploaded before they were introduced
 	if isKaraberusInit(db.Statement.Context) {
 		go initSizeCRC(db)
+	}
+}
+
+func fixCreationTime(db *gorm.DB) {
+	var karas []KaraInfoDB
+	err := db.Scopes(CurrentKaras).Find(&karas).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	for _, kara := range karas {
+		if kara.KaraokeCreationTime.Before(time.Unix(1, 0)) {
+			if kara.SubtitlesUploaded && kara.VideoUploaded {
+				kara.KaraokeCreationTime = kara.SubtitlesModTime
+			} else if !kara.KaraokeCreationTime.IsZero() {
+				// reset creation time to zero if time is Unix Epoch
+				// could happen for karaoke that are not uploaded (yet)
+				kara.KaraokeCreationTime = time.Time{}
+			}
+		}
 	}
 }
 
