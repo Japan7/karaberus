@@ -581,7 +581,12 @@ func fixCreationTime(db *gorm.DB) {
 				// reset creation time to zero if time is Unix Epoch
 				// could happen for karaoke that are not uploaded (yet)
 				kara.KaraokeCreationTime = time.Time{}
+			} else {
+				continue
 			}
+
+			getLogger().Printf("setting kara %d creation time\n", kara.ID)
+			db.Save(kara)
 		}
 	}
 }
