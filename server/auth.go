@@ -187,7 +187,7 @@ func initOlderKarasExports(ctx context.Context) error {
 	var karas []KaraInfoDB
 	db := GetDB(ctx)
 	err := db.Scopes(CurrentKaras).Find(&karas).Error
-	if errors.Is(gorm.ErrRecordNotFound, err) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
 	if err != nil {
@@ -197,7 +197,7 @@ func initOlderKarasExports(ctx context.Context) error {
 	for _, kara := range karas {
 		mugen_export := MugenExport{KaraID: kara.ID, GitlabIssue: -1}
 		err := db.Create(&mugen_export).Error
-		if errors.Is(gorm.ErrDuplicatedKey, err) {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			// ignore karas that are already exported
 			continue
 		}
