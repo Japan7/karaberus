@@ -209,7 +209,6 @@ func initOlderKarasExports(ctx context.Context) error {
 	return nil
 }
 
-
 type OAuthTokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`
