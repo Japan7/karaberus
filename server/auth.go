@@ -170,11 +170,45 @@ func GitlabCallback(ctx context.Context, input *GitlabAuthCallbackInput) (*Gitla
 		return nil, err
 	}
 
+	err = initOlderKarasExports(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &GitlabAuthCallbackOutput{
 		Status:   http.StatusTemporaryRedirect,
 		Location: "/",
 	}, nil
 }
+
+// set a dummy export for older karas so they don’t get reexported
+// assuming that it is already done
+func initOlderKarasExports(ctx context.Context) error {
+	var karas []KaraInfoDB
+	db := GetDB(ctx)
+	err := db.Scopes(CurrentKaras).Find(&karas).Error
+	if errors.Is(gorm.ErrRecordNotFound, err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	for _, kara := range karas {
+		mugen_export := MugenExport{KaraID: kara.ID, GitlabIssue: -1}
+		err := db.Create(&mugen_export).Error
+		if errors.Is(gorm.ErrDuplicatedKey, err) {
+			// ignore karas that are already exported
+			continue
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 
 type OAuthTokenResponse struct {
 	AccessToken  string `json:"access_token"`

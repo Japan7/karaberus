@@ -380,10 +380,12 @@ func UploadHookGitlab(tx *gorm.DB, ki *KaraInfoDB) error {
 			return err
 		}
 
-		err = createGitlabIssue(tx.Statement.Context, tx, *ki, mugen_export)
-		if err != nil {
-			return err
-		}
+		go func() {
+			err = createGitlabIssue(tx.Statement.Context, tx, *ki, mugen_export)
+			if err != nil {
+				getLogger().Println(err)
+			}
+		}()
 	}
 
 	return nil
@@ -462,7 +464,7 @@ type MugenImport struct {
 type MugenExport struct {
 	KaraID      uint       `gorm:"primarykey" json:"kid"`
 	Kara        KaraInfoDB `gorm:"foreignKey:KaraID;references:ID;constraint:OnDelete:CASCADE" json:"kara"`
-	GitlabIssue uint       `json:"gitlab_issue"`
+	GitlabIssue int        `json:"gitlab_issue"`
 }
 
 func (k KaraInfoDB) getAudioTags() ([]AudioTag, error) {
@@ -532,6 +534,7 @@ func init_model(db *gorm.DB) {
 		&AudioTagDB{},
 		&KaraInfoDB{},
 		&MugenImport{},
+		&MugenExport{},
 		&Font{},
 		&OAuthToken{},
 	)
@@ -558,7 +561,12 @@ func init_model(db *gorm.DB) {
 	fixCreationTime(db)
 
 	// set size and crc32 for files uploaded before they were introduced
-	if isKaraberusInit(db.Statement.Context) {
+	ctx := db.Statement.Context
+	if isKaraberusInit(ctx) {
+		err = exportRemainingKaras(ctx, db)
+		if err != nil {
+			panic(err)
+		}
 		go initSizeCRC(db)
 	}
 }
