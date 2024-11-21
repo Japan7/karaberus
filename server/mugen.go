@@ -640,6 +640,8 @@ func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_
 		return err
 	}
 
+	getLogger().Printf("creating export issue for kara %d", kara.ID)
+
 	project := url.QueryEscape(CONFIG.Mugen.Gitlab.ProjectID)
 	issues_url := fmt.Sprintf("%s/api/v4/projects/%s/issues", CONFIG.Mugen.Gitlab.Server, project)
 
@@ -740,7 +742,7 @@ func MugenExportKara(ctx context.Context, input *MugenExportInput) (*MugenExport
 
 func exportRemainingKaras(ctx context.Context, db *gorm.DB) error {
 	var remaining_karas []KaraInfoDB
-	err := db.Where("id NOT IN (?)", db.Table("mugen_exports").Select("kara_id AS id")).Find(&remaining_karas).Error
+	err := db.Scopes(CurrentKaras).Where("id NOT IN (?)", db.Table("mugen_exports").Select("kara_id AS id")).Find(&remaining_karas).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
