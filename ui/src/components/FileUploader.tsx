@@ -21,7 +21,7 @@ export default function FileUploader(props: {
     const xhr = new XMLHttpRequest();
     xhr.open(props.method, props.url);
     if (IS_TAURI_DIST_BUILD) {
-      xhr.setRequestHeader("Authorization", `Bearer ${getSessionToken()}`);
+      xhr.setRequestHeader("Authorization", `JWT ${getSessionToken()}`);
     }
 
     xhr.upload.addEventListener("progress", (event) => {

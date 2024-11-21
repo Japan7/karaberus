@@ -6,9 +6,7 @@ import { IS_TAURI_DIST_BUILD } from "./tauri";
 export const karaberus = createClient<paths>({
   baseUrl: import.meta.env.VITE_KARABERUS_URL || import.meta.env.BASE_URL,
   headers: {
-    Authorization: IS_TAURI_DIST_BUILD
-      ? `Bearer ${getSessionToken()}`
-      : undefined,
+    Authorization: IS_TAURI_DIST_BUILD ? `JWT ${getSessionToken()}` : undefined,
   },
 });
 

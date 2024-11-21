@@ -375,7 +375,7 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
 
 	// Cookie/OIDC
-	case KaraberusCookieAuth:
+	case KaraberusJWTAuth:
 		user, scopes, err = getUserScopesFromJwt(ctx.Context(), token.Value)
 
 		if err != nil {
@@ -406,7 +406,7 @@ type KaraberusAuthType string
 
 var KaraberusBasicAuth KaraberusAuthType = "Basic"
 var KaraberusBearerAuth KaraberusAuthType = "Bearer"
-var KaraberusCookieAuth KaraberusAuthType = "Cookie"
+var KaraberusJWTAuth KaraberusAuthType = "Cookie"
 
 type KaraberusAuthorization struct {
 	Type  KaraberusAuthType
@@ -414,6 +414,7 @@ type KaraberusAuthorization struct {
 }
 
 var BASIC_AUTH_PREFIX string = "Basic "
+var JWT_AUTH_PREFIX string = "JWT "
 
 func getRequestToken(ctx huma.Context) (KaraberusAuthorization, error) {
 	authHeader := ctx.Header("authorization")
@@ -421,6 +422,10 @@ func getRequestToken(ctx huma.Context) (KaraberusAuthorization, error) {
 		if strings.HasPrefix(authHeader, oidc.BearerToken) {
 			token := strings.TrimPrefix(authHeader, oidc.PrefixBearer)
 			return KaraberusAuthorization{KaraberusBearerAuth, token}, nil
+		}
+		if strings.HasPrefix(authHeader, JWT_AUTH_PREFIX) {
+			token := strings.TrimPrefix(authHeader, JWT_AUTH_PREFIX)
+			return KaraberusAuthorization{KaraberusJWTAuth, token}, nil
 		}
 		if strings.HasPrefix(authHeader, BASIC_AUTH_PREFIX) {
 			token := strings.TrimPrefix(authHeader, oidc.PrefixBearer)
@@ -432,7 +437,7 @@ func getRequestToken(ctx huma.Context) (KaraberusAuthorization, error) {
 		if err != nil {
 			return KaraberusAuthorization{}, err
 		}
-		return KaraberusAuthorization{KaraberusCookieAuth, cookie.Value}, nil
+		return KaraberusAuthorization{KaraberusJWTAuth, cookie.Value}, nil
 	}
 }
 
@@ -519,7 +524,7 @@ func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, token 
 		if basicSecurity {
 			return true
 		}
-	case KaraberusCookieAuth:
+	case KaraberusJWTAuth:
 		if oidcSecurity {
 			return true
 		}
