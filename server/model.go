@@ -602,7 +602,7 @@ func fixCreationTime(db *gorm.DB) {
 
 	for _, kara := range karas {
 		if kara.KaraokeCreationTime.Before(time.Unix(1, 0)) {
-			if kara.SubtitlesUploaded && kara.VideoUploaded {
+			if kara.SubtitlesUploaded && kara.VideoUploaded && kara.SubtitlesModTime.After(time.Unix(1, 0)) {
 				kara.KaraokeCreationTime = kara.SubtitlesModTime
 			} else if !kara.KaraokeCreationTime.IsZero() {
 				// reset creation time to zero if time is Unix Epoch
