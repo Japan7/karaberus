@@ -118,6 +118,7 @@ export default function KaraEditor(props: {
     }
     showToast("Author added!");
     refetchAuthors();
+    setAuthors([...getAuthors(), resp.data.author]);
     getModalRef().close();
   };
 
@@ -135,6 +136,7 @@ export default function KaraEditor(props: {
     }
     showToast("Artist added!");
     refetchArtists();
+    setArtists([...getArtists(), resp.data.artist]);
     getModalRef().close();
   };
 
@@ -153,9 +155,32 @@ export default function KaraEditor(props: {
     showToast("Media added!");
     refetchMedia();
     getModalRef().close();
+    setMedias([...getMedias(), resp.data.media]);
   };
 
-  const openAddMediaModal: JSX.EventHandler<HTMLElement, MouseEvent> = (e) => {
+  const postSourceMedia = async (media: components["schemas"]["MediaInfo"]) => {
+    const resp = await karaberus.POST("/api/tags/media", { body: media });
+    if (resp.error) {
+      alert(resp.error.detail);
+      return;
+    }
+    showToast("Media added!");
+    refetchMedia();
+    getModalRef().close();
+    setSourceMedia(resp.data.media);
+  };
+
+  const openAddSourceMediaModal: JSX.EventHandler<HTMLElement, MouseEvent> = (
+    e,
+  ) => {
+    e.preventDefault();
+    setModal(<MediaEditor onSubmit={postSourceMedia} />);
+    getModalRef().showModal();
+  };
+
+  const openAddOtherMediaModal: JSX.EventHandler<HTMLElement, MouseEvent> = (
+    e,
+  ) => {
     e.preventDefault();
     setModal(<MediaEditor onSubmit={postMedia} />);
     getModalRef().showModal();
@@ -250,7 +275,7 @@ export default function KaraEditor(props: {
       <div class="label">
         <span class="label-text">Source media</span>
         <span class="label-text-alt">
-          <a class="link" onclick={openAddMediaModal}>
+          <a class="link" onclick={openAddSourceMediaModal}>
             Can't find it?
           </a>
         </span>
@@ -291,7 +316,7 @@ export default function KaraEditor(props: {
       <div class="label">
         <span class="label-text">Other medias</span>
         <span class="label-text-alt">
-          <a class="link" onclick={openAddMediaModal}>
+          <a class="link" onclick={openAddOtherMediaModal}>
             Can't find it?
           </a>
         </span>
