@@ -79,6 +79,8 @@ export default function KaraCard(props: {
     });
   }
 
+  const creationYear = new Date(props.kara.KaraokeCreationTime).getFullYear();
+
   return (
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
@@ -223,25 +225,15 @@ export default function KaraCard(props: {
                 </div>
               )}
             </Index>
-            <Show when={props.kara.SubtitlesUploaded}>
+            <Show when={props.kara.SubtitlesUploaded && creationYear > 1}>
               <div
                 class={`btn btn-sm btn-ghost text-base-100 ${
-                  tagFilterIndexOf(
-                    "creationTimeYear",
-                    new Date(props.kara.KaraokeCreationTime)
-                      .getFullYear()
-                      .toString(),
-                  ) >= 1
+                  tagFilterIndexOf("creationTimeYear", creationYear.toString())
                     ? "bg-neutral-500 hover:bg-neutral-400 tag-filter-enabled"
                     : "bg-neutral-400 hover:bg-neutral-500"
                 }`}
                 onclick={() =>
-                  toggleTagFilter(
-                    "creationTimeYear",
-                    new Date(props.kara.KaraokeCreationTime)
-                      .getFullYear()
-                      .toString(),
-                  )
+                  toggleTagFilter("creationTimeYear", creationYear.toString())
                 }
               >
                 <FaSolidCalendarDays class="size-4" />
