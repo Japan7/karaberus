@@ -84,6 +84,10 @@ func gitlabRedirectURI() string {
 }
 
 func GitlabAuth(ctx context.Context, _ *struct{}) (*GitlabAuthOutput, error) {
+	if !CONFIG.Mugen.Gitlab.IsSetup() {
+		return nil, errors.New("gitlab client is not set up")
+	}
+
 	redirect_uri := gitlabRedirectURI()
 	user := getCurrentUser(ctx)
 
