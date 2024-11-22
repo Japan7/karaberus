@@ -346,6 +346,17 @@ func checkBasicAuth(token string) bool {
 }
 
 func authError(ctx huma.Context, err error) {
+	basicSecurity := false
+
+	for _, opScheme := range ctx.Operation().Security {
+		_, basicSecurityFound := opScheme["basic"]
+		basicSecurity = basicSecurity || basicSecurityFound
+	}
+
+	if basicSecurity && CONFIG.Mugen.BasicAuth.isSetup() {
+		ctx.SetHeader("WWW-Authenticate", "Basic realm=\"karaberus\"")
+	}
+
 	getLogger().Println(err)
 	ctx.SetStatus(http.StatusUnauthorized)
 }
