@@ -694,7 +694,7 @@ func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_
 	mugen_export.KaraID = kara.ID
 	mugen_export.GitlabIssue = int(issue_resp.ID)
 
-	err = db.Create(mugen_export).Error
+	err = db.Save(mugen_export).Error
 	return err
 }
 
@@ -726,10 +726,7 @@ func MugenExportKara(ctx context.Context, input *MugenExportInput) (*MugenExport
 	// check if kara is already exported
 	out := &MugenExportOutput{}
 	err = db.Where(&MugenExport{KaraID: kara.ID}).First(&out.Body).Error
-	if err == nil {
-		return nil, huma.Error409Conflict(fmt.Sprintf("kara %d is already exported", kara.ID))
-	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
