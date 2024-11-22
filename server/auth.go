@@ -190,7 +190,11 @@ func GitlabCallback(ctx context.Context, input *GitlabAuthCallbackInput) (*Gitla
 func initOlderKarasExports(ctx context.Context) error {
 	var karas []KaraInfoDB
 	db := GetDB(ctx)
-	err := db.Scopes(CurrentKaras).Find(&karas).Error
+	err := db.Scopes(CurrentKaras).Where(
+		"id NOT IN (?) AND id NOT IN (?)",
+		db.Table("mugen_exports").Select("kara_id AS id"),
+		db.Table("mugen_imports").Select("kara_id AS id"),
+	).Find(&karas).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
 	}
@@ -198,16 +202,18 @@ func initOlderKarasExports(ctx context.Context) error {
 		return err
 	}
 
+	if len(karas) == 0 {
+		return nil
+	}
+
+	kara_exports := []MugenExport{}
 	for _, kara := range karas {
 		mugen_export := MugenExport{KaraID: kara.ID, GitlabIssue: -1}
-		err := db.Create(&mugen_export).Error
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			// ignore karas that are already exported
-			continue
-		}
-		if err != nil {
-			return err
-		}
+		kara_exports = append(kara_exports, mugen_export)
+	}
+	err = db.Create(&kara_exports).Error
+	if err != nil {
+		return err
 	}
 
 	return nil
