@@ -337,8 +337,29 @@ type KaraInfoDB struct {
 	Editor
 }
 
+// try not to go over 255 chars
 func (k KaraInfoDB) FriendlyName() string {
-	return k.Title
+	parts := []string{}
+
+	if k.SourceMedia != nil {
+		parts = append(parts, k.SourceMedia.Name)
+	}
+
+	if len(k.Artists) > 0 {
+		artists := k.Artists[0].Name
+		for _, artist := range k.Artists[1:] {
+			// try not to use a name that is too long
+			if len(artists)+len(artist.Name) > 100 {
+				break
+			}
+			artists += ", " + artist.Name
+		}
+		parts = append(parts, artists)
+	}
+
+	parts = append(parts, k.Title)
+
+	return strings.Join(parts, " – ")
 }
 
 // Filter out historic entries
