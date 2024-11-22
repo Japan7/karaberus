@@ -106,5 +106,5 @@ func DownloadFont(ctx context.Context, input *DownloadFontInput) (*huma.StreamRe
 		return nil, err
 	}
 
-	return serveObject(obj, input.Range)
+	return serveObject(obj, input.Range, font.Name)
 }

@@ -11,6 +11,7 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -261,7 +262,7 @@ func (f *FileSender) Close() error {
 	return f.Fd.Close()
 }
 
-func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, error) {
+func serveObject(obj *minio.Object, range_header string, filename string) (*huma.StreamResponse, error) {
 	stat, err := obj.Stat()
 
 	return &huma.StreamResponse{
@@ -308,6 +309,10 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 
 			ctx.SetHeader("Content-Type", "application/octet-stream")
 			ctx.SetHeader("Content-Length", strconv.FormatUint(reqRange.Length, 10))
+			ctx.SetHeader(
+				"Content-Disposition",
+				fmt.Sprintf("attachment; filename*=UTF-8''%s", filename),
+			)
 
 			_, err = obj.Seek(int64(reqRange.Start), 0)
 			if err != nil {
@@ -323,9 +328,31 @@ func serveObject(obj *minio.Object, range_header string) (*huma.StreamResponse, 
 }
 
 type DownloadHeadOutput struct {
-	AcceptRange   string `header:"Accept-Range"`
-	ContentLength int64  `header:"Content-Length"`
-	ContentType   string `header:"Content-Type"`
+	AcceptRange        string `header:"Accept-Range"`
+	ContentLength      int64  `header:"Content-Length"`
+	ContentType        string `header:"Content-Type"`
+	ContentDisposition string `header:"Content-Disposition"`
+}
+
+func ContentDispositionHeaderContent(kara KaraInfoDB, filetype string) string {
+	return fmt.Sprintf(
+		"attachment; filename*=UTF-8''%s%s",
+		url.PathEscape(kara.FriendlyName()),
+		FileTypeExtension(filetype),
+	)
+}
+
+func FileTypeExtension(filetype string) string {
+	switch filetype {
+	case "video":
+		return ".mkv"
+	case "inst":
+		return ".mka"
+	case "sub":
+		return ".ass"
+	}
+
+	return ""
 }
 
 func DownloadHead(ctx context.Context, input *DownloadInput) (*DownloadHeadOutput, error) {
@@ -346,9 +373,10 @@ func DownloadHead(ctx context.Context, input *DownloadInput) (*DownloadHeadOutpu
 	}
 
 	return &DownloadHeadOutput{
-		AcceptRange:   "bytes",
-		ContentLength: stat.Size,
-		ContentType:   "application/octet-stream",
+		AcceptRange:        "bytes",
+		ContentLength:      stat.Size,
+		ContentType:        "application/octet-stream",
+		ContentDisposition: ContentDispositionHeaderContent(kara, input.FileType),
 	}, nil
 }
 
@@ -366,5 +394,5 @@ func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamRespon
 		return nil, err
 	}
 
-	return serveObject(obj, input.Range)
+	return serveObject(obj, input.Range, kara.FriendlyName()+FileTypeExtension(input.FileType))
 }
