@@ -742,37 +742,36 @@ func MugenExportKara(ctx context.Context, input *MugenExportInput) (*MugenExport
 }
 
 func exportRemainingKaras(ctx context.Context, db *gorm.DB) error {
-	token := &OAuthToken{}
-	err := getGitlabToken(db, token)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		// return early if no gitlab token found
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	var remaining_karas []KaraInfoDB
-	err = db.Scopes(CurrentKaras).Where(
-		"id NOT IN (?) AND id NOT IN (?)",
-		db.Table("mugen_exports").Select("kara_id AS id"),
-		db.Table("mugen_imports").Select("kara_id AS id"),
-	).Find(&remaining_karas).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	for _, kara := range remaining_karas {
-		getLogger().Printf("kara %d would be exported", kara.ID)
-		// mugen_export := MugenExport{}
-		// err = createGitlabIssue(ctx, db, kara, &mugen_export)
-		// if err != nil {
-		// 	getLogger().Println(err)
-		// }
-	}
+	// token := &OAuthToken{}
+	// err := getGitlabToken(db, token)
+	// if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 	// return early if no gitlab token found
+	// 	return nil
+	// }
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// var remaining_karas []KaraInfoDB
+	// err = db.Scopes(CurrentKaras).Where(
+	// 	"id NOT IN (?) AND id NOT IN (?)",
+	// 	db.Table("mugen_exports").Select("kara_id AS id"),
+	// 	db.Table("mugen_imports").Select("kara_id AS id"),
+	// ).Find(&remaining_karas).Error
+	// if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 	return nil
+	// }
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// for _, kara := range remaining_karas {
+	// 	mugen_export := MugenExport{}
+	// 	err = createGitlabIssue(ctx, db, kara, &mugen_export)
+	// 	if err != nil {
+	// 		getLogger().Println(err)
+	// 	}
+	// }
 
 	return nil
 }
