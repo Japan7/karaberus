@@ -742,8 +742,18 @@ func MugenExportKara(ctx context.Context, input *MugenExportInput) (*MugenExport
 }
 
 func exportRemainingKaras(ctx context.Context, db *gorm.DB) error {
+	token := &OAuthToken{}
+	err := getGitlabToken(db, token)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// return early if no gitlab token found
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
 	var remaining_karas []KaraInfoDB
-	err := db.Scopes(CurrentKaras).Where(
+	err = db.Scopes(CurrentKaras).Where(
 		"id NOT IN (?) AND id NOT IN (?)",
 		db.Table("mugen_exports").Select("kara_id AS id"),
 		db.Table("mugen_imports").Select("kara_id AS id"),
