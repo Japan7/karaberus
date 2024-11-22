@@ -634,6 +634,10 @@ func karaDescription(k KaraInfoDB) (string, error) {
 }
 
 func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_export *MugenExport) error {
+	if mugen_export.KaraID != 0 && mugen_export.GitlabIssue != -1 {
+		return fmt.Errorf("kara %d is already exported", kara.ID)
+	}
+
 	token := &OAuthToken{}
 	err := getGitlabToken(db, token)
 	if err != nil {
