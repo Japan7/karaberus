@@ -309,9 +309,10 @@ func serveObject(obj *minio.Object, range_header string, filename string) (*huma
 
 			ctx.SetHeader("Content-Type", "application/octet-stream")
 			ctx.SetHeader("Content-Length", strconv.FormatUint(reqRange.Length, 10))
+			encoded_filename := url.PathEscape(filename)
 			ctx.SetHeader(
 				"Content-Disposition",
-				fmt.Sprintf("attachment; filename*=UTF-8''%s", filename),
+				fmt.Sprintf("attachment; filename*=UTF-8''%s", encoded_filename),
 			)
 
 			_, err = obj.Seek(int64(reqRange.Start), 0)
@@ -335,11 +336,8 @@ type DownloadHeadOutput struct {
 }
 
 func ContentDispositionHeaderContent(kara KaraInfoDB, filetype string) string {
-	return fmt.Sprintf(
-		"attachment; filename*=UTF-8''%s%s",
-		url.PathEscape(kara.FriendlyName()),
-		FileTypeExtension(filetype),
-	)
+	encoded_filename := url.PathEscape(kara.FriendlyName()) + FileTypeExtension(filetype)
+	return fmt.Sprintf("attachment; filename*=UTF-8''%s", encoded_filename)
 }
 
 func FileTypeExtension(filetype string) string {
