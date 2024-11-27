@@ -228,7 +228,10 @@ export default function KaraCard(props: {
             <Show when={props.kara.SubtitlesUploaded && creationYear > 1}>
               <div
                 class={`btn btn-sm btn-ghost text-base-100 ${
-                  tagFilterIndexOf("creationTimeYear", creationYear.toString())
+                  tagFilterIndexOf(
+                    "creationTimeYear",
+                    creationYear.toString(),
+                  ) >= 0
                     ? "bg-neutral-500 hover:bg-neutral-400 tag-filter-enabled"
                     : "bg-neutral-400 hover:bg-neutral-500"
                 }`}
