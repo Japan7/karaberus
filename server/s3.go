@@ -135,9 +135,30 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		return nil, err
 	}
 
-	err = updateKaraokeAfterUpload(tx, kara, type_directory, filesize, crc32)
-	if err != nil {
-		return nil, err
+	currentTime := time.Now().UTC()
+	switch type_directory {
+	case "video":
+		kara.VideoUploaded = true
+		kara.VideoModTime = currentTime
+		kara.VideoSize = filesize
+		kara.VideoCRC32 = crc32
+	case "inst":
+		kara.InstrumentalUploaded = true
+		kara.InstrumentalModTime = currentTime
+		kara.InstrumentalSize = filesize
+		kara.InstrumentalCRC32 = crc32
+	case "sub":
+		kara.SubtitlesUploaded = true
+		kara.SubtitlesModTime = currentTime
+		kara.SubtitlesSize = filesize
+		kara.SubtitlesCRC32 = crc32
+	}
+	// check for unix time 0 is for older karaokes, because we also used
+	// that at some point
+	if kara.VideoUploaded && kara.SubtitlesUploaded &&
+		kara.KaraokeCreationTime.IsZero() || kara.KaraokeCreationTime.Unix() == 0 {
+		kara.KaraokeCreationTime = currentTime
+		tx = WithNewKaraUpdate(tx)
 	}
 
 	res, err := CheckKara(ctx, *kara)

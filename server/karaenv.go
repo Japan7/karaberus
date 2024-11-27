@@ -115,6 +115,7 @@ type KaraberusConfig struct {
 	Dakara    KaraberusDakaraConfig `env_prefix:"DAKARA"`
 	Mugen     KaraberusMugenConfig  `env_prefix:"MUGEN"`
 	UIDistDir string                `envkey:"UI_DIST_DIR" default:"/usr/share/karaberus/ui_dist"`
+	Webhooks  []string              `envkey:"WEBHOOKS" separator:" " example:"discord=<url1> discord=<url2> json=<url3>"`
 }
 
 func getEnvDefault(name string, defaultValue string) string {
@@ -143,9 +144,13 @@ func setConfigValue(config_value reflect.Value, config_type reflect.Type, prefix
 		switch field_type.Type {
 		case reflect.TypeOf([]string{}):
 			value := getFieldValue(field_type, prefix)
-			sep := field_type.Tag.Get("separator")
-			arrval := strings.Split(value, sep)
-			field.Set(reflect.ValueOf(arrval))
+			if value == "" {
+				field.Set(reflect.ValueOf([]string{}))
+			} else {
+				sep := field_type.Tag.Get("separator")
+				arrval := strings.Split(value, sep)
+				field.Set(reflect.ValueOf(arrval))
+			}
 		case reflect.TypeOf(""):
 			field.SetString(getFieldValue(field_type, prefix))
 		case reflect.TypeOf(0):

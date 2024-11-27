@@ -367,6 +367,16 @@ func CurrentKaras(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_kara_info_id IS NULL")
 }
 
+type NewKaraUpdate struct{}
+
+func WithNewKaraUpdate(tx *gorm.DB) *gorm.DB {
+	return tx.WithContext(context.WithValue(tx.Statement.Context, NewKaraUpdate{}, true))
+}
+
+func isNewKaraUpdate(tx *gorm.DB) bool {
+	return tx.Statement.Context.Value(NewKaraUpdate{}) != nil
+}
+
 type UpdateAssociations struct{}
 
 func WithAssociationsUpdate(tx *gorm.DB) *gorm.DB {
@@ -417,13 +427,29 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 		return err
 	}
 
-	if ki.CurrentKaraInfoID == nil && CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
-		SyncDakaraNotify()
-	}
-	if !ki.KaraokeCreationTime.IsZero() {
-		err = UploadHookGitlab(tx, ki)
-		if err != nil {
-			return err
+	if ki.CurrentKaraInfoID == nil {
+		if CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
+			SyncDakaraNotify()
+		}
+
+		if isNewKaraUpdate(tx) {
+			err = UploadHookGitlab(tx, ki)
+			if err != nil {
+				return err
+			}
+
+			// ignore imported karas
+			mugen_import := &MugenImport{}
+			err := tx.Where(&MugenImport{KaraID: ki.ID}).First(mugen_import).Error
+			if err == nil {
+				// kara was imported
+				return nil
+			}
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+
+			go PostWebhooks(*ki)
 		}
 	}
 	return nil
@@ -437,13 +463,6 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	err := tx.First(orig_kara_info, ki.ID).Error
 	if err != nil {
 		return err
-	}
-
-	// check for unix time 0 is for older karaokes, because we also used
-	// that at some point
-	if ki.VideoUploaded && ki.SubtitlesUploaded &&
-		ki.KaraokeCreationTime.IsZero() || ki.KaraokeCreationTime.Unix() == 0 {
-		ki.KaraokeCreationTime = time.Now().UTC()
 	}
 
 	// create historic entry with the current value
