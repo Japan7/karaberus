@@ -437,6 +437,18 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 			if err != nil {
 				return err
 			}
+
+			// ignore imported karas
+			mugen_import := &MugenImport{}
+			err := tx.Where(&MugenImport{KaraID: ki.ID}).First(mugen_import).Error
+			if err == nil {
+				// kara was imported
+				return nil
+			}
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+
 			go PostWebhooks(*ki)
 		}
 	}
