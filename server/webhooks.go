@@ -44,10 +44,10 @@ func PostWebhooks(kara KaraInfoDB) {
 
 	tmplCtx := WebhookTemplateContext{
 		Kara:        kara,
-		Server:      CONFIG.Listen.Addr(),
+		Server:      CONFIG.Listen.BaseURL,
 		Title:       title,
 		Description: desc,
-		Resource:    fmt.Sprintf("%s/karaoke/browse/%d", CONFIG.Listen.Addr(), kara.ID),
+		Resource:    fmt.Sprintf("%s/karaoke/browse/%d", CONFIG.Listen.BaseURL, kara.ID),
 	}
 
 	for _, webhook := range parseWebhooksConfig() {
@@ -98,7 +98,7 @@ type DiscordWebhook struct {
 
 func postDiscordWebhook(url string, tmplCtx WebhookTemplateContext) error {
 	webhook_data := DiscordWebhook{
-		Embeds: []DiscordEmbed{DiscordEmbed{
+		Embeds: []DiscordEmbed{{
 			Author: DiscordEmbedAuthor{
 				Name:    "New Karaoke!",
 				IconURL: fmt.Sprintf("%s/vite.svg", tmplCtx.Server),
