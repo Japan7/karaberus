@@ -533,7 +533,15 @@ type GitlabIssuesInput struct {
 }
 
 type GitlabIssuesResponse struct {
-	ID uint `json:"id"`
+	ID    uint   `json:"id"`
+	IID   uint   `json:"iid"`
+	State string `json:"state"`
+}
+
+var STATE_CLOSED = "closed"
+
+func (issue GitlabIssuesResponse) isClosed() bool {
+	return issue.State == STATE_CLOSED
 }
 
 func karaDescriptionPart(name string, value string) string {
@@ -642,6 +650,142 @@ func karaDescription(k KaraInfoDB) (string, error) {
 	return strings.Join(parts, "\n\n"), nil
 }
 
+func checkGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_export *MugenExport) error {
+	if mugen_export.GitlabIssueIID == 0 {
+		getLogger().Printf("can’t get issue for kara %d, missing gitlab IID", kara.ID)
+		return nil
+	}
+
+	token := &OAuthToken{}
+	err := getGitlabToken(db, token)
+	if err != nil {
+		return err
+	}
+
+	getLogger().Printf("updating export issue for kara %d", kara.ID)
+
+	project := url.QueryEscape(CONFIG.Mugen.Gitlab.ProjectID)
+	issue_url := fmt.Sprintf(
+		"%s/api/v4/projects/%s/issues/%d",
+		CONFIG.Mugen.Gitlab.Server,
+		project,
+		mugen_export.GitlabIssueIID,
+	)
+	method := http.MethodGet
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, issue_url, bytes.NewBuffer([]byte{}))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	req.Header.Add("Content-Type", "application/json")
+
+	resp_get, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer Closer(resp_get.Body)
+
+	if resp_get.StatusCode/100 != 2 {
+		buf := make([]byte, 4096)
+		n, err := resp_get.Body.Read(buf)
+		if err != nil {
+			getLogger().Printf("Failed to read body of gitlab response: %s\n%s %s", buf[:n], method, issue_url)
+			return err
+		}
+		getLogger().Printf("gitlab response: %+v\n%s", resp_get, buf[:n])
+		return fmt.Errorf("gitlab responded with status code %d", resp_get.StatusCode)
+	}
+
+	issue_resp_get := &GitlabIssuesResponse{}
+	dec := json.NewDecoder(resp_get.Body)
+	err = dec.Decode(issue_resp_get)
+	if err != nil {
+		return err
+	}
+
+	if issue_resp_get.isClosed() {
+		// save closed issue so we don’t check it again
+		mugen_export.Closed = true
+		err = db.Save(mugen_export).Error
+	}
+
+	return err
+}
+
+func updateGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_export *MugenExport) error {
+	err := checkGitlabIssue(ctx, db, kara, mugen_export)
+	if err != nil {
+		return err
+	}
+	if mugen_export.Closed {
+		getLogger().Printf("issue %d for kara %d is marked as closed\n", mugen_export.GitlabIssueIID, kara.ID)
+		return nil
+	}
+
+	token := &OAuthToken{}
+	err = getGitlabToken(db, token)
+	if err != nil {
+		return err
+	}
+
+	getLogger().Printf("updating export issue for kara %d", kara.ID)
+
+	description, err := karaDescription(kara)
+	if err != nil {
+		return err
+	}
+	issue := GitlabIssuesInput{
+		Title:       fmt.Sprintf("[%s] %s", CONFIG.Mugen.Gitlab.ImportTag, kara.FriendlyName()),
+		Description: description,
+	}
+
+	body, err := json.Marshal(issue)
+	if err != nil {
+		return err
+	}
+
+	project := url.QueryEscape(CONFIG.Mugen.Gitlab.ProjectID)
+	issue_url := fmt.Sprintf(
+		"%s/api/v4/projects/%s/issues/%d",
+		CONFIG.Mugen.Gitlab.Server,
+		project,
+		mugen_export.GitlabIssueIID,
+	)
+	method := http.MethodPut
+	req, err := http.NewRequestWithContext(ctx, method, issue_url, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	req.Header.Add("Content-Type", "application/json")
+
+	resp_put, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer Closer(resp_put.Body)
+
+	if resp_put.StatusCode/100 != 2 {
+		buf := make([]byte, 4096)
+		n, err := resp_put.Body.Read(buf)
+		if err != nil {
+			getLogger().Printf("Failed to read body of gitlab response: %s\n%s %s", buf[:n], method, issue_url)
+			return err
+		}
+		getLogger().Printf("gitlab response: %+v\n%s", resp_put, buf[:n])
+		return fmt.Errorf("gitlab responded with status code %d", resp_put.StatusCode)
+	}
+
+	issue_resp_put := &GitlabIssuesResponse{}
+	dec := json.NewDecoder(resp_put.Body)
+	err = dec.Decode(issue_resp_put)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_export *MugenExport) error {
 	if mugen_export.KaraID != 0 && mugen_export.GitlabIssue != -1 {
 		return fmt.Errorf("kara %d is already exported", kara.ID)
@@ -706,6 +850,7 @@ func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_
 
 	mugen_export.KaraID = kara.ID
 	mugen_export.GitlabIssue = int(issue_resp.ID)
+	mugen_export.GitlabIssueIID = int(issue_resp.IID)
 
 	err = db.Save(mugen_export).Error
 	return err

@@ -7,6 +7,7 @@ import (
 	"hash/crc32"
 	"io"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -388,11 +389,16 @@ func isAssociationsUpdate(tx *gorm.DB) bool {
 	return tx.Statement.Context.Value(UpdateAssociations{}) != nil
 }
 
+var gitlabUpdateMutex = sync.Mutex{}
+
 func UploadHookGitlab(tx *gorm.DB, ki *KaraInfoDB) error {
 	if CONFIG.Mugen.Gitlab.IsSetup() {
 		if ki.Private {
 			return nil
 		}
+
+		gitlabUpdateMutex.Lock()
+		defer gitlabUpdateMutex.Unlock()
 
 		// check if kara is an import
 		mugen_import := &MugenImport{}
@@ -409,7 +415,13 @@ func UploadHookGitlab(tx *gorm.DB, ki *KaraInfoDB) error {
 		mugen_export := &MugenExport{}
 		err = tx.Where(&MugenExport{KaraID: ki.ID}).First(&mugen_export).Error
 		if err == nil {
-			// already exported
+			if mugen_export.KaraID != 0 && mugen_export.GitlabIssue != -1 {
+				// already exported, update issue
+				err = updateGitlabIssue(tx.Statement.Context, tx, *ki, mugen_export)
+				if err != nil {
+					getLogger().Println(err)
+				}
+			}
 			return nil
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -433,15 +445,16 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 	}
 
 	if ki.CurrentKaraInfoID == nil {
-		if CONFIG.Dakara.BaseURL != "" && ki.UploadInfo.VideoUploaded && ki.UploadInfo.SubtitlesUploaded {
+		if CONFIG.Dakara.BaseURL != "" && ki.VideoUploaded && ki.SubtitlesUploaded {
 			SyncDakaraNotify()
 		}
 
+		err = UploadHookGitlab(tx, ki)
+		if err != nil {
+			return err
+		}
+
 		if isNewKaraUpdate(tx) {
-			err = UploadHookGitlab(tx, ki)
-			if err != nil {
-				return err
-			}
 
 			// ignore imported karas
 			mugen_import := &MugenImport{}
@@ -502,9 +515,11 @@ type MugenImport struct {
 }
 
 type MugenExport struct {
-	KaraID      uint       `gorm:"primarykey" json:"kid"`
-	Kara        KaraInfoDB `gorm:"foreignKey:KaraID;references:ID;constraint:OnDelete:CASCADE" json:"kara"`
-	GitlabIssue int        `json:"gitlab_issue"`
+	KaraID         uint       `gorm:"primarykey" json:"kid"`
+	Kara           KaraInfoDB `gorm:"foreignKey:KaraID;references:ID;constraint:OnDelete:CASCADE" json:"kara"`
+	GitlabIssue    int        `json:"gitlab_issue"`
+	GitlabIssueIID int        `json:"gitlab_issue_iid"`
+	Closed         bool       `json:"closed"`
 }
 
 func (k KaraInfoDB) getAudioTags() ([]AudioTag, error) {
