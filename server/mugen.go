@@ -545,13 +545,22 @@ func karaDescriptionPartList(name string, value []string) string {
 }
 
 func karaDescription(k KaraInfoDB) (string, error) {
-	authors := make([]string, len(k.Authors))
-	for i, author := range k.Authors {
-		authors[i] = author.Name
-	}
-	authors_part := karaDescriptionPartList("Author", authors)
+	parts := []string{}
 
-	parts := []string{authors_part}
+	if k.Version != "" {
+		version_part := karaDescriptionPart("Version", k.Version)
+		parts = append(parts, version_part)
+	}
+
+	if len(k.Authors) > 0 {
+		authors := make([]string, len(k.Authors))
+		for i, author := range k.Authors {
+			authors[i] = author.Name
+		}
+		authors_part := karaDescriptionPartList("Author", authors)
+
+		parts = append(parts, authors_part)
+	}
 
 	medias := make([]string, 0)
 
