@@ -43,6 +43,7 @@ type KaraInfo struct {
 	Language            string `json:"language" example:"FR"`
 	KaraokeCreationDate *int64 `json:"karaoke_creation_time,omitempty" example:"42"`
 	IsHardsub           *bool  `json:"is_hardsub,omitempty" example:"false"`
+	Private             bool   `json:"private,omitempty" example:"false"`
 }
 
 type AllTags struct {
@@ -132,6 +133,7 @@ func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *
 	kara_info.Version = info.Version
 	kara_info.SongOrder = info.SongOrder
 	kara_info.Language = info.Language
+	kara_info.Private = info.Private
 
 	user := *getCurrentUser(ctx)
 	if user.Admin {

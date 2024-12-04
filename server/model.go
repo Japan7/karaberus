@@ -326,6 +326,7 @@ type KaraInfoDB struct {
 	Medias        []MediaDB `gorm:"many2many:kara_media_tags"`
 	Title         string
 	ExtraTitles   []AdditionalName `gorm:"many2many:kara_info_additional_name"`
+	Private       bool
 	Version       string
 	Comment       string
 	SongOrder     uint
@@ -389,6 +390,10 @@ func isAssociationsUpdate(tx *gorm.DB) bool {
 
 func UploadHookGitlab(tx *gorm.DB, ki *KaraInfoDB) error {
 	if CONFIG.Mugen.Gitlab.IsSetup() {
+		if ki.Private {
+			return nil
+		}
+
 		// check if kara is an import
 		mugen_import := &MugenImport{}
 		err := tx.Where(&MugenImport{KaraID: ki.ID}).First(mugen_import).Error

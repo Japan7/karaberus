@@ -361,6 +361,11 @@ func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamRespon
 		return nil, err
 	}
 
+	if kara.Private && getCurrentUser(ctx) == nil {
+		// return forbidden response for private karas for external users
+		return nil, huma.Error403Forbidden("private kara")
+	}
+
 	obj, err := GetKaraObject(ctx, kara, input.FileType)
 	if err != nil {
 		return nil, err

@@ -84,6 +84,7 @@ export default function KaraEditor(props: {
   const [getComment, setComment] = createSignal(props.kara?.Comment ?? "");
   const [getVersion, setVersion] = createSignal(props.kara?.Version ?? "");
   const [getLanguage, setLanguage] = createSignal(props.kara?.Language ?? "");
+  const [getPrivate, setPrivate] = createSignal(props.kara?.Private ?? false);
   //#endregion
 
   //#region Handlers
@@ -104,6 +105,7 @@ export default function KaraEditor(props: {
       comment: getComment(),
       version: getVersion(),
       language: getLanguage(),
+      private: getPrivate(),
     });
     if (props.reset) {
       (e.target as HTMLFormElement).reset();
@@ -430,6 +432,19 @@ export default function KaraEditor(props: {
       />
     </label>
   );
+  const privateInput = () => (
+    <label>
+      <div class="label">
+        <span class="label-text">Private kara (won’t be exported)</span>
+      </div>
+      <input
+        type="checkbox"
+        checked={getPrivate()}
+        onchange={(e) => setPrivate(e.currentTarget.checked)}
+        class="checkbox"
+      />
+    </label>
+  );
   const languageInput = () => (
     <label>
       <div class="label">
@@ -451,9 +466,10 @@ export default function KaraEditor(props: {
       <div class="grid md:grid-cols-2 gap-4">
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
-            <h2 class="card-title">Titles</h2>
+            <h2 class="card-title">General information</h2>
             {titleInput()}
             {extraTitlesInput()}
+            {versionInput()}
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl">
@@ -481,10 +497,10 @@ export default function KaraEditor(props: {
         </div>
         <div class="card bg-base-100 shadow-xl md:row-start-1 md:col-start-2">
           <div class="card-body">
-            <h2 class="card-title">Additional informations</h2>
+            <h2 class="card-title">Author informations</h2>
             {authorsInput()}
             {commentInput()}
-            {versionInput()}
+            {privateInput()}
           </div>
         </div>
       </div>
