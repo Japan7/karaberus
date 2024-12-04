@@ -466,7 +466,7 @@ export default function KaraEditor(props: {
       <div class="grid md:grid-cols-2 gap-4">
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
-            <h2 class="card-title">General information</h2>
+            <h2 class="card-title">General informations</h2>
             {titleInput()}
             {extraTitlesInput()}
             {versionInput()}
