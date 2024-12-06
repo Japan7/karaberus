@@ -662,7 +662,7 @@ func checkGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_e
 		return err
 	}
 
-	getLogger().Printf("updating export issue for kara %d", kara.ID)
+	getLogger().Printf("checking export issue for kara %d", kara.ID)
 
 	project := url.QueryEscape(CONFIG.Mugen.Gitlab.ProjectID)
 	issue_url := fmt.Sprintf(
