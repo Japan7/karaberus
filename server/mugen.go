@@ -737,6 +737,7 @@ func updateGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_
 	issue := GitlabIssuesInput{
 		Title:       fmt.Sprintf("[%s] %s", CONFIG.Mugen.Gitlab.ImportTag, kara.FriendlyName()),
 		Description: description,
+		Labels:      strings.Join(CONFIG.Mugen.Gitlab.IssueLabels, ","),
 	}
 
 	body, err := json.Marshal(issue)
