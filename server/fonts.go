@@ -101,10 +101,7 @@ func DownloadFont(ctx context.Context, input *DownloadFontInput) (*huma.StreamRe
 		return nil, DBErrToHumaErr(err)
 	}
 
-	obj, err := GetFontObject(ctx, id)
-	if err != nil {
-		return nil, err
-	}
+	filename := getS3FontFilename(id)
 
-	return serveObject(obj, input.Range, font.Name)
+	return serveObject(filename, input.Range, font.Name)
 }

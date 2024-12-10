@@ -236,11 +236,18 @@ func (f *FileSender) Close() error {
 	return f.Fd.Close()
 }
 
-func serveObject(obj *minio.Object, range_header string, filename string) (*huma.StreamResponse, error) {
-	stat, err := obj.Stat()
+func serveObject(obj_file string, range_header string, filename string) (*huma.StreamResponse, error) {
 
 	return &huma.StreamResponse{
 		Body: func(ctx huma.Context) {
+			fiber_ctx := ctx.BodyWriter().(*fiber.Ctx)
+
+			obj, err := GetObject(fiber_ctx.Context(), obj_file)
+			if err != nil {
+				ctx.SetStatus(500)
+				return
+			}
+
 			defer func() {
 				r := recover()
 				if r != nil {
@@ -252,6 +259,8 @@ func serveObject(obj *minio.Object, range_header string, filename string) (*huma
 					panic(r)
 				}
 			}()
+
+			stat, err := obj.Stat()
 
 			if err != nil {
 				resp := minio.ToErrorResponse(err)
@@ -296,10 +305,9 @@ func serveObject(obj *minio.Object, range_header string, filename string) (*huma
 
 			filesender := FileSender{obj, reqRange, 0}
 
-			fiber_ctx := ctx.BodyWriter().(*fiber.Ctx)
 			err = fiber_ctx.SendStream(&filesender, int(reqRange.Length))
 		},
-	}, err
+	}, nil
 }
 
 type DownloadHeadOutput struct {
@@ -366,7 +374,7 @@ func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamRespon
 		return nil, huma.Error403Forbidden("private kara")
 	}
 
-	obj, err := GetKaraObject(ctx, kara, input.FileType)
+	obj, err := getKaraObjectFilename(kara, input.FileType)
 	if err != nil {
 		return nil, err
 	}

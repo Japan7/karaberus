@@ -262,22 +262,30 @@ func getS3FontFilename(id uint) string {
 	return fmt.Sprintf("font/%d", id)
 }
 
-func GetFontObject(ctx context.Context, id uint) (*minio.Object, error) {
-	client := getS3Client()
-	filename := getS3FontFilename(id)
-	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, filename, minio.GetObjectOptions{})
-	return obj, err
+func GetObject(ctx context.Context, filename string) (*minio.Object, error) {
+	return getS3Client().GetObject(ctx, CONFIG.S3.BucketName, filename, minio.GetObjectOptions{})
 }
 
-func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*minio.Object, error) {
-	client := getS3Client()
+func GetFontObject(ctx context.Context, id uint) (*minio.Object, error) {
+	filename := getS3FontFilename(id)
+	return GetObject(ctx, filename)
+}
+
+func getKaraObjectFilename(kara KaraInfoDB, filetype string) (string, error) {
 	if !CheckValidFiletype(filetype) {
-		return nil, errors.New("Unknown file type " + filetype)
+		return "", errors.New("Unknown file type " + filetype)
 	}
 
 	filename := fmt.Sprintf("%s/%d", filetype, kara.ID)
-	obj, err := client.GetObject(ctx, CONFIG.S3.BucketName, filename, minio.GetObjectOptions{})
-	return obj, err
+	return filename, nil
+}
+
+func GetKaraObject(ctx context.Context, kara KaraInfoDB, filetype string) (*minio.Object, error) {
+	filename, err := getKaraObjectFilename(kara, filetype)
+	if err != nil {
+		return nil, err
+	}
+	return GetObject(ctx, filename)
 }
 
 func GetKaraLyrics(ctx context.Context, kara KaraInfoDB) (string, error) {
