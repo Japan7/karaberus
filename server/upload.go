@@ -361,7 +361,7 @@ func DownloadHead(ctx context.Context, input *DownloadInput) (*DownloadHeadOutpu
 }
 
 func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamResponse, error) {
-	db := GetDB(ctx)
+	db := GetDB(context.TODO())
 	kid := input.KID
 
 	kara, err := GetKaraByID(db, kid)
