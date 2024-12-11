@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Japan7/karaberus/server/humafiber"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humafiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"

@@ -1,4 +1,5 @@
 karaberus_server_files = files(
+    'humafiber' / 'humafiber.go',
     'artists.go',
     'auth.go',
     'authors.go',
