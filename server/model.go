@@ -265,7 +265,7 @@ var AudioTags = []AudioTag{
 	{ID: "INS", Name: "Insert", Hue: 280, MugenTags: []string{"5e5250d9-351a-4a82-98eb-55db50ad8962"}, HasSongOrder: true},
 	{ID: "IS", Name: "Image Song", Hue: 280, MugenTags: []string{"10a1ad3e-a05c-4f5c-84b6-f491e3e3a92e"}, HasSongOrder: true},
 	// Mugen tags are Concert and Streaming
-	{ID: "LIVE", Name: "Live", Hue: 240, MugenTags: []string{"a0167949-580c-4de3-bf13-497e462e02f3", "55ce3d79-dcc2-453c-b00a-60ce0c1eba1c"}},
+	{ID: "LIVE", Name: "Live performance", Hue: 240, MugenTags: []string{"a0167949-580c-4de3-bf13-497e462e02f3", "55ce3d79-dcc2-453c-b00a-60ce0c1eba1c"}},
 	// Mugen tags are version tags: Cover, Metal
 	{ID: "REMIX", Name: "Remix/Cover", Hue: 220, MugenTags: []string{"03e1e1d2-8641-47b7-bbcb-39a3df9ff21c", "188a5c46-63ff-4e9f-89e4-763468b6ea4a"}},
 }
