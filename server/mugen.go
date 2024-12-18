@@ -908,7 +908,7 @@ func exportRemainingKaras(ctx context.Context, db *gorm.DB) error {
 	}
 
 	var remaining_karas []KaraInfoDB
-	err = db.Scopes(CurrentKaras).Where(
+	err = db.Scopes(CurrentKaras).Not(&KaraInfoDB{Private: true}).Where(
 		"id NOT IN (?) AND id NOT IN (?)",
 		db.Table("mugen_exports").Select("kara_id AS id"),
 		db.Table("mugen_imports").Select("kara_id AS id"),
