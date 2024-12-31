@@ -154,10 +154,6 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		kara.SubtitlesCRC32 = crc32
 	}
 
-	if kara.VideoUploaded && kara.SubtitlesUploaded {
-		tx = WithPossiblyNewKaraUpdate(tx)
-	}
-
 	res, err := CheckKara(ctx, *kara)
 	if err != nil {
 		return nil, err
