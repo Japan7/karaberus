@@ -369,14 +369,17 @@ func CurrentKaras(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_kara_info_id IS NULL")
 }
 
-type NewKaraUpdate struct{}
+type PossiblyNewKaraUpdate struct{}
 
-func WithNewKaraUpdate(tx *gorm.DB) *gorm.DB {
-	return tx.WithContext(context.WithValue(tx.Statement.Context, NewKaraUpdate{}, true))
+func WithPossiblyNewKaraUpdate(tx *gorm.DB) *gorm.DB {
+	return tx.WithContext(context.WithValue(tx.Statement.Context, PossiblyNewKaraUpdate{}, true))
 }
 
-func isNewKaraUpdate(tx *gorm.DB) bool {
-	return tx.Statement.Context.Value(NewKaraUpdate{}) != nil
+func isNewKaraUpdate(tx *gorm.DB, kara *KaraInfoDB) bool {
+	// check for unix time 0 is for older karaokes, because we also used
+	// that at some point
+	return kara.KaraokeCreationTime.Before(time.Unix(1, 0)) &&
+		tx.Statement.Context.Value(PossiblyNewKaraUpdate{}) != nil
 }
 
 type UpdateAssociations struct{}
@@ -454,7 +457,7 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 			return err
 		}
 
-		if isNewKaraUpdate(tx) {
+		if isNewKaraUpdate(tx, ki) {
 
 			// ignore imported karas
 			mugen_import := &MugenImport{}
@@ -478,6 +481,10 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	err := tx.First(orig_kara_info, ki.ID).Error
 	if err != nil {
 		return err
+	}
+
+	if isNewKaraUpdate(tx, ki) {
+		ki.KaraokeCreationTime = time.Now()
 	}
 
 	// create historic entry with the current value

@@ -153,12 +153,9 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		kara.SubtitlesSize = filesize
 		kara.SubtitlesCRC32 = crc32
 	}
-	// check for unix time 0 is for older karaokes, because we also used
-	// that at some point
-	if kara.VideoUploaded && kara.SubtitlesUploaded &&
-		kara.KaraokeCreationTime.IsZero() || kara.KaraokeCreationTime.Unix() == 0 {
-		kara.KaraokeCreationTime = currentTime
-		tx = WithNewKaraUpdate(tx)
+
+	if kara.VideoUploaded && kara.SubtitlesUploaded {
+		tx = WithPossiblyNewKaraUpdate(tx)
 	}
 
 	res, err := CheckKara(ctx, *kara)
