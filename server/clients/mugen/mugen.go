@@ -29,6 +29,12 @@ type MugenTag struct {
 	ExternalDatabaseIDs ExternalDatabaseIDs `json:"external_database_ids"`
 }
 
+type KaraLyrics struct {
+	Default  bool   `json:"default"`
+	Version  string `json:"version"`
+	Filename string `json:"filename"`
+}
+
 type Kara struct {
 	KID                  uuid.UUID         `json:"kid"`
 	Titles               map[string]string `json:"titles"`
@@ -36,8 +42,8 @@ type Kara struct {
 	TitleDefaultLanguage string            `json:"titles_default_language"`
 	MediaFile            string            `json:"mediafile"`
 	MediaSize            uint64            `json:"mediasize"`
-	SubFile              string            `json:"subfile"`
 	SubChecksum          string            `json:"subchecksum"`
+	LyricsInfo           []KaraLyrics      `json:"lyrics_infos"`
 	Duration             int               `json:"duration"`
 	SongOrder            *uint             `json:"songorder"`
 	CreatedAt            time.Time         `json:"created_at"`
@@ -60,6 +66,15 @@ type Kara struct {
 	SingerGroups         []MugenTag        `json:"singergroups"`
 	Franchises           []MugenTag        `json:"franchises"`
 	Comment              string            `json:"comment"`
+}
+
+func (k Kara) SubFilename() string {
+	for _, info := range k.LyricsInfo {
+		if info.Default {
+			return info.Filename
+		}
+	}
+	return k.LyricsInfo[0].Filename
 }
 
 type Client interface {

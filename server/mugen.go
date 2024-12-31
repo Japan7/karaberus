@@ -362,6 +362,12 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 		return nil, err
 	}
 
+	// _, err = io.Copy(os.Stdout, tempfile.Fd)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// tempfile.Fd.Seek(0, 0)
+
 	return SaveTempFileToS3WithMetadata(ctx, tx, tempfile, &kara.Kara, type_directory, user_metadata)
 }
 
@@ -454,8 +460,8 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	}
 
 	if should_download_sub {
-		getLogger().Printf("Downloading %s (%s)", mugen_kara.SubFile, mugen_kara.KID)
-		resp, err := mugen_client.DownloadLyrics(ctx, mugen_kara.SubFile)
+		getLogger().Printf("Downloading %s (%s)", mugen_kara.SubFilename(), mugen_kara.KID)
+		resp, err := mugen_client.DownloadLyrics(ctx, mugen_kara.SubFilename())
 		if err != nil {
 			return err
 		}
