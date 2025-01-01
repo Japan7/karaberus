@@ -362,12 +362,6 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 		return nil, err
 	}
 
-	// _, err = io.Copy(os.Stdout, tempfile.Fd)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// tempfile.Fd.Seek(0, 0)
-
 	return SaveTempFileToS3WithMetadata(ctx, tx, tempfile, &kara.Kara, type_directory, user_metadata)
 }
 

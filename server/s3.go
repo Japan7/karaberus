@@ -198,6 +198,28 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 }
 
 func SaveTempFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, tempfile UploadTempFile, kara *KaraInfoDB, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
+	switch type_directory {
+	case "video", "inst":
+		res := karaberus_tools.DakaraCheckResults(tempfile.Fd, type_directory, tempfile.Size)
+		if !res.Passed {
+			return nil, errors.New("checks didn’t pass")
+		}
+	case "sub":
+		res, err := karaberus_tools.DakaraCheckSub(tempfile.Fd, tempfile.Size)
+		if err != nil {
+			return nil, err
+		}
+		if !res.Passed {
+			return nil, errors.New("checks didn’t pass")
+		}
+	default:
+		return nil, errors.New("Unknown file type " + type_directory)
+	}
+	_, err := tempfile.Fd.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
+
 	return SaveFileToS3WithMetadata(ctx, tx, tempfile.Fd, kara, type_directory, tempfile.Size, tempfile.CRC32, user_metadata)
 }
 
