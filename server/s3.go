@@ -135,42 +135,66 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 		return nil, err
 	}
 
-	currentTime := time.Now().UTC()
-	switch type_directory {
-	case "video":
-		kara.VideoUploaded = true
-		kara.VideoModTime = currentTime
-		kara.VideoSize = filesize
-		kara.VideoCRC32 = crc32
-	case "inst":
-		kara.InstrumentalUploaded = true
-		kara.InstrumentalModTime = currentTime
-		kara.InstrumentalSize = filesize
-		kara.InstrumentalCRC32 = crc32
-	case "sub":
-		kara.SubtitlesUploaded = true
-		kara.SubtitlesModTime = currentTime
-		kara.SubtitlesSize = filesize
-		kara.SubtitlesCRC32 = crc32
-	}
+	res := &CheckKaraOutput{}
 
-	res, err := CheckKara(ctx, *kara)
-	if err != nil {
-		return nil, err
-	}
-
-	if res.Video != nil {
-		if res.Video.Duration != kara.Duration {
-			kara.Duration = res.Video.Duration
+	err = tx.Transaction(func(tx *gorm.DB) error {
+		currentTime := time.Now().UTC()
+		switch type_directory {
+		case "video":
+			// primary key should be set so it should work properly
+			err = tx.Model(&kara).Updates(KaraInfoDB{
+				UploadInfo: UploadInfo{
+					VideoUploaded: true,
+					VideoModTime:  currentTime,
+					VideoSize:     filesize,
+					VideoCRC32:    crc32,
+				},
+			}).Error
+		case "inst":
+			err = tx.Model(&kara).Updates(KaraInfoDB{
+				UploadInfo: UploadInfo{
+					InstrumentalUploaded: true,
+					InstrumentalModTime:  currentTime,
+					InstrumentalSize:     filesize,
+					InstrumentalCRC32:    crc32,
+				},
+			}).Error
+		case "sub":
+			err = tx.Model(&kara).Updates(KaraInfoDB{
+				UploadInfo: UploadInfo{
+					SubtitlesUploaded: true,
+					SubtitlesModTime:  currentTime,
+					SubtitlesSize:     filesize,
+					SubtitlesCRC32:    crc32,
+				},
+			}).Error
 		}
-	}
 
-	err = tx.Model(&kara).Updates(&kara).Error
-	if err != nil {
-		return nil, DBErrToHumaErr(err)
-	}
+		if err != nil {
+			return err
+		}
 
-	return res, nil
+		res, err = CheckKara(ctx, *kara)
+		if err != nil {
+			return err
+		}
+
+		if res.Video != nil {
+			if res.Video.Duration != kara.Duration {
+				err = tx.Model(&kara).Updates(KaraInfoDB{
+					UploadInfo: UploadInfo{Duration: res.Video.Duration},
+				}).Error
+
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
+
+	return res, err
 }
 
 func SaveTempFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, tempfile UploadTempFile, kara *KaraInfoDB, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
