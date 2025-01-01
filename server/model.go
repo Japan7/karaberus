@@ -377,6 +377,11 @@ func isNewKaraUpdate(tx *gorm.DB, kara *KaraInfoDB) bool {
 		tx.Statement.Context.Value(PossiblyNewKaraUpdate{}) != nil
 }
 
+func isNewKaraUpdateAfter(tx *gorm.DB) bool {
+	return tx.Statement.Context.Value(PossiblyNewKaraUpdate{}) != nil &&
+		tx.Statement.Changed("KaraokeCreationTime")
+}
+
 type PossiblyNewKaraUpdate struct{}
 
 func WithPossiblyNewKaraUpdate(tx *gorm.DB) *gorm.DB {
@@ -458,7 +463,7 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 			return err
 		}
 
-		if isNewKaraUpdate(tx, ki) {
+		if isNewKaraUpdateAfter(tx) {
 
 			// ignore imported karas
 			mugen_import := &MugenImport{}
@@ -484,8 +489,8 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 		return err
 	}
 
-	if isNewKaraUpdate(tx, ki) {
-		ki.KaraokeCreationTime = time.Now()
+	if isNewKaraUpdate(tx, orig_kara_info) {
+		tx.Statement.SetColumn("KaraokeCreationTime", time.Now())
 	}
 
 	// create historic entry with the current value
