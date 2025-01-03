@@ -308,12 +308,25 @@ func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportM
 	return out, err
 }
 
-func RefreshMugenImports(ctx context.Context) error {
+type RefreshMugenInput struct {
+	RedownloadSubs bool `json:"redownload_subs"`
+}
+
+type RedownloadSubsKey struct{}
+
+func RedownloadSubs(ctx context.Context) bool {
+	val, ok := ctx.Value(RedownloadSubsKey{}).(bool)
+	return ok && val
+}
+
+func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, error) {
 	mugen_imports := make([]MugenImport, 0)
+	ctx = context.WithValue(ctx, RedownloadSubsKey{}, input.RedownloadSubs)
+
 	db := GetDB(ctx)
 	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for _, mugen_import := range mugen_imports {
@@ -335,20 +348,15 @@ func RefreshMugenImports(ctx context.Context) error {
 			continue
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
+			return nil, err
 		}
 
 		err = reimportMugenKara(ctx, &mugen_import)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
-}
-
-func RefreshMugen(ctx context.Context, input *struct{}) (*struct{}, error) {
-	err := RefreshMugenImports(ctx)
 	return &struct{}{}, err
 }
 
@@ -437,7 +445,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	}
 	defer Closer(obj)
 
-	should_download_sub := !mugen_import.Kara.SubtitlesUploaded
+	should_download_sub := RedownloadSubs(ctx) || !mugen_import.Kara.SubtitlesUploaded
 
 	if !should_download_sub {
 		stat, err := obj.Stat()
