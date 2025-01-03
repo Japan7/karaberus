@@ -314,7 +314,9 @@ func ImportMugenKara(ctx context.Context, input *ImportMugenKaraInput) (*ImportM
 }
 
 type RefreshMugenInput struct {
-	RedownloadSubs bool `json:"redownload_subs"`
+	Body struct {
+		RedownloadSubs bool `json:"redownload_subs"`
+	}
 }
 
 type RedownloadSubsKey struct{}
@@ -326,7 +328,7 @@ func RedownloadSubs(ctx context.Context) bool {
 
 func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, error) {
 	mugen_imports := make([]MugenImport, 0)
-	dl_ctx := context.WithValue(context.Background(), RedownloadSubsKey{}, input.RedownloadSubs)
+	dl_ctx := context.WithValue(context.Background(), RedownloadSubsKey{}, input.Body.RedownloadSubs)
 
 	db := GetDB(ctx)
 	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
