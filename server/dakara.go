@@ -759,15 +759,15 @@ func SyncDakara(ctx context.Context) {
 	for _, kara := range all_karas {
 		song_body, err := createDakaraSongBody(ctx, kara, dakara_tags, dakara_artists, works)
 		if err != nil {
-			getLogger().Println(err)
-			return
+			getLogger().Printf("Kara %d: %s\n", kara.ID, err)
+			continue
 		}
 		dakara_song := songs[kara.VideoFilename()]
 		if dakara_song == nil {
 			err = dakaraAddSong(ctx, song_body)
 			if err != nil {
 				getLogger().Println(err)
-				return
+				continue
 			}
 			new_songs++
 		} else if song_body.HasChanged(*dakara_song) {
@@ -776,7 +776,7 @@ func SyncDakara(ctx context.Context) {
 			err = dakaraUpdateSong(ctx, dakara_song, song_body)
 			if err != nil {
 				getLogger().Println(err)
-				return
+				continue
 			}
 			updated_songs++
 		}
