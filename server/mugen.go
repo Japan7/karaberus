@@ -216,7 +216,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 	return nil
 }
 
-func reimportMugenKara(ctx context.Context, mugen_import *MugenImport) error {
+func reimportMugenKara(ctx context.Context, tx *gorm.DB, mugen_import *MugenImport) error {
 	getLogger().Println("reimporting ", mugen_import.MugenKID)
 	client := mugen.GetClient()
 	kara, err := client.GetKara(ctx, mugen_import.MugenKID)
@@ -233,8 +233,13 @@ func reimportMugenKara(ctx context.Context, mugen_import *MugenImport) error {
 
 		return updateKara(tx, kara_info)
 	})
+	if err != nil {
+		return err
+	}
 
-	return err
+	go MugenDownload(ctx, tx, *mugen_import)
+
+	return nil
 }
 
 func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImport) error {
@@ -321,7 +326,7 @@ func RedownloadSubs(ctx context.Context) bool {
 
 func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, error) {
 	mugen_imports := make([]MugenImport, 0)
-	ctx = context.WithValue(ctx, RedownloadSubsKey{}, input.RedownloadSubs)
+	dl_ctx := context.WithValue(context.Background(), RedownloadSubsKey{}, input.RedownloadSubs)
 
 	db := GetDB(ctx)
 	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
@@ -351,7 +356,7 @@ func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, err
 			return nil, err
 		}
 
-		err = reimportMugenKara(ctx, &mugen_import)
+		err = reimportMugenKara(dl_ctx, db, &mugen_import)
 		if err != nil {
 			return nil, err
 		}
@@ -387,7 +392,7 @@ func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) e
 	defer func() {
 		r := recover()
 		if r != nil {
-			getLogger().Printf("recovered from panic in SyncMugen: %s\n%s\n", r, string(debug.Stack()))
+			getLogger().Printf("recovered from panic: %s\n%s\n", r, string(debug.Stack()))
 		}
 		MugenDownloadSemaphore.Release(1)
 	}()
