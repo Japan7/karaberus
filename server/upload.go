@@ -412,6 +412,18 @@ func DeleteKaraFile(ctx context.Context, input *DownloadInput) (*DeleteOutput, e
 		return nil, err
 	}
 
+	switch input.FileType {
+	case "video":
+		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{VideoUploaded: false}}).Error
+	case "inst":
+		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: false}}).Error
+	case "sub":
+		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: false}}).Error
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	out := DeleteOutput{}
 	out.Body.Deleted = "file deleted"
 	return &out, nil
