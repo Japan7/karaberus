@@ -345,6 +345,9 @@ func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, err
 		// karaoke was edited, don't refresh and we don't need to query
 		if mugen_import.Kara.EditorUserID != nil {
 			getLogger().Printf("Not updating %d because the editor is not NULL", mugen_import.Kara.ID)
+			if input.Body.RedownloadSubs {
+				go MugenDownload(ctx, db, mugen_import)
+			}
 			continue
 		}
 
@@ -352,6 +355,9 @@ func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, err
 		err = db.Where("editor_user_id IS NOT NULL").Where(&KaraInfoDB{CurrentKaraInfoID: &mugen_import.KaraID}).First(&kara).Error
 		if err == nil {
 			getLogger().Printf("Not updating %d because it was updated by %s", mugen_import.Kara.ID, *kara.EditorUserID)
+			if input.Body.RedownloadSubs {
+				go MugenDownload(ctx, db, mugen_import)
+			}
 			continue
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
