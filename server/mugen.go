@@ -366,7 +366,8 @@ func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, err
 
 		err = reimportMugenKara(dl_ctx, db, &mugen_import)
 		if err != nil {
-			return nil, err
+			getLogger().Printf("reimport failed for kara %d: %s", mugen_import.Kara.ID, err)
+			continue
 		}
 	}
 
