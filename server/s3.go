@@ -361,3 +361,8 @@ func CheckS3Ass(ctx context.Context, obj io.ReadSeeker, size int64) (karaberus_t
 	out, err := karaberus_tools.DakaraCheckSub(obj, size)
 	return out, err
 }
+
+func deleteFile(ctx context.Context, obj_name string) error {
+	client := getS3Client()
+	return client.RemoveObject(ctx, CONFIG.S3.BucketName, obj_name, minio.RemoveObjectOptions{})
+}

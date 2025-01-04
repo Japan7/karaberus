@@ -381,3 +381,38 @@ func DownloadFile(ctx context.Context, input *DownloadInput) (*huma.StreamRespon
 
 	return serveObject(obj, input.Range, kara.FriendlyName()+FileTypeExtension(input.FileType))
 }
+
+type DeleteInput struct {
+	KID      uint   `path:"id" example:"1"`
+	FileType string `path:"filetype" enum:"video,sub,inst" example:"video"`
+}
+
+type DeleteOutput struct {
+	Body struct {
+		Deleted string `json:"deleted"`
+	}
+}
+
+func DeleteKaraFile(ctx context.Context, input *DownloadInput) (*DeleteOutput, error) {
+	db := GetDB(ctx)
+	kid := input.KID
+
+	kara, err := GetKaraByID(db, kid)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, err := getKaraObjectFilename(kara, input.FileType)
+	if err != nil {
+		return nil, err
+	}
+
+	err = deleteFile(ctx, obj)
+	if err != nil {
+		return nil, err
+	}
+
+	out := DeleteOutput{}
+	out.Body.Deleted = "file deleted"
+	return &out, nil
+}
