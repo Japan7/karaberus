@@ -16,7 +16,7 @@
     "@solid-primitives/scheduled": "1.4.4",
     "@solid-primitives/storage": "4.2.1",
     "@solidjs/router": "0.15.2",
-    "@tauri-apps/api": "2.1.1",
+    "@tauri-apps/api": "2.2.0",
     "@tauri-apps/plugin-dialog": "2.2.0",
     "@tauri-apps/plugin-os": "2.2.0",
     "@tauri-apps/plugin-shell": "2.2.0",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@eslint/js": "9.17.0",
     "@hrgui/libass-wasm-ts": "1.0.3",
-    "@tauri-apps/cli": "2.1.0",
+    "@tauri-apps/cli": "2.2.2",
     "@types/eslint__js": "8.42.3",
     "autoprefixer": "10.4.20",
     "daisyui": "4.12.23",
