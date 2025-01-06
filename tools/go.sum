@@ -31,8 +31,8 @@ github.com/gorilla/securecookie v1.1.2/go.mod h1:NfCASbcHqRSY+3a8tlWJwsQap2VX5pw
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
-github.com/johannesboyne/gofakes3 v0.0.0-20241026070602-0da3aa9c32ca h1:aLV7i5W7KKNHUwcmPZKDKXut6ZnJ8sdQWYDTKwhIzBU=
-github.com/johannesboyne/gofakes3 v0.0.0-20241026070602-0da3aa9c32ca/go.mod h1:t6osVdP++3g4v2awHz4+HFccij23BbdT1rX3W7IijqQ=
+github.com/johannesboyne/gofakes3 v0.0.0-20250106100439-5c39aecd6999 h1:CMbkEl1h9JvRURFFprSbyy2f4Gf71SFz9h74iSAETGo=
+github.com/johannesboyne/gofakes3 v0.0.0-20250106100439-5c39aecd6999/go.mod h1:t6osVdP++3g4v2awHz4+HFccij23BbdT1rX3W7IijqQ=
 github.com/kisielk/errcheck v1.8.0 h1:ZX/URYa7ilESY19ik/vBmCn6zdGQLxACwjAcWbHlYlg=
 github.com/kisielk/errcheck v1.8.0/go.mod h1:1kLL+jV4e+CFfueBmI1dSK2ADDyQnlrnrY/FqKluHJQ=
 github.com/kr/pretty v0.2.1 h1:Fmg33tUaq4/8ym9TJN1x7sLJnHVwhP33CNkpYV/7rwI=
