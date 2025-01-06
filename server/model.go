@@ -369,23 +369,14 @@ func CurrentKaras(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_kara_info_id IS NULL")
 }
 
-func isNewKaraUpdate(tx *gorm.DB, kara *KaraInfoDB) bool {
-	// check for unix time 0 is for older karaokes, because we also used
-	// that at some point
-	return kara.SubtitlesUploaded && kara.VideoUploaded &&
-		kara.KaraokeCreationTime.Before(time.Unix(1, 0)) &&
-		tx.Statement.Context.Value(PossiblyNewKaraUpdate{}) != nil
+func isNewKaraUpdate(tx *gorm.DB) bool {
+	return tx.Statement.Context.Value(NewKaraUpdate{}) != nil
 }
 
-func isNewKaraUpdateAfter(tx *gorm.DB) bool {
-	return tx.Statement.Context.Value(PossiblyNewKaraUpdate{}) != nil &&
-		tx.Statement.Changed("KaraokeCreationTime")
-}
+type NewKaraUpdate struct{}
 
-type PossiblyNewKaraUpdate struct{}
-
-func WithPossiblyNewKaraUpdate(tx *gorm.DB) *gorm.DB {
-	return tx.WithContext(context.WithValue(tx.Statement.Context, PossiblyNewKaraUpdate{}, true))
+func WithNewKaraUpdate(tx *gorm.DB) *gorm.DB {
+	return tx.WithContext(context.WithValue(tx.Statement.Context, NewKaraUpdate{}, true))
 }
 
 type UpdateAssociations struct{}
@@ -463,7 +454,7 @@ func (ki *KaraInfoDB) AfterUpdate(tx *gorm.DB) error {
 			return err
 		}
 
-		if isNewKaraUpdateAfter(tx) {
+		if isNewKaraUpdate(tx) {
 
 			// ignore imported karas
 			mugen_import := &MugenImport{}
@@ -487,10 +478,6 @@ func (ki *KaraInfoDB) BeforeUpdate(tx *gorm.DB) error {
 	err := tx.First(orig_kara_info, ki.ID).Error
 	if err != nil {
 		return err
-	}
-
-	if isNewKaraUpdate(tx, orig_kara_info) {
-		tx.Statement.SetColumn("KaraokeCreationTime", time.Now())
 	}
 
 	// create historic entry with the current value
@@ -652,7 +639,7 @@ func fixCreationTime(db *gorm.DB) {
 	for _, kara := range karas {
 		if kara.KaraokeCreationTime.Before(time.Unix(1, 0)) {
 			var kara_time time.Time
-			if kara.SubtitlesUploaded && kara.VideoUploaded && kara.SubtitlesModTime.After(time.Unix(1, 0)) {
+			if kara.SubtitlesUploaded && kara.SubtitlesModTime.After(time.Unix(1, 0)) {
 				kara_time = kara.SubtitlesModTime
 			} else if !kara.KaraokeCreationTime.IsZero() {
 				// reset creation time to zero if time is Unix Epoch

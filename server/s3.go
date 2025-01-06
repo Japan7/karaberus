@@ -160,13 +160,19 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 				},
 			}).Error
 		case "sub":
+			update := UploadInfo{
+				SubtitlesUploaded: true,
+				SubtitlesModTime:  currentTime,
+				SubtitlesSize:     filesize,
+				SubtitlesCRC32:    crc32,
+			}
+			if kara.KaraokeCreationTime.Before(time.Unix(1, 0)) {
+				update.KaraokeCreationTime = currentTime
+				tx = WithNewKaraUpdate(tx)
+			}
+
 			err = tx.Model(&kara).Updates(KaraInfoDB{
-				UploadInfo: UploadInfo{
-					SubtitlesUploaded: true,
-					SubtitlesModTime:  currentTime,
-					SubtitlesSize:     filesize,
-					SubtitlesCRC32:    crc32,
-				},
+				UploadInfo: update,
 			}).Error
 		}
 

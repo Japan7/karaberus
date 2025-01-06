@@ -151,7 +151,7 @@ type UploadOutput struct {
 }
 
 func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, error) {
-	db := WithPossiblyNewKaraUpdate(GetDB(ctx))
+	db := GetDB(ctx)
 	var err error
 	defer func() {
 		err := os.Remove(input.File.Fd.Name())
