@@ -16,12 +16,12 @@ name = "app_lib"
 crate-type = ["staticlib", "cdylib", "lib"]
 
 [build-dependencies]
-tauri-build = { version = "=2.0.4", features = [] }
+tauri-build = { version = "=2.0.5", features = [] }
 
 [dependencies]
 serde_json = "=1.0.135"
 serde = { version = "=1.0.217", features = ["derive"] }
-tauri = { version = "=2.2.0", features = ["devtools"] }
+tauri = { version = "=2.2.1", features = ["devtools"] }
 tauri-plugin-os = "=2.2.0"
 tauri-plugin-dialog = "=2.2.0"
 tauri-plugin-store = "=2.2.0"
