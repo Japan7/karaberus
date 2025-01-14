@@ -33,6 +33,10 @@ export default function FileUploader(props: {
       setProgress(0);
       if (xhr.status === 200) {
         props.onUpload();
+      } else if (xhr.responseType == "json") {
+        // show error messages
+        const resp = JSON.parse(xhr.responseText);
+        alert(resp.detail);
       } else {
         alert(xhr.responseText);
       }
