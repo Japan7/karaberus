@@ -15,8 +15,10 @@
 
 enum KaraberusReports {
   NO_VIDEO_STREAM,
+  NO_AUDIO_STREAM,
   NO_DURATION_FOUND,
   IO_ERROR,
+  INTERNAL_SUBS,
 };
 
 enum KaraberusErrorLevel {
@@ -28,6 +30,7 @@ enum KaraberusErrorLevel {
 typedef struct {
   enum KaraberusReports report_id;
   enum KaraberusErrorLevel error_level;
+  const char *message;
 } karaberus_report;
 
 typedef struct {

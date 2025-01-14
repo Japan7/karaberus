@@ -15,12 +15,14 @@ int karaberus_add_report(karaberus_reports *reports, karaberus_report report) {
 
   reports->reports =
       realloc(reports->reports, sizeof(report) * (reports->n_reports + 1));
+
   if (reports->reports == NULL) {
     perror("failed to allocate memory for new report");
     return -1;
   }
 
   reports->reports[reports->n_reports] = report;
+  reports->n_reports++;
   return 0;
 }
 
@@ -35,26 +37,39 @@ karaberus_reports karaberus_dakara_check_avio(
   reports.failed = false;
 
   dakara_check_avio(KARABERUS_BUFSIZE, obj, read_packet, seek, &res);
+
   if (video_stream) {
     if (res.report.errors.no_duration) {
-      karaberus_report report = {NO_DURATION_FOUND, K_ERROR};
+      karaberus_report report = {NO_DURATION_FOUND, K_ERROR,
+                                 "could not find duration of media file"};
       karaberus_add_report(&reports, report);
-      fprintf(stderr, "no video duration");
     } else {
       reports.duration = res.duration;
     }
     if (res.report.errors.no_video_stream) {
-      karaberus_report report = {NO_VIDEO_STREAM, K_ERROR};
+      karaberus_report report = {NO_VIDEO_STREAM, K_ERROR,
+                                 "no video stream found"};
       karaberus_add_report(&reports, report);
-      fprintf(stderr, "no video stream");
-    }
-    if (res.report.errors.io_error) {
-      karaberus_report report = {IO_ERROR, K_ERROR};
-      karaberus_add_report(&reports, report);
-      fprintf(stderr, "could not read file");
     }
   }
+
+  if (res.report.errors.no_audio_stream) {
+    karaberus_report report = {NO_AUDIO_STREAM, K_ERROR,
+                               "no audio stream found"};
+    karaberus_add_report(&reports, report);
+  }
+  if (res.report.errors.io_error) {
+    karaberus_report report = {IO_ERROR, K_ERROR,
+                               "failed to read the media file"};
+    karaberus_add_report(&reports, report);
+  }
+  if (res.report.errors.internal_sub_stream) {
+    karaberus_report report = {INTERNAL_SUBS, K_ERROR,
+                               "found an internal sub track"};
+    karaberus_add_report(&reports, report);
+  }
   dakara_check_print_results(&res, "minio object");
+
   return reports;
 }
 

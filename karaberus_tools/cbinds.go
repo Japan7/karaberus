@@ -81,6 +81,23 @@ func NewObjectBuf(obj io.ReadSeeker, size int64) ObjectBuf {
 	}
 }
 
+func stringForReportLevel(report C.karaberus_report) string {
+	switch report.error_level {
+	case C.K_ERROR:
+		return "error: "
+	case C.K_WARNING:
+		return "warning: "
+	case C.K_INFO:
+		return "info: "
+	default:
+		return ""
+	}
+}
+
+func stringForReport(report C.karaberus_report) string {
+	return stringForReportLevel(report) + C.GoString(report.message)
+}
+
 func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheckResultsOutput {
 	video_stream := ftype == "video"
 	object_buf := NewObjectBuf(obj, size)
@@ -89,10 +106,17 @@ func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheck
 	res := C.karaberus_dakara_check(unsafe.Pointer(&handle), C.bool(video_stream))
 	defer C.free_reports(res)
 
+	messages := make([]string, res.n_reports)
+	reports := unsafe.Slice(res.reports, res.n_reports)
+	for i, report := range reports {
+		messages[i] = stringForReport(report)
+	}
+
 	passed := !bool(res.failed)
 	out := DakaraCheckResultsOutput{
 		Passed:   passed,
 		Duration: int32(res.duration),
+		Messages: messages,
 	}
 	return out
 }

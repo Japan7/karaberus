@@ -208,7 +208,7 @@ func SaveTempFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, tempfile Upl
 	case "video", "inst":
 		res := karaberus_tools.DakaraCheckResults(tempfile.Fd, type_directory, tempfile.Size)
 		if !res.Passed {
-			return nil, errors.New("checks didn’t pass")
+			return nil, res.Error()
 		}
 	case "sub":
 		res, err := karaberus_tools.DakaraCheckSub(tempfile.Fd, tempfile.Size)
@@ -216,7 +216,7 @@ func SaveTempFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, tempfile Upl
 			return nil, err
 		}
 		if !res.Passed {
-			return nil, errors.New("checks didn’t pass")
+			return nil, errors.New("subtitles checks didn’t pass")
 		}
 	default:
 		return nil, errors.New("Unknown file type " + type_directory)
@@ -263,7 +263,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		}
 		video_check_res := CheckS3Video(ctx, obj, stat.Size)
 		if !video_check_res.Passed {
-			return nil, fmt.Errorf("checks failed for kara %d", kara.ID)
+			return nil, fmt.Errorf("checks failed for kara %d:\n%s", kara.ID, video_check_res.Error())
 		}
 		out.Video = &video_check_res
 	}
@@ -295,7 +295,7 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		}
 		inst_check_res := CheckS3Inst(ctx, obj, stat.Size)
 		if !inst_check_res.Passed {
-			return nil, fmt.Errorf("checks failed for kara %d", kara.ID)
+			return nil, fmt.Errorf("checks failed for kara %d:\n%s", kara.ID, inst_check_res.Error())
 		}
 		out.Instrumental = &inst_check_res
 	}

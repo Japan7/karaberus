@@ -171,12 +171,12 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 	case "video":
 		res := CheckS3Video(ctx, input.File.Fd, input.File.Size)
 		if !res.Passed {
-			return nil, huma.Error422UnprocessableEntity("Uploaded video file cannot be read")
+			return nil, res.Error()
 		}
 	case "inst":
 		res := CheckS3Inst(ctx, input.File.Fd, input.File.Size)
 		if !res.Passed {
-			return nil, huma.Error422UnprocessableEntity("Uploaded instrumental file cannot be read")
+			return nil, res.Error()
 		}
 	case "sub":
 		res, err := CheckS3Ass(ctx, input.File.Fd, input.File.Size)
