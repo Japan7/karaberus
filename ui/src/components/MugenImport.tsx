@@ -2,8 +2,12 @@ import { createEffect, createSignal, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
+interface MugenKaraTitles {
+  [key: string]: string;
+}
+
 interface MugenKara {
-  titles: Map<string, string>;
+  titles: MugenKaraTitles;
   titles_default_language: string;
 }
 
@@ -16,7 +20,7 @@ async function getImportTitle(kid: string): Promise<string> {
 
   // shouldn’t be undefined but who knows
   return (
-    json.titles.get(json.titles_default_language) ?? "couldn’t get import title"
+    json.titles[json.titles_default_language] ?? "couldn’t get import title"
   );
 }
 
