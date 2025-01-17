@@ -2,6 +2,24 @@ import { createEffect, createSignal, type JSX } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { karaberus } from "../utils/karaberus-client";
 
+interface MugenKara {
+  titles: Map<string, string>;
+  titles_default_language: string;
+}
+
+async function getImportTitle(kid: string): Promise<string> {
+  if (kid.length !== 36) {
+    return "";
+  }
+  const resp = await fetch(`https://kara.moe/api/karas/${kid}`);
+  const json: MugenKara = await resp.json();
+
+  // shouldn’t be undefined but who knows
+  return (
+    json.titles.get(json.titles_default_language) ?? "couldn’t get import title"
+  );
+}
+
 export default function MugenImport(props: {
   onImport: (kara: components["schemas"]["MugenImport"]) => void;
 }) {
@@ -14,13 +32,7 @@ export default function MugenImport(props: {
   };
 
   createEffect(async () => {
-    if (getKid().length !== 36) {
-      setName("");
-      return;
-    }
-    const resp = await fetch(`https://kara.moe/api/karas/${getKid()}`);
-    const json = await resp.json();
-    setName(json.karafile);
+    setName(await getImportTitle(getKid()));
   });
 
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = async (e) => {
