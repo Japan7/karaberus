@@ -1,6 +1,5 @@
 {
   "go.toolsEnvVars": {
-    "CGO_ENABLED": "0",
     "KARABERUS_LISTEN_BASE_URL": "http://localhost:5173",
     "KARABERUS_OIDC_ISSUER": "https://auth.japan7.bde.enseeiht.fr",
     "KARABERUS_OIDC_CLIENT_ID": "",

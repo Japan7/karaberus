@@ -9,10 +9,8 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/builddir/karaberus",
-      "env": {
-        "KARABERUS_DB_FILE": "${workspaceFolder}/builddir/karaberus.db"
-      },
+      "envFile": "${workspaceFolder}/${config:mesonbuild.buildFolder}/meson-vscode.env",
+      "program": "${workspaceFolder}/${config:mesonbuild.buildFolder}/karaberus",
       "preLaunchTask": "Server: debug"
     },
     {
@@ -20,7 +18,8 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/builddir/karaberus_test",
+      "envFile": "${workspaceFolder}/${config:mesonbuild.buildFolder}/meson-vscode.env",
+      "program": "${workspaceFolder}/${config:mesonbuild.buildFolder}/karaberus_test",
       "env": {
         "KARABERUS_TEST_DIR": "${workspaceFolder}/tests",
         "KARABERUS_TEST_DIR_GENERATED": "${workspaceFolder}/builddir",
