@@ -17,9 +17,9 @@ import (
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/gofiber/fiber/v2"
 	"github.com/ironsmile/nedomi/utils/httputils"
 	"github.com/minio/minio-go/v7"
+	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
 )
 
@@ -240,9 +240,9 @@ func serveObject(obj_file string, range_header string, filename string) (*huma.S
 
 	return &huma.StreamResponse{
 		Body: func(ctx huma.Context) {
-			fiber_ctx := ctx.BodyWriter().(*fiber.Ctx)
+			fiber_ctx := ctx.BodyWriter().(*fasthttp.RequestCtx)
 
-			obj, err := GetObject(fiber_ctx.Context(), obj_file)
+			obj, err := GetObject(context.Background(), obj_file)
 			if err != nil {
 				ctx.SetStatus(500)
 				return
@@ -283,6 +283,7 @@ func serveObject(obj_file string, range_header string, filename string) (*huma.S
 				if err != nil {
 					ctx.SetStatus(416)
 					ctx.SetHeader("Content-Range", fmt.Sprintf("bytes */%d", stat.Size))
+					getLogger().Println(err.Error())
 					return
 				}
 				reqRange = ranges[0]
@@ -300,12 +301,13 @@ func serveObject(obj_file string, range_header string, filename string) (*huma.S
 
 			_, err = obj.Seek(int64(reqRange.Start), 0)
 			if err != nil {
+				getLogger().Println(err.Error())
 				return
 			}
 
 			filesender := FileSender{obj, reqRange, 0}
 
-			err = fiber_ctx.SendStream(&filesender, int(reqRange.Length))
+			fiber_ctx.SetBodyStream(&filesender, int(reqRange.Length))
 		},
 	}, nil
 }
