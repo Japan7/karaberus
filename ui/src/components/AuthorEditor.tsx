@@ -38,7 +38,7 @@ export default function AuthorEditor(props: {
           class="input input-bordered w-full"
         />
         <div class="label">
-          <span class="label-text">External Name</span>
+          <span class="label-text">Public Name</span>
           <span class="label-text-alt">(optional)</span>
         </div>
         <input
