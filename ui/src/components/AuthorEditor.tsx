@@ -7,11 +7,15 @@ export default function AuthorEditor(props: {
   reset?: boolean;
 }) {
   const [getName, setName] = createSignal(props.author?.Name ?? "");
+  const [getPublicName, setPublicName] = createSignal(
+    props.author?.PublicName ?? "",
+  );
 
   const onsubmit: JSX.EventHandler<HTMLElement, SubmitEvent> = (e) => {
     e.preventDefault();
     props.onSubmit({
       name: getName(),
+      external_name: getPublicName(),
     });
     if (props.reset) {
       (e.target as HTMLFormElement).reset();
@@ -31,6 +35,18 @@ export default function AuthorEditor(props: {
           placeholder="bebou69"
           value={getName()}
           onInput={(e) => setName(e.currentTarget.value)}
+          class="input input-bordered w-full"
+        />
+        <div class="label">
+          <span class="label-text">External Name</span>
+          <span class="label-text-alt">(optional)</span>
+        </div>
+        <input
+          type="text"
+          required
+          placeholder="bebou69"
+          value={getPublicName()}
+          onInput={(e) => setPublicName(e.currentTarget.value)}
           class="input input-bordered w-full"
         />
       </label>

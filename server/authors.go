@@ -38,7 +38,8 @@ func GetAuthor(ctx context.Context, input *GetAuthorInput) (*AuthorOutput, error
 }
 
 type AuthorInfo struct {
-	Name string `json:"name"`
+	Name       string `json:"name"`
+	PublicName string `json:"external_name,omitempty"`
 }
 
 type CreateAuthorInput struct {
@@ -104,6 +105,7 @@ func UpdateAuthor(ctx context.Context, input *UpdateAuthorInput) (*AuthorOutput,
 
 func (info AuthorInfo) to_TimingAuthor(author *TimingAuthor) error {
 	author.Name = info.Name
+	author.PublicName = info.PublicName
 	return nil
 }
 

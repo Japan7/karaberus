@@ -585,7 +585,11 @@ func karaDescription(k KaraInfoDB) (string, error) {
 	if len(k.Authors) > 0 {
 		authors := make([]string, len(k.Authors))
 		for i, author := range k.Authors {
-			authors[i] = author.Name
+			if author.PublicName == "" {
+				authors[i] = author.Name
+			} else {
+				authors[i] = author.PublicName
+			}
 		}
 		authors_part := karaDescriptionPartList("Author", authors)
 

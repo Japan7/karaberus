@@ -90,8 +90,9 @@ type User struct {
 
 type TimingAuthor struct {
 	gorm.Model
-	Name    string     `gorm:"uniqueIndex:idx_timing_author_name"`
-	MugenID *uuid.UUID `gorm:"uniqueIndex:idx_timing_author_mugen_id"`
+	Name       string     `gorm:"uniqueIndex:idx_timing_author_name"`
+	MugenID    *uuid.UUID `gorm:"uniqueIndex:idx_timing_author_mugen_id"`
+	PublicName string
 }
 
 func (name *TimingAuthor) BeforeSave(tx *gorm.DB) error {

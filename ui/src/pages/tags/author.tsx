@@ -73,6 +73,7 @@ export default function TagsAuthor() {
             <tr>
               <th></th>
               <th>Name</th>
+              <th>Public Name</th>
               <th></th>
             </tr>
           </thead>
@@ -82,6 +83,7 @@ export default function TagsAuthor() {
                 <tr class="hover">
                   <th>{getAuthor().ID}</th>
                   <td>{getAuthor().Name}</td>
+                  <td>{getAuthor().PublicName}</td>
                   <td class="flex gap-x-1">
                     <button
                       class="btn btn-sm btn-warning"
