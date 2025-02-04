@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.8.1
-	golang.org/x/sync v0.10.0
+	golang.org/x/sync v0.11.0
 )
 
 require (
@@ -67,7 +67,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.84
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.58.0 // indirect
+	github.com/valyala/fasthttp v1.58.0
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/zitadel/oidc/v3 v3.34.1
 	golang.org/x/sys v0.28.0 // indirect
