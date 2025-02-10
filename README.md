@@ -87,9 +87,11 @@ For the most part `gopls` should work without issues in the `server` module, if 
 
 NOTE: You should not set PKG_CONFIG_PATH in your general environment (or at least in the environment in which you run Meson) as it might break meson when it needs to reconfigure itself (when meson.build files are modified most likely), because then it can find its own dependencies with pkg-config and get really confused when it won't find the libraries later in the build.
 
-### Dev Container / Codespaces
+### Online IDEs - Dev Container / Codespaces, gitpod, Codeanywhere, etc
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Japan7/karaberus?quickstart=1)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io#https://github.com/Japan7/karaberus)
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/Japan7/karaberus)
 
 Once attached to the container, create and edit `.vscode/settings.json` as follows:
 
