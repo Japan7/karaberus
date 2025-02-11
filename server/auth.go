@@ -131,6 +131,8 @@ func setGitlabToken(db *gorm.DB, token_data OAuthTokenResponse, token *OAuthToke
 	token.RefreshToken = token_data.RefreshToken
 	token.ExpiresAt = time.Now().Add(time.Duration(token_data.ExpiresIn) * time.Second)
 
+	getLogger().Printf("new token expires at %d\n", token.ExpiresAt.Unix())
+
 	err := db.Save(token).Error
 	return DBErrToHumaErr(err)
 }
