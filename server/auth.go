@@ -279,6 +279,17 @@ func refreshGitlabToken(ctx context.Context, db *gorm.DB, token *OAuthToken) err
 	}
 	defer Closer(resp.Body)
 
+	if req.Response.StatusCode > 300 {
+		buf := make([]byte, 2048)
+		n, err := req.Body.Read(buf)
+		if err != nil {
+			return err
+		}
+
+		getLogger().Printf("gitlab response: %+v\n%s", resp, buf[:n])
+		return fmt.Errorf("gitlab responded with status code %d", resp.StatusCode)
+	}
+
 	token_data := &OAuthTokenResponse{}
 
 	dec := json.NewDecoder(resp.Body)
