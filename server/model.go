@@ -621,7 +621,9 @@ func init_model(db *gorm.DB) {
 	if isKaraberusInit(ctx) {
 		err = exportRemainingKaras(ctx, db)
 		if err != nil {
-			panic(err)
+			// would panic ideally, but token refresh could fail in bad ways that
+			// would constantly crash on startup
+			getLogger().Println(err.Error())
 		}
 		go initSizeCRC(db)
 	}
