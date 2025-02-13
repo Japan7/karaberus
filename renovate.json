@@ -2,12 +2,10 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>Japan7/renovate-config"],
   "postUpdateOptions": ["gomodTidy"],
+  "constraints": {
+    "go": "1.23"
+  },
   "packageRules": [
-    {
-      "constraints": {
-        "go": "1.23"
-      }
-    },
     {
       "matchFileNames": ["ui/**"],
       "matchManagers": ["npm", "cargo"],
