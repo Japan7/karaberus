@@ -2,8 +2,6 @@ module github.com/Japan7/karaberus
 
 go 1.23
 
-toolchain go1.24.0
-
 require (
 	github.com/kisielk/errcheck v1.8.0
 	honnef.co/go/tools v0.6.0

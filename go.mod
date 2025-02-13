@@ -1,6 +1,6 @@
 module github.com/Japan7/karaberus
 
-go 1.22.2
+go 1.23
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.28.0
