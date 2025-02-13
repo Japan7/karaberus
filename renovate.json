@@ -4,8 +4,9 @@
   "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
-      "matchDepNames": ["go"],
-      "automerge": false
+      "constraints": {
+        "go": "1.23"
+      }
     },
     {
       "matchFileNames": ["ui/**"],
