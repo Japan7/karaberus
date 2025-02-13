@@ -279,9 +279,9 @@ func refreshGitlabToken(ctx context.Context, db *gorm.DB, token *OAuthToken) err
 	}
 	defer Closer(resp.Body)
 
-	if req.Response.StatusCode > 300 {
+	if resp.StatusCode > 300 {
 		buf := make([]byte, 2048)
-		n, err := req.Body.Read(buf)
+		n, err := resp.Body.Read(buf)
 		if err != nil {
 			return err
 		}
