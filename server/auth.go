@@ -187,11 +187,8 @@ func GitlabCallback(ctx context.Context, input *GitlabAuthCallbackInput) (*Gitla
 	}, nil
 }
 
-// set a dummy export for older karas so they don’t get reexported
-// assuming that it is already done
-func initOlderKarasExports(ctx context.Context) error {
+func setDummyExports(db *gorm.DB) error {
 	var karas []KaraInfoDB
-	db := GetDB(ctx)
 	err := db.Scopes(CurrentKaras).Where(
 		"id NOT IN (?) AND id NOT IN (?)",
 		db.Table("mugen_exports").Select("kara_id AS id"),
@@ -219,6 +216,25 @@ func initOlderKarasExports(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func initOlderKarasExports(ctx context.Context) error {
+	db := GetDB(ctx)
+
+	var exportedKara MugenExport
+	err := db.Where("gitlab_issue > 0").First(exportedKara).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// set a dummy export for older karas so they don’t get reexported
+			// assuming that it is already done
+			return setDummyExports(db)
+		} else {
+			return err
+		}
+	}
+
+	// if we already have exported karas then we should catch up to the latest ones
+	return exportRemainingKaras(ctx, db)
 }
 
 type OAuthTokenResponse struct {
