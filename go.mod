@@ -68,8 +68,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.86
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.58.0
-	github.com/valyala/tcplisten v1.0.0 // indirect
+	github.com/valyala/fasthttp v1.59.0
 	github.com/zitadel/oidc/v3 v3.34.1
 	golang.org/x/sys v0.30.0 // indirect
 	gorm.io/driver/postgres v1.5.11
