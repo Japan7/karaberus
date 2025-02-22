@@ -45,7 +45,6 @@ export default function BrowserKaraPlayer(props: {
       <video
         src={getVideoSrc()}
         controls
-        // @ts-expect-error: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/controlsList
         controlslist="nofullscreen"
         playsinline
         loop
