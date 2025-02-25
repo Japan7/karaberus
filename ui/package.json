@@ -35,7 +35,7 @@
     "@hrgui/libass-wasm-ts": "1.0.3",
     "@tauri-apps/cli": "2.2.7",
     "autoprefixer": "10.4.20",
-    "daisyui": "4.12.23",
+    "daisyui": "4.12.24",
     "eslint": "9.21.0",
     "eslint-config-prettier": "10.0.1",
     "eslint-plugin-prettier": "5.2.3",
