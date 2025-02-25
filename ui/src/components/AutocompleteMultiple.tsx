@@ -126,7 +126,7 @@ export default function AutocompleteMultiple<T>(
           oninput={(e) => setInput(e.currentTarget.value)}
           onkeydown={handleKeyDownInput}
           ref={inputRef}
-          class="bg-transparent outline-none w-full"
+          class="bg-transparent outline-hidden w-full"
           tabindex="0"
           {...inputProps}
         />
@@ -134,7 +134,7 @@ export default function AutocompleteMultiple<T>(
       <div
         onkeydown={handleKeyDownDropdown}
         ref={dropdownRef}
-        class="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow max-h-48 overflow-y-auto"
+        class="dropdown-content menu bg-base-100 rounded-box z-1 w-full p-2 shadow-sm max-h-48 overflow-y-auto"
         tabindex="0"
       >
         <ul>
