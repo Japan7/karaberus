@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.44.256 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/ryszard/goskiplist v0.0.0-20150312221310-2dfbae5fcf46 // indirect
 	github.com/spf13/afero v1.2.1 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
@@ -37,6 +38,7 @@ require (
 	go.opentelemetry.io/otel v1.32.0 // indirect
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
+	go.uber.org/nilaway v0.0.0-20241010202415-ba14292918d8
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678 // indirect
 	golang.org/x/mod v0.23.0 // indirect
