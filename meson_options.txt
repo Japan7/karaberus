@@ -18,3 +18,4 @@ option('no_native_deps', type: 'boolean', value: false, description: 'Build with
 # slow tests
 option('staticcheck', type: 'boolean', value: true, description: 'Run staticcheck test')
 option('errcheck', type: 'boolean', value: true, description: 'Run errcheck test')
+option('nilaway', type: 'boolean', value: true, description: 'Run nilaway test')

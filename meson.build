@@ -466,6 +466,31 @@ if get_option('test')
             timeout: 300,
         )
     endif
+
+    if get_option('nilaway')
+        nilaway = custom_target(
+            'nilaway',
+            command: [
+                go,
+                'install',
+                go_tools_opts,
+                'go.uber.org/nilaway/cmd/nilaway',
+            ],
+            depend_files: go_tools_files,
+            output: 'nilaway',
+            env: gobin_env,
+        )
+
+        test(
+            'nilaway',
+            nilaway,
+            args: ['./...'],
+            depends: karaberus,
+            env: go_env,
+            workdir: meson.current_source_dir(),
+            timeout: 300,
+        )
+    endif
 endif
 
 test(
