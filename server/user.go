@@ -2,16 +2,19 @@ package server
 
 import (
 	"context"
+	"errors"
 
 	"github.com/zitadel/oidc/v3/pkg/oidc"
 )
 
-func getCurrentUser(ctx context.Context) *User {
+var ErrUnknownUser error = errors.New("unknown user")
+
+func getCurrentUser(ctx context.Context) (User, error) {
 	val := ctx.Value(currentUserCtxKey)
 	if val == nil {
-		return nil
+		return User{}, ErrUnknownUser
 	} else {
-		return val.(*User)
+		return val.(User), nil
 	}
 }
 
@@ -51,8 +54,11 @@ func GetUser(ctx context.Context, input *GetUserInput) (*GetUserOutput, error) {
 }
 
 func GetMe(ctx context.Context, input *struct{}) (*GetUserOutput, error) {
-	user := getCurrentUser(ctx)
-	return &GetUserOutput{Body: *user}, nil
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &GetUserOutput{Body: user}, nil
 }
 
 func getUser(ctx context.Context, sub string) (*GetUserOutput, error) {
@@ -88,15 +94,18 @@ func UpdateUserAuthor(ctx context.Context, input *UpdateUserAuthorInput) (*Updat
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
-	return updateUserAuthor(ctx, user, input.Body.Id)
+	return updateUserAuthor(ctx, *user, input.Body.Id)
 }
 
 func UpdateMeAuthor(ctx context.Context, input *UpdateMeAuthorInput) (*UpdateMeAuthorOutput, error) {
-	user := getCurrentUser(ctx)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return updateUserAuthor(ctx, user, input.Body.Id)
 }
 
-func updateUserAuthor(ctx context.Context, user *User, authorId *uint) (*UpdateMeAuthorOutput, error) {
+func updateUserAuthor(ctx context.Context, user User, authorId *uint) (*UpdateMeAuthorOutput, error) {
 	tx := GetDB(ctx)
 	if authorId != nil {
 		if _, err := GetAuthorById(tx, *authorId); err != nil {

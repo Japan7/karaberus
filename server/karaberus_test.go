@@ -34,7 +34,7 @@ func getKaraberusTestConfig() KaraberusTestConfig {
 var TEST_CONFIG = getKaraberusTestConfig()
 
 func testUserMiddleware(ctx huma.Context, next func(huma.Context)) {
-	ctx = huma.WithValue(ctx, currentUserCtxKey, &User{
+	ctx = huma.WithValue(ctx, currentUserCtxKey, User{
 		ID:    "test_user",
 		Admin: false,
 	})
@@ -51,7 +51,7 @@ func getTestAPI(t *testing.T) humatest.TestAPI {
 }
 
 // func testAdminMiddleware(ctx huma.Context, next func(huma.Context)) {
-// 	ctx = huma.WithValue(ctx, currentUserCtxKey, &User{
+// 	ctx = huma.WithValue(ctx, currentUserCtxKey, User{
 // 		ID:    "test_admin",
 // 		Admin: true,
 // 	})

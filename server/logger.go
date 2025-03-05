@@ -1,7 +1,6 @@
 package server
 
 import (
-	"io"
 	"log"
 	"os"
 )
@@ -17,14 +16,4 @@ func getLogger() *log.Logger {
 
 func Warn(msg string) {
 	getLogger().Printf("Warning: %s\n", msg)
-}
-
-func Closer(closer io.Closer) {
-	if closer == nil {
-		return
-	}
-	err := closer.Close()
-	if err != nil {
-		Warn(err.Error())
-	}
 }

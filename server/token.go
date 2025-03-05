@@ -21,9 +21,12 @@ type GetAllTokensOutput struct {
 
 func GetAllUserTokens(ctx context.Context, input *struct{}) (*GetAllTokensOutput, error) {
 	db := GetDB(ctx)
-	user := *getCurrentUser(ctx)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 	out := &GetAllTokensOutput{}
-	err := db.Model(&TokenV2{}).Where(&TokenV2{UserID: user.ID}).Find(&out.Body).Error
+	err = db.Model(&TokenV2{}).Where(&TokenV2{UserID: user.ID}).Find(&out.Body).Error
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
@@ -44,7 +47,11 @@ type CreateTokenOutput struct {
 }
 
 func CreateToken(ctx context.Context, input *CreateTokenInput) (*CreateTokenOutput, error) {
-	token, err := createTokenForUser(ctx, *getCurrentUser(ctx), input.Body.Name, input.Body.Scopes)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	token, err := createTokenForUser(ctx, user, input.Body.Name, input.Body.Scopes)
 	if err != nil {
 		return nil, DBErrToHumaErr(err)
 	}
@@ -93,9 +100,11 @@ type DeleteTokenOutput struct {
 
 func DeleteToken(ctx context.Context, input *DeleteTokenInput) (*DeleteTokenOutput, error) {
 	db := GetDB(ctx)
-	user := *getCurrentUser(ctx)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	var err error
 	if user.Admin {
 		err = db.Delete(&TokenV2{}, input.TokenID).Error
 	} else {

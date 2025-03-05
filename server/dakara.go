@@ -44,7 +44,7 @@ func dakaraSendRequest(ctx context.Context, method string, path string, bodyData
 	req.Header.Set("Authorization", fmt.Sprintf("Token %s", CONFIG.Dakara.Token))
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := Do(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -890,16 +890,29 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 	tags := make([]DakaraTag, n_tags)
 
 	for i, tag := range audio_tags {
-		tags[i] = *dakara_tags[tag.Name]
+		dakara_tag_ref := dakara_tags[tag.Name]
+		if dakara_tag_ref == nil {
+			return nil, fmt.Errorf("found nil tag reference for kara %d", kara.ID)
+		}
+		tags[i] = *dakara_tag_ref
 	}
 
 	for i, tag := range video_tags {
-		tags[i+len(audio_tags)] = *dakara_tags[tag.Name]
+		dakara_tag_ref := dakara_tags[tag.Name]
+		if dakara_tag_ref == nil {
+			return nil, fmt.Errorf("found nil tag reference for kara %d", kara.ID)
+		}
+		tags[i+len(audio_tags)] = *dakara_tag_ref
 	}
 
 	artists := make([]DakaraArtist, len(kara.Artists))
 	for i, artist := range kara.Artists {
-		artists[i] = *dakara_artists[artist.Name]
+		artist_ref := dakara_artists[artist.Name]
+		if artist_ref == nil {
+			return nil, fmt.Errorf("found nil artist reference for kara %d", kara.ID)
+		}
+
+		artists[i] = *artist_ref
 	}
 
 	works := make([]DakaraSongWork, 0)
@@ -980,7 +993,11 @@ func getWorkLinkType(kara KaraInfoDB) string {
 }
 
 func StartDakaraSync(ctx context.Context, input *struct{}) (*struct{}, error) {
-	if !getCurrentUser(ctx).Admin {
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if !user.Admin {
 		return nil, huma.Error403Forbidden("endpoint reserved to adminitrators")
 	}
 

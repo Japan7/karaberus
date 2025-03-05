@@ -251,7 +251,12 @@ func importMugenKara(ctx context.Context, kid uuid.UUID, mugen_import *MugenImpo
 
 	db_ctx := context.Background()
 	db := GetDB(db_ctx)
-	getLogger().Printf("Importing kid %s for %s\n", kid, getCurrentUser(ctx).ID)
+
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return err
+	}
+	getLogger().Printf("Importing kid %s for %s\n", kid, user.ID)
 	err = db.Transaction(func(tx *gorm.DB) error {
 		kara_info := KaraInfoDB{}
 		err = mugenKaraToKaraInfoDB(tx, *kara, &kara_info)
@@ -354,6 +359,10 @@ func RefreshMugen(ctx context.Context, input *RefreshMugenInput) (*struct{}, err
 		kara := KaraInfoDB{}
 		err = db.Where("editor_user_id IS NOT NULL").Where(&KaraInfoDB{CurrentKaraInfoID: &mugen_import.KaraID}).First(&kara).Error
 		if err == nil {
+			if kara.EditorUserID == nil {
+				panic("editor user ID is nil which makes no sense")
+			}
+
 			getLogger().Printf("Not updating %d because it was updated by %s", mugen_import.Kara.ID, *kara.EditorUserID)
 			if input.Body.RedownloadSubs {
 				go MugenDownload(ctx, db, mugen_import)
@@ -705,7 +714,7 @@ func checkGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_e
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 	req.Header.Add("Content-Type", "application/json")
 
-	resp_get, err := http.DefaultClient.Do(req)
+	resp_get, err := Do(http.DefaultClient, req)
 	if err != nil {
 		return err
 	}
@@ -786,7 +795,7 @@ func updateGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 	req.Header.Add("Content-Type", "application/json")
 
-	resp_put, err := http.DefaultClient.Do(req)
+	resp_put, err := Do(http.DefaultClient, req)
 	if err != nil {
 		return err
 	}
@@ -851,7 +860,7 @@ func createGitlabIssue(ctx context.Context, db *gorm.DB, kara KaraInfoDB, mugen_
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := Do(http.DefaultClient, req)
 	if err != nil {
 		return err
 	}

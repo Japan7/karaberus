@@ -135,7 +135,10 @@ func (info KaraInfo) to_KaraInfoDB(ctx context.Context, tx *gorm.DB, kara_info *
 	kara_info.Language = info.Language
 	kara_info.Private = info.Private
 
-	user := *getCurrentUser(ctx)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return err
+	}
 	if user.Admin {
 		if info.IsHardsub != nil {
 			kara_info.Hardsubbed = *info.IsHardsub

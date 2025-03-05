@@ -89,7 +89,10 @@ func GitlabAuth(ctx context.Context, _ *struct{}) (*GitlabAuthOutput, error) {
 	}
 
 	redirect_uri := gitlabRedirectURI()
-	user := getCurrentUser(ctx)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	state := authState()
 
@@ -154,7 +157,10 @@ func getGitlabToken(db *gorm.DB, token *OAuthToken) error {
 }
 
 func GitlabCallback(ctx context.Context, input *GitlabAuthCallbackInput) (*GitlabAuthCallbackOutput, error) {
-	user := getCurrentUser(ctx)
+	user, err := getCurrentUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 	gitlab_state := GitlabStates[user.ID]
 	if gitlab_state == nil {
 		return nil, huma.Error500InternalServerError("unknown state")
@@ -165,7 +171,7 @@ func GitlabCallback(ctx context.Context, input *GitlabAuthCallbackInput) (*Gitla
 	GitlabStates[user.ID] = nil
 
 	token_data := OAuthTokenResponse{}
-	err := getGitlabTokenCode(ctx, *gitlab_state, input.Code, &token_data)
+	err = getGitlabTokenCode(ctx, *gitlab_state, input.Code, &token_data)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +271,7 @@ func getGitlabTokenCode(
 	if err != nil {
 		return err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := Do(http.DefaultClient, req)
 	if err != nil {
 		return err
 	}
@@ -289,7 +295,7 @@ func refreshGitlabToken(ctx context.Context, db *gorm.DB, token *OAuthToken) err
 	if err != nil {
 		return err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := Do(http.DefaultClient, req)
 	if err != nil {
 		return err
 	}
@@ -421,7 +427,7 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 			return
 		}
 
-		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+		ctx = huma.WithValue(ctx, currentUserCtxKey, *user)
 
 	// Cookie/OIDC
 	case KaraberusJWTAuth:
@@ -432,7 +438,7 @@ func authMiddleware(ctx huma.Context, next func(huma.Context)) {
 			return
 		}
 
-		ctx = huma.WithValue(ctx, currentUserCtxKey, user)
+		ctx = huma.WithValue(ctx, currentUserCtxKey, *user)
 
 	// Basic auth
 	case KaraberusBasicAuth:
@@ -579,7 +585,7 @@ func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, token 
 		}
 	case KaraberusBearerAuth:
 		for _, v := range opScopes {
-			if !scopes.HasScope(v) {
+			if scopes == nil || !scopes.HasScope(v) {
 				return false
 			}
 		}

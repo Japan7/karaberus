@@ -177,11 +177,20 @@ func (a *Artist) BeforeUpdate(tx *gorm.DB) error {
 	return err
 }
 
+func getCurrentUserNilable(tx *gorm.DB) *User {
+	user, err := getCurrentUser(tx.Statement.Context)
+	if err != nil {
+		return nil
+	} else {
+		return &user
+	}
+}
+
 func (a *Artist) BeforeSave(tx *gorm.DB) error {
 	a.Name = trimWhitespace(a.Name)
 
 	// set editor for this new update
-	a.EditorUser = getCurrentUser(tx.Statement.Context)
+	a.EditorUser = getCurrentUserNilable(tx)
 	if a.EditorUser == nil {
 		a.EditorUserID = nil
 	}
@@ -239,7 +248,7 @@ func (m *MediaDB) BeforeSave(tx *gorm.DB) error {
 	m.Name = trimWhitespace(m.Name)
 
 	// set editor for this new update
-	m.EditorUser = getCurrentUser(tx.Statement.Context)
+	m.EditorUser = getCurrentUserNilable(tx)
 	if m.EditorUser == nil {
 		m.EditorUserID = nil
 	}
@@ -497,7 +506,7 @@ func (ki *KaraInfoDB) BeforeSave(tx *gorm.DB) error {
 	ki.Language = trimWhitespace(ki.Language)
 
 	// set editor for this new version
-	ki.EditorUser = getCurrentUser(tx.Statement.Context)
+	ki.EditorUser = getCurrentUserNilable(tx)
 	if ki.EditorUser == nil {
 		ki.EditorUserID = nil
 	}

@@ -18,6 +18,7 @@ karaberus_server_files = files(
     'token.go',
     'upload.go',
     'user.go',
+    'utils.go',
     'webhooks.go',
 )
 

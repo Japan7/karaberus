@@ -118,6 +118,9 @@ func (c MugenClient) SendRequest(ctx context.Context, method string, path string
 	if err != nil {
 		return nil, err
 	}
+	if resp == nil {
+		return nil, fmt.Errorf("request failed terribly for %s", req.URL)
+	}
 
 	if resp.StatusCode/100 != 2 {
 		defer Closer(resp.Body)
@@ -155,7 +158,14 @@ func (c MugenClient) DownloadMedia(ctx context.Context, mediafile string) (*http
 	if err != nil {
 		return nil, err
 	}
-	return c.HTTPClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return nil, fmt.Errorf("failed to get %s", url)
+	}
+	return resp, nil
 }
 
 func (c MugenClient) DownloadLyrics(ctx context.Context, karafile string) (*http.Response, error) {
@@ -164,7 +174,14 @@ func (c MugenClient) DownloadLyrics(ctx context.Context, karafile string) (*http
 	if err != nil {
 		return nil, err
 	}
-	return c.HTTPClient.Do(req)
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp == nil {
+		return nil, fmt.Errorf("failed to get %s", url)
+	}
+	return resp, nil
 }
 
 var MUGEN_SERVER = "https://kara.moe/api/"
