@@ -498,3 +498,13 @@ test(
     meson_cmd,
     args: ['format', '-r', '-q', meson.current_source_dir()],
 )
+
+test(
+    'disallow_toolchain_in_go.mod',
+    python,
+    args: [
+        files('tests' / 'gotoolchain.py'),
+        files('go.mod'),
+        files('tools' / 'go.mod'),
+    ],
+)
