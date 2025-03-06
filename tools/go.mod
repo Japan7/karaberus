@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/kisielk/errcheck v1.9.0
-	honnef.co/go/tools v0.6.0
+	honnef.co/go/tools v0.6.1
 )
 
 require (
