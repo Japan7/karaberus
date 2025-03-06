@@ -29,7 +29,7 @@ require (
 	github.com/johannesboyne/gofakes3 v0.0.0-20250106100439-5c39aecd6999
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/muhlemmer/httpforwarded v0.1.0 // indirect
-	github.com/odrling/zitadel-karaberus v0.0.0-20250224230207-788a7c49cafc
+	github.com/odrling/zitadel-karaberus v0.0.0-20250306113853-0eaf3045f7de
 	github.com/rs/cors v1.11.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/zitadel/logging v0.6.1 // indirect
