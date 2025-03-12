@@ -12,12 +12,14 @@ import json
 import os
 import pathlib
 import secrets
+import shlex
 import subprocess
+import sys
 import time
 import unittest
 import urllib.request as request
 import zlib
-from typing import IO, ClassVar, TypedDict
+from typing import IO, ClassVar, TypedDict, final
 from urllib.error import URLError
 
 
@@ -42,6 +44,11 @@ class KaraberusKara(TypedDict):
 KaraberusInputTypes = KaraberusKara
 
 
+def exe_wrapper():
+    exe_wrapper_str = os.environ.get("MESON_EXE_WRAPPER", "")
+    return shlex.split(exe_wrapper_str)
+
+
 def calculate_crc32(file: pathlib.Path) -> int:
     with file.open("rb") as fd:
         sum = 0
@@ -55,6 +62,7 @@ def json_body(data: KaraberusInputTypes) -> bytes:
     return json.dumps(data, separators=(",", ":")).encode()
 
 
+@final
 class KaraberusInstance:
     def __init__(self) -> None:
         self.port = 10201
@@ -83,7 +91,11 @@ class KaraberusInstance:
         if oidc_server_exe := os.environ.get("OIDC_SERVER_EXE"):
             # original env is needed on windows (possibly only SYSTEMROOT)
             # https://github.com/golang/go/issues/25513
-            env = {**os.environ, "LISTEN_ADDR": "127.0.0.1", "LISTEN_PORT": str(self.oidc_port)}
+            env = {
+                **os.environ,
+                "LISTEN_ADDR": "127.0.0.1",
+                "LISTEN_PORT": str(self.oidc_port),
+            }
             self.oidc_server_proc = subprocess.Popen([oidc_server_exe], env=env)
 
         karaberus_bin = os.environ["KARABERUS_BIN"]
@@ -111,8 +123,8 @@ class KaraberusInstance:
 
         user = "testadmin"
         # doesn't matter if the user exists, so we don't check the return code
-        subprocess.run(
-            [karaberus_bin, "create-user", "--admin", user],
+        _ = subprocess.run(
+            [*exe_wrapper(), karaberus_bin, "create-user", "--admin", user],
             env=env,
             stdout=subprocess.PIPE,
         )
@@ -259,11 +271,14 @@ class FontUpload(TypedDict):
 class TestKaraberus(unittest.TestCase):
     karaberus: ClassVar[KaraberusInstance]
 
+    # windows CI uses python 3.9 which doesn’t have typing.override
+    #@override
     @classmethod
     def setUpClass(cls) -> None:
         cls.karaberus = KaraberusInstance()
         cls.karaberus.launch_karaberus()
 
+    #@override
     @classmethod
     def tearDownClass(cls) -> None:
         cls.karaberus.stop_karaberus()
