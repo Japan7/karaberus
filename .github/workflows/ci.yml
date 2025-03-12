@@ -61,8 +61,8 @@ jobs:
           KARABERUS_S3_SECRET: miniosecret
 
   build:
+    runs-on: ${{ matrix.config.runner }}
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
-    runs-on: ubuntu-24.04
     env:
       CCACHE_BASEDIR: ${{ github.workspace }}
       CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -71,9 +71,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
 
     strategy:
       fail-fast: false
@@ -82,9 +79,11 @@ jobs:
           - arch: x86_64
             platform: linux/amd64
             target: ""
+            runner: ubuntu-24.04
           - arch: aarch64
             platform: linux/arm64
-            target: "aarch64-linux-gnu"
+            target: ""
+            runner: ubuntu-24.04-arm
 
     steps:
       - name: Checkout repository
@@ -144,9 +143,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4
