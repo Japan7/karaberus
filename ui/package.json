@@ -25,7 +25,7 @@
     "fuse.js": "7.1.0",
     "jose": "6.0.10",
     "libass-wasm": "4.1.0",
-    "openapi-fetch": "0.13.4",
+    "openapi-fetch": "0.13.5",
     "solid-icons": "1.1.0",
     "solid-js": "1.9.5",
     "theme-change": "2.5.0"
