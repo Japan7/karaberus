@@ -25,7 +25,7 @@ tauri = { version = "=2.3.1", features = ["devtools"] }
 tauri-plugin-os = "=2.2.1"
 tauri-plugin-dialog = "=2.2.0"
 tauri-plugin-store = "=2.2.0"
-async-std = "=1.13.0"
+async-std = "=1.13.1"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-updater = "=2.6.0"
