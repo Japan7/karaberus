@@ -46,7 +46,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.33.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67 // indirect
-	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	modernc.org/libc v1.61.4 // indirect
@@ -67,7 +67,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.89
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.59.0
+	github.com/valyala/fasthttp v1.60.0
 	github.com/zitadel/oidc/v3 v3.37.0
 	golang.org/x/sys v0.31.0 // indirect
 	gorm.io/driver/postgres v1.5.11
