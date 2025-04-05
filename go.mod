@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.9.1
-	golang.org/x/sync v0.12.0
+	golang.org/x/sync v0.13.0
 )
 
 require (
