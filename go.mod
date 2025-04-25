@@ -71,5 +71,5 @@ require (
 	github.com/zitadel/oidc/v3 v3.37.0
 	golang.org/x/sys v0.32.0 // indirect
 	gorm.io/driver/postgres v1.5.11
-	gorm.io/gorm v1.25.12
+	gorm.io/gorm v1.26.0
 )
