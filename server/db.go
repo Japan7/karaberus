@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/glebarez/sqlite"
+	_ "github.com/ncruces/go-sqlite3/embed"
+	"github.com/ncruces/go-sqlite3/gormlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -36,7 +37,7 @@ func init_db(ctx context.Context) {
 
 	if CONFIG.DB.Driver == "sqlite" {
 		getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
-		db, err := gorm.Open(sqlite.Open(CONFIG.DB.File), gorm_config)
+		db, err := gorm.Open(gormlite.Open(CONFIG.DB.File), gorm_config)
 		if err != nil {
 			panic("Could not connect to the database")
 		}
