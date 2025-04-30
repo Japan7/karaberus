@@ -1,6 +1,6 @@
 module github.com/Japan7/karaberus
 
-go 1.23.7
+go 1.24.2
 
 require (
 	github.com/kisielk/errcheck v1.9.0
