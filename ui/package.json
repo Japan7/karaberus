@@ -38,7 +38,7 @@
     "daisyui": "4.12.24",
     "eslint": "9.26.0",
     "eslint-config-prettier": "10.1.2",
-    "eslint-plugin-prettier": "5.3.1",
+    "eslint-plugin-prettier": "5.4.0",
     "postcss": "8.5.3",
     "prettier": "3.5.3",
     "tailwindcss": "3.4.17",
