@@ -1,5 +1,6 @@
 #!/bin/sh -xe
 export GOCACHE=/karaberus/go_cache
+export GOTOOLCHAIN=local
 
 if [ -n "${TARGET}" ]; then
     crossarg="--cross-file /karaberus/ci/${TARGET}.ini"
