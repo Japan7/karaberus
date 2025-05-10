@@ -133,25 +133,6 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 
 	kara_info.Comment = k.Comment
 
-	if len(k.Series) > 0 {
-		if len(k.Series) == 1 {
-			source_media := MediaDB{}
-			err := getMugenMedia(tx, k.Series[0], k.Origins, k.Collections, &source_media)
-			if err != nil {
-				return err
-			}
-			kara_info.SourceMedia = &source_media
-		} else {
-			kara_info.Medias = make([]MediaDB, len(k.Series))
-			for i, series := range k.Series {
-				err := getMugenMedia(tx, series, k.Origins, k.Collections, &kara_info.Medias[i])
-				if err != nil {
-					return err
-				}
-			}
-		}
-	}
-
 	// authors
 	kara_info.Authors = make([]TimingAuthor, len(k.Authors))
 
@@ -212,6 +193,29 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 	}
 
 	kara_info.Version = strings.Join(versions, " ")
+
+	if len(k.Series) > 0 {
+		has_song_order, err := kara_info.hasSongOrder()
+		if err != nil {
+			return err
+		}
+		if len(k.Series) == 1 && has_song_order {
+			source_media := MediaDB{}
+			err := getMugenMedia(tx, k.Series[0], k.Origins, k.Collections, &source_media)
+			if err != nil {
+				return err
+			}
+			kara_info.SourceMedia = &source_media
+		} else {
+			kara_info.Medias = make([]MediaDB, len(k.Series))
+			for i, series := range k.Series {
+				err := getMugenMedia(tx, series, k.Origins, k.Collections, &kara_info.Medias[i])
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 
 	return nil
 }

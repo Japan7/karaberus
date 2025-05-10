@@ -532,6 +532,20 @@ type MugenExport struct {
 	Closed         bool       `json:"closed"`
 }
 
+func (k KaraInfoDB) hasSongOrder() (bool, error) {
+	for _, tag := range k.AudioTags {
+		audio_tag, err := getAudioTag(tag.ID)
+		if err != nil {
+			return false, err
+		}
+		if audio_tag.HasSongOrder {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func (k KaraInfoDB) getAudioTags() ([]AudioTag, error) {
 	audio_tags := make([]AudioTag, len(k.AudioTags))
 
