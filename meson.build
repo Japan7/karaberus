@@ -407,6 +407,7 @@ if get_option('s3_tests').enabled()
         python,
         args: [files('tests' / 'tests.py')],
         env: go_test_env,
+        timeout: 300,
     )
 endif
 
