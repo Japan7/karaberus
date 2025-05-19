@@ -33,11 +33,13 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
+	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
+	github.com/tinylib/msgp v1.3.0 // indirect
 	github.com/zitadel/logging v0.6.2 // indirect
 	github.com/zitadel/schema v1.3.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -58,7 +60,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
-	github.com/minio/minio-go/v7 v7.0.91
+	github.com/minio/minio-go/v7 v7.0.92
 	github.com/ncruces/go-sqlite3/gormlite v0.24.0
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
