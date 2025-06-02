@@ -77,23 +77,27 @@ func pickBestClient(ctx context.Context) {
 	}
 	timeout := 5 * time.Second
 
-	select {
-	case tested := <-c:
-		if best_client == nil || tested.ListLatency < best_client.ListLatency {
-			best_client = &tested
-			timeout = 500 * time.Millisecond
-		}
-	case <-time.After(timeout):
-		if best_client == nil {
-			if err == nil {
-				panic("timeout")
-			} else {
-				panic(err)
+	for range S3_CLIENTS {
+		select {
+		case tested := <-c:
+			if best_client == nil || tested.ListLatency < best_client.ListLatency {
+				best_client = &tested
+				timeout = 500 * time.Millisecond
+			}
+		case <-time.After(timeout):
+			if best_client == nil {
+				if err == nil {
+					panic("timeout")
+				} else {
+					panic(err)
+				}
 			}
 		}
 	}
 
-	S3_BEST_CLIENT = best_client.Client
+	if best_client != nil {
+		S3_BEST_CLIENT = best_client.Client
+	}
 }
 
 func getS3Client() *minio.Client {
