@@ -5,6 +5,8 @@ package server
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -286,16 +288,43 @@ func GetKaraByID(db *gorm.DB, kara_id uint) (KaraInfoDB, error) {
 	return *kara, err
 }
 
+type GetAllKarasInput struct {
+	IfNoneMatch string `header:"If-None-Match"`
+}
+
+type GetAllKarasBody struct {
+}
+
 type GetAllKarasOutput struct {
-	Body struct {
+	ETag   string `header:"ETag"`
+	Status int
+	Body   struct {
 		Karas []KaraInfoDB
 	}
 }
 
-func GetAllKaras(ctx context.Context, input *struct{}) (*GetAllKarasOutput, error) {
+func GetAllKaras(ctx context.Context, input *GetAllKarasInput) (*GetAllKarasOutput, error) {
 	out := &GetAllKarasOutput{}
 	db := GetDB(ctx)
-	err := db.Preload(clause.Associations).Scopes(CurrentKaras).Find(&out.Body.Karas).Error
+	last_kara := KaraInfoDB{}
+	err := db.Last(&last_kara).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			out.ETag = "0"
+			err = nil
+		} else {
+			return nil, err
+		}
+	} else {
+		out.ETag = fmt.Sprint(last_kara.ID)
+	}
+
+	if out.ETag == input.IfNoneMatch {
+		out.Status = 304
+	} else {
+		out.Status = 200
+		err = db.Preload(clause.Associations).Scopes(CurrentKaras).Find(&out.Body.Karas).Error
+	}
 	return out, DBErrToHumaErr(err)
 }
 

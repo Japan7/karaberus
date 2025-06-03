@@ -14,13 +14,12 @@ import pathlib
 import secrets
 import shlex
 import subprocess
-import sys
 import time
 import unittest
 import urllib.request as request
 import zlib
 from typing import IO, ClassVar, TypedDict, final
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 
 class KaraberusKara(TypedDict):
@@ -186,11 +185,18 @@ class KaraberusInstance:
         if self.gofakes3_proc is not None:
             self.gofakes3_proc.kill()
 
-    def get(self, path: str) -> http.client.HTTPResponse:
+    def get(
+        self,
+        path: str,
+        headers: dict[str, str] | None = None,
+    ) -> http.client.HTTPResponse:
         url = f"{self.base_url}{path}"
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-        }
+
+        if headers is None:
+            headers = {}
+
+        headers["Authorization"] = f"Bearer {self.token}"
+
         req = request.Request(url, headers=headers, method="GET")
         return request.urlopen(req, timeout=5)
 
@@ -272,13 +278,13 @@ class TestKaraberus(unittest.TestCase):
     karaberus: ClassVar[KaraberusInstance]
 
     # windows CI uses python 3.9 which doesn’t have typing.override
-    #@override
+    # @override
     @classmethod
     def setUpClass(cls) -> None:
         cls.karaberus = KaraberusInstance()
         cls.karaberus.launch_karaberus()
 
-    #@override
+    # @override
     @classmethod
     def tearDownClass(cls) -> None:
         cls.karaberus.stop_karaberus()
@@ -415,6 +421,17 @@ class TestKaraberus(unittest.TestCase):
         with font_file.open("rb") as fd:
             self.compare_files(fd, resp)
 
+    def test_etag(self) -> None:
+        out = self.karaberus.get("/api/kara")
+        etag = out.headers["ETag"]
+        self.assertEqual(out.status, 200)
+
+        try:
+            out = self.karaberus.get("/api/kara", {"If-None-Match": etag})
+            self.assertEqual(out.status, 304)
+        except HTTPError as e:
+            self.assertEqual(e.status, 304)
+
 
 if __name__ == "__main__":
-    unittest.main()
+    _ = unittest.main()
