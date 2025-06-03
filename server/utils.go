@@ -36,7 +36,6 @@ func Do(client *http.Client, req *http.Request) (*http.Response, error) {
 func extendETag(last_item_id uint, err error, etag *uint) error {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			*etag = 0
 			err = nil
 		} else {
 			return err
