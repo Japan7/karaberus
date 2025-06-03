@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -301,12 +302,50 @@ type GetAllKarasOutput struct {
 	}
 }
 
+func getKaraETag(tx *gorm.DB, etag_header *string) error {
+	etag := uint(0)
+
+	last_kara := KaraInfoDB{}
+	err := tx.Last(&last_kara).Error
+	err = extendETag(last_kara.ID, err, &etag)
+	if err != nil {
+		return err
+	}
+
+	// need to check artists since they are included in the response
+	last_artist := Artist{}
+	err = tx.Last(&last_artist).Error
+	err = extendETag(last_artist.ID, err, &etag)
+	if err != nil {
+		return err
+	}
+
+	// need to check medias since they are included in the response
+	last_media := Artist{}
+	err = tx.Last(&last_media).Error
+	err = extendETag(last_media.ID, err, &etag)
+	if err != nil {
+		return err
+	}
+
+	// need to check authors since they are included in the response
+	// they are not versioned so it uses the last update time
+	last_author := TimingAuthor{}
+	err = tx.Order("updated_at DESC").Take(&last_author).Error
+	err = extendETag(uint(last_author.UpdatedAt.Unix()), err, &etag)
+	if err != nil {
+		return err
+	}
+
+	*etag_header = fmt.Sprint(etag)
+	return nil
+}
+
 func GetAllKaras(ctx context.Context, input *GetAllKarasInput) (*GetAllKarasOutput, error) {
 	out := &GetAllKarasOutput{}
 	db := GetDB(ctx)
-	last_kara := KaraInfoDB{}
-	err := db.Last(&last_kara).Error
-	err = setETag(last_kara.ID, err, &out.ETag)
+
+	err := getKaraETag(db, &out.ETag)
 	if err != nil {
 		return nil, err
 	}

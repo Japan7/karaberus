@@ -33,17 +33,28 @@ func Do(client *http.Client, req *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-func setETag(last_item_id uint, err error, etag *string) error {
+func extendETag(last_item_id uint, err error, etag *uint) error {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			*etag = "0"
+			*etag = 0
 			err = nil
 		} else {
 			return err
 		}
 	} else {
-		*etag = fmt.Sprint(last_item_id)
+		*etag += last_item_id
 	}
 
+	return nil
+}
+
+func setETag(last_item_id uint, err error, etag *string) error {
+	etag_n := uint(0)
+	err = extendETag(last_item_id, err, &etag_n)
+	if err != nil {
+		return err
+	}
+
+	*etag = fmt.Sprint(etag_n)
 	return nil
 }
