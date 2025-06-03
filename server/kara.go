@@ -5,8 +5,6 @@ package server
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -308,15 +306,9 @@ func GetAllKaras(ctx context.Context, input *GetAllKarasInput) (*GetAllKarasOutp
 	db := GetDB(ctx)
 	last_kara := KaraInfoDB{}
 	err := db.Last(&last_kara).Error
+	err = setETag(last_kara.ID, err, &out.ETag)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			out.ETag = "0"
-			err = nil
-		} else {
-			return nil, err
-		}
-	} else {
-		out.ETag = fmt.Sprint(last_kara.ID)
+		return nil, err
 	}
 
 	if out.ETag == input.IfNoneMatch {

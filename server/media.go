@@ -160,14 +160,33 @@ func FindMedia(ctx context.Context, input *FindMediaInput) (*MediaOutput, error)
 	return out, DBErrToHumaErr(err)
 }
 
-type AllMediasOutput struct {
-	Body []MediaDB `json:"medias"`
+type AllMediasInput struct {
+	IfNoneMatch string `header:"If-None-Match"`
 }
 
-func GetAllMedias(ctx context.Context, input *struct{}) (*AllMediasOutput, error) {
-	db := GetDB(ctx)
+type AllMediasOutput struct {
+	ETag   string `header:"ETag"`
+	Status int
+	Body   []MediaDB `json:"medias"`
+}
+
+func GetAllMedias(ctx context.Context, input *AllMediasInput) (*AllMediasOutput, error) {
 	out := &AllMediasOutput{}
-	err := db.Preload("AdditionalNames").Scopes(CurrentMedias).Find(&out.Body).Error
+	db := GetDB(ctx)
+
+	last_media := MediaDB{}
+	err := db.Last(&last_media).Error
+	err = setETag(last_media.ID, err, &out.ETag)
+	if err != nil {
+		return nil, err
+	}
+
+	if out.ETag == input.IfNoneMatch {
+		out.Status = 304
+	} else {
+		out.Status = 200
+		err = db.Preload("AdditionalNames").Scopes(CurrentMedias).Find(&out.Body).Error
+	}
 	return out, DBErrToHumaErr(err)
 }
 

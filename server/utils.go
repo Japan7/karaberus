@@ -1,9 +1,12 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 // Close but you can’t have an error returned so you can safely defer it
@@ -28,4 +31,19 @@ func Do(client *http.Client, req *http.Request) (*http.Response, error) {
 	}
 
 	return resp, err
+}
+
+func setETag(last_item_id uint, err error, etag *string) error {
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			*etag = "0"
+			err = nil
+		} else {
+			return err
+		}
+	} else {
+		*etag = fmt.Sprint(last_item_id)
+	}
+
+	return nil
 }

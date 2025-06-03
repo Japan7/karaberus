@@ -152,13 +152,32 @@ func FindArtist(ctx context.Context, input *FindArtistInput) (*ArtistOutput, err
 	return out, nil
 }
 
-type AllArtistsOutput struct {
-	Body []Artist `json:"artists"`
+type AllArtistsInput struct {
+	IfNoneMatch string `header:"If-None-Match"`
 }
 
-func GetAllArtists(ctx context.Context, input *struct{}) (*AllArtistsOutput, error) {
+type AllArtistsOutput struct {
+	ETag   string `header:"ETag"`
+	Status int
+	Body   []Artist `json:"artists"`
+}
+
+func GetAllArtists(ctx context.Context, input *AllArtistsInput) (*AllArtistsOutput, error) {
 	db := GetDB(ctx)
 	out := &AllArtistsOutput{}
-	err := db.Preload("AdditionalNames").Scopes(CurrentArtists).Find(&out.Body).Error
+
+	last_artist := Artist{}
+	err := db.Last(&last_artist).Error
+	err = setETag(last_artist.ID, err, &out.ETag)
+	if err != nil {
+		return nil, err
+	}
+
+	if out.ETag == input.IfNoneMatch {
+		out.Status = 304
+	} else {
+		out.Status = 200
+		err = db.Preload("AdditionalNames").Scopes(CurrentArtists).Find(&out.Body).Error
+	}
 	return out, DBErrToHumaErr(err)
 }
