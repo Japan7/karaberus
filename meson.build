@@ -97,6 +97,9 @@ go_test_env.set(
 # go test binaries env
 gobin_env = environment()
 gobin_env.set('GOBIN', meson.current_build_dir())
+# or nilaway will launch too many procs while meson already runs other tests in
+# parallel
+gobin_env.set('GOMAXPROCS', '1')
 
 go_files = files('go.mod', 'go.sum', 'main.go', 'main_cgo.go')
 go_files += files(
