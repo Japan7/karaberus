@@ -46,7 +46,7 @@
     "typescript-eslint": "8.34.1",
     "vite": "6.3.5",
     "vite-plugin-pages": "0.33.0",
-    "vite-plugin-solid": "2.11.6",
+    "vite-plugin-solid": "2.11.7",
     "vite-plugin-static-copy": "3.0.2"
   }
 }
