@@ -15,6 +15,11 @@
         "build-dependencies"
       ],
       "rangeStrategy": "pin"
+    },
+    {
+      "groupName": "tauri deps",
+      "matchDepNames": ["tauri", "tauri-*", "@tauri-apps/*"],
+      "matchUpdateTypes": ["digest", "patch", "minor", "major"]
     }
   ]
 }
