@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@fontsource/amaranth": "5.2.6",
-    "@solid-primitives/scheduled": "1.5.1",
+    "@solid-primitives/scheduled": "1.5.2",
     "@solid-primitives/storage": "4.3.2",
     "@solidjs/router": "0.15.3",
     "@tauri-apps/api": "2.5.0",
