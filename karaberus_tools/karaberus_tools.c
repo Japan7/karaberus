@@ -39,31 +39,31 @@ karaberus_reports karaberus_dakara_check_avio(
   dakara_check_avio(KARABERUS_BUFSIZE, obj, read_packet, seek, &res);
 
   if (video_stream) {
-    if (res.report.errors.no_duration) {
+    if (res.report.no_duration) {
       karaberus_report report = {NO_DURATION_FOUND, K_ERROR,
                                  "could not find duration of media file"};
       karaberus_add_report(&reports, report);
     } else {
       reports.duration = res.duration;
     }
-    if (res.report.errors.no_video_stream) {
+    if (res.report.no_video_stream) {
       karaberus_report report = {NO_VIDEO_STREAM, K_ERROR,
                                  "no video stream found"};
       karaberus_add_report(&reports, report);
     }
   }
 
-  if (res.report.errors.no_audio_stream) {
+  if (res.report.no_audio_stream) {
     karaberus_report report = {NO_AUDIO_STREAM, K_ERROR,
                                "no audio stream found"};
     karaberus_add_report(&reports, report);
   }
-  if (res.report.errors.io_error) {
+  if (res.report.io_error) {
     karaberus_report report = {IO_ERROR, K_ERROR,
                                "failed to read the media file"};
     karaberus_add_report(&reports, report);
   }
-  if (res.report.errors.internal_sub_stream) {
+  if (res.report.internal_sub_stream) {
     karaberus_report report = {INTERNAL_SUBS, K_ERROR,
                                "found an internal sub track"};
     karaberus_add_report(&reports, report);
@@ -83,8 +83,8 @@ karaberus_sub_reports *karaberus_check_sub(char *mem, size_t bufsize) {
 
   karaberus_sub_reports *kres = malloc(sizeof(karaberus_sub_reports));
 
-  kres->io_error = res->report.errors.io_error;
-  if (!res->report.errors.io_error) {
+  kres->io_error = res->report.io_error;
+  if (!res->report.io_error) {
     kres->lyrics = strdup(res->lyrics);
   }
 
