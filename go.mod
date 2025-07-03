@@ -65,7 +65,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.63.0
-	github.com/zitadel/oidc/v3 v3.39.0
+	github.com/zitadel/oidc/v3 v3.39.1
 	golang.org/x/sys v0.33.0 // indirect
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.30.0
