@@ -971,7 +971,7 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		Artists:         artists,
 		Works:           works,
 		Lyrics:          lyrics,
-		HasInstrumental: false,
+		HasInstrumental: kara.InstrumentalUploaded,
 	}, nil
 }
 
