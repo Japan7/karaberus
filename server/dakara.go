@@ -512,6 +512,7 @@ func (body DakaraSongBody) HasChanged(ref DakaraSong) bool {
 		body.Version != ref.Version ||
 		body.Detail != ref.Detail ||
 		body.DetailVideo != ref.DetailVideo ||
+		body.HasInstrumental != ref.HasInstrumental ||
 		possibly_truncated_lyrics != ref.LyricsPreview.Text ||
 		!tags_equal ||
 		!artists_equal ||
