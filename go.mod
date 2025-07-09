@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/ncruces/go-sqlite3 v0.26.3
 	github.com/spf13/cobra v1.9.1
-	golang.org/x/sync v0.15.0
+	golang.org/x/sync v0.16.0
 )
 
 require (
