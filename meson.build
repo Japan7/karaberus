@@ -147,10 +147,9 @@ subdir('server')
 karaberus_inputs = go_files + karaberus_server_files
 karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 
+go_build_options = ['-tags', 'no_otel']
 if get_option('debug')
-    go_build_options = ['-gcflags=all=-N -l']
-else
-    go_build_options = []
+    go_build_options += ['-gcflags=all=-N -l']
 endif
 
 if get_option('no_native_deps')
