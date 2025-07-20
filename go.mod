@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.34.1
-	github.com/gofiber/fiber/v2 v2.52.8
+	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/google/uuid v1.6.0
 	github.com/ncruces/go-sqlite3 v0.27.1
 	github.com/spf13/cobra v1.9.1
