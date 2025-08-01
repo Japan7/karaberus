@@ -33,8 +33,8 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest # arm64
-          - windows-latest
+          - macos-15 # arm64
+          - windows-2025
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
