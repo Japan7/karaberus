@@ -32,9 +32,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          - macos-latest # arm64
-          - windows-latest
+          - ubuntu-24.04
+          - macos-26 # arm64
+          - windows-2025
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
