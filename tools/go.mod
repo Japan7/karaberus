@@ -8,7 +8,6 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.44.256 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/ryszard/goskiplist v0.0.0-20150312221310-2dfbae5fcf46 // indirect
 	github.com/spf13/afero v1.2.1 // indirect
@@ -26,7 +25,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
-	github.com/johannesboyne/gofakes3 v0.0.0-20250603205740-ed9094be7668
+	github.com/johannesboyne/gofakes3 v0.0.0-20250819190956-70603d73f06f
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/muhlemmer/httpforwarded v0.1.0 // indirect
 	github.com/odrling/zitadel-karaberus v0.0.0-20250620160726-78224d3a1286
