@@ -37,6 +37,7 @@ export async function getTauriStore() {
   if (!store) {
     store = await load(IS_TAURI_DEV_BUILD ? "store_dev.bin" : "store.bin", {
       autoSave: false,
+      defaults: {},
     });
   }
   return store;
