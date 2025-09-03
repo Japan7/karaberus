@@ -216,7 +216,7 @@ type MediaDB struct {
 }
 
 func (m *MediaDB) Description() string{
-	return fmt.Sprintf("%s (%s)", m.Name, m.Type)
+	return fmt.Sprintf("[%s] %s", m.Type, m.Name)
 }
 
 func CurrentMedias(tx *gorm.DB) *gorm.DB {
