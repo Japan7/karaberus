@@ -608,12 +608,12 @@ func karaDescription(k KaraInfoDB) (string, error) {
 	medias := make([]string, 0)
 
 	if k.SourceMedia != nil {
-		medias = append(medias, k.SourceMedia.Name)
+		medias = append(medias, k.SourceMedia.Description())
 	}
 
 	if len(k.Medias) > 0 {
 		for _, media := range k.Medias {
-			medias = append(medias, media.Name)
+			medias = append(medias, media.Description())
 		}
 	}
 

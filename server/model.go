@@ -215,6 +215,10 @@ type MediaDB struct {
 	Editor
 }
 
+func (m *MediaDB) Description() string{
+	return fmt.Sprintf("%s (%s)", m.Name, m.Type)
+}
+
 func CurrentMedias(tx *gorm.DB) *gorm.DB {
 	return tx.Where("current_media_id IS NULL")
 }
