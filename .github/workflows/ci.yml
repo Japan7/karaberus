@@ -42,7 +42,7 @@ jobs:
           echo GOPATH="D:\golang\go" >> $GITHUB_ENV
           echo GOMODCACHE="D:\golang\modcache" >> $GITHUB_ENV
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: "stable"
 
