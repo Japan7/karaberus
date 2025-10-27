@@ -27,7 +27,7 @@
     "libass-wasm": "4.1.0",
     "openapi-fetch": "0.15.0",
     "solid-icons": "1.1.0",
-    "solid-js": "1.9.9",
+    "solid-js": "1.9.10",
     "theme-change": "2.5.0"
   },
   "devDependencies": {
