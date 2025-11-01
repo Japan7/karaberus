@@ -215,7 +215,7 @@ type MediaDB struct {
 	Editor
 }
 
-func (m *MediaDB) Description() string{
+func (m *MediaDB) Description() string {
 	return fmt.Sprintf("[%s] %s", m.Type, m.Name)
 }
 
