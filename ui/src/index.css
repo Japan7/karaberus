@@ -24,7 +24,7 @@
 
 @layer base {
   html:not([data-theme="light"]) ::placeholder {
-    color: rgb(115 115 115 / 1);
+    color: var(--color-neutral-500);
   }
 }
 
