@@ -10,7 +10,6 @@ ui_src = files(
     'index.html',
     'package.json',
     'postcss.config.js',
-    'tailwind.config.js',
     'vite.config.ts',
 )
 
