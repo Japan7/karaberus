@@ -157,7 +157,7 @@ export default function KaraokeBrowse() {
         when={getAllKaras()}
         fallback={<span class="loading loading-spinner loading-lg" />}
       >
-        <label class="input input-bordered flex items-center gap-2">
+        <label class="input input flex items-center gap-2">
           <input
             type="text"
             placeholder="Search"

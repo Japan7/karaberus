@@ -26,8 +26,8 @@ export default function AuthorEditor(props: {
     <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
-          <span class="label-text">Name</span>
-          <span class="label-text-alt">(required)</span>
+          <span class="">Name</span>
+          <span class="text-sm opacity-70">(required)</span>
         </div>
         <input
           type="text"
@@ -35,11 +35,11 @@ export default function AuthorEditor(props: {
           placeholder="bebou69"
           value={getName()}
           onInput={(e) => setName(e.currentTarget.value)}
-          class="input input-bordered w-full"
+          class="input input w-full"
         />
         <div class="label">
-          <span class="label-text">Public Name</span>
-          <span class="label-text-alt">(optional)</span>
+          <span class="">Public Name</span>
+          <span class="text-sm opacity-70">(optional)</span>
         </div>
         <input
           type="text"
@@ -47,7 +47,7 @@ export default function AuthorEditor(props: {
           placeholder="bebou69"
           value={getPublicName()}
           onInput={(e) => setPublicName(e.currentTarget.value)}
-          class="input input-bordered w-full"
+          class="input input w-full"
         />
       </label>
 

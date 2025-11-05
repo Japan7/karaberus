@@ -66,8 +66,8 @@ export default function MugenImport(props: {
     <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
-          <span class="label-text">Karaoke ID/URL</span>
-          <span class="label-text-alt">(required)</span>
+          <span class="">Karaoke ID/URL</span>
+          <span class="text-sm opacity-70">(required)</span>
         </div>
         <input
           type="text"
@@ -75,10 +75,10 @@ export default function MugenImport(props: {
           placeholder="https://kara.moe/kara/zankoku-na-tenshi-no-these/a0ac08a9-46b6-4219-8017-a0a9581ef914"
           value={getInput()}
           onInput={(e) => setInput(e.currentTarget.value)}
-          class="input input-bordered w-full"
+          class="input input w-full"
         />
         <div class="label">
-          <span class="label-text-alt">{getName()}</span>
+          <span class="text-sm opacity-70">{getName()}</span>
         </div>
       </label>
 

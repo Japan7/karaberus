@@ -40,8 +40,8 @@ export default function MediaEditor(props: {
     <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
-          <span class="label-text">Media type</span>
-          <span class="label-text-alt">(required)</span>
+          <span class="">Media type</span>
+          <span class="text-sm opacity-70">(required)</span>
         </div>
         <select
           required
@@ -64,8 +64,8 @@ export default function MediaEditor(props: {
 
       <label>
         <div class="label">
-          <span class="label-text">Name</span>
-          <span class="label-text-alt">(required)</span>
+          <span class="">Name</span>
+          <span class="text-sm opacity-70">(required)</span>
         </div>
         <input
           type="text"
@@ -73,14 +73,14 @@ export default function MediaEditor(props: {
           placeholder="Shin Seiki Evangelion"
           value={getName()}
           onInput={(e) => setName(e.currentTarget.value)}
-          class="input input-bordered w-full"
+          class="input input w-full"
         />
       </label>
 
       <label>
         <div class="label">
-          <span class="label-text">Additional names</span>
-          <span class="label-text-alt">1 per line</span>
+          <span class="">Additional names</span>
+          <span class="text-sm opacity-70">1 per line</span>
         </div>
         <textarea
           placeholder={"Neon Genesis Evangelion\n新世紀エヴァンゲリオン"}

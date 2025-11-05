@@ -48,10 +48,10 @@ export default function FileUploader(props: {
   };
 
   return (
-    <label class="form-control">
+    <div>
       <div class="label grid grid-cols-2">
-        <span class="label-text">{props.title}</span>
-        <span class="label-text-alt">
+        <span>{props.title}</span>
+        <span>
           <Show when={getProgress()}>
             <div class="flex items-center gap-x-1">
               <progress
@@ -63,14 +63,10 @@ export default function FileUploader(props: {
           </Show>
         </span>
       </div>
-      <input
-        type="file"
-        onchange={upload}
-        class="file-input file-input-bordered"
-      />
+      <input type="file" onchange={upload} class="file-input file-input" />
       <div class="label">
-        <span class="label-text-alt">{props.altChildren}</span>
+        <span>{props.altChildren}</span>
       </div>
-    </label>
+    </div>
   );
 }

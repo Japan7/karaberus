@@ -130,7 +130,7 @@ export default function KaraCard(props: {
                 checked={props.kara.VideoUploaded}
                 class="checkbox checkbox-sm checkbox-success"
               />
-              <span class="label-text-alt">Video</span>
+              <span class="text-sm opacity-70">Video</span>
             </label>
             <label class="label gap-x-1">
               <input
@@ -139,7 +139,7 @@ export default function KaraCard(props: {
                 checked={props.kara.InstrumentalUploaded}
                 class="checkbox checkbox-sm checkbox-success"
               />
-              <span class="label-text-alt">Instrumental</span>
+              <span class="text-sm opacity-70">Instrumental</span>
             </label>
             <label class="label gap-x-1">
               <input
@@ -148,7 +148,7 @@ export default function KaraCard(props: {
                 checked={props.kara.SubtitlesUploaded}
                 class="checkbox checkbox-sm checkbox-success"
               />
-              <span class="label-text-alt">Subtitles</span>
+              <span class="text-sm opacity-70">Subtitles</span>
             </label>
           </div>
 

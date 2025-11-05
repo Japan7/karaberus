@@ -30,8 +30,8 @@ export default function ArtistEditor(props: {
     <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
-          <span class="label-text">Name</span>
-          <span class="label-text-alt">(required)</span>
+          <span class="">Name</span>
+          <span class="text-sm opacity-70">(required)</span>
         </div>
         <input
           type="text"
@@ -39,14 +39,14 @@ export default function ArtistEditor(props: {
           placeholder="Yoko Takahashi"
           value={getName()}
           onInput={(e) => setName(e.currentTarget.value)}
-          class="input input-bordered w-full"
+          class="input input w-full"
         />
       </label>
 
       <label>
         <div class="label">
-          <span class="label-text">Additional names</span>
-          <span class="label-text-alt">1 per line</span>
+          <span class="">Additional names</span>
+          <span class="text-sm opacity-70">1 per line</span>
         </div>
         <textarea
           placeholder={"YAWMIN\n高橋洋子"}

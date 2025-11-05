@@ -46,41 +46,35 @@ export default function TokenForm(props: {
         placeholder="Name"
         value={getName()}
         oninput={(e) => setName(e.currentTarget.value)}
-        class="input input-bordered"
+        class="input input"
       />
-      <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Karaoke</span>
-          <input
-            type="checkbox"
-            checked={getKaraChecked()}
-            onchange={(e) => setKaraChecked(e.currentTarget.checked)}
-            class="toggle"
-          />
-        </label>
-      </div>
-      <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Karaoke Read-Only</span>
-          <input
-            type="checkbox"
-            checked={getKaraROChecked()}
-            onchange={(e) => setKaraROChecked(e.currentTarget.checked)}
-            class="toggle"
-          />
-        </label>
-      </div>
-      <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">User</span>
-          <input
-            type="checkbox"
-            checked={getUserChecked()}
-            onchange={(e) => setUserChecked(e.currentTarget.checked)}
-            class="toggle"
-          />
-        </label>
-      </div>
+      <label class="label cursor-pointer">
+        <span>Karaoke</span>
+        <input
+          type="checkbox"
+          checked={getKaraChecked()}
+          onchange={(e) => setKaraChecked(e.currentTarget.checked)}
+          class="toggle"
+        />
+      </label>
+      <label class="label cursor-pointer">
+        <span>Karaoke Read-Only</span>
+        <input
+          type="checkbox"
+          checked={getKaraROChecked()}
+          onchange={(e) => setKaraROChecked(e.currentTarget.checked)}
+          class="toggle"
+        />
+      </label>
+      <label class="label cursor-pointer">
+        <span>User</span>
+        <input
+          type="checkbox"
+          checked={getUserChecked()}
+          onchange={(e) => setUserChecked(e.currentTarget.checked)}
+          class="toggle"
+        />
+      </label>
       <input type="submit" class="btn btn-primary w-full" />
     </form>
   );
