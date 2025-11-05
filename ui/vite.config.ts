@@ -2,11 +2,12 @@ import { defineConfig, type PluginOption } from "vite";
 import pages from "vite-plugin-pages";
 import solid from "vite-plugin-solid";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ mode }) => {
   const isTauri = mode.indexOf("tauri") === 0;
 
-  const plugins: PluginOption[] = [solid(), pages()];
+  const plugins: PluginOption[] = [tailwindcss(), solid(), pages()];
 
   if (!isTauri) {
     plugins.push(
