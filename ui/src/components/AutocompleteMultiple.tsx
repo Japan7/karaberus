@@ -126,7 +126,7 @@ export default function AutocompleteMultiple<T>(
           oninput={(e) => setInput(e.currentTarget.value)}
           onkeydown={handleKeyDownInput}
           ref={inputRef}
-          class="bg-transparent outline-none w-full"
+          class="bg-transparent outline-hidden w-full"
           tabindex="0"
           {...inputProps}
         />

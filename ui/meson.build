@@ -9,8 +9,6 @@ ui_src = files(
     'public' / 'vite.svg',
     'index.html',
     'package.json',
-    'postcss.config.js',
-    'tailwind.config.js',
     'vite.config.ts',
 )
 
