@@ -60,7 +60,7 @@ export default function ProfileEditor(props: {
     <form onsubmit={onsubmit} class="flex flex-col gap-y-2 w-full">
       <label>
         <div class="label">
-          <span class="">Timing Author</span>
+          <span>Timing Author</span>
           <span class="text-sm opacity-70">
             <a class="link" onclick={openAddAuthorModal}>
               Can't find it?

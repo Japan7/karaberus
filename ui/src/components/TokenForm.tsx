@@ -46,7 +46,7 @@ export default function TokenForm(props: {
         placeholder="Name"
         value={getName()}
         oninput={(e) => setName(e.currentTarget.value)}
-        class="input input"
+        class="input"
       />
       <label class="label cursor-pointer">
         <span>Karaoke</span>

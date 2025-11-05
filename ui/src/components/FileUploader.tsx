@@ -63,7 +63,7 @@ export default function FileUploader(props: {
           </Show>
         </span>
       </div>
-      <input type="file" onchange={upload} class="file-input file-input" />
+      <input type="file" onchange={upload} class="file-input" />
       <div class="label">
         <span>{props.altChildren}</span>
       </div>

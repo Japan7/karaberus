@@ -193,7 +193,7 @@ export default function KaraEditor(props: {
   const titleInput = () => (
     <label>
       <div class="label">
-        <span class="">Title</span>
+        <span>Title</span>
         <span class="text-sm opacity-70">(required)</span>
       </div>
       <input
@@ -202,14 +202,14 @@ export default function KaraEditor(props: {
         placeholder="Zankoku na Tenshi no These"
         value={getTitle()}
         oninput={(e) => setTitle(e.currentTarget.value)}
-        class="input input w-full"
+        class="input w-full"
       />
     </label>
   );
   const extraTitlesInput = () => (
     <label>
       <div class="label">
-        <span class="">Aliases</span>
+        <span>Aliases</span>
         <span class="text-sm opacity-70">1 per line</span>
       </div>
       <textarea
@@ -223,7 +223,7 @@ export default function KaraEditor(props: {
   const authorsInput = () => (
     <label>
       <div class="label">
-        <span class="">Authors</span>
+        <span>Authors</span>
         <span class="text-sm opacity-70">
           <a class="link" onclick={openAddAuthorModal}>
             Can't find it?
@@ -249,7 +249,7 @@ export default function KaraEditor(props: {
   const artistsInput = () => (
     <label>
       <div class="label">
-        <span class="">Artists</span>
+        <span>Artists</span>
         <span class="text-sm opacity-70">
           <a class="link" onclick={openAddArtistModal}>
             Can't find it?
@@ -275,7 +275,7 @@ export default function KaraEditor(props: {
   const sourceMediaInput = () => (
     <label>
       <div class="label">
-        <span class="">Source media</span>
+        <span>Source media</span>
         <span class="text-sm opacity-70">
           <a class="link" onclick={openAddSourceMediaModal}>
             Can't find it?
@@ -301,7 +301,7 @@ export default function KaraEditor(props: {
   const songOrderInput = () => (
     <label>
       <div class="label">
-        <span class="">Song order</span>
+        <span>Song order</span>
       </div>
       <input
         type="number"
@@ -309,14 +309,14 @@ export default function KaraEditor(props: {
         min={0}
         value={getSongOrder()}
         onchange={(e) => setSongOrder(e.target.valueAsNumber)}
-        class="input input w-full"
+        class="input w-full"
       />
     </label>
   );
   const mediasInput = () => (
     <label>
       <div class="label">
-        <span class="">Other medias</span>
+        <span>Other medias</span>
         <span class="text-sm opacity-70">
           <a class="link" onclick={openAddOtherMediaModal}>
             Can't find it?
@@ -342,7 +342,7 @@ export default function KaraEditor(props: {
   const audioTagsInput = () => (
     <label>
       <div class="label">
-        <span class="">Song types</span>
+        <span>Song types</span>
       </div>
       <div class="grid md:grid-cols-2">
         <Index
@@ -365,7 +365,7 @@ export default function KaraEditor(props: {
                 }
                 class="checkbox"
               />
-              <span class="">{getAudioTag().Name}</span>
+              <span>{getAudioTag().Name}</span>
             </label>
           )}
         </Index>
@@ -375,7 +375,7 @@ export default function KaraEditor(props: {
   const videoTagsInput = () => (
     <label>
       <div class="label">
-        <span class="">Tags</span>
+        <span>Tags</span>
       </div>
       <div class="grid md:grid-cols-2">
         <Index
@@ -398,7 +398,7 @@ export default function KaraEditor(props: {
                 }
                 class="checkbox"
               />
-              <span class="">{getVideoTag().Name}</span>
+              <span>{getVideoTag().Name}</span>
             </label>
           )}
         </Index>
@@ -408,7 +408,7 @@ export default function KaraEditor(props: {
   const commentInput = () => (
     <label>
       <div class="label">
-        <span class="">Comment</span>
+        <span>Comment</span>
       </div>
       <textarea
         placeholder="something something"
@@ -421,21 +421,21 @@ export default function KaraEditor(props: {
   const versionInput = () => (
     <label>
       <div class="label">
-        <span class="">Version</span>
+        <span>Version</span>
       </div>
       <input
         type="text"
         placeholder="gael42"
         value={getVersion()}
         oninput={(e) => setVersion(e.currentTarget.value)}
-        class="input input w-full"
+        class="input w-full"
       />
     </label>
   );
   const privateInput = () => (
     <label>
       <div class="label">
-        <span class="">Private kara (won’t be exported)</span>
+        <span>Private kara (won’t be exported)</span>
       </div>
       <input
         type="checkbox"
@@ -448,14 +448,14 @@ export default function KaraEditor(props: {
   const languageInput = () => (
     <label>
       <div class="label">
-        <span class="">Language</span>
+        <span>Language</span>
       </div>
       <input
         type="text"
         placeholder="jpn"
         value={getLanguage()}
         oninput={(e) => setLanguage(e.currentTarget.value)}
-        class="input input w-full"
+        class="input w-full"
       />
     </label>
   );
