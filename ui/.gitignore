@@ -24,4 +24,3 @@ dist-ssr
 *.sw?
 
 /src/utils/karaberus.d.ts
-openapi.yaml
