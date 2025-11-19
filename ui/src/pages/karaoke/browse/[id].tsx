@@ -28,7 +28,7 @@ export default function KaraokeBrowseId() {
     const resp = await karaberus.GET("/api/kara/{id}", {
       params: {
         path: {
-          id: parseInt(params.id),
+          id: parseInt(params.id!),
         },
       },
     });
@@ -45,7 +45,7 @@ export default function KaraokeBrowseId() {
       body: info,
       params: {
         path: {
-          id: parseInt(params.id),
+          id: parseInt(params.id!),
         },
       },
     });
@@ -67,7 +67,7 @@ export default function KaraokeBrowseId() {
     const resp = await karaberus.DELETE("/api/kara/{id}", {
       params: {
         path: {
-          id: parseInt(params.id),
+          id: parseInt(params.id!),
         },
       },
     });
