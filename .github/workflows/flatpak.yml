@@ -9,7 +9,7 @@ jobs:
   update-flatpak:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: Japan7/karaberus-flatpak
           token: ${{ secrets.KARABERUS_FLATPAK_PAT }}
