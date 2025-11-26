@@ -6,7 +6,7 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.34.1
 	github.com/gofiber/fiber/v2 v2.52.10
 	github.com/google/uuid v1.6.0
-	github.com/ncruces/go-sqlite3 v0.30.1
+	github.com/ncruces/go-sqlite3 v0.30.2
 	github.com/spf13/cobra v1.10.1
 	golang.org/x/sync v0.18.0
 )
@@ -38,7 +38,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
-	github.com/tetratelabs/wazero v1.10.0 // indirect
+	github.com/tetratelabs/wazero v1.10.1 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
 	github.com/zitadel/logging v0.6.2 // indirect
 	github.com/zitadel/schema v1.3.1 // indirect
