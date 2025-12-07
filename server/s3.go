@@ -68,7 +68,7 @@ func pickBestClient(ctx context.Context) {
 	for _, client := range S3_CLIENTS {
 		go func(client *minio.Client) {
 			begin_time := time.Now()
-			_, err = client.ListBuckets(ctx)
+			_, err = client.GetBucketPolicy(ctx, CONFIG.S3.BucketName)
 			if err == nil {
 				tested := TestedClient{client, time.Since(begin_time).Nanoseconds()}
 				c <- tested
