@@ -6,10 +6,10 @@ on:
     branches: ["master"]
   workflow_dispatch:
     inputs:
-      run_tests:
-        description: 'run tests: only disable when needed or else I’ll break your knees'
+      skip_tests:
+        description: 'skip tests: only when needed or else I’ll break your knees'
         required: false
-        default: true
+        default: false
         type: boolean
 
 concurrency:
@@ -27,7 +27,7 @@ env:
 jobs:
 
   test_no_native:
-    if: ${{ ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id ) && inputs.run_tests }}
+    if: ${{ ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id ) && inputs.skip_tests == false }}
     strategy:
       fail-fast: false
       matrix:
@@ -102,7 +102,7 @@ jobs:
           key: go_build_${{ matrix.config.arch }}
 
       - name: Build
-        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.run_tests && '--tests' || '' }}
+        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.skip_tests && '' || '--tests' }}
 
       - name: Docker Metadata
         id: meta
