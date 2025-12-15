@@ -6,7 +6,7 @@ on:
     branches: ["master"]
   workflow_dispatch:
     inputs:
-      build_run_tests:
+      run_tests:
         description: 'run tests: only disable when needed or else I’ll break your knees'
         required: false
         default: true
@@ -27,7 +27,7 @@ env:
 jobs:
 
   test_no_native:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
+    if: ${{ ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id ) && inputs.run_tests}}
     strategy:
       fail-fast: false
       matrix:
@@ -102,7 +102,7 @@ jobs:
           key: go_build_${{ matrix.config.arch }}
 
       - name: Build
-        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh
+        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.run_tests ? "--tests" : "" }}
 
       - name: Docker Metadata
         id: meta
@@ -120,7 +120,6 @@ jobs:
       - name: Build image
         id: build-image
         uses: redhat-actions/buildah-build@v2
-        if: ${{ inputs.build_run_tests }}
         with:
           platforms: ${{ matrix.config.platform }}
           image: ${{ env.IMAGE_NAME }}
