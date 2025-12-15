@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       build_run_tests:
-        description: 'only use when needed or else I’ll break your knees'
+        description: 'run tests: only disable when needed or else I’ll break your knees'
         required: false
         default: true
         type: boolean
