@@ -102,7 +102,7 @@ jobs:
           key: go_build_${{ matrix.config.arch }}
 
       - name: Build
-        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.run_tests ? "--tests" : "" }}
+        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.run_tests && "--tests" || "" }}
 
       - name: Docker Metadata
         id: meta
