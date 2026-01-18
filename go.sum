@@ -7,8 +7,8 @@ github.com/bmatcuk/doublestar/v4 v4.9.2/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTS
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
-github.com/danielgtaylor/huma/v2 v2.34.2 h1:JG8DhmsIlgWAJ4OtTzXcBjqSsEfKUQ1/cEnxmQF8fVk=
-github.com/danielgtaylor/huma/v2 v2.34.2/go.mod h1:3elp5brzdyyZsPlDVvf6w8RLnklKp3abolr+5op3fP0=
+github.com/danielgtaylor/huma/v2 v2.34.3 h1:Ii2h2nBppVVxe6W5V7GSsD4N/kohPEO+x+5NAkjTzYg=
+github.com/danielgtaylor/huma/v2 v2.34.3/go.mod h1:3elp5brzdyyZsPlDVvf6w8RLnklKp3abolr+5op3fP0=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
