@@ -6,7 +6,7 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.35.0
 	github.com/gofiber/fiber/v2 v2.52.10
 	github.com/google/uuid v1.6.0
-	github.com/ncruces/go-sqlite3 v0.30.4
+	github.com/ncruces/go-sqlite3 v0.30.5
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/sync v0.19.0
 )
@@ -48,7 +48,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
@@ -68,7 +68,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0
 	github.com/zitadel/oidc/v3 v3.45.3
-	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
