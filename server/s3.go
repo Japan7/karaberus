@@ -18,7 +18,7 @@ import (
 )
 
 var S3_CLIENTS map[string]*minio.Client = map[string]*minio.Client{}
-var S3_BEST_CLIENT *minio.Client
+var S3_BEST_CLIENT *minio.Client = nil
 
 var clientsMutex = sync.Mutex{}
 
