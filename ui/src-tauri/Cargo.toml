@@ -16,19 +16,19 @@ name = "app_lib"
 crate-type = ["staticlib", "cdylib", "lib"]
 
 [build-dependencies]
-tauri-build = { version = "=2.5.3", features = [] }
+tauri-build = { version = "=2.5.5", features = [] }
 
 [dependencies]
 serde_json = "=1.0.149"
 serde = { version = "=1.0.228", features = ["derive"] }
-tauri = { version = "=2.9.5", features = ["devtools"] }
+tauri = { version = "=2.10.2", features = ["devtools"] }
 tauri-plugin-os = "=2.3.2"
 tauri-plugin-dialog = "=2.6.0"
 tauri-plugin-store = "=2.4.2"
 async-std = "=1.13.2"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
-tauri-plugin-updater = "=2.9.0"
-tauri-plugin-shell = "=2.3.4"
+tauri-plugin-updater = "=2.10.0"
+tauri-plugin-shell = "=2.3.5"
 fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
 interprocess = "=2.3.0"
