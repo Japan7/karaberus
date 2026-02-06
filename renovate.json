@@ -18,6 +18,7 @@
     },
     {
       "groupName": "tauri deps",
+      "groupSlug": "tauri",
       "matchDepNames": ["tauri", "tauri-*", "@tauri-apps/*"],
       "matchUpdateTypes": ["digest", "patch", "minor", "major"]
     },
