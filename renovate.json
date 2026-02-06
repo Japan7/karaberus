@@ -17,10 +17,11 @@
       "rangeStrategy": "pin"
     },
     {
-      "groupName": "tauri deps",
+      "groupName": "Tauri dependencies",
       "groupSlug": "tauri",
       "matchDepNames": ["tauri", "tauri-*", "@tauri-apps/*"],
-      "matchUpdateTypes": ["digest", "patch", "minor", "major"]
+      "separateMajorMinor": false,
+      "separateMinorPatch": false
     },
     {
       "matchPackageNames": ["bitnamilegacy/minio"],
