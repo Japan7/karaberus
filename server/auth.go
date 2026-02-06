@@ -61,9 +61,10 @@ func addOidcRoutes(ctx context.Context, app *fiber.App) {
 	)
 }
 
-type GitlabAuthOutput struct {
-	Status   int
-	Location string `header:"Location"`
+type OIDCAuthOutput struct {
+	Status    int
+	Location  string      `header:"Location"`
+	SetCookie http.Cookie `header:"Set-Cookie"`
 }
 
 func S256CodeChallenge(code_verifier string) string {
@@ -71,60 +72,240 @@ func S256CodeChallenge(code_verifier string) string {
 	return base64.RawURLEncoding.EncodeToString(sum[:])
 }
 
-type GitlabAuthorizationState struct {
-	State        string
+type OIDCState struct {
 	CodeVerifier string
+	AuthTime     time.Time
 }
 
 // user ID to token state
-var GitlabStates map[string]*GitlabAuthorizationState = map[string]*GitlabAuthorizationState{}
+var GitlabStates map[string]*OIDCState = map[string]*OIDCState{}
 
 func gitlabRedirectURI() string {
 	return fmt.Sprintf("%s/api/gitlab/callback", CONFIG.Listen.BaseURL)
 }
 
-func GitlabAuth(ctx context.Context, _ *struct{}) (*GitlabAuthOutput, error) {
+type OIDCConfig struct {
+	Issuer                string `json:"issuer"`
+	AuthorizationEndpoint string `json:"authorization_endpoint"`
+	TokenEndpoint         string `json:"token_endpoint"`
+	UserinfoEndpoint      string `json:"userinfo_endpoint,omitempty"`
+}
+
+func (c OIDCConfig) Validate(issuer string) error {
+	// TODO: check that issuer supports everything we need
+	// for now we’re just assuming
+	if issuer != c.Issuer {
+		getLogger().Printf("wrong issuer in response from oidc well-known: %s != %s", issuer, c.Issuer)
+		return errors.New("wrong issuer value in response from oidc well-known endpoint")
+	}
+	return nil
+}
+
+func NewOIDCProvider(issuer string, client_id string, scopes string, redirect_uri string, savefunc func(ctx context.Context, token OAuthTokenResponse) error) *OIDCProvider {
+
+	provider := &OIDCProvider{
+		ClientID:      client_id,
+		Scopes:        scopes,
+		RedirectURI:   redirect_uri,
+		CodeVerifiers: map[string]*OIDCState{},
+		SaveToken:     savefunc,
+	}
+
+	go provider.CleanupStates()
+
+	return provider
+}
+
+func (provider *OIDCProvider) EnsureConfig(ctx context.Context) error {
+	if provider.Config != nil {
+		return nil
+	}
+
+	well_known_url := provider.Issuer + "/.well-known/openid-configuration"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, well_known_url, bytes.NewBufferString(""))
+	if err != nil {
+		return err
+	}
+	resp, err := Do(http.DefaultClient, req)
+	if err != nil {
+		return err
+	}
+	defer Closer(resp.Body)
+
+	dec := json.NewDecoder(resp.Body)
+	err = dec.Decode(&provider.Config)
+	if err != nil {
+		return err
+	}
+
+	err = provider.Config.Validate(provider.Issuer)
+	return err
+}
+
+var GITLAB_PROVIDER *OIDCProvider = nil
+
+func GitlabProvider() *OIDCProvider {
+	if GITLAB_PROVIDER == nil {
+		scopes := strings.Join(CONFIG.Mugen.Gitlab.Scopes, "+")
+		GITLAB_PROVIDER = NewOIDCProvider(CONFIG.Mugen.Gitlab.Server, CONFIG.Mugen.Gitlab.ClientID, scopes, gitlabRedirectURI(), saveGitlabToken)
+	}
+	return GITLAB_PROVIDER
+}
+
+type OIDCProvider struct {
+	ClientID      string
+	Issuer        string
+	RedirectURI   string
+	Config        *OIDCConfig
+	Scopes        string
+	CodeVerifiers map[string]*OIDCState // state → code verifier
+	SaveToken     func(ctx context.Context, token OAuthTokenResponse) error
+}
+
+func (provider OIDCProvider) AuthorizeURI() string {
+	return provider.Config.AuthorizationEndpoint
+}
+
+func (provider OIDCProvider) TokenURI() string {
+	return provider.Config.TokenEndpoint
+}
+
+func (provider OIDCProvider) UserinfoURI() string {
+	return provider.Config.UserinfoEndpoint
+}
+
+// delete unused states after some time
+func (provider *OIDCProvider) CleanupStates() {
+	for {
+		time.Sleep(60 * time.Second)
+
+		delete_before := time.Now().Add(-300 * time.Second)
+		for k, v := range provider.CodeVerifiers {
+			if v.AuthTime.Before(delete_before) {
+				provider.CodeVerifiers[k] = nil
+			}
+		}
+	}
+}
+
+func (provider *OIDCProvider) Auth(ctx context.Context, _ *struct{}) (*OIDCAuthOutput, error) {
 	if !CONFIG.Mugen.Gitlab.IsSetup() {
 		return nil, errors.New("gitlab client is not set up")
 	}
 
-	redirect_uri := gitlabRedirectURI()
-	user, err := getCurrentUser(ctx)
+	err := provider.EnsureConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	state := authState()
+	state_verifier := authState()
+	state_challenge := S256CodeChallenge(state_verifier)
 
 	code_verifier := uuid.New().String()
 	code_challenge := S256CodeChallenge(code_verifier)
 
 	loc := fmt.Sprintf(
-		"%s/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s&scope=%s&code_challenge=%s&code_challenge_method=S256",
-		CONFIG.Mugen.Gitlab.Server,
-		CONFIG.Mugen.Gitlab.ClientID,
-		redirect_uri,
-		state,
-		strings.Join(CONFIG.Mugen.Gitlab.Scopes, "+"),
+		"%s?client_id=%s&redirect_uri=%s&response_type=code&state=%s&scope=%s&code_challenge=%s&code_challenge_method=S256",
+		provider.AuthorizeURI(),
+		provider.ClientID,
+		provider.RedirectURI,
+		state_challenge,
+		provider.Scopes,
 		code_challenge,
 	)
 
-	GitlabStates[user.ID] = &GitlabAuthorizationState{state, code_verifier}
+	provider.CodeVerifiers[state_verifier] = &OIDCState{
+		CodeVerifier: code_verifier,
+		AuthTime:     time.Now(),
+	}
 
-	return &GitlabAuthOutput{
+	return &OIDCAuthOutput{
 		Status:   http.StatusTemporaryRedirect,
 		Location: loc,
+		SetCookie: http.Cookie{
+			Name:  "oidc_state",
+			Value: state_verifier,
+		},
 	}, nil
 }
 
-type GitlabAuthCallbackInput struct {
-	State string `query:"state"`
-	Code  string `query:"code"`
+type OIDCAuthCallbackInput struct {
+	State         string `query:"state"`
+	Code          string `query:"code"`
+	StateVerifier string `cookie:"oidc_state"`
 }
 
-type GitlabAuthCallbackOutput struct {
+type OIDCAuthCallbackOutput struct {
 	Status   int
 	Location string `header:"Location"`
+}
+
+func (provider *OIDCProvider) getTokenCode(ctx context.Context, code_verifier string, code string, token_data *OAuthTokenResponse) error {
+	url := fmt.Sprintf(
+		"%s?client_id=%s&code=%s&grant_type=authorization_code&redirect_uri=%s&code_verifier=%s",
+		provider.TokenURI(),
+		provider.ClientID,
+		code,
+		gitlabRedirectURI(),
+		code_verifier,
+	)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBufferString(""))
+	if err != nil {
+		return err
+	}
+	resp, err := Do(http.DefaultClient, req)
+	if err != nil {
+		return err
+	}
+	defer Closer(resp.Body)
+
+	dec := json.NewDecoder(resp.Body)
+	err = dec.Decode(token_data)
+	return err
+}
+
+func (provider *OIDCProvider) Callback(ctx context.Context, input *OIDCAuthCallbackInput) (*OIDCAuthCallbackOutput, error) {
+	err := provider.EnsureConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if S256CodeChallenge(input.StateVerifier) != input.State {
+		return nil, huma.Error400BadRequest("Bad Request")
+	}
+	oidc_state := provider.CodeVerifiers[input.StateVerifier]
+	if oidc_state == nil {
+		return nil, huma.Error500InternalServerError("unknown state")
+	}
+	code_verifier := oidc_state.CodeVerifier
+	provider.CodeVerifiers[input.StateVerifier] = nil
+
+	token_data := OAuthTokenResponse{}
+	err := provider.getTokenCode(ctx, code_verifier, input.Code, &token_data)
+	if err != nil {
+		return nil, err
+	}
+
+	err = provider.SaveToken(ctx, token_data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OIDCAuthCallbackOutput{
+		Status:   http.StatusTemporaryRedirect,
+		Location: "/",
+	}, nil
+}
+
+func saveGitlabToken(ctx context.Context, token_data OAuthTokenResponse) error {
+	token := OAuthToken{}
+	err := setGitlabToken(GetDB(ctx), token_data, &token)
+	if err != nil {
+		return err
+	}
+
+	err = initOlderKarasExports(ctx)
+	return err
 }
 
 func setGitlabToken(db *gorm.DB, token_data OAuthTokenResponse, token *OAuthToken) error {
@@ -154,43 +335,6 @@ func getGitlabToken(db *gorm.DB, token *OAuthToken) error {
 	}
 
 	return err
-}
-
-func GitlabCallback(ctx context.Context, input *GitlabAuthCallbackInput) (*GitlabAuthCallbackOutput, error) {
-	user, err := getCurrentUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-	gitlab_state := GitlabStates[user.ID]
-	if gitlab_state == nil {
-		return nil, huma.Error500InternalServerError("unknown state")
-	}
-	if gitlab_state.State != input.State {
-		return nil, huma.Error400BadRequest("Bad Request")
-	}
-	GitlabStates[user.ID] = nil
-
-	token_data := OAuthTokenResponse{}
-	err = getGitlabTokenCode(ctx, *gitlab_state, input.Code, &token_data)
-	if err != nil {
-		return nil, err
-	}
-
-	token := &OAuthToken{}
-	err = setGitlabToken(GetDB(ctx), token_data, token)
-	if err != nil {
-		return nil, err
-	}
-
-	err = initOlderKarasExports(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &GitlabAuthCallbackOutput{
-		Status:   http.StatusTemporaryRedirect,
-		Location: "/",
-	}, nil
 }
 
 func setDummyExports(db *gorm.DB) error {
@@ -249,37 +393,6 @@ type OAuthTokenResponse struct {
 	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
 	CreatedAt    int    `json:"created_at"`
-}
-
-func getGitlabTokenCode(
-	ctx context.Context,
-	state GitlabAuthorizationState,
-	code string,
-	token_data *OAuthTokenResponse,
-) error {
-
-	url := fmt.Sprintf(
-		"%s/oauth/token?client_id=%s&code=%s&grant_type=authorization_code&redirect_uri=%s&code_verifier=%s",
-		CONFIG.Mugen.Gitlab.Server,
-		CONFIG.Mugen.Gitlab.ClientID,
-		code,
-		gitlabRedirectURI(),
-		state.CodeVerifier,
-	)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBufferString(""))
-	if err != nil {
-		return err
-	}
-	resp, err := Do(http.DefaultClient, req)
-	if err != nil {
-		return err
-	}
-	defer Closer(resp.Body)
-
-	dec := json.NewDecoder(resp.Body)
-	err = dec.Decode(token_data)
-	return err
 }
 
 func refreshGitlabToken(ctx context.Context, db *gorm.DB, token *OAuthToken) error {

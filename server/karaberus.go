@@ -6,6 +6,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
-	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 )
@@ -28,7 +28,25 @@ func (m *KaraberusError) Error() string {
 }
 
 func addMiddlewares(api huma.API) {
-	api.UseMiddleware(authMiddleware)
+	api.UseMiddleware(
+		authMiddleware,
+	)
+}
+
+type HealthcheckOutput struct {
+	Status int
+	Body   string
+}
+
+func liveness(ctx context.Context, input *struct{}) (*HealthcheckOutput, error) {
+	return &HealthcheckOutput{Status: 200, Body: "live"}, nil
+}
+
+func readiness(ctx context.Context, input *struct{}) (*HealthcheckOutput, error) {
+	if getS3Client() != nil {
+		return nil, errors.New("not ready")
+	}
+	return &HealthcheckOutput{Status: 200, Body: "ready"}, nil
 }
 
 func addRoutes(api huma.API) {
@@ -98,13 +116,18 @@ func addRoutes(api huma.API) {
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc))
 
-	huma.Get(api, "/api/gitlab/authorize", GitlabAuth, setSecurity(oidc_admin))
-	huma.Get(api, "/api/gitlab/callback", GitlabCallback, setSecurity(oidc_admin))
+	gitlab := GitlabProvider()
+	huma.Get(api, "/api/gitlab/authorize", gitlab.Auth, setSecurity(oidc_admin))
+	huma.Get(api, "/api/gitlab/callback", gitlab.Callback, setSecurity(oidc_admin))
 
 	huma.Get(api, "/api/user/{id}", GetUser, setSecurity(user))
 	huma.Get(api, "/api/me", GetMe, setSecurity(user))
 	huma.Put(api, "/api/user/{id}/author", UpdateUserAuthor, setSecurity(user_admin))
 	huma.Put(api, "/api/me/author", UpdateMeAuthor, setSecurity(user))
+
+	huma.Get(api, "/api/live", liveness)
+	huma.Get(api, "/api/ready", readiness)
+	huma.Get(api, "/api/health", readiness)
 }
 
 type RouteSecurity struct {
@@ -169,7 +192,6 @@ func setupKaraberus() (*fiber.App, huma.API) {
 	})
 
 	app.Use(logger.New())
-	app.Use(healthcheck.New())
 	app.Use(compress.New())
 	if CONFIG.Listen.Profiling {
 		app.Use(pprof.New())
