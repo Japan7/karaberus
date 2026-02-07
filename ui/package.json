@@ -31,12 +31,12 @@
     "theme-change": "2.5.0"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.2",
+    "@eslint/js": "10.0.1",
     "@hrgui/libass-wasm-ts": "1.0.3",
     "@tauri-apps/cli": "2.10.0",
     "autoprefixer": "10.4.24",
     "daisyui": "4.12.24",
-    "eslint": "9.39.2",
+    "eslint": "10.0.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "postcss": "8.5.6",
