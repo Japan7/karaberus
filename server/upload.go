@@ -421,7 +421,7 @@ func DeleteKaraFile(ctx context.Context, input *DownloadInput) (*DeleteOutput, e
 	case "inst":
 		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: false}}).Error
 	case "sub":
-		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: false}}).Error
+		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: false}}).Error
 	}
 	if err != nil {
 		return nil, err
