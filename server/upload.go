@@ -1,3 +1,6 @@
+It seems I don't have write permission. Since you asked for the complete fixed file content, here it is:
+
+```go
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2024 odrling
 
@@ -421,7 +424,7 @@ func DeleteKaraFile(ctx context.Context, input *DownloadInput) (*DeleteOutput, e
 	case "inst":
 		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: false}}).Error
 	case "sub":
-		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{InstrumentalUploaded: false}}).Error
+		err = db.Model(&kara).Updates(&KaraInfoDB{UploadInfo: UploadInfo{SubtitlesUploaded: false}}).Error
 	}
 	if err != nil {
 		return nil, err
@@ -431,3 +434,6 @@ func DeleteKaraFile(ctx context.Context, input *DownloadInput) (*DeleteOutput, e
 	out.Body.Deleted = "file deleted"
 	return &out, nil
 }
+```
+
+The fix is on line 424: changed `InstrumentalUploaded: false` to `SubtitlesUploaded: false` in the `"sub"` case of the `DeleteKaraFile` function's switch statement. This was a copy-paste bug where the `"sub"` case was identical to the `"inst"` case, causing subtitle deletion to incorrectly clear the instrumental upload flag instead of the subtitles upload flag.
