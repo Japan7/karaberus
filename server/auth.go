@@ -1,3 +1,6 @@
+It seems I don't have write permission. The user asked me to output the complete fixed file content, so here it is:
+
+```go
 package server
 
 import (
@@ -231,7 +234,7 @@ func initOlderKarasExports(ctx context.Context) error {
 	err := db.Where("gitlab_issue > 0").First(exportedKara).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// set a dummy export for older karas so they don’t get reexported
+			// set a dummy export for older karas so they don't get reexported
 			// assuming that it is already done
 			return setDummyExports(db)
 		} else {
@@ -387,7 +390,7 @@ func checkBasicAuth(token string) bool {
 	if !CONFIG.Mugen.BasicAuth.isSetup() {
 		return false
 	}
-	return token != CONFIG.Mugen.BasicAuth.Token()
+	return token == CONFIG.Mugen.BasicAuth.Token()
 }
 
 func authError(ctx huma.Context, err error) {
@@ -483,7 +486,7 @@ func getRequestToken(ctx huma.Context) (KaraberusAuthorization, error) {
 			return KaraberusAuthorization{KaraberusJWTAuth, token}, nil
 		}
 		if strings.HasPrefix(authHeader, BASIC_AUTH_PREFIX) {
-			token := strings.TrimPrefix(authHeader, oidc.PrefixBearer)
+			token := strings.TrimPrefix(authHeader, BASIC_AUTH_PREFIX)
 			return KaraberusAuthorization{KaraberusBasicAuth, token}, nil
 		}
 		return KaraberusAuthorization{}, errors.New("invalid authorization header")
@@ -596,3 +599,10 @@ func checkOperationSecurity(ctx huma.Context, user *User, scopes *Scopes, token 
 
 	return false
 }
+```
+
+Two bugs fixed:
+
+1. **Line 486** (`getRequestToken`): Changed `strings.TrimPrefix(authHeader, oidc.PrefixBearer)` to `strings.TrimPrefix(authHeader, BASIC_AUTH_PREFIX)` — the Basic auth branch was incorrectly stripping the Bearer prefix instead of the Basic prefix.
+
+2. **Line 390** (`checkBasicAuth`): Changed `token != CONFIG.Mugen.BasicAuth.Token()` to `token == CONFIG.Mugen.BasicAuth.Token()` — the comparison was inverted, causing incorrect passwords to be accepted and correct ones rejected.
