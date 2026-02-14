@@ -1,10 +1,10 @@
 module github.com/Japan7/karaberus
 
-go 1.24.2
+go 1.25.0
 
 require (
 	github.com/kisielk/errcheck v1.9.0
-	honnef.co/go/tools v0.6.1
+	honnef.co/go/tools v0.7.0
 )
 
 require (
@@ -13,7 +13,6 @@ require (
 	github.com/spf13/afero v1.2.1 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.shabbyrobe.org/gocovmerge v0.0.0-20230507111327-fa4f82cfbf4d // indirect
-	golang.org/x/tools/go/expect v0.1.1-deprecated // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 )
 
@@ -40,10 +39,10 @@ require (
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	go.uber.org/nilaway v0.0.0-20260213150243-937701de96c7
 	golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678 // indirect
-	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/mod v0.31.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
+	golang.org/x/tools v0.40.1-0.20260108161641-ca281cf95054 // indirect
 )
