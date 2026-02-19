@@ -3,7 +3,7 @@ module github.com/Japan7/karaberus
 go 1.25.0
 
 require (
-	github.com/danielgtaylor/huma/v2 v2.36.0
+	github.com/danielgtaylor/huma/v2 v2.37.1
 	github.com/gofiber/fiber/v2 v2.52.11
 	github.com/google/uuid v1.6.0
 	github.com/ncruces/go-sqlite3 v0.30.5
@@ -14,7 +14,7 @@ require (
 require (
 	github.com/MStoykov/jsonutils v1.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/klauspost/compress v1.18.4 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.19 // indirect
+	github.com/mattn/go-runewidth v0.0.20 // indirect
 	github.com/minio/minio-go/v7 v7.0.98
 	github.com/ncruces/go-sqlite3/gormlite v0.30.2
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
