@@ -3,7 +3,7 @@ module github.com/Japan7/karaberus
 go 1.25.0
 
 require (
-	github.com/danielgtaylor/huma/v2 v2.37.1
+	github.com/danielgtaylor/huma/v2 v2.37.2
 	github.com/gofiber/fiber/v2 v2.52.11
 	github.com/google/uuid v1.6.0
 	github.com/ncruces/go-sqlite3 v0.30.5
