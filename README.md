@@ -5,7 +5,7 @@ A karaoke database.
 ## Getting started
 
 ```
-meson setup build -Dbuiltin_oidc_env=true -Dbuiltin_s3_env=true
+meson setup build
 meson compile -C build
 ```
 
@@ -14,7 +14,7 @@ On Windows this might not build out of the box, for now you can disable the nati
 meson setup build --reconfigure -Dno_native_deps=true
 ```
 
-To run the app you need an oidc server and a s3, for development you can run `meson compile -C build oidc` to have a simple oidc server (`-Dbuiltin_oidc_env=true` has to be set during setup for this to work) and `meson compile -C build s3` to have a S3 server (`-Dbuiltin_s3_env=true` has to be set during setup for this to work).
+To run the app you need an oidc server and a s3 server, for development you can run `meson compile -C build oidc` to have a simple oidc server and `meson compile -C build s3` to have a S3 server.
 
 Then you can start the server with:
 ```sh

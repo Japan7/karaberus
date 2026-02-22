@@ -12,7 +12,7 @@ IMAGE=/karaberus/image
 mkdir -p ${IMAGE}/etc
 cp -r /etc/ssl ${IMAGE}/etc/
 
-meson setup /build /karaberus --buildtype release --strip --libdir lib --prefix ${IMAGE} -Db_lto=true -Db_lto_mode=thin -Db_pie=true -Dc_args=-fhardened $crossarg
+meson setup /build /karaberus --buildtype release -Dbuiltin_oidc_env=false -Dbuiltin_s3_env=false --strip --libdir lib --prefix ${IMAGE} -Db_lto=true -Db_lto_mode=thin -Db_pie=true -Dc_args=-fhardened $crossarg
 [ "$1" = "--tests" ] && meson test -C /build --verbose
 meson install -C /build --tags runtime
 
