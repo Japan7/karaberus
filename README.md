@@ -29,6 +29,7 @@ To ease development on the web frontend it might be more convenient to run the d
 cd ui
 npm run dev
 ```
+
 # Custom S3 server
 
 If you want to upload files (or run the S3 tests) to your own S3 server you have to set the following environment variables appropriately:
@@ -58,17 +59,19 @@ export KARABERUS_OIDC_GROUPS_CLAIM=groups
 export KARABERUS_OIDC_ADMIN_GROUP=admin
 export KARABERUS_OIDC_SCOPES="openid profile email groups"
 export KARABERUS_OIDC_JWT_SIGN_KEY="" # openssl rand -hex 32
+```
 
 And disable the builtin OIDC server:
 
 ```sh
 meson setup --reconfigure build -Dbuiltin_oidc_env=false
 ```
-```
+
 
 ## Dakara
 
 You can start a [Dakara server](https://github.com/DakaraProject/dakara-server/) and feed it from your instance:
+
 ```sh
 export KARABERUS_DAKARA_BASE_URL="http://127.0.0.1:8000"
 export KARABERUS_DAKARA_TOKEN="YOUR_DAKARA_TOKEN"
