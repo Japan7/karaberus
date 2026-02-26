@@ -3,7 +3,7 @@ module github.com/Japan7/karaberus
 go 1.25.0
 
 require (
-	github.com/kisielk/errcheck v1.9.0
+	github.com/kisielk/errcheck v1.10.0
 	honnef.co/go/tools v0.7.0
 )
 
