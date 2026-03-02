@@ -51,7 +51,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
 	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/oauth2 v0.34.0 // indirect
+	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 )
 
@@ -67,7 +67,7 @@ require (
 	github.com/ncruces/go-sqlite3/gormlite v0.30.2
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0
-	github.com/zitadel/oidc/v3 v3.45.4
+	github.com/zitadel/oidc/v3 v3.45.5
 	golang.org/x/sys v0.41.0 // indirect
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
