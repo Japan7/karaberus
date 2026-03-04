@@ -1,7 +1,6 @@
 # from the src directory:
-# git ls-files | grep '.\(tsx\?\|css\)$' | sed "s/^/'/ ; s|/|' / '|g ; s|$|',|" | sort
+# git ls-files | grep '.\(tsx\?\|css\)$' | sed "s/^/'/ ; s|/|' / '|g ; s|$|',|" && meson format -i
 ui_src += files(
-    'App.tsx',
     'components' / 'ArtistEditor.tsx',
     'components' / 'AuthorEditor.tsx',
     'components' / 'AutocompleteMultiple.tsx',
@@ -17,9 +16,6 @@ ui_src += files(
     'components' / 'MugenImport.tsx',
     'components' / 'ProfileEditor.tsx',
     'components' / 'TokenForm.tsx',
-    'index.css',
-    'index.tauri.css',
-    'index.tsx',
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
     'layout' / 'Navbar.tsx',
@@ -44,5 +40,9 @@ ui_src += files(
     'utils' / 'karaoke.ts',
     'utils' / 'session.ts',
     'utils' / 'tauri.ts',
+    'App.tsx',
+    'index.css',
+    'index.tauri.css',
+    'index.tsx',
     'vite-env.d.ts',
 )
