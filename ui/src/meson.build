@@ -1,5 +1,5 @@
 # from the src directory:
-# find -regex '.*\.\(tsx?\|css\)' | sed "s|^./|'| ; s|/|' / '|g ; s|$|',|" | sort
+# git ls-files | grep '.\(tsx\?\|css\)$' | sed "s/^/'/ ; s|/|' / '|g ; s|$|',|" | sort
 ui_src += files(
     'App.tsx',
     'components' / 'ArtistEditor.tsx',
@@ -41,7 +41,6 @@ ui_src += files(
     'pages' / 'tags' / 'author.tsx',
     'pages' / 'tags' / 'media.tsx',
     'utils' / 'karaberus-client.ts',
-    'utils' / 'karaberus.d.ts',
     'utils' / 'karaoke.ts',
     'utils' / 'session.ts',
     'utils' / 'tauri.ts',
