@@ -18,7 +18,7 @@ subdir('src')
 
 npx = find_program('npx')
 
-karaberus_ui_deps = []
+ui_deps_target = []
 openapi_ts = custom_target(
     'openapi_ts',
     command: [
@@ -26,17 +26,28 @@ openapi_ts = custom_target(
         'openapi-typescript',
         openapi_spec,
         '-o',
-        '@CURRENT_SOURCE_DIR@/src/utils/karaberus.d.ts',
+        '@OUTPUT@',
     ],
     output: 'karaberus.d.ts',
+)
+symlink = meson.global_source_root() / 'scripts' / 'symlink.py'
+karaberus_d_ts = custom_target(
+    'symlink_karaberus_d_ts',
+    command: [
+        symlink,
+        openapi_ts,
+        '@CURRENT_SOURCE_DIR@/src/utils/karaberus.d.ts',
+    ],
+    output: 'symlink_karaberus_d_ts',
+    build_always_stale: true,
     capture: true,
 )
-karaberus_ui_deps += openapi_ts
+ui_deps_target += karaberus_d_ts
 
 npm_run = meson.global_source_root() / 'scripts' / 'npm_run.py'
 
-karaberus_ui_deps += custom_target(
-    'karaberus_ui_deps',
+ui_deps_target += custom_target(
+    'ui_deps',
     build_by_default: true,
     env: npm_env,
     input: ui_pkg,
@@ -51,7 +62,7 @@ karaberus_ui = custom_target(
     input: [ui_src, openapi_ts],
     output: 'ui_dist',
     command: [python, npm_run, 'build', karaberus_ui_dist_dir],
-    depends: karaberus_ui_deps,
+    depends: ui_deps_target,
     install: true,
     install_dir: 'share' / 'karaberus',
     install_tag: 'runtime',
@@ -61,7 +72,7 @@ run_target(
     'ui_run',
     env: npm_env,
     command: [python, npm_run, 'dev'],
-    depends: karaberus_ui_deps,
+    depends: ui_deps_target,
 )
 
 test(
@@ -69,7 +80,7 @@ test(
     python,
     args: [npm_run, 'lint'],
     env: npm_env,
-    depends: karaberus_ui_deps,
+    depends: ui_deps_target,
 )
 
 test(
@@ -77,5 +88,5 @@ test(
     python,
     args: [npm_run, 'check'],
     env: npm_env,
-    depends: karaberus_ui_deps,
+    depends: ui_deps_target,
 )
