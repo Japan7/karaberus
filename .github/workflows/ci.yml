@@ -57,7 +57,7 @@ jobs:
           pip install meson ninja
 
       - name: Configure karaberus
-        run: meson setup build -Dno_native_deps=true
+        run: meson setup build --reconfigure -Dno_native_deps=true -Dnetwork_tests=disabled
 
       - name: Run tests
         run: meson test -C build --verbose
