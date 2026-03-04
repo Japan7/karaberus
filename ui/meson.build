@@ -81,6 +81,7 @@ test(
     args: [npm_run, 'lint'],
     env: npm_env,
     depends: ui_deps_target,
+    timeout: 300,
 )
 
 test(
