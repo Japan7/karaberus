@@ -1,9 +1,13 @@
+# from the src directory:
+# find -regex '.*\.\(tsx?\|css\)' | sed "s|^./|'| ; s|/|' / '|g ; s|$|',|" | sort
 ui_src += files(
+    'App.tsx',
     'components' / 'ArtistEditor.tsx',
     'components' / 'AuthorEditor.tsx',
-    'components' / 'Autocomplete.tsx',
     'components' / 'AutocompleteMultiple.tsx',
+    'components' / 'Autocomplete.tsx',
     'components' / 'BrowserKaraPlayer.tsx',
+    'components' / 'Context.tsx',
     'components' / 'DownloadAnchor.tsx',
     'components' / 'FileUploader.tsx',
     'components' / 'KaraCard.tsx',
@@ -13,6 +17,9 @@ ui_src += files(
     'components' / 'MugenImport.tsx',
     'components' / 'ProfileEditor.tsx',
     'components' / 'TokenForm.tsx',
+    'index.css',
+    'index.tauri.css',
+    'index.tsx',
     'layout' / 'AuthHero.tsx',
     'layout' / 'Layout.tsx',
     'layout' / 'Navbar.tsx',
@@ -34,11 +41,9 @@ ui_src += files(
     'pages' / 'tags' / 'author.tsx',
     'pages' / 'tags' / 'media.tsx',
     'utils' / 'karaberus-client.ts',
+    'utils' / 'karaberus.d.ts',
     'utils' / 'karaoke.ts',
     'utils' / 'session.ts',
     'utils' / 'tauri.ts',
-    'App.tsx',
-    'index.css',
-    'index.tauri.css',
-    'index.tsx',
+    'vite-env.d.ts',
 )
