@@ -2,11 +2,6 @@ name: Tauri
 
 on:
   push:
-    branches:
-      - 'master'
-      - 'renovate/*'
-    tags:
-      - 'app-v*'
   pull_request:
     branches:
       - 'master'
@@ -18,10 +13,11 @@ concurrency:
 
 jobs:
   release-notes:
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
     runs-on: ubuntu-latest
     steps:
       - name: generate release notes (tag)
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
         id: release_notes
         run: |
           notes="$(gh api -X POST /repos/${{ github.repository }}/releases/generate-notes -f tag_name=${{ github.ref_name }} | yq .body)"
@@ -37,7 +33,7 @@ jobs:
 
   build-tauri:
     needs: release-notes
-    if: ${{ !startsWith(github.ref, 'refs/tags/') || always() }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.id != github.repository_id }}
 
     permissions:
       contents: write
@@ -87,11 +83,6 @@ jobs:
         run: |
           echo CARGO_HOME="D:\rust\cargo" >> $GITHUB_ENV
 
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: 'ui/src-tauri -> target'
-
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.9
 
@@ -119,7 +110,7 @@ jobs:
           args: --config ./src-tauri/tauri.release.conf.json ${{ matrix.args }}
 
       - name: build (push)
-        if: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'pull_request' || !startsWith(github.head_ref, 'renovate/')) }}
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
