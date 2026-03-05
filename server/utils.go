@@ -20,8 +20,9 @@ func Closer(closer io.Closer) {
 	}
 }
 
-// http.Client.Do but you can’t have a nil response
+// http.Client.Do but you can’t have a nil response and User-Agent is set
 func Do(client *http.Client, req *http.Request) (*http.Response, error) {
+	req.Header.Set("User-Agent", "karaberus/1.0")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
