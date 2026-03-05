@@ -16,9 +16,7 @@ option('test', type: 'boolean', value: true, description: 'Build tests')
 option('no_native_deps', type: 'boolean', value: false, description: 'Build without native deps')
 
 # slow tests
-option('staticcheck', type: 'boolean', value: true, description: 'Run staticcheck test')
-option('errcheck', type: 'boolean', value: true, description: 'Run errcheck test')
-option('nilaway', type: 'boolean', value: true, description: 'Run nilaway test')
+option('golangci-lint', type: 'boolean', value: true, description: 'Run errcheck test')
 
 # build metadata
 option('repository_url', type: 'string', value: 'https://github.com/Japan7/karaberus', description: 'URL of the code repository')

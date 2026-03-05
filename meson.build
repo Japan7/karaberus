@@ -16,6 +16,8 @@ project(
     ],
 )
 
+fs = import('fs')
+
 go = find_program('go', required: true)
 python = find_program('python3', required: true)
 npm = find_program('npm', required: true)
@@ -433,72 +435,31 @@ if get_option('test')
         timeout: 300,
     )
 
-    if get_option('staticcheck')
-        staticcheck = custom_target(
-            'staticcheck',
-            command: [
-                go,
-                'install',
-                go_tools_opts,
-                'honnef.co/go/tools/cmd/staticcheck',
-            ],
-            depend_files: go_tools_files,
-            output: 'staticcheck',
-            env: gobin_env,
-        )
-        test(
-            'staticcheck',
-            staticcheck,
-            args: ['./...'],
-            depends: karaberus,
-            env: go_env,
-            workdir: meson.current_source_dir(),
-            timeout: 300,
-        )
-    endif
+    golangci_lint = find_program(
+        'golangci-lint',
+        required: get_option('golangci-lint'),
+    )
 
-    if get_option('errcheck')
-        errcheck = custom_target(
-            'errcheck',
-            command: [
-                go,
-                'install',
-                go_tools_opts,
-                'github.com/kisielk/errcheck',
-            ],
-            depend_files: go_tools_files,
-            output: 'errcheck',
-            env: gobin_env,
-        )
-        test(
-            'errcheck',
-            errcheck,
-            args: ['./...'],
-            depends: karaberus,
-            env: go_env,
-            workdir: meson.current_source_dir(),
-            timeout: 300,
-        )
-    endif
+    if get_option('golangci-lint')
+        custom_gcl_conf = fs.copyfile('.custom-gcl.yml')
 
-    if get_option('nilaway')
-        nilaway = custom_target(
-            'nilaway',
+        custom_gcl = custom_target(
+            'custom_gcl',
             command: [
-                go,
-                'install',
-                go_tools_opts,
-                'go.uber.org/nilaway/cmd/nilaway',
+                golangci_lint,
+                'custom',
+                '-v',
+                '--destination',
+                '@BUILD_ROOT@',
             ],
-            depend_files: go_tools_files,
-            output: 'nilaway',
-            env: gobin_env,
+            output: 'custom-gcl-karaberus',
+            depends: custom_gcl_conf,
         )
 
         test(
-            'nilaway',
-            nilaway,
-            args: ['./...'],
+            'golangci_lint',
+            custom_gcl,
+            args: ['run'],
             depends: karaberus,
             env: go_env,
             workdir: meson.current_source_dir(),

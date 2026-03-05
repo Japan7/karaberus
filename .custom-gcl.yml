@@ -1,0 +1,6 @@
+version: v2.0.0
+name: custom-gcl-karaberus
+plugins:
+  - module: "go.uber.org/nilaway"
+    import: "go.uber.org/nilaway/cmd/gclplugin"
+    version: v0.0.0-20260213150243-937701de96c7
