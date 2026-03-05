@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/go-jose/go-jose/v4"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/golang-jwt/jwt/v5"
@@ -89,6 +90,7 @@ type OIDCConfig struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 	TokenEndpoint         string `json:"token_endpoint"`
 	UserinfoEndpoint      string `json:"userinfo_endpoint,omitempty"`
+	JWKSEndpoint          string `json:"jwks_uri,omitempty"`
 }
 
 func (c OIDCConfig) Validate(issuer string) error {
@@ -174,6 +176,10 @@ func (provider OIDCProvider) UserinfoURI() string {
 	return provider.Config.UserinfoEndpoint
 }
 
+func (provider OIDCProvider) JWKSURI() string {
+	return provider.Config.JWKSEndpoint
+}
+
 // delete unused states after some time
 func (provider *OIDCProvider) CleanupStates() {
 	for {
@@ -240,6 +246,24 @@ type OIDCAuthCallbackOutput struct {
 	Location string `header:"Location"`
 }
 
+func (provider *OIDCProvider) getJWKS(ctx context.Context, jwks *jose.JSONWebKeySet) error {
+	req, err := http.NewRequestWithContext(
+		ctx, http.MethodGet, provider.JWKSURI(), bytes.NewBufferString(""),
+	)
+	if err != nil {
+		return err
+	}
+	resp, err := Do(http.DefaultClient, req)
+	if err != nil {
+		return err
+	}
+	defer Closer(resp.Body)
+
+	dec := json.NewDecoder(resp.Body)
+	err = dec.Decode(jwks)
+	return err
+}
+
 func (provider *OIDCProvider) getTokenCode(ctx context.Context, code_verifier string, code string, token_data *OAuthTokenResponse) error {
 	url := fmt.Sprintf(
 		"%s?client_id=%s&code=%s&grant_type=authorization_code&redirect_uri=%s&code_verifier=%s",
@@ -281,7 +305,7 @@ func (provider *OIDCProvider) Callback(ctx context.Context, input *OIDCAuthCallb
 	provider.CodeVerifiers[input.StateVerifier] = nil
 
 	token_data := OAuthTokenResponse{}
-	err := provider.getTokenCode(ctx, code_verifier, input.Code, &token_data)
+	err = provider.getTokenCode(ctx, code_verifier, input.Code, &token_data)
 	if err != nil {
 		return nil, err
 	}
@@ -393,6 +417,7 @@ type OAuthTokenResponse struct {
 	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
 	CreatedAt    int    `json:"created_at"`
+	IDToken      string `json:"id_token,omitempty"`
 }
 
 func refreshGitlabToken(ctx context.Context, db *gorm.DB, token *OAuthToken) error {
