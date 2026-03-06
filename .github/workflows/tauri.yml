@@ -122,7 +122,7 @@ jobs:
 
       - name: upload artifact (push)
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}_release
           path: ui/src-tauri/target/**/release/bundle
