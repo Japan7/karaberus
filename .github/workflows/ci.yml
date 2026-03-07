@@ -52,6 +52,15 @@ jobs:
         with:
           go-version: "stable"
 
+      - name: install golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.11
+          install-only: true
+          install-mode: goinstall
+          # don’t build custom-gcl in this step
+          working-directory: tools
+
       - name: Install dependencies
         run: |
           pip install meson ninja
@@ -95,14 +104,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: setup go cache
+      - name: setup build cache
         uses: actions/cache@v5
         with:
-          path: go_cache
-          key: go_build_${{ matrix.config.arch }}
+          path: cache
+          key: build_cache_${{ matrix.config.arch }}
 
       - name: Build
-        run: buildah run -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.skip_tests && '--no-tests' || '--tests' }}
+        run: |
+          mkdir -p cache
+          buildah run -v "${PWD}/cache:/root/.cache" -v "${PWD}:/karaberus" $(buildah from ghcr.io/odrling/build-images:karaberus-${{ matrix.config.arch }}) env TARGET=${{ matrix.config.target }} /karaberus/ci/build.sh ${{ inputs.skip_tests && '--no-tests' || '--tests' }}
 
       - name: Docker Metadata
         id: meta

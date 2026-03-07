@@ -1,5 +1,4 @@
 #!/bin/sh -xe
-export GOCACHE=/karaberus/go_cache
 export GOTOOLCHAIN=local
 
 if [ -n "${TARGET}" ]; then
@@ -25,3 +24,5 @@ if [ -d "${SYSROOT}/lib64" ]; then
     mkdir -p ${IMAGE}/lib64
     ln ${IMAGE}/lib/ld-* ${IMAGE}/lib64/
 fi
+
+golangci-lint cache status
