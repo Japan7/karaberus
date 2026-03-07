@@ -38,14 +38,12 @@ func extendETag(last_item_id uint, err error, etag *uint) error {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = nil
-		} else {
-			return err
 		}
 	} else {
 		*etag += last_item_id
 	}
 
-	return nil
+	return err
 }
 
 func setETag(last_item_id uint, err error, etag *string) error {

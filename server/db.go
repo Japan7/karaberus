@@ -35,7 +35,8 @@ func init_db(ctx context.Context) {
 		Logger: gorm_logger,
 	}
 
-	if CONFIG.DB.Driver == "sqlite" {
+	switch CONFIG.DB.Driver {
+	case "sqlite":
 		getLogger().Printf("DB file: %s\n", CONFIG.DB.File)
 		db, err := gorm.Open(gormlite.Open(CONFIG.DB.File), gorm_config)
 		if err != nil {
@@ -48,14 +49,14 @@ func init_db(ctx context.Context) {
 		sqlite_db.SetMaxOpenConns(1)
 
 		db_instance = db
-	} else if CONFIG.DB.Driver == "postgres" {
+	case "postgres":
 		getLogger().Printf("Postgres DSN: %s\n", CONFIG.DB.DSN)
 		db, err := gorm.Open(postgres.Open(CONFIG.DB.DSN))
 		if err != nil {
 			panic("Could not connect to the database")
 		}
 		db_instance = db
-	} else {
+	default:
 		panic("unknown db driver " + CONFIG.DB.Driver)
 	}
 
