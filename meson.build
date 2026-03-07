@@ -147,7 +147,18 @@ subdir('server')
 karaberus_inputs = go_files + karaberus_server_files
 karaberus_test_inputs = karaberus_inputs + karaberus_server_tests
 
-go_build_options = ['-tags', 'no_otel']
+repo_url = get_option('repository_url')
+revision_res = run_command('git', 'rev-parse', 'HEAD', check: false)
+if revision_res.returncode() == 0
+    revision = revision_res.stdout().strip()
+else
+    revision = ''
+endif
+
+ldflags_fmt = '-X github.com/Japan7/karaberus/server.karaberus_revision=@0@ -X github.com/Japan7/karaberus/server.karaberus_repository_url=@1@'
+ldflags = ldflags_fmt.format(revision, repo_url)
+
+go_build_options = ['-ldflags', ldflags, '-tags', 'no_otel', '-v']
 if get_option('debug')
     go_build_options += ['-gcflags=all=-N -l']
 endif

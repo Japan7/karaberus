@@ -105,6 +105,8 @@ func addRoutes(api huma.API) {
 	huma.Get(api, "/api/me", GetMe, setSecurity(user))
 	huma.Put(api, "/api/user/{id}/author", UpdateUserAuthor, setSecurity(user_admin))
 	huma.Put(api, "/api/me/author", UpdateMeAuthor, setSecurity(user))
+
+	huma.Get(api, "/api/about", GetVersion, setSecurity(oidc))
 }
 
 type RouteSecurity struct {
