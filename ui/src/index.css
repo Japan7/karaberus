@@ -16,4 +16,8 @@
     font-weight: 900;
     text-decoration: underline;
   }
+
+  .link {
+    @apply underline font-bold text-lime-600 hover:text-lime-500;
+  }
 }

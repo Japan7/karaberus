@@ -2,6 +2,8 @@
 npm_env = environment()
 npm_env.set('NPM', npm.full_path())
 npm_env.set('SOURCE', meson.current_source_dir())
+npm_env.set('VITE_REPOSITORY_URL', repo_url)
+npm_env.set('VITE_REVISION', revision)
 
 ui_pkg = files('package-lock.json')
 
