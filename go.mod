@@ -4,7 +4,8 @@ go 1.25.0
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.37.2
-	github.com/gofiber/fiber/v2 v2.52.12
+	github.com/gofiber/fiber/v2 v2.52.11
+	github.com/gofiber/fiber/v3 v3.1.0
 	github.com/google/uuid v1.6.0
 	github.com/ncruces/go-sqlite3 v0.31.1
 	github.com/spf13/cobra v1.10.2
@@ -41,7 +42,7 @@ require (
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/tetratelabs/wazero v1.11.0 // indirect
-	github.com/tinylib/msgp v1.6.1 // indirect
+	github.com/tinylib/msgp v1.6.3 // indirect
 	github.com/zitadel/logging v0.7.0 // indirect
 	github.com/zitadel/schema v1.3.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
