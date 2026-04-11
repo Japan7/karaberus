@@ -22,7 +22,7 @@
     "@tauri-apps/plugin-shell": "2.3.5",
     "@tauri-apps/plugin-store": "2.4.2",
     "@tauri-apps/plugin-updater": "2.10.0",
-    "fuse.js": "7.2.0",
+    "fuse.js": "7.3.0",
     "jose": "6.2.2",
     "libass-wasm": "4.1.0",
     "openapi-fetch": "0.17.0",
