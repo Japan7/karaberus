@@ -56,17 +56,17 @@ require (
 )
 
 require (
-	github.com/andybalholm/brotli v1.2.0 // indirect
+	github.com/andybalholm/brotli v1.2.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/ironsmile/nedomi v0.1.15
-	github.com/klauspost/compress v1.18.4 // indirect
+	github.com/klauspost/compress v1.18.5 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.20 // indirect
 	github.com/minio/minio-go/v7 v7.0.100
 	github.com/ncruces/go-sqlite3/gormlite v0.30.2
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.69.0
+	github.com/valyala/fasthttp v1.70.0
 	github.com/zitadel/oidc/v3 v3.46.0
 	golang.org/x/sys v0.41.0 // indirect
 	gorm.io/driver/postgres v1.6.0
