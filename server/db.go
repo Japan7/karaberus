@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
-	_ "github.com/ncruces/go-sqlite3/embed"
 	"github.com/ncruces/go-sqlite3/gormlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
