@@ -84,7 +84,7 @@ jobs:
           echo CARGO_HOME="D:\rust\cargo" >> $GITHUB_ENV
 
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.9
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
