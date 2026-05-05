@@ -4,9 +4,8 @@ go 1.25.0
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.37.3
-	github.com/gofiber/fiber/v2 v2.52.12
+	github.com/gofiber/fiber/v2 v2.52.13
 	github.com/google/uuid v1.6.0
-	github.com/ncruces/go-sqlite3 v0.34.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/sync v0.20.0
 )
@@ -34,6 +33,7 @@ require (
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/muhlemmer/gu v0.3.1 // indirect
+	github.com/ncruces/go-sqlite3 v0.34.0 // indirect
 	github.com/ncruces/go-sqlite3-wasm/v2 v2.1.35300 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
