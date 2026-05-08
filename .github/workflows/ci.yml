@@ -55,7 +55,7 @@ jobs:
       - name: install golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.11
+          version: v2.12.0
           install-only: true
           install-mode: goinstall
           # don’t build custom-gcl in this step
