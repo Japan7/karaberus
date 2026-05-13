@@ -33,7 +33,7 @@
   "devDependencies": {
     "@eslint/js": "9.39.4",
     "@hrgui/libass-wasm-ts": "1.0.3",
-    "@tauri-apps/cli": "2.11.0",
+    "@tauri-apps/cli": "2.11.1",
     "autoprefixer": "10.5.0",
     "daisyui": "4.12.24",
     "eslint": "9.39.4",
