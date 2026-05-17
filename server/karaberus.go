@@ -187,7 +187,7 @@ func setupKaraberus() (*fiber.App, huma.API) {
 		},
 	}))
 
-	api := humafiber.NewV2(app, huma.DefaultConfig("Karaberus API", "1.0.0"))
+	api := humafiber.New(app, huma.DefaultConfig("My API", "1.0.0"))
 
 	addMiddlewares(api)
 	addRoutes(api)
