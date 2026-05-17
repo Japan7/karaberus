@@ -354,7 +354,11 @@ func GetAllKaras(ctx context.Context, input *GetAllKarasInput) (*GetAllKarasOutp
 		out.Status = 304
 	} else {
 		out.Status = 200
-		err = db.Preload(clause.Associations).Scopes(CurrentKaras).Find(&out.Body.Karas).Error
+		err = db.Preload(clause.Associations).
+				Preload("Artists." + clause.Associations).
+				Preload("Medias." + clause.Associations).
+				Preload("SourceMedia." + clause.Associations).
+				Scopes(CurrentKaras).Find(&out.Body.Karas).Error
 	}
 	return out, DBErrToHumaErr(err)
 }
