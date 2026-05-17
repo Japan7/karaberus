@@ -29,6 +29,7 @@ function getFuseKeys(
     { name: "Medias.additional_name.Name" },
     { name: "SourceMedia.media_type" },
     { name: "SourceMedia.name", weight: 2 },
+    { name: "SourceMedia.additional_name.Name" },
     { name: "Title", weight: 4 },
     { name: "Version" },
     {
