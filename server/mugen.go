@@ -965,3 +965,53 @@ func exportRemainingKaras(ctx context.Context, db *gorm.DB) error {
 
 	return nil
 }
+
+func setDummyExports(db *gorm.DB) error {
+	var karas []KaraInfoDB
+	err := db.Scopes(CurrentKaras).Where(
+		"id NOT IN (?) AND id NOT IN (?)",
+		db.Table("mugen_exports").Select("kara_id AS id"),
+		db.Table("mugen_imports").Select("kara_id AS id"),
+	).Find(&karas).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	if len(karas) == 0 {
+		return nil
+	}
+
+	kara_exports := []MugenExport{}
+	for _, kara := range karas {
+		mugen_export := MugenExport{KaraID: kara.ID, GitlabIssue: -1}
+		kara_exports = append(kara_exports, mugen_export)
+	}
+	err = db.Create(&kara_exports).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InitOlderKarasExports(ctx context.Context) error {
+	db := GetDB(ctx)
+
+	var exportedKara MugenExport
+	err := db.Where("gitlab_issue > 0").First(exportedKara).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// set a dummy export for older karas so they don’t get reexported
+			// assuming that it is already done
+			return setDummyExports(db)
+		} else {
+			return err
+		}
+	}
+
+	// if we already have exported karas then we should catch up to the latest ones
+	return exportRemainingKaras(ctx, db)
+}

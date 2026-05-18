@@ -15,8 +15,6 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/go-jose/go-jose/v4"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
@@ -41,25 +39,22 @@ func authState() string {
 	return uuid.New().String()
 }
 
-func addOidcRoutes(ctx context.Context, app *fiber.App) {
-	provider, err := rp.NewRelyingPartyOIDC(
-		ctx,
-		CONFIG.OIDC.Issuer,
-		CONFIG.OIDC.ClientID,
-		CONFIG.OIDC.ClientSecret,
-		fmt.Sprintf("%v/api/oidc/callback", CONFIG.Listen.BaseURL),
-		CONFIG.OIDC.Scopes,
-	)
+func setOIDCCookie(ctx context.Context)
 
-	if err != nil {
-		panic(err)
+var OIDC_PROVIDER *OIDCProvider = nil
+
+func GetOIDCProvider() *OIDCProvider {
+	if OIDC_PROVIDER == nil {
+		OIDC_PROVIDER = NewOIDCProvider(
+			CONFIG.OIDC.Issuer,
+			CONFIG.OIDC.ClientID,
+			CONFIG.OIDC.Scopes,
+			fmt.Sprintf("%v/api/oidc/callback", CONFIG.Listen.BaseURL),
+			nil, // set cookie
+		)
 	}
 
-	app.Get("/api/oidc/login", adaptor.HTTPHandler(rp.AuthURLHandler(authState, provider)))
-	app.Get(
-		"/api/oidc/callback",
-		adaptor.HTTPHandler(rp.CodeExchangeHandler(rp.UserinfoCallback(callbackHandler), provider)),
-	)
+	return OIDC_PROVIDER
 }
 
 type OIDCAuthOutput struct {
@@ -103,11 +98,30 @@ func (c OIDCConfig) Validate(issuer string) error {
 	return nil
 }
 
-func NewOIDCProvider(issuer string, client_id string, scopes string, redirect_uri string, savefunc func(ctx context.Context, token OAuthTokenResponse) error) *OIDCProvider {
+func NewOAuth2Provider(issuer string, client_id string, scopes []string, redirect_uri string, savefunc func(ctx context.Context, token OAuthTokenResponse) error) *OIDCProvider {
+
+	scopes_str := strings.Join(scopes, "+")
 
 	provider := &OIDCProvider{
 		ClientID:      client_id,
-		Scopes:        scopes,
+		Scopes:        scopes_str,
+		RedirectURI:   redirect_uri,
+		CodeVerifiers: map[string]*OIDCState{},
+		SaveToken:     savefunc,
+	}
+
+	go provider.CleanupStates()
+
+	return provider
+}
+
+func NewOIDCProvider(issuer string, client_id string, scopes []string, redirect_uri string, savefunc func(ctx context.Context, token OAuthTokenResponse) error) *OIDCProvider {
+
+	scopes_str := strings.Join(scopes, "+")
+
+	provider := &OIDCProvider{
+		ClientID:      client_id,
+		Scopes:        scopes_str,
 		RedirectURI:   redirect_uri,
 		CodeVerifiers: map[string]*OIDCState{},
 		SaveToken:     savefunc,
@@ -148,8 +162,10 @@ var GITLAB_PROVIDER *OIDCProvider = nil
 
 func GitlabProvider() *OIDCProvider {
 	if GITLAB_PROVIDER == nil {
-		scopes := strings.Join(CONFIG.Mugen.Gitlab.Scopes, "+")
-		GITLAB_PROVIDER = NewOIDCProvider(CONFIG.Mugen.Gitlab.Server, CONFIG.Mugen.Gitlab.ClientID, scopes, gitlabRedirectURI(), saveGitlabToken)
+		GITLAB_PROVIDER = NewOAuth2Provider(
+			CONFIG.Mugen.Gitlab.Server, CONFIG.Mugen.Gitlab.ClientID,
+			CONFIG.Mugen.Gitlab.Scopes, gitlabRedirectURI(), saveGitlabToken,
+		)
 	}
 	return GITLAB_PROVIDER
 }
@@ -195,10 +211,6 @@ func (provider *OIDCProvider) CleanupStates() {
 }
 
 func (provider *OIDCProvider) Auth(ctx context.Context, _ *struct{}) (*OIDCAuthOutput, error) {
-	if !CONFIG.Mugen.Gitlab.IsSetup() {
-		return nil, errors.New("gitlab client is not set up")
-	}
-
 	err := provider.EnsureConfig(ctx)
 	if err != nil {
 		return nil, err
@@ -328,7 +340,7 @@ func saveGitlabToken(ctx context.Context, token_data OAuthTokenResponse) error {
 		return err
 	}
 
-	err = initOlderKarasExports(ctx)
+	err = InitOlderKarasExports(ctx)
 	return err
 }
 
@@ -359,56 +371,6 @@ func getGitlabToken(db *gorm.DB, token *OAuthToken) error {
 	}
 
 	return err
-}
-
-func setDummyExports(db *gorm.DB) error {
-	var karas []KaraInfoDB
-	err := db.Scopes(CurrentKaras).Where(
-		"id NOT IN (?) AND id NOT IN (?)",
-		db.Table("mugen_exports").Select("kara_id AS id"),
-		db.Table("mugen_imports").Select("kara_id AS id"),
-	).Find(&karas).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	if len(karas) == 0 {
-		return nil
-	}
-
-	kara_exports := []MugenExport{}
-	for _, kara := range karas {
-		mugen_export := MugenExport{KaraID: kara.ID, GitlabIssue: -1}
-		kara_exports = append(kara_exports, mugen_export)
-	}
-	err = db.Create(&kara_exports).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func initOlderKarasExports(ctx context.Context) error {
-	db := GetDB(ctx)
-
-	var exportedKara MugenExport
-	err := db.Where("gitlab_issue > 0").First(exportedKara).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// set a dummy export for older karas so they don’t get reexported
-			// assuming that it is already done
-			return setDummyExports(db)
-		} else {
-			return err
-		}
-	}
-
-	// if we already have exported karas then we should catch up to the latest ones
-	return exportRemainingKaras(ctx, db)
 }
 
 type OAuthTokenResponse struct {

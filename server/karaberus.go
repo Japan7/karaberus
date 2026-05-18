@@ -116,9 +116,15 @@ func addRoutes(api huma.API) {
 	huma.Post(api, "/api/token", CreateToken, setSecurity(oidc))
 	huma.Delete(api, "/api/token/{token}", DeleteToken, setSecurity(oidc))
 
-	gitlab := GitlabProvider()
-	huma.Get(api, "/api/gitlab/authorize", gitlab.Auth, setSecurity(oidc_admin))
-	huma.Get(api, "/api/gitlab/callback", gitlab.Callback, setSecurity(oidc_admin))
+	if CONFIG.Mugen.Gitlab.IsSetup() {
+		gitlab := GitlabProvider()
+		huma.Get(api, "/api/gitlab/authorize", gitlab.Auth, setSecurity(oidc_admin))
+		huma.Get(api, "/api/gitlab/callback", gitlab.Callback, setSecurity(oidc_admin))
+	}
+
+	oidc_provider := GetOIDCProvider()
+	huma.Get(api, "/api/oidc/authorize", oidc_provider.Auth)
+	huma.Get(api, "/api/oidc/callback", oidc_provider.Callback)
 
 	huma.Get(api, "/api/user/{id}", GetUser, setSecurity(user))
 	huma.Get(api, "/api/me", GetMe, setSecurity(user))
@@ -237,7 +243,6 @@ func RunKaraberus(app *fiber.App, api huma.API) {
 	}
 
 	ctx := context.WithValue(context.Background(), KaraberusInit{}, true)
-	addOidcRoutes(ctx, app)
 	initS3Clients(ctx)
 	init_db(ctx)
 
