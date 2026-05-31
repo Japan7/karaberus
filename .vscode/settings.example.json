@@ -17,7 +17,9 @@
   },
   "mesonbuild.configureOptions": [
     "--buildtype=debugoptimized",
-    "-Dno_native_deps=false"
+    "-Dbuiltin_oidc_env=false",
+    "-Dbuiltin_s3_env=false",
+    "-Dno_native_deps=true"
   ],
   "rust-analyzer.cargo.buildScripts.enable": false,
   "rust-analyzer.linkedProjects": ["ui/src-tauri/Cargo.toml"]
