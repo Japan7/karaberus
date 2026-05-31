@@ -100,7 +100,7 @@ export default function Sidebar(props: { closeDrawer: () => void }) {
         <p>
           Karaberus{" "}
           <a class="link" href={revision_url()}>
-            {import.meta.env.VITE_REVISION.substring(0, 8)}
+            {import.meta.env.VITE_REVISION?.substring(0, 8) ?? "unknown"}
           </a>
         </p>
       </div>
