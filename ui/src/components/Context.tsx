@@ -7,7 +7,7 @@ export const Context = createContext<{
 }>();
 
 export function Provider(props: { children?: JSX.Element }) {
-  let modalRef!: HTMLDialogElement;
+  let modalRef!: HTMLDialogElement; // eslint-disable-line no-unassigned-vars
   const [getModal, setModal] = createSignal<JSX.Element>();
 
   const [getToast, setToast] = createSignal<string>();

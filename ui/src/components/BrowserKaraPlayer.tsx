@@ -7,7 +7,7 @@ import { RELEASE_URL } from "../utils/tauri";
 export default function BrowserKaraPlayer(props: {
   kara: components["schemas"]["KaraInfoDB"];
 }) {
-  let playerRef!: HTMLVideoElement;
+  let playerRef!: HTMLVideoElement; // eslint-disable-line no-unassigned-vars
 
   let octopus: SubtitlesOctopus | undefined;
 

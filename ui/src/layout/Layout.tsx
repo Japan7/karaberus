@@ -9,7 +9,7 @@ import Sidebar from "./Sidebar";
 export default function Layout(props: RouteSectionProps) {
   const navigate = useNavigate();
 
-  let checkboxRef!: HTMLInputElement;
+  let checkboxRef!: HTMLInputElement; // eslint-disable-line no-unassigned-vars
 
   const infos = getSessionInfos();
 

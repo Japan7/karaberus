@@ -30,8 +30,8 @@ export default function Autocomplete<T>(
   const [getInput, setInput] = createSignal("");
   const [getFilteredItems, setFilteredItems] = createSignal(local.items);
 
-  let inputRef!: HTMLInputElement;
-  let dropdownRef!: HTMLDivElement;
+  let inputRef!: HTMLInputElement; // eslint-disable-line no-unassigned-vars
+  let dropdownRef!: HTMLDivElement; // eslint-disable-line no-unassigned-vars
 
   const filter = (query: string) => {
     if (!query) {
