@@ -38,7 +38,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: set go env (Windows)
         if: ${{ startsWith(matrix.os, 'windows') }}
@@ -102,7 +102,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: setup build cache
         uses: actions/cache@v5
@@ -162,7 +162,7 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Podman login
         uses: redhat-actions/podman-login@v1
