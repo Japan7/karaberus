@@ -4,7 +4,8 @@ go 1.26.0
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.37.3
-	github.com/gofiber/fiber/v2 v2.52.13
+	github.com/gofiber/fiber/v2 v2.52.12
+	github.com/gofiber/fiber/v3 v3.3.0
 	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/sync v0.21.0
@@ -40,7 +41,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
-	github.com/tinylib/msgp v1.6.1 // indirect
+	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	github.com/zitadel/logging v0.7.0 // indirect
 	github.com/zitadel/schema v1.3.2 // indirect
@@ -62,7 +63,7 @@ require (
 	github.com/ironsmile/nedomi v0.1.15
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/mattn/go-runewidth v0.0.23 // indirect
 	github.com/minio/minio-go/v7 v7.2.1
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
