@@ -81,20 +81,20 @@ func NewObjectBuf(obj io.ReadSeeker, size int64) ObjectBuf {
 	}
 }
 
-func stringForReportLevel(report C.karaberus_report) string {
+func stringForReportLevel(report C.dakara_check_diagnostic) string {
 	switch report.error_level {
-	case C.K_ERROR:
+	case C.DC_ERROR:
 		return "error: "
-	case C.K_WARNING:
+	case C.DC_WARNING:
 		return "warning: "
-	case C.K_INFO:
+	case C.DC_INFO:
 		return "info: "
 	default:
 		return ""
 	}
 }
 
-func stringForReport(report C.karaberus_report) string {
+func stringForReport(report C.dakara_check_diagnostic) string {
 	return stringForReportLevel(report) + C.GoString(report.message)
 }
 

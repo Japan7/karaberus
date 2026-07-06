@@ -13,29 +13,11 @@
 
 #define KARABERUS_BUFSIZE 1024 * 8
 
-enum KaraberusReports {
-  NO_VIDEO_STREAM,
-  NO_AUDIO_STREAM,
-  NO_DURATION_FOUND,
-  IO_ERROR,
-  INTERNAL_SUBS,
-};
-
-enum KaraberusErrorLevel {
-  K_INFO,
-  K_WARNING,
-  K_ERROR,
-};
-
-typedef struct {
-  enum KaraberusReports report_id;
-  enum KaraberusErrorLevel error_level;
-  const char *message;
-} karaberus_report;
+typedef struct dakara_check_diagnostic dakara_check_diagnostic;
 
 typedef struct {
   int32_t n_reports;
-  karaberus_report *reports;
+  dakara_check_diagnostic *reports;
   int32_t duration;
   bool failed;
 } karaberus_reports;

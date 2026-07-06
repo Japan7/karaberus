@@ -9,8 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-int karaberus_add_report(karaberus_reports *reports, karaberus_report report) {
-  if (report.error_level == K_ERROR)
+int karaberus_add_diagnostic(karaberus_reports *reports,
+                             struct dakara_check_diagnostic report) {
+  if (report.error_level == DC_ERROR)
     reports->failed = true;
 
   reports->reports =
@@ -38,37 +39,21 @@ karaberus_reports karaberus_dakara_check_avio(
 
   dakara_check_avio(KARABERUS_BUFSIZE, obj, read_packet, seek, &res);
 
-  if (video_stream) {
-    if (res.report.no_duration) {
-      karaberus_report report = {NO_DURATION_FOUND, K_ERROR,
-                                 "could not find duration of media file"};
-      karaberus_add_report(&reports, report);
-    } else {
-      reports.duration = res.duration;
-    }
-    if (res.report.no_video_stream) {
-      karaberus_report report = {NO_VIDEO_STREAM, K_ERROR,
-                                 "no video stream found"};
-      karaberus_add_report(&reports, report);
-    }
+  // print reports for now so they are at least readable somewhere
+  dakara_check_print_diagnostics(res.report, "minio object");
+
+  if (!res.report.no_duration) {
+    reports.duration = res.duration;
   }
 
-  if (res.report.no_audio_stream) {
-    karaberus_report report = {NO_AUDIO_STREAM, K_ERROR,
-                               "no audio stream found"};
-    karaberus_add_report(&reports, report);
+  struct dakara_check_diagnostic diagnostic;
+  while ((diagnostic = dakara_check_get_diagnostic(&res.report)).report_id !=
+         DC_DONE) {
+    if (!video_stream && !(diagnostic.report_id == DC_NO_DURATION_FOUND ||
+                           diagnostic.report_id == DC_NO_VIDEO_STREAM)) {
+      karaberus_add_diagnostic(&reports, diagnostic);
+    }
   }
-  if (res.report.io_error) {
-    karaberus_report report = {IO_ERROR, K_ERROR,
-                               "failed to read the media file"};
-    karaberus_add_report(&reports, report);
-  }
-  if (res.report.internal_sub_stream) {
-    karaberus_report report = {INTERNAL_SUBS, K_ERROR,
-                               "found an internal sub track"};
-    karaberus_add_report(&reports, report);
-  }
-  dakara_check_print_results(&res, "minio object");
 
   return reports;
 }
