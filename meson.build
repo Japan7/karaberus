@@ -11,7 +11,7 @@ project(
         'libass:default_library=shared',
         'ffmpeg:zlib=enabled',
         'fribidi:bin=false',
-        'c_std=gnu17',
+        'c_std=gnu23',
         'warning_level=2',
     ],
 )
