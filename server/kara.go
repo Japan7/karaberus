@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Media struct {
@@ -267,7 +266,7 @@ func GetKara(ctx context.Context, input *GetKaraInput) (*KaraOutput, error) {
 	db := GetDB(ctx)
 
 	kara_output := &KaraOutput{}
-	err := db.Scopes(CurrentKaras).Preload(clause.Associations).First(&kara_output.Body.Kara, input.Id).Error
+	err := db.Scopes(KaraAssociations, CurrentKaras).First(&kara_output.Body.Kara, input.Id).Error
 	return kara_output, DBErrToHumaErr(err)
 }
 
@@ -283,7 +282,7 @@ func DeleteKara(ctx context.Context, input *GetKaraInput) (*DeleteKaraResponse, 
 
 func GetKaraByID(db *gorm.DB, kara_id uint) (KaraInfoDB, error) {
 	kara := &KaraInfoDB{}
-	err := db.Preload(clause.Associations).First(kara, kara_id).Error
+	err := db.Scopes(KaraAssociations).First(kara, kara_id).Error
 	return *kara, err
 }
 
@@ -368,7 +367,7 @@ type GetKaraHistoryOutput struct {
 func GetKaraHistory(ctx context.Context, input *GetKaraInput) (*GetKaraHistoryOutput, error) {
 	out := &GetKaraHistoryOutput{}
 	db := GetDB(ctx)
-	err := db.Preload(clause.Associations).Where(&KaraInfoDB{CurrentKaraInfoID: &input.Id}).Find(&out.Body.History).Error
+	err := db.Scopes(KaraAssociations).Where(&KaraInfoDB{CurrentKaraInfoID: &input.Id}).Find(&out.Body.History).Error
 	if err != nil {
 		return nil, err
 	}
