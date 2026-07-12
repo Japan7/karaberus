@@ -1,8 +1,8 @@
 [wrap-file]
-directory = dakara_check-5.0.0
-source_url = https://github.com/Japan7/dakara_check/archive/5.0.0.tar.gz
-source_filename = dakara_check-5.0.0.tar.gz
-source_hash = 6af206e27bf63350bcdce6822226a1807088cbff26be76f8d364b7cb743e923c
+directory = dakara_check-5.1.0
+source_url = https://github.com/Japan7/dakara_check/archive/5.1.0.tar.gz
+source_filename = dakara_check-5.1.0.tar.gz
+source_hash = 0768f804150474d50c4abfbe7f6457453baf0d47f22ee3da7e545c6e9ecbd9ac
 
 [provide]
 dakara_check = dakara_check_dep

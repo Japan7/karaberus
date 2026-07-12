@@ -125,7 +125,7 @@ karaberus_tools_deps = []
 if not get_option('no_native_deps')
     dakara_check = dependency(
         'dakara_check',
-        version: '>=5.0.0',
+        version: '>=5.1.0',
         required: true,
         default_options: ['programs=false'],
     )

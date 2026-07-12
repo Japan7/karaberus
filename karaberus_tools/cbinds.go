@@ -15,8 +15,12 @@ package karaberus_tools
 int AVIORead(void *obj, uint8_t *buf, int n);
 int64_t AVIOSeek(void *obj, int64_t offset, int whence);
 
-static inline karaberus_reports karaberus_dakara_check(void *obj, bool video_stream) {
-  return karaberus_dakara_check_avio(obj, AVIORead, AVIOSeek, video_stream);
+static inline karaberus_reports karaberus_dakara_check(void *obj) {
+  return karaberus_dakara_check_avio(obj, AVIORead, AVIOSeek);
+}
+
+static inline karaberus_reports karaberus_dakara_inst_check(void *obj) {
+  return karaberus_dakara_inst_check_avio(obj, AVIORead, AVIOSeek);
 }
 */
 import "C"
@@ -103,7 +107,12 @@ func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheck
 	object_buf := NewObjectBuf(obj, size)
 	handle := cgo.NewHandle(object_buf)
 	defer handle.Delete()
-	res := C.karaberus_dakara_check(unsafe.Pointer(&handle), C.bool(video_stream))
+	var res C.karaberus_reports
+	if video_stream {
+		res = C.karaberus_dakara_check(unsafe.Pointer(&handle))
+	} else {
+		res = C.karaberus_dakara_inst_check(unsafe.Pointer(&handle))
+	}
 	defer C.free_reports(res)
 
 	messages := make([]string, res.n_reports)

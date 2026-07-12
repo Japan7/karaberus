@@ -27,9 +27,10 @@ int karaberus_add_diagnostic(karaberus_reports *reports,
   return 0;
 }
 
-karaberus_reports karaberus_dakara_check_avio(
-    void *obj, int (*read_packet)(void *, uint8_t *, int),
-    int64_t (*seek)(void *, int64_t, int), bool video_stream) {
+karaberus_reports
+karaberus_dakara_check_avio(void *obj,
+                            int (*read_packet)(void *, uint8_t *, int),
+                            int64_t (*seek)(void *, int64_t, int)) {
   dakara_check_results res;
   karaberus_reports reports;
   reports.n_reports = 0;
@@ -49,10 +50,36 @@ karaberus_reports karaberus_dakara_check_avio(
   struct dakara_check_diagnostic diagnostic;
   while ((diagnostic = dakara_check_get_diagnostic(&res.report)).report_id !=
          DC_DONE) {
-    if (!video_stream && !(diagnostic.report_id == DC_NO_DURATION_FOUND ||
-                           diagnostic.report_id == DC_NO_VIDEO_STREAM)) {
-      karaberus_add_diagnostic(&reports, diagnostic);
-    }
+    karaberus_add_diagnostic(&reports, diagnostic);
+  }
+
+  return reports;
+}
+
+karaberus_reports
+karaberus_dakara_inst_check_avio(void *obj,
+                                 int (*read_packet)(void *, uint8_t *, int),
+                                 int64_t (*seek)(void *, int64_t, int)) {
+  dakara_check_results res;
+  karaberus_reports reports;
+  reports.n_reports = 0;
+  reports.reports = NULL;
+  reports.duration = 0;
+  reports.failed = false;
+
+  dakara_check_inst_avio(KARABERUS_BUFSIZE, obj, read_packet, seek, &res);
+
+  // print reports for now so they are at least readable somewhere
+  dakara_check_print_diagnostics(res.report, "minio object");
+
+  if (!res.report.no_duration) {
+    reports.duration = res.duration;
+  }
+
+  struct dakara_check_diagnostic diagnostic;
+  while ((diagnostic = dakara_check_get_diagnostic(&res.report)).report_id !=
+         DC_DONE) {
+    karaberus_add_diagnostic(&reports, diagnostic);
   }
 
   return reports;
