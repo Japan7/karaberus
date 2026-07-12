@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type MediaType struct {
@@ -376,6 +377,14 @@ func (k KaraInfoDB) FriendlyName() string {
 	parts = append(parts, k.Title)
 
 	return strings.Join(parts, " – ")
+}
+
+// Load all KaraInfoDB associations
+func KaraAssociations(db *gorm.DB) *gorm.DB {
+	return db.Preload(clause.Associations).
+		Preload("Artists." + clause.Associations).
+		Preload("Medias." + clause.Associations).
+		Preload("SourceMedia." + clause.Associations)
 }
 
 // Filter out historic entries

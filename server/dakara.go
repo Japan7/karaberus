@@ -18,7 +18,6 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 func dakaraApiEndpoint(path string) string {
@@ -170,12 +169,26 @@ func dakaraGetWorkTypes(ctx context.Context) (map[string]*DakaraWorkType, error)
 }
 
 type DakaraWork struct {
-	ID                int                `json:"id"`
-	Title             string             `json:"title"`
-	Subtitle          string             `json:"subtitle"` // we ignore subtitles
-	AlternativeTitles []string           `json:"AlternativeTitles"`
-	WorkType          DakaraWorkTypeBody `json:"work_type"`
-	SongCount         int                `json:"song_count"`
+	ID                int                      `json:"id"`
+	Title             string                   `json:"title"`
+	Subtitle          string                   `json:"subtitle"` // we ignore subtitles
+	AlternativeTitles []DakaraAlternativeTitle `json:"alternative_titles"`
+	WorkType          DakaraWorkTypeBody       `json:"work_type"`
+	SongCount         int                      `json:"song_count"`
+}
+
+func (w DakaraWork) HasChanged(ref MediaDB) bool {
+	if len(w.AlternativeTitles) != len(ref.AdditionalNames) {
+		return true
+	}
+
+	for i, title := range w.AlternativeTitles {
+		if title.Title != ref.AdditionalNames[i].Name {
+			return true
+		}
+	}
+
+	return w.Title != ref.Name
 }
 
 type DakaraGetWorksResponse struct {
@@ -369,9 +382,24 @@ func dakaraAddWorkType(ctx context.Context, media_type MediaType) error {
 	return nil
 }
 
+type DakaraAlternativeTitle struct {
+	Title string `json:"title"`
+}
+
 type DakaraWorkBody struct {
-	Title    string             `json:"title"`
-	WorkType DakaraWorkTypeBody `json:"work_type"`
+	Title             string                   `json:"title"`
+	WorkType          DakaraWorkTypeBody       `json:"work_type"`
+	AlternativeTitles []DakaraAlternativeTitle `json:"alternative_titles"`
+}
+
+func dakaraDeleteWork(ctx context.Context, work_id int) error {
+	resp, err := dakaraDelete(ctx, fmt.Sprintf("/api/library/works/%d/", work_id))
+	if err != nil {
+		return err
+	}
+	defer Closer(resp.Body)
+
+	return nil
 }
 
 func dakaraAddWork(ctx context.Context, work DakaraWorkBody) error {
@@ -625,7 +653,7 @@ func SyncDakara(ctx context.Context) {
 	}
 
 	all_karas := []KaraInfoDB{}
-	err = db.Preload(clause.Associations).Scopes(UploadedKaras, CurrentKaras).Find(&all_karas).Error
+	err = db.Scopes(KaraAssociations, UploadedKaras, CurrentKaras).Find(&all_karas).Error
 	if err != nil {
 		getLogger().Println(err)
 		return
@@ -656,12 +684,27 @@ func SyncDakara(ctx context.Context) {
 
 	new_works := 0
 	for _, media := range all_medias {
-		if works[strings.ToLower(media.Type)][media.Name] == nil {
+		work := works[strings.ToLower(media.Type)][media.Name]
+		if work == nil || work.HasChanged(media) {
 			media_type := getMediaType(media.Type)
-			err = dakaraAddWork(ctx, DakaraWorkBody{
-				Title:    media.Name,
-				WorkType: dakaraWorkType(media_type),
-			})
+
+			alternative_titles := make([]DakaraAlternativeTitle, len(media.AdditionalNames))
+			for i, name := range media.AdditionalNames {
+				alternative_titles[i].Title = name.Name
+			}
+			body := DakaraWorkBody{
+				Title:             media.Name,
+				AlternativeTitles: alternative_titles,
+				WorkType:          dakaraWorkType(media_type),
+			}
+			if work != nil {
+				err = dakaraDeleteWork(ctx, work.ID)
+				if err != nil {
+					getLogger().Println(err)
+					return
+				}
+			}
+			err = dakaraAddWork(ctx, body)
 			if err != nil {
 				getLogger().Println(err)
 				return
