@@ -345,8 +345,7 @@ type DakaraWorkTypeBody struct {
 
 type DakaraWorkType struct {
 	DakaraWorkTypeBody
-	// not yet implemented in dakara-server
-	// ID int `json:"id"`
+	ID int `json:"id"`
 }
 
 func dakaraWorkType(media_type MediaType) DakaraWorkTypeBody {
@@ -529,24 +528,33 @@ func dakaraAddSong(ctx context.Context, song *DakaraSongBody) error {
 	return nil
 }
 
-// func worktypeShouldExist(worktype string) bool {
-// 	for _, media_type := range MediaTypes {
-// 		if strings.ToLower(media_type.ID) == worktype {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
+func DakaraDeleteWorkType(ctx context.Context, worktype DakaraWorkType) error {
+	resp, err := dakaraDelete(ctx, fmt.Sprintf("/api/library/work-types/%d/", worktype.ID))
+	if err != nil {
+		return err
+	}
+	defer Closer(resp.Body)
 
-// func cleanUpWorkTypes(worktypes []DakaraWorkType) error {
-// 	for _, worktype := range worktypes {
-// 		if !worktypeShouldExist(worktype.QueryName) {
-// 			// ID is missing from the work type struct
-// 			// return DakaraDeleteWorkType(ctx, worktype)
-// 		}
-// 	}
-// 	return nil
-// }
+	return nil
+}
+
+func worktypeShouldExist(worktype string) bool {
+	for _, media_type := range MediaTypes {
+		if strings.ToLower(media_type.ID) == worktype {
+			return true
+		}
+	}
+	return false
+}
+
+func cleanUpWorkTypes(ctx context.Context, worktypes map[string]*DakaraWorkType) error {
+	for _, worktype := range worktypes {
+		if !worktypeShouldExist(worktype.QueryName) {
+			return DakaraDeleteWorkType(ctx, *worktype)
+		}
+	}
+	return nil
+}
 
 func dakaraFilterAudioTags(audio_tags []AudioTag) []AudioTag {
 	out := []AudioTag{}
@@ -796,8 +804,10 @@ func SyncDakara(ctx context.Context) {
 	if err != nil {
 		getLogger().Println(err)
 	}
-
-	// cleanUpWorkTypes(worktypes)
+	err = cleanUpWorkTypes(ctx, worktypes)
+	if err != nil {
+		getLogger().Println(err)
+	}
 }
 
 func dakaraSongEndpoint(dakara_song_id int) string {
