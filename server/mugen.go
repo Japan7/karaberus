@@ -399,9 +399,6 @@ func SaveMugenResponseToS3(ctx context.Context, tx *gorm.DB, resp *http.Response
 var MugenDownloadSemaphore = semaphore.NewWeighted(5)
 
 func mugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) error {
-	if mugen_import.Kara.ID == 0 {
-		return errors.New("trying to download a karaoke that has ID 0")
-	}
 	err := MugenDownloadSemaphore.Acquire(ctx, 1)
 	if err != nil {
 		return err
@@ -521,7 +518,12 @@ func SyncMugen(ctx context.Context) {
 	getLogger().Printf("Syncing %d karaokes from Mugen", len(mugen_imports))
 
 	for _, mugen_import := range mugen_imports {
-		err = mugenDownload(ctx, db, mugen_import)
+		if mugen_import.KaraID != mugen_import.Kara.ID {
+			getLogger().Printf("deleting mugen import %s", mugen_import.MugenKID)
+			err = db.Delete(&mugen_import, mugen_import.MugenKID).Error
+		} else {
+			err = mugenDownload(ctx, db, mugen_import)
+		}
 		if err != nil {
 			getLogger().Println(err)
 		}
@@ -546,6 +548,15 @@ type DeleteMugenImportInput struct {
 
 type DeleteMugenImportOutput struct {
 	Status int
+}
+
+func deleteMugenImportForKara(tx *gorm.DB, kara_id uint) error {
+	kara_import := &MugenImport{KaraID: kara_id}
+	err := tx.Where(kara_import).Delete(kara_import).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func DeleteMugenImport(ctx context.Context, input *DeleteMugenImportInput) (*DeleteMugenImportOutput, error) {
