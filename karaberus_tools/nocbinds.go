@@ -4,7 +4,17 @@ package karaberus_tools
 
 import "io"
 
-func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheckResultsOutput {
+func DakaraCheckResultsVideo(obj io.ReadSeeker, size int64) DakaraCheckResultsOutput {
+	out := DakaraCheckResultsOutput{Passed: true}
+	return out
+}
+
+func DakaraCheckResultsNoVideo(obj io.ReadSeeker, size int64) DakaraCheckResultsOutput {
+	out := DakaraCheckResultsOutput{Passed: true}
+	return out
+}
+
+func DakaraCheckResultsInst(obj io.ReadSeeker, size int64) DakaraCheckResultsOutput {
 	out := DakaraCheckResultsOutput{Passed: true}
 	return out
 }

@@ -22,6 +22,10 @@ static inline karaberus_reports karaberus_dakara_check(void *obj) {
 static inline karaberus_reports karaberus_dakara_inst_check(void *obj) {
   return karaberus_dakara_inst_check_avio(obj, AVIORead, AVIOSeek);
 }
+
+static inline karaberus_reports karaberus_dakara_audio_check(void *obj) {
+  return karaberus_dakara_audio_check_avio(obj, AVIORead, AVIOSeek);
+}
 */
 import "C"
 import (
@@ -102,19 +106,7 @@ func stringForReport(report C.dakara_check_diagnostic) string {
 	return stringForReportLevel(report) + C.GoString(report.message)
 }
 
-func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheckResultsOutput {
-	video_stream := ftype == "video"
-	object_buf := NewObjectBuf(obj, size)
-	handle := cgo.NewHandle(object_buf)
-	defer handle.Delete()
-	var res C.karaberus_reports
-	if video_stream {
-		res = C.karaberus_dakara_check(unsafe.Pointer(&handle))
-	} else {
-		res = C.karaberus_dakara_inst_check(unsafe.Pointer(&handle))
-	}
-	defer C.free_reports(res)
-
+func getDakaraCheckResultOutput(res C.karaberus_reports) DakaraCheckResultsOutput {
 	messages := make([]string, res.n_reports)
 	reports := unsafe.Slice(res.reports, res.n_reports)
 	for i, report := range reports {
@@ -122,12 +114,41 @@ func DakaraCheckResults(obj io.ReadSeeker, ftype string, size int64) DakaraCheck
 	}
 
 	passed := !bool(res.failed)
-	out := DakaraCheckResultsOutput{
+	return DakaraCheckResultsOutput{
 		Passed:   passed,
 		Duration: int32(res.duration),
 		Messages: messages,
 	}
-	return out
+}
+
+func DakaraCheckResultsVideo(obj io.ReadSeeker, size int64) DakaraCheckResultsOutput {
+	object_buf := NewObjectBuf(obj, size)
+	handle := cgo.NewHandle(object_buf)
+	defer handle.Delete()
+	res := C.karaberus_dakara_check(unsafe.Pointer(&handle))
+	defer C.free_reports(res)
+
+	return getDakaraCheckResultOutput(res)
+}
+
+func DakaraCheckResultsInst(obj io.ReadSeeker, size int64) DakaraCheckResultsOutput {
+	object_buf := NewObjectBuf(obj, size)
+	handle := cgo.NewHandle(object_buf)
+	defer handle.Delete()
+	res := C.karaberus_dakara_inst_check(unsafe.Pointer(&handle))
+	defer C.free_reports(res)
+
+	return getDakaraCheckResultOutput(res)
+}
+
+func DakaraCheckResultsNoVideo(obj io.ReadSeeker, size int64) DakaraCheckResultsOutput {
+	object_buf := NewObjectBuf(obj, size)
+	handle := cgo.NewHandle(object_buf)
+	defer handle.Delete()
+	res := C.karaberus_dakara_audio_check(unsafe.Pointer(&handle))
+	defer C.free_reports(res)
+
+	return getDakaraCheckResultOutput(res)
 }
 
 func DakaraCheckSub(obj io.ReadSeeker, size int64) (DakaraCheckSubResultsOutput, error) {

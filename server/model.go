@@ -271,6 +271,7 @@ var VideoTags = []VideoTag{
 	{ID: "SPOILER", Name: "Spoiler", Hue: 20, MugenTags: []string{"24371984-5e4c-4485-a937-fb0c480ca23b"}},
 	{ID: "EPILEPSY", Name: "Epilepsy", Hue: 0, MugenTags: []string{"51288600-29e0-4e41-a42b-77f0498e5691"}},
 	{ID: "MV", Name: "Music Video", Hue: 120, MugenTags: []string{"7be1b15c-cff8-4b37-a649-5c90f3d569a9"}},
+	{ID: "NO_VIDEO", Name: "No Video", Hue: 180, MugenTags: []string{"c7db86a0-ff64-4044-9be4-66dd1ef1d1c1"}},
 }
 
 // Audio tags
@@ -379,12 +380,30 @@ func (k KaraInfoDB) FriendlyName() string {
 	return strings.Join(parts, " – ")
 }
 
+func (k KaraInfoDB) HasNoVideoTrack() bool {
+	for _, video_tag := range k.VideoTags {
+		if video_tag.ID == "NO_VIDEO" {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Load all KaraInfoDB associations
 func KaraAssociations(db *gorm.DB) *gorm.DB {
 	return db.Preload(clause.Associations).
 		Preload("Artists." + clause.Associations).
 		Preload("Medias." + clause.Associations).
 		Preload("SourceMedia." + clause.Associations)
+}
+
+func ImportAssociations(db *gorm.DB) *gorm.DB {
+	return db.Preload(clause.Associations).
+		Preload("Kara." + clause.Associations).
+		Preload("Kara.Artists." + clause.Associations).
+		Preload("Kara.Medias." + clause.Associations).
+		Preload("Kara.SourceMedia." + clause.Associations)
 }
 
 // Filter out historic entries

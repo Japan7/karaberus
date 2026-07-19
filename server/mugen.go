@@ -181,6 +181,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 	mugenTags := make([]mugen.MugenTag, 0)
 	mugenTags = append(mugenTags, k.SongTypes...)
 	mugenTags = append(mugenTags, k.Warnings...)
+	mugenTags = append(mugenTags, k.Collections...)
 
 	for _, mugen_tag := range mugenTags {
 		for _, video_tag := range VideoTags {
@@ -509,7 +510,7 @@ func MugenDownload(ctx context.Context, tx *gorm.DB, mugen_import MugenImport) {
 func SyncMugen(ctx context.Context) {
 	mugen_imports := []MugenImport{}
 	db := GetDB(ctx)
-	err := db.Preload(clause.Associations).Find(&mugen_imports).Error
+	err := db.Scopes(ImportAssociations).Find(&mugen_imports).Error
 	if err != nil {
 		getLogger().Println(err)
 		return

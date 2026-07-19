@@ -209,11 +209,22 @@ func SaveFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, fd io.Reader, ka
 
 func SaveTempFileToS3WithMetadata(ctx context.Context, tx *gorm.DB, tempfile UploadTempFile, kara *KaraInfoDB, type_directory string, user_metadata map[string]string) (*CheckKaraOutput, error) {
 	switch type_directory {
-	case "video", "inst":
-		res := karaberus_tools.DakaraCheckResults(tempfile.Fd, type_directory, tempfile.Size)
+	case "video":
+		var res karaberus_tools.DakaraCheckResultsOutput
+		if kara.HasNoVideoTrack() {
+			res = karaberus_tools.DakaraCheckResultsNoVideo(tempfile.Fd, tempfile.Size)
+		} else {
+			res = karaberus_tools.DakaraCheckResultsVideo(tempfile.Fd, tempfile.Size)
+		}
 		if !res.Passed {
 			return nil, res.Error()
 		}
+	case "inst":
+		res := karaberus_tools.DakaraCheckResultsInst(tempfile.Fd, tempfile.Size)
+		if !res.Passed {
+			return nil, res.Error()
+		}
+
 	case "sub":
 		res, err := karaberus_tools.DakaraCheckSub(tempfile.Fd, tempfile.Size)
 		if err != nil {
@@ -265,7 +276,12 @@ func CheckKara(ctx context.Context, kara KaraInfoDB) (*CheckKaraOutput, error) {
 		if err != nil {
 			return nil, err
 		}
-		video_check_res := CheckS3Video(ctx, obj, stat.Size)
+		var video_check_res karaberus_tools.DakaraCheckResultsOutput
+		if kara.HasNoVideoTrack() {
+			video_check_res = CheckS3NoVideo(ctx, obj, stat.Size)
+		} else {
+			video_check_res = CheckS3Video(ctx, obj, stat.Size)
+		}
 		if !video_check_res.Passed {
 			return nil, fmt.Errorf("checks failed for kara %d:\n%s", kara.ID, video_check_res.Error())
 		}
@@ -358,12 +374,17 @@ func GetKaraLyrics(ctx context.Context, kara KaraInfoDB) (string, error) {
 }
 
 func CheckS3Video(ctx context.Context, obj io.ReadSeeker, size int64) karaberus_tools.DakaraCheckResultsOutput {
-	res := karaberus_tools.DakaraCheckResults(obj, "video", size)
+	res := karaberus_tools.DakaraCheckResultsVideo(obj, size)
 	return res
 }
 
 func CheckS3Inst(ctx context.Context, obj io.ReadSeeker, size int64) karaberus_tools.DakaraCheckResultsOutput {
-	res := karaberus_tools.DakaraCheckResults(obj, "inst", size)
+	res := karaberus_tools.DakaraCheckResultsInst(obj, size)
+	return res
+}
+
+func CheckS3NoVideo(ctx context.Context, obj io.ReadSeeker, size int64) karaberus_tools.DakaraCheckResultsOutput {
+	res := karaberus_tools.DakaraCheckResultsNoVideo(obj, size)
 	return res
 }
 

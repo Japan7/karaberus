@@ -30,6 +30,10 @@ karaberus_reports karaberus_dakara_inst_check_avio(
     void *obj, int (*read_packet)(void *, uint8_t *, int),
     int64_t (*seek)(void *, int64_t, int));
 
+karaberus_reports karaberus_dakara_audio_check_avio(
+    void *obj, int (*read_packet)(void *, uint8_t *, int),
+    int64_t (*seek)(void *, int64_t, int));
+
 void free_reports(karaberus_reports reports);
 
 typedef struct {
