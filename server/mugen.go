@@ -57,12 +57,14 @@ func getMugenMedia(tx *gorm.DB, tag mugen.MugenTag, origins []mugen.MugenTag, co
 			}
 		}
 	}
-	// if we still didn't find it and it's not animated could it be live action, perchance?
-	if media_type == nil && !is_animation {
-		media_type = &LIVE_TYPE
-	}
 	if media_type == nil {
-		return errors.New("could not guess media type for media " + tag.Name)
+		if is_animation {
+			// if we still didn't find it and it's animated it’s an anime, for sure.
+			media_type = &ANIME_TYPE
+		} else {
+			// if we still didn't find it and it's not animated could it be live action, perchance?
+			media_type = &LIVE_TYPE
+		}
 	}
 
 	additional_names := []string{}
