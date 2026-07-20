@@ -183,7 +183,7 @@ func mugenKaraToKaraInfoDB(tx *gorm.DB, k mugen.Kara, kara_info *KaraInfoDB) err
 	mugenTags := make([]mugen.MugenTag, 0)
 	mugenTags = append(mugenTags, k.SongTypes...)
 	mugenTags = append(mugenTags, k.Warnings...)
-	mugenTags = append(mugenTags, k.Collections...)
+	mugenTags = append(mugenTags, k.SongTypes...)
 
 	for _, mugen_tag := range mugenTags {
 		for _, video_tag := range VideoTags {
