@@ -62,7 +62,7 @@ type Kara struct {
 	Platforms            []MugenTag        `json:"platforms"`
 	Versions             []MugenTag        `json:"versions"`
 	Warnings             []MugenTag        `json:"warnings"`
-	Collections          []MugenTag        `json:"Collections"`
+	Collections          []MugenTag        `json:"collections"`
 	SingerGroups         []MugenTag        `json:"singergroups"`
 	Franchises           []MugenTag        `json:"franchises"`
 	Comment              string            `json:"comment"`
