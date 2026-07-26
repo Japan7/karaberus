@@ -130,7 +130,7 @@ jobs:
 
       - name: Build image
         id: build-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           platforms: ${{ matrix.config.platform }}
           image: ${{ env.IMAGE_NAME }}
