@@ -165,7 +165,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Podman login
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
