@@ -1,4 +1,4 @@
-import SubtitlesOctopus from "libass-wasm";
+import SubtitlesOctopus from "@jellyfin/libass-wasm";
 import { onCleanup, Show } from "solid-js";
 import type { components } from "../utils/karaberus";
 import { apiUrl } from "../utils/karaberus-client";

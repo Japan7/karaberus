@@ -15,10 +15,12 @@ export default defineConfig(({ mode }) => {
           {
             src: "node_modules/@fontsource/amaranth/files/*",
             dest: "amaranth",
+            rename: { stripBase: true },
           },
           {
-            src: "node_modules/libass-wasm/dist/js/*",
+            src: "node_modules/@jellyfin/libass-wasm/dist/js/*",
             dest: "libass-wasm",
+            rename: { stripBase: true },
           },
         ],
       }),
