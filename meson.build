@@ -423,6 +423,7 @@ if get_option('s3_tests').enabled()
         args: [files('tests' / 'tests.py')],
         env: go_test_env,
         timeout: 300,
+        depends: [karaberus_ui, karaberus, zitadel_karaberus, gofakes3],
     )
 endif
 
