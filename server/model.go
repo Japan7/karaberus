@@ -470,9 +470,11 @@ func UploadHookGitlab(tx *gorm.DB, ki *KaraInfoDB) error {
 			return err
 		}
 
-		err = createGitlabIssue(tx.Statement.Context, tx, *ki, mugen_export)
-		if err != nil {
-			getLogger().Println(err)
+		if isNewKaraUpdate(tx) {
+			err = createGitlabIssue(tx.Statement.Context, tx, *ki, mugen_export)
+			if err != nil {
+				getLogger().Println(err)
+			}
 		}
 	}
 
