@@ -432,6 +432,15 @@ class TestKaraberus(unittest.TestCase):
         except HTTPError as e:
             self.assertEqual(e.status, 304)
 
+    def test_libass(self) -> None:
+        out = self.karaberus.get("/libass-wasm/subtitles-octopus-worker.js")
+        self.assertEqual(out.status, 200)
+        self.assertEqual(out.headers["Content-Type"], "text/javascript")
+
+        out = self.karaberus.get("/libass-wasm/subtitles-octopus-worker-legacy.js")
+        self.assertEqual(out.status, 200)
+        self.assertEqual(out.headers["Content-Type"], "text/javascript")
+
 
 if __name__ == "__main__":
     _ = unittest.main()
