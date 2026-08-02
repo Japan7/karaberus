@@ -556,6 +556,10 @@ type MugenImport struct {
 	MugenKID uuid.UUID `gorm:"primarykey"`
 	KaraID   uint
 	Kara     KaraInfoDB `gorm:"foreignKey:KaraID;references:ID;constraint:OnDelete:CASCADE"`
+	// True if files should be imported
+	Files bool `gorm:"default:true"`
+	// True if metadata should be imported
+	Metadata bool `gorm:"default:true"`
 }
 
 type MugenExport struct {

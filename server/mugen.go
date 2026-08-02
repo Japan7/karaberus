@@ -524,11 +524,17 @@ func SyncMugen(ctx context.Context) {
 		if mugen_import.KaraID != mugen_import.Kara.ID {
 			getLogger().Printf("deleting mugen import %s", mugen_import.MugenKID)
 			err = db.Delete(&mugen_import, mugen_import.MugenKID).Error
-		} else {
-			err = mugenDownload(ctx, db, mugen_import)
+			if err != nil {
+				getLogger().Println(err)
+			}
+			continue
 		}
-		if err != nil {
-			getLogger().Println(err)
+
+		if mugen_import.Files {
+			err = mugenDownload(ctx, db, mugen_import)
+			if err != nil {
+				getLogger().Println(err)
+			}
 		}
 	}
 }
@@ -553,9 +559,18 @@ type DeleteMugenImportOutput struct {
 	Status int
 }
 
-func deleteMugenImportForKara(tx *gorm.DB, kara_id uint) error {
+func disableMugenFileImportForKara(tx *gorm.DB, kara_id uint) error {
 	kara_import := &MugenImport{KaraID: kara_id}
-	err := tx.Where(kara_import).Delete(kara_import).Error
+	err := tx.Model(&kara_import).Where(kara_import).Update("files", false).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func disableMugenMetadataImportForKara(tx *gorm.DB, kara_id uint) error {
+	kara_import := &MugenImport{KaraID: kara_id}
+	err := tx.Model(&kara_import).Where(kara_import).Update("metadata", false).Error
 	if err != nil {
 		return err
 	}

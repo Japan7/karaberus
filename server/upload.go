@@ -203,7 +203,7 @@ func UploadKaraFile(ctx context.Context, input *UploadInput) (*UploadOutput, err
 		resp.Body.CheckResults = *res
 		resp.Body.KID = input.KID
 
-		err = deleteMugenImportForKara(tx, input.KID)
+		err = disableMugenFileImportForKara(tx, input.KID)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}

@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -228,6 +229,10 @@ func updateKara(tx *gorm.DB, kara *KaraInfoDB) error {
 	}
 	err = tx.Model(&kara).Association("ExtraTitles").Replace(&kara.ExtraTitles)
 	if err != nil {
+		return err
+	}
+	err = disableMugenMetadataImportForKara(tx, kara.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 	return nil
