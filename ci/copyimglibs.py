@@ -30,9 +30,9 @@
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
-import shutil
 from dataclasses import dataclass
 
 
@@ -48,7 +48,7 @@ objdump_parser = re.compile(r"^\s*(NEEDED|RUNPATH)\s*(\S*)\s*$")
 def objdump(file: pathlib.Path) -> ObjDumpResult:
     objdump_bin = os.environ.get("OBJDUMP", "objdump")
     cmd = [objdump_bin, "-p", str(file)]
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
 
     runpath: list[pathlib.Path] = []
     shared_libs: list[str] = []
@@ -145,7 +145,7 @@ def main(dest_dir: pathlib.Path, *files: pathlib.Path):
             print(f"{dest_file} already exists")
             continue
 
-        shutil.copy(file, dest_file)
+        _ = shutil.copy(file, dest_file)
         print(f"{file} → {dest_file}")
 
 
