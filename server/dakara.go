@@ -280,22 +280,44 @@ type DakaraLyricsPreview struct {
 	Truncated bool   `json:"truncated"`
 }
 
+type InstrumentalFileType struct {
+	File  string
+	Track int
+}
+
+func (i *InstrumentalFileType) UnmarshalJSON(b []byte) error {
+	if len(b) > 1 && b[0] == '"' && b[len(b)-1] == '"' {
+		return json.Unmarshal(b, &i.File)
+	}
+
+	err := json.Unmarshal(b, &i.Track)
+	if err == nil {
+		return nil
+	}
+
+	return errors.New("has_instrumental is not a valid type (string or int)")
+}
+
+func (i *InstrumentalFileType) Is(filename string) bool {
+	return i.File == filename && i.Track == 0
+}
+
 type DakaraSong struct {
-	ID              int                 `json:"id"`
-	Title           string              `json:"title"`
-	Filename        string              `json:"filename"` // basically our ID
-	Duration        int32               `json:"duration"`
-	Directory       string              `json:"directory"`
-	Version         string              `json:"version"`
-	Detail          string              `json:"detail"`
-	DetailVideo     string              `json:"detail_video"`
-	Tags            []DakaraTag         `json:"tags"`
-	Artists         []DakaraArtist      `json:"artists"`
-	Works           []DakaraSongWork    `json:"works"`
-	LyricsPreview   DakaraLyricsPreview `json:"lyrics_preview"`
-	HasInstrumental bool                `json:"has_instrumental"`
-	DateCreated     time.Time           `json:"date_created"`
-	DateUpdated     time.Time           `json:"date_updated"`
+	ID            int                  `json:"id"`
+	Title         string               `json:"title"`
+	Filename      string               `json:"filename"` // basically our ID
+	Duration      int32                `json:"duration"`
+	Directory     string               `json:"directory"`
+	Version       string               `json:"version"`
+	Detail        string               `json:"detail"`
+	DetailVideo   string               `json:"detail_video"`
+	Tags          []DakaraTag          `json:"tags"`
+	Artists       []DakaraArtist       `json:"artists"`
+	Works         []DakaraSongWork     `json:"works"`
+	LyricsPreview DakaraLyricsPreview  `json:"lyrics_preview"`
+	Instrumental  InstrumentalFileType `json:"has_instrumental"`
+	DateCreated   time.Time            `json:"date_created"`
+	DateUpdated   time.Time            `json:"date_updated"`
 }
 
 type DakaraGetSongsResponse struct {
@@ -455,18 +477,19 @@ type DakaraSongWork struct {
 }
 
 type DakaraSongBody struct {
-	Title           string           `json:"title"`
-	Filename        string           `json:"filename"` // basically our ID
-	Duration        int32            `json:"duration"`
-	Directory       string           `json:"directory"`
-	Version         string           `json:"version"`
-	Detail          string           `json:"detail"`
-	DetailVideo     string           `json:"detail_video"`
-	Tags            []DakaraTag      `json:"tags"`
-	Artists         []DakaraArtist   `json:"artists"`
-	Works           []DakaraSongWork `json:"works"`
-	Lyrics          string           `json:"lyrics"`
-	HasInstrumental bool             `json:"has_instrumental"`
+	Title             string           `json:"title"`
+	Filename          string           `json:"filename"` // basically our ID
+	Duration          int32            `json:"duration"`
+	Directory         string           `json:"directory"`
+	Version           string           `json:"version"`
+	Detail            string           `json:"detail"`
+	DetailVideo       string           `json:"detail_video"`
+	Tags              []DakaraTag      `json:"tags"`
+	Artists           []DakaraArtist   `json:"artists"`
+	Works             []DakaraSongWork `json:"works"`
+	Lyrics            string           `json:"lyrics"`
+	InstrumentalFile  string           `json:"instrumental_file,omitempty"`
+	InstrumentalTrack *int             `json:"instrumental_track"`
 }
 
 func getLinkTypeNumber(n *uint) uint {
@@ -539,7 +562,7 @@ func (body DakaraSongBody) HasChanged(ref DakaraSong) bool {
 		body.Version != ref.Version ||
 		body.Detail != ref.Detail ||
 		body.DetailVideo != ref.DetailVideo ||
-		body.HasInstrumental != ref.HasInstrumental ||
+		ref.Instrumental.Is(body.InstrumentalFile) ||
 		possibly_truncated_lyrics != ref.LyricsPreview.Text ||
 		!tags_equal ||
 		!artists_equal ||
@@ -1013,19 +1036,25 @@ func createDakaraSongBody(ctx context.Context, kara KaraInfoDB, dakara_tags map[
 		version = strings.Trim(kara.Version, " \n")
 	}
 
+	instrumental_file := ""
+	if kara.InstrumentalUploaded {
+		instrumental_file = kara.AudioFilename()
+	}
+
 	return &DakaraSongBody{
-		Title:           kara.Title,
-		Filename:        kara.VideoFilename(),
-		Duration:        kara.Duration,
-		Directory:       "",
-		Version:         version,
-		Detail:          strings.Trim(comment, " \n"),
-		DetailVideo:     "",
-		Tags:            tags,
-		Artists:         artists,
-		Works:           works,
-		Lyrics:          lyrics,
-		HasInstrumental: kara.InstrumentalUploaded,
+		Title:             kara.Title,
+		Filename:          kara.VideoFilename(),
+		Duration:          kara.Duration,
+		Directory:         "",
+		Version:           version,
+		Detail:            strings.Trim(comment, " \n"),
+		DetailVideo:       "",
+		Tags:              tags,
+		Artists:           artists,
+		Works:             works,
+		Lyrics:            lyrics,
+		InstrumentalFile:  instrumental_file,
+		InstrumentalTrack: nil,
 	}, nil
 }
 
