@@ -31,6 +31,12 @@ c_compiler = meson.get_compiler('c')
 # go build env
 go_env = environment()
 go_test_env = environment()
+
+# reduce go build procs to 1 core
+# meson/ninja already parallelizes build steps so the default (number of cpu
+# cores) can easily overwhelm the system
+go_env.set('GOMAXPROCS', '1')
+
 if get_option('no_native_deps')
     go_env.set('CGO_ENABLED', '0')
     go_test_env.set('NO_NATIVE_DEPS', '1')
