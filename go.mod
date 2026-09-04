@@ -4,7 +4,8 @@ go 1.26.0
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.37.3
-	github.com/gofiber/fiber/v2 v2.52.15
+	github.com/gofiber/fiber/v2 v2.52.12
+	github.com/gofiber/fiber/v3 v3.5.0
 	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/sync v0.22.0
@@ -57,8 +58,8 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/ironsmile/nedomi v0.1.15
 	github.com/klauspost/compress v1.19.2 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/mattn/go-colorable v0.1.15 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.23 // indirect
 	github.com/minio/minio-go/v7 v7.3.0
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
