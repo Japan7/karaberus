@@ -24,7 +24,7 @@
     "@tauri-apps/plugin-store": "2.4.4",
     "@tauri-apps/plugin-updater": "2.11.0",
     "fuse.js": "7.5.0",
-    "jose": "6.2.11",
+    "jose": "6.2.12",
     "openapi-fetch": "0.17.0",
     "solid-icons": "1.2.0",
     "solid-js": "1.9.15",
