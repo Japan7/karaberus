@@ -24,7 +24,7 @@
     "ghcr.io/devcontainers/features/python:1": {
       "toolsToInstall": "meson,ninja"
     },
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/node:2": {}
   },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
