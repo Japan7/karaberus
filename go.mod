@@ -66,6 +66,6 @@ require (
 	github.com/valyala/fasthttp v1.74.0
 	github.com/zitadel/oidc/v3 v3.51.0
 	golang.org/x/sys v0.47.0 // indirect
-	gorm.io/driver/postgres v1.6.2
+	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
 )
