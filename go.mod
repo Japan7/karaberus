@@ -64,7 +64,7 @@ require (
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.75.0
-	github.com/zitadel/oidc/v3 v3.51.11
+	github.com/zitadel/oidc/v3 v3.51.14
 	golang.org/x/sys v0.48.0 // indirect
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
