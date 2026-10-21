@@ -1,13 +1,21 @@
 module github.com/Japan7/karaberus
 
-go 1.26.0
+go 1.27.0
 
 require (
 	github.com/danielgtaylor/huma/v2 v2.37.3
 	github.com/gofiber/fiber/v2 v2.52.15
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
+	github.com/ironsmile/nedomi v0.1.15
+	github.com/minio/minio-go/v7 v7.4.1
+	github.com/ncruces/go-sqlite3/gormlite v0.34.0
 	github.com/spf13/cobra v1.10.2
+	github.com/valyala/fasthttp v1.76.0
+	github.com/zitadel/oidc/v3 v3.51.16
 	golang.org/x/sync v0.24.0
+	gorm.io/driver/postgres v1.6.3
+	gorm.io/gorm v1.31.2
 )
 
 require (
@@ -26,8 +34,12 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
+	github.com/mattn/go-colorable v0.1.15 // indirect
+	github.com/mattn/go-isatty v0.0.22 // indirect
+	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/molecule-man/go-brrr v1.3.0 // indirect
@@ -39,6 +51,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	github.com/zitadel/schema v1.3.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
@@ -49,23 +62,7 @@ require (
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
-)
-
-require (
-	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/ironsmile/nedomi v0.1.15
-	github.com/klauspost/compress v1.20.3 // indirect
-	github.com/mattn/go-colorable v0.1.15 // indirect
-	github.com/mattn/go-isatty v0.0.22 // indirect
-	github.com/mattn/go-runewidth v0.0.24 // indirect
-	github.com/minio/minio-go/v7 v7.4.1
-	github.com/ncruces/go-sqlite3/gormlite v0.34.0
-	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.76.0
-	github.com/zitadel/oidc/v3 v3.51.16
-	golang.org/x/sys v0.49.0 // indirect
-	gorm.io/driver/postgres v1.6.3
-	gorm.io/gorm v1.31.2
 )

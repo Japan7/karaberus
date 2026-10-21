@@ -448,24 +448,9 @@ if get_option('test')
     )
 
     if get_option('golangci-lint')
-        custom_gcl_conf = fs.copyfile('.custom-gcl.yml')
-
-        custom_gcl = custom_target(
-            'custom_gcl',
-            command: [
-                golangci_lint,
-                'custom',
-                '-v',
-                '--destination',
-                '@BUILD_ROOT@',
-            ],
-            output: 'custom-gcl-karaberus',
-            depends: custom_gcl_conf,
-        )
-
         test(
             'golangci_lint',
-            custom_gcl,
+            golangci_lint,
             args: ['run'],
             depends: karaberus,
             env: go_env,
