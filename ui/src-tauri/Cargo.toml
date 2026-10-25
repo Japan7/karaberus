@@ -31,4 +31,4 @@ async-std = "=1.13.2"
 tauri-plugin-updater = "=2.14.0"
 tauri-plugin-shell = "=2.5.0"
 fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
-interprocess = "=2.4.6"
+interprocess = "=2.4.7"
