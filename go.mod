@@ -11,7 +11,7 @@ require (
 	github.com/minio/minio-go/v7 v7.4.1
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
 	github.com/spf13/cobra v1.10.2
-	github.com/valyala/fasthttp v1.77.0
+	github.com/valyala/fasthttp v1.78.0
 	github.com/zitadel/oidc/v3 v3.51.17
 	golang.org/x/sync v0.25.0
 	gorm.io/driver/postgres v1.6.3
@@ -42,7 +42,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.24 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/molecule-man/go-brrr v1.3.0 // indirect
+	github.com/molecule-man/go-brrr v1.3.1 // indirect
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/ncruces/go-sqlite3 v0.34.0 // indirect
 	github.com/ncruces/go-sqlite3-wasm/v2 v2.1.35300 // indirect
