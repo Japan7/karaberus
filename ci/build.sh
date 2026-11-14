@@ -16,13 +16,14 @@ meson setup --reconfigure "${BUILDDIR}" /karaberus --buildtype release -Dbuiltin
 [ "$1" = "--tests" ] && meson test -C "${BUILDDIR}" --verbose
 meson install -C "${BUILDDIR}" --tags runtime
 
-mkdir ${IMAGE}/tmp
-chmod 1777 ${IMAGE}/tmp
+mkdir "${IMAGE}/tmp"
+chmod 1777 "${IMAGE}/tmp"
 
-SYSROOT=${SYSROOT} /karaberus/ci/copyimglibs.py ${IMAGE} ${IMAGE}/bin/karaberus
-if [ -d "${SYSROOT}/lib64" ]; then
-    mkdir -p ${IMAGE}/lib64
-    ln ${IMAGE}/lib/ld-* ${IMAGE}/lib64/
-fi
+SYSROOT=${SYSROOT} /karaberus/ci/copyimglibs.py "${IMAGE}" "${IMAGE}/bin/karaberus"
+
+cp /etc/ld.so.conf "${IMAGE}/etc/ld.so.conf"
+cp -r /etc/ld.so.conf.d "${IMAGE}/etc/ld.so.conf.d"
+
+ldconfig -r "${IMAGE}"
 
 golangci-lint cache status
