@@ -21,8 +21,7 @@ chmod 1777 "${IMAGE}/tmp"
 
 SYSROOT=${SYSROOT} /karaberus/ci/copyimglibs.py "${IMAGE}" "${IMAGE}/bin/karaberus"
 
-mkdir -p "${IMAGE}/lib64"
-ln "{IMAGE}/lib/*" "{IMAGE}/lib64/"
+ln -s "lib" "${IMAGE}/lib64"
 
 cp /etc/ld.so.conf "${IMAGE}/etc/ld.so.conf"
 cp -r /etc/ld.so.conf.d "${IMAGE}/etc/ld.so.conf.d"
