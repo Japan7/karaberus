@@ -12,7 +12,7 @@ require (
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
 	github.com/spf13/cobra v1.10.2
 	github.com/valyala/fasthttp v1.78.0
-	github.com/zitadel/oidc/v3 v3.51.17
+	github.com/zitadel/oidc/v3 v3.52.0
 	golang.org/x/sync v0.25.0
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2
@@ -23,7 +23,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.6 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.9 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -62,7 +62,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
-	golang.org/x/oauth2 v0.37.0 // indirect
+	golang.org/x/oauth2 v0.38.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/text v0.44.0 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
