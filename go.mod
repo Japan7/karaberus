@@ -11,7 +11,7 @@ require (
 	github.com/minio/minio-go/v7 v7.4.1
 	github.com/ncruces/go-sqlite3/gormlite v0.34.0
 	github.com/spf13/cobra v1.10.2
-	github.com/valyala/fasthttp v1.78.0
+	github.com/valyala/fasthttp v1.79.0
 	github.com/zitadel/oidc/v3 v3.52.0
 	golang.org/x/sync v0.25.0
 	gorm.io/driver/postgres v1.6.3
@@ -34,7 +34,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/klauspost/compress v1.20.3 // indirect
+	github.com/klauspost/compress v1.20.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
