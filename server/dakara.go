@@ -327,7 +327,7 @@ type DakaraGetSongsResponse struct {
 
 func dakaraGetSongs(ctx context.Context) (map[string]*DakaraSong, error) {
 	page := 1
-	worktypes := map[string]*DakaraSong{}
+	songs := map[string]*DakaraSong{}
 
 	for {
 		resp, err := dakaraGet(ctx, "/api/library/songs/", page)
@@ -342,8 +342,16 @@ func dakaraGetSongs(ctx context.Context) (map[string]*DakaraSong, error) {
 		if err != nil {
 			return nil, err
 		}
-		for _, worktype := range data.Results {
-			worktypes[worktype.Filename] = &worktype
+		for _, song := range data.Results {
+    		if songs[song.Filename] != nil {
+        		getLogger().Printf("deleting duplicate dakara song %d (%s)", song.ID, song.Filename)
+				err = deleteDakaraSong(ctx, &song)
+				if err != nil {
+            		getLogger().Printf("failed to delete duplicate dakara song %d", song.ID)
+				}
+    		} else {
+    			songs[song.Filename] = &song
+    		}
 		}
 
 		if data.Pagination.Current == data.Pagination.Last {
@@ -352,7 +360,7 @@ func dakaraGetSongs(ctx context.Context) (map[string]*DakaraSong, error) {
 		page++
 	}
 
-	return worktypes, nil
+	return songs, nil
 }
 
 type DakaraArtistBody struct {
