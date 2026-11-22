@@ -919,7 +919,7 @@ func cleanUpDakaraSongs(ctx context.Context, songs map[string]*DakaraSong) error
 		}
 
 		kara := &KaraInfoDB{}
-		err = db.Scopes(UploadedKaras).First(kara, id).Error
+		err = db.Scopes(UploadedKaras, CurrentKaras).First(kara, id).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// We don't know this karaoke (deleted or never existed)
