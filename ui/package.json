@@ -14,7 +14,7 @@
   "dependencies": {
     "@fontsource/amaranth": "5.3.0",
     "@jellyfin/libass-wasm": "4.2.4",
-    "@solid-primitives/scheduled": "1.5.3",
+    "@solid-primitives/scheduled": "2.0.0",
     "@solid-primitives/storage": "4.4.0",
     "@solidjs/router": "0.16.3",
     "@tauri-apps/api": "2.12.5",
