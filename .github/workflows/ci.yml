@@ -94,11 +94,11 @@ jobs:
           - arch: x86_64
             platform: linux/amd64
             target: ""
-            runner: ubuntu-24.04
+            runner: ubuntu-26.04
           - arch: aarch64
             platform: linux/arm64
             target: ""
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-26.04-arm
 
     steps:
       - name: Checkout repository
@@ -179,7 +179,7 @@ jobs:
 
           podman manifest create ${image_base}
 
-          archs="${{ env.ARCHS }}"
+          archs="${{ env.ARCHS }}"
 
           for arch in ${archs}; do
             podman pull ${{ env.REGISTRY }}/${image_base_sha}-${arch}
